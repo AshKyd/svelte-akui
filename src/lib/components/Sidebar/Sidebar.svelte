@@ -164,16 +164,13 @@
 		}
 
 		.akui-sidebar-backdrop {
-			position: fixed;
+			position: absolute;
 			top: 0;
 			bottom: 0;
 			left: 0;
 			right: 0;
 			background: rgba(0, 0, 0, 0.4);
 			z-index: 15;
-			width: 100vw;
-			height: 100vh;
-			transform: translateX(calc(-1 * var(--sidebar-width)));
 		}
 
 		:global(body) {
