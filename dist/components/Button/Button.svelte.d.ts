@@ -1,0 +1,26 @@
+import { type Snippet } from 'svelte';
+interface Props {
+    /** Is this the principal call to action? */
+    variant?: 'regular' | 'accent';
+    /** How large should the button be? */
+    size?: 'small' | 'medium' | 'large';
+    /** Button contents (ignored if iconPosition is 'only') */
+    label?: string;
+    /** The name of the icon to display */
+    icon?: string;
+    /** Where to place the icon relative to the text */
+    iconPosition?: 'left' | 'right' | 'only';
+    /** The content to render inside the button (overrides label) */
+    children?: Snippet;
+    /** The onclick event handler */
+    onclick?: (event: MouseEvent) => void;
+    /** Additional CSS classes for the button. */
+    class?: string;
+    /** Bindable reference to the underlying button element. */
+    element?: HTMLButtonElement;
+    /** Spread remaining attributes to the button element. */
+    [key: string]: unknown;
+}
+declare const Button: import("svelte").Component<Props, {}, "element">;
+type Button = ReturnType<typeof Button>;
+export default Button;
