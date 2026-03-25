@@ -19,6 +19,8 @@
 		onclick?: (event: MouseEvent) => void;
 		/** Additional CSS classes for the button. */
 		class?: string;
+		/** Bindable reference to the underlying button element. */
+		element?: HTMLButtonElement;
 		/** Spread remaining attributes to the button element. */
 		[key: string]: any;
 	}
@@ -32,6 +34,7 @@
 		children,
 		onclick,
 		class: className = '',
+		element = $bindable(),
 		...rest
 	}: Props = $props();
 
@@ -44,6 +47,7 @@
 		? 'icon-only'
 		: ''} {className}"
 	aria-label={isIconOnly ? label : undefined}
+	bind:this={element}
 	{onclick}
 	{...rest}
 >

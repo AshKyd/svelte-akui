@@ -1,10 +1,9 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Menu from './Menu.svelte';
-	import MenuButton from './MenuButton.svelte';
-	import Padding from '../Padding/Padding.svelte';
+	import { Menu, MenuItem, MenuContent, MenuDivider } from './index.js';
 	import ButtonGroup from '../ButtonGroup/ButtonGroup.svelte';
 	import MenuDemo from './MenuDemo.svelte';
+	import Button from '../Button/Button.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Menu',
@@ -13,7 +12,6 @@
 </script>
 
 <script lang="ts">
-	import Button from '../Button/Button.svelte';
 	let showMobile = $state(false);
 	let showLarge = $state(false);
 </script>
@@ -31,17 +29,18 @@
 		</Button>
 
 		{#if showMobile}
-			<Menu forceMobile={true} showBackdrop={true} onClose={() => (showMobile = false)}>
-				<MenuButton icon="share" label="Share" />
-				<MenuButton icon="link-45deg" label="Copy Link" />
-				<Padding size="m">
+			<Menu forceMobile={true} onClose={() => (showMobile = false)}>
+				<MenuItem icon="share" label="Share" />
+				<MenuItem icon="link-45deg" label="Copy Link" />
+				<MenuContent>
 					<ButtonGroup>
 						<Button style="flex: 1;">Option A</Button>
 						<Button style="flex: 1;">Option B</Button>
 					</ButtonGroup>
-				</Padding>
-				<MenuButton icon="trash-fill" label="Delete" style="color: #ef4444;" />
-				<MenuButton label="Cancel" onclick={() => (showMobile = false)} />
+				</MenuContent>
+				<MenuDivider />
+				<MenuItem icon="trash-fill" label="Delete" style="color: #ef4444;" />
+				<MenuItem label="Cancel" onclick={() => (showMobile = false)} />
 			</Menu>
 		{/if}
 	</div>
@@ -58,11 +57,10 @@
 		<Menu
 			x={typeof window !== 'undefined' ? window.innerWidth / 2 : 100}
 			y={150}
-			showBackdrop={true}
 			onClose={() => (showLarge = false)}
 		>
 			{#each Array.from({ length: 20 }, (_, i) => i) as i (i)}
-				<MenuButton label="Item {i + 1}" />
+				<MenuItem label="Item {i + 1}" />
 			{/each}
 		</Menu>
 	{/if}

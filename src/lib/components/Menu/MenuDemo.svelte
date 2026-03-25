@@ -1,7 +1,5 @@
 <script lang="ts">
-	import Menu from './Menu.svelte';
-	import MenuButton from './MenuButton.svelte';
-	import Padding from '../Padding/Padding.svelte';
+	import { Menu, MenuItem, MenuContent, MenuDivider } from './index.js';
 
 	let coords = $state({ x: 100, y: 100 });
 	let visible = $state(false);
@@ -25,11 +23,11 @@
 	</div>
 
 	{#if visible}
-		<Menu x={coords.x} y={coords.y} onClose={() => (visible = false)} showBackdrop={false}>
-			<MenuButton icon="person" label="Profile" />
-			<MenuButton icon="gear" label="Settings" />
-			<hr style="margin: 0; border: 0; border-top: 1px solid var(--akui-border-input);" />
-			<Padding size="m">
+		<Menu x={coords.x} y={coords.y} onClose={() => (visible = false)}>
+			<MenuItem icon="person" label="Profile" />
+			<MenuItem icon="gear" label="Settings" />
+			<MenuDivider />
+			<MenuContent>
 				<div style="display: flex; flex-direction: column; gap: 0.5rem;">
 					<span
 						style="font-size: 0.75rem; font-weight: 600; color: var(--akui-fg-secondary); text-transform: uppercase;"
@@ -37,9 +35,9 @@
 					>
 					<input type="range" style="width: 100%;" />
 				</div>
-			</Padding>
-			<hr style="margin: 0; border: 0; border-top: 1px solid var(--akui-border-input);" />
-			<MenuButton icon="box-arrow-right" label="Logout" />
+			</MenuContent>
+			<MenuDivider />
+			<MenuItem icon="box-arrow-right" label="Logout" />
 		</Menu>
 	{/if}
 </div>

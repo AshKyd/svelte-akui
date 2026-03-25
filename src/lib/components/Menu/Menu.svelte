@@ -11,7 +11,6 @@
 		children: Snippet;
 		class?: string;
 		forceMobile?: boolean;
-		showBackdrop?: boolean;
 		origin?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 	}
 
@@ -22,7 +21,6 @@
 		children,
 		class: className = '',
 		forceMobile = false,
-		showBackdrop = true,
 		origin = 'top-left'
 	}: Props = $props();
 
@@ -103,7 +101,6 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
 <dialog
 	bind:this={dialog}
 	oncancel={handleCancel}
@@ -112,7 +109,7 @@
 	class="akui-menu-dialog"
 >
 	{#if rendered}
-		{#if showBackdrop}
+		{#if isMobile}
 			<div class="akui-menu-backdrop" transition:fade={{ duration: 250 }}></div>
 		{/if}
 
@@ -124,6 +121,7 @@
 			<div
 				bind:this={container}
 				class="akui-menu-desktop-container"
+				role="presentation"
 				style:left="{adjustedX}px"
 				style:top="{adjustedY}px"
 				style:transform-origin={origin.split('-').join(' ')}

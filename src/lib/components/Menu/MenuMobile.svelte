@@ -18,12 +18,16 @@
 
 <!-- The akui-menu-mobile-backdrop div and its conditional rendering block have been removed -->
 
-<div class="akui-mobile-menu-layer {className}" onclick={(e) => e.stopPropagation()}>
+<div
+	class="akui-mobile-menu-layer {className}"
+	role="presentation"
+	onclick={(e) => e.stopPropagation()}
+>
 	<div class="akui-mobile-menu-content" transition:fade={{ duration: 250 }}>
 		<div class="akui-menu-mobile-handle"></div>
-		<div class="akui-menu-scroll-area">
+		<ul role="menu" class="akui-menu-scroll-area">
 			{@render children()}
-		</div>
+		</ul>
 	</div>
 </div>
 
@@ -75,9 +79,20 @@
 		opacity: 0.5;
 	}
 
-	.akui-menu-content {
+	.akui-menu-scroll-area {
 		flex: 1;
 		overflow-y: auto;
 		max-height: 70vh;
+		padding: 0;
+		margin: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* Enhance mobile items: subtle separators between everything except the last child or dividers themselves */
+	.akui-menu-scroll-area :global(.akui-menu-item-wrapper:not(:last-child)),
+	.akui-menu-scroll-area :global(.akui-menu-content:not(:last-child)) {
+		border-bottom: 1px solid var(--akui-border-input);
 	}
 </style>

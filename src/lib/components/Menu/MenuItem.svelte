@@ -21,22 +21,24 @@
 	let { icon, label, onclick, children, class: className = '', ...rest }: Props = $props();
 </script>
 
-<button type="button" class="akui-menu-button {className}" {onclick} {...rest}>
-	<Padding size="m" class="akui-menu-button-inner">
-		<div class="akui-menu-button-content">
-			{#if icon}
-				<Icon name={icon} size="1.25em" class="akui-menu-button-icon" />
-			{/if}
-			<span class="akui-menu-button-label">
-				{#if children}
-					{@render children()}
-				{:else}
-					{label}
+<li role="none" class="akui-menu-item-wrapper">
+	<button type="button" role="menuitem" class="akui-menu-button {className}" {onclick} {...rest}>
+		<Padding size="m" class="akui-menu-button-inner">
+			<div class="akui-menu-button-content">
+				{#if icon}
+					<Icon name={icon} size="1.25em" class="akui-menu-button-icon" />
 				{/if}
-			</span>
-		</div>
-	</Padding>
-</button>
+				<span class="akui-menu-button-label">
+					{#if children}
+						{@render children()}
+					{:else}
+						{label}
+					{/if}
+				</span>
+			</div>
+		</Padding>
+	</button>
+</li>
 
 <style>
 	.akui-menu-button {
