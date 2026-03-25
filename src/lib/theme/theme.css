@@ -1,0 +1,384 @@
+:root,
+[data-theme='light'] {
+	--akui-bg: #ffffff;
+	--akui-fg: #111827;
+	--akui-bg-secondary: #f3f4f6;
+	--akui-fg-secondary: #4b5563;
+	--akui-bg-accent: #2563eb;
+	--akui-fg-accent: #ffffff;
+
+	--akui-bg-button: #e5e7eb;
+	--akui-fg-button: #000000;
+	--akui-bg-button-hover: #d1d5db;
+	--akui-bg-button-focus: #9ca3af;
+
+	--akui-bg-accent-hover: #1d4ed8;
+	--akui-bg-accent-focus: #3b82f6;
+
+	/* Form Controls */
+	--akui-bg-input: #f9fafb;
+	--akui-fg-input: #111827;
+	--akui-fg-placeholder: #9ca3af;
+	--akui-border-input: #d1d5db;
+	--akui-ring-focus: rgba(37, 99, 235, 0.4);
+
+	/* Spacing / Padding */
+	--akui-space-none: 0;
+	--akui-space-xs: 0.25rem;
+	--akui-space-s: 0.5rem;
+	--akui-space-m: 1rem;
+	--akui-space-l: 1.5rem;
+	--akui-space-xl: 2rem;
+	--akui-space-xxl: 3rem;
+
+	/* Radii */
+	--akui-radius-s: 4px;
+	--akui-radius-m: 8px;
+	--akui-radius-l: 12px;
+
+	/* 3D Glow (Inner borders) */
+	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+	--akui-transition-theme:
+		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme='dark'] {
+	--akui-bg: #030712;
+	--akui-fg: #ffffff;
+	--akui-bg-secondary: #111827;
+	--akui-fg-secondary: #9ca3af;
+	--akui-bg-accent: #3b82f6;
+	--akui-fg-accent: #ffffff;
+
+	--akui-bg-button: #1f2937;
+	--akui-fg-button: #ffffff;
+	--akui-bg-button-hover: #374151;
+	--akui-bg-button-focus: #4b5563;
+
+	--akui-bg-accent-hover: #2563eb;
+	--akui-bg-accent-focus: #1d4ed8;
+
+	/* Form Controls */
+	--akui-bg-input: #111827;
+	--akui-fg-input: #ffffff;
+	--akui-fg-placeholder: #4b5563;
+	--akui-border-input: #374151;
+	--akui-ring-focus: rgba(59, 130, 246, 0.4);
+
+	/* Spacing / Padding */
+	--akui-space-none: 0;
+	--akui-space-xs: 0.25rem;
+	--akui-space-s: 0.5rem;
+	--akui-space-m: 1rem;
+	--akui-space-l: 1.5rem;
+	--akui-space-xl: 2rem;
+	--akui-space-xxl: 3rem;
+
+	/* Radii */
+	--akui-radius-s: 4px;
+	--akui-radius-m: 8px;
+	--akui-radius-l: 12px;
+
+	/* 3D Glow (Inner borders) */
+	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3);
+
+	--akui-transition-theme:
+		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Base Component Styles using tokens */
+.akui-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem 1rem;
+	font-weight: 500;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: var(--akui-radius-m);
+	background-color: var(--akui-bg-button);
+	color: var(--akui-fg-button);
+	box-shadow: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+	cursor: pointer;
+	transition: var(--akui-transition-theme);
+	text-decoration: none;
+	line-height: 1;
+	gap: 0.5rem;
+	min-height: 2.25rem;
+	box-sizing: border-box;
+}
+
+.akui-btn:hover {
+	background-color: var(--akui-bg-button-hover);
+}
+
+.akui-btn:active {
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+	transform: translateY(1px);
+}
+
+.akui-btn.accent {
+	background-color: var(--akui-bg-accent);
+	color: var(--akui-fg-accent);
+	border-color: rgba(0, 0, 0, 0.2);
+}
+
+.akui-btn.accent:hover {
+	background-color: var(--akui-bg-accent-hover);
+}
+
+.akui-btn.small {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.8rem;
+	border-radius: var(--akui-radius-s);
+	min-height: 1.75rem;
+	gap: 0.25rem;
+}
+
+.akui-btn.large {
+	padding: 0.75rem 1.5rem;
+	font-size: 1.1rem;
+	border-radius: var(--akui-radius-l);
+	min-height: 3rem;
+	gap: 0.75rem;
+}
+
+/* Icon-only buttons should be square */
+.akui-btn.icon-only {
+	padding: 0;
+	width: 2.25rem;
+}
+
+.akui-btn.small.icon-only {
+	width: 1.75rem;
+}
+
+.akui-btn.large.icon-only {
+	width: 3rem;
+}
+
+/* Button Groups */
+.akui-btn-group {
+	display: inline-flex;
+	border-radius: var(--akui-radius-m);
+	box-shadow: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+	isolation: isolate; /* Create new stacking context */
+}
+
+.akui-btn-group.small .akui-btn {
+	padding: 0.25rem 0.5rem;
+	font-size: 0.8rem;
+	min-height: 1.75rem;
+	gap: 0.25rem;
+}
+
+.akui-btn-group.small .akui-btn.icon-only {
+	padding: 0;
+	width: 1.75rem;
+}
+
+.akui-btn-group.large .akui-btn {
+	padding: 0.75rem 1.5rem;
+	font-size: 1.1rem;
+	min-height: 3rem;
+	gap: 0.75rem;
+}
+
+.akui-btn-group.large .akui-btn.icon-only {
+	padding: 0;
+	width: 3rem;
+}
+
+.akui-btn-group .akui-btn {
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.akui-btn-group .akui-btn:not(:last-child) {
+	border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .akui-btn-group .akui-btn:not(:last-child) {
+	border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.akui-btn-group .akui-btn:first-child {
+	border-top-left-radius: var(--akui-radius-m);
+	border-bottom-left-radius: var(--akui-radius-m);
+}
+
+.akui-btn-group .akui-btn:last-child {
+	border-top-right-radius: var(--akui-radius-m);
+	border-bottom-right-radius: var(--akui-radius-m);
+}
+
+/* Specific radius handling for sizes in groups */
+.akui-btn-group.small {
+	border-radius: var(--akui-radius-s);
+}
+.akui-btn-group.small .akui-btn:first-child {
+	border-top-left-radius: var(--akui-radius-s);
+	border-bottom-left-radius: var(--akui-radius-s);
+}
+.akui-btn-group.small .akui-btn:last-child {
+	border-top-right-radius: var(--akui-radius-s);
+	border-bottom-right-radius: var(--akui-radius-s);
+}
+
+.akui-btn-group.large {
+	border-radius: var(--akui-radius-l);
+}
+.akui-btn-group.large .akui-btn:first-child {
+	border-top-left-radius: var(--akui-radius-l);
+	border-bottom-left-radius: var(--akui-radius-l);
+}
+.akui-btn-group.large .akui-btn:last-child {
+	border-top-right-radius: var(--akui-radius-l);
+	border-bottom-right-radius: var(--akui-radius-l);
+}
+
+/* Global Form Controls (using :not(.bespoke) for opt-out) */
+input:not(.bespoke):not([type='checkbox']):not([type='radio']):not([type='range']):not(
+		[type='color']
+	),
+textarea:not(.bespoke),
+select:not(.bespoke) {
+	width: 100%;
+	min-height: 2.25rem;
+	padding: 0.5rem 0.75rem;
+	font-family: inherit;
+	font-size: 0.95rem;
+	line-height: normal;
+	background-color: var(--akui-bg-input);
+	color: var(--akui-fg-input);
+	border: 1px solid var(--akui-border-input);
+	border-radius: var(--akui-radius-m);
+	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+	transition: var(--akui-transition-theme);
+	box-sizing: border-box;
+}
+
+input:not(.bespoke):focus,
+textarea:not(.bespoke):focus,
+select:not(.bespoke):focus {
+	outline: none;
+	border-color: var(--akui-bg-accent);
+	box-shadow:
+		0 0 0 3px var(--akui-ring-focus),
+		inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+textarea:not(.bespoke) {
+	min-height: 5rem;
+	resize: vertical;
+}
+
+::placeholder {
+	color: var(--akui-fg-placeholder);
+	opacity: 1;
+}
+
+/* Custom Checkbox/Radio */
+input:not(.bespoke)[type='checkbox'],
+input:not(.bespoke)[type='radio'] {
+	appearance: none;
+	background-color: var(--akui-bg-input);
+	border: 1px solid var(--akui-border-input);
+	margin: 0;
+	cursor: pointer;
+	display: inline-grid;
+	place-content: center;
+	transition: var(--akui-transition-theme);
+	vertical-align: middle;
+	flex-shrink: 0;
+}
+
+input:not(.bespoke)[type='checkbox'] {
+	width: 1.25rem;
+	height: 1.25rem;
+	border-radius: var(--akui-radius-s);
+}
+
+input:not(.bespoke)[type='radio'] {
+	width: 1.25rem;
+	height: 1.25rem;
+	border-radius: 50%;
+}
+
+input:not(.bespoke)[type='checkbox']:checked,
+input:not(.bespoke)[type='radio']:checked {
+	background-color: var(--akui-bg-accent);
+	border-color: transparent;
+	box-shadow: var(--akui-glow-top);
+}
+
+input:not(.bespoke)[type='checkbox']:checked::before {
+	content: '';
+	width: 0.65em;
+	height: 0.65em;
+	transform: scale(0);
+	transition: 120ms transform ease-in-out;
+	box-shadow: inset 1em 1em white;
+	transform-origin: bottom left;
+	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+	transform: scale(1);
+}
+
+input:not(.bespoke)[type='radio']:checked::before {
+	content: '';
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background-color: white;
+}
+
+input:not(.bespoke):disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	background-color: var(--akui-bg-secondary);
+}
+
+/* Fieldsets and Labels */
+fieldset:not(.bespoke) {
+	border: 1px solid var(--akui-border-input);
+	border-radius: var(--akui-radius-m);
+	margin: 0;
+	padding: 1.25rem;
+	background-color: transparent;
+}
+
+legend:not(.bespoke) {
+	font-weight: 600;
+	font-size: 0.9rem;
+	color: var(--akui-fg-secondary);
+	padding: 0 0.5rem;
+}
+
+label:not(.bespoke) {
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 500;
+	margin-bottom: 0.375rem;
+	color: var(--akui-fg-secondary);
+}
+
+/* Utility Class for Forms */
+.akui-field {
+	margin-bottom: 1.25rem;
+}
+
+.akui-field-hint {
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+	color: var(--akui-fg-secondary);
+}
+
+.akui-field-error {
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+	color: #ef4444; /* Standard error red */
+}
