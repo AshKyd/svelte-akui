@@ -6,3 +6,4 @@ export * from './components/ButtonGroup/index.js';
 export * from './components/Loader/index.js';
 export * from './components/Modal/index.js';
 export * from './components/Padding/index.js';
+export * from './components/Menu/index.js';
