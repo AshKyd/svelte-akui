@@ -9,6 +9,8 @@
 		sidebar: Snippet;
 		/** Optional header to be integrated (above on desktop, shifting on mobile). */
 		header?: Snippet;
+		/** Optional footer to be displayed at the bottom of the sidebar. */
+		footer?: Snippet;
 		/** Optional title/logo to be shown in the sidebar on mobile. */
 		title?: Snippet;
 		/** Whether the sidebar is open (primarily for mobile). */
@@ -23,6 +25,7 @@
 		children,
 		sidebar,
 		header,
+		footer,
 		title,
 		isOpen = $bindable(false),
 		width = '280px',
@@ -61,6 +64,11 @@
 			<div class="akui-sidebar-inner">
 				{@render sidebar?.()}
 			</div>
+			{#if footer}
+				<div class="akui-sidebar-footer">
+					{@render footer()}
+				</div>
+			{/if}
 		</aside>
 
 		<main class="akui-main">
@@ -127,6 +135,11 @@
 		overflow-y: auto;
 	}
 
+	.akui-sidebar-footer {
+		padding: var(--akui-space-m);
+		padding-top: 0;
+	}
+
 	.akui-main {
 		flex: 1;
 		min-width: 0;
@@ -149,11 +162,12 @@
 		}
 
 		.akui-sidebar-layout {
+			/* Ensure we don't clip the sidebar when it's at the left edge */
 			overflow: visible;
 		}
 
 		.akui-sidebar {
-			position: absolute;
+			position: absolute; /* Back to relative but shifted out */
 			left: calc(-1 * var(--sidebar-width));
 			height: 100vh;
 			z-index: 20;
@@ -173,6 +187,7 @@
 			z-index: 15;
 		}
 
+		/* Prevent the entire page from having a horizontal scrollbar */
 		:global(body) {
 			overflow-x: hidden;
 		}

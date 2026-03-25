@@ -3,6 +3,7 @@
 	import Sidebar from './Sidebar.svelte';
 	import Padding from '../Padding/Padding.svelte';
 	import Button from '../Button/Button.svelte';
+	import Small from '../Small/Small.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Sidebar',
@@ -13,6 +14,11 @@
 <script lang="ts">
 	let isOpen = $state(false);
 </script>
+
+{#snippet sidebarFooter()}
+	<Small tag="p">© 2024 AKUI Design</Small>
+	<Small tag="p">v1.0.4-beta</Small>
+{/snippet}
 
 {#snippet sidebarProp()}
 	<Padding>
@@ -29,13 +35,13 @@
 {/snippet}
 
 <Story name="Interactive">
-	<Sidebar sidebar={sidebarProp} bind:isOpen>
+	<Sidebar sidebar={sidebarProp} footer={sidebarFooter} bind:isOpen>
 		<Padding size="l">
 			<Button onclick={() => (isOpen = !isOpen)} class="mobile-only">Toggle Sidebar</Button>
 			<h1>Main Content Area</h1>
-			<p>This is the main area content.</p>
-			{#each Array.from({ length: 5 }, (_, k) => k) as i (i)}
-				<p>Section {i + 1}</p>
+			<p>This is a simplified sidebar implementation using basic text and the Padding component.</p>
+			{#each Array.from({ length: 10 }, (_, k) => k) as i (i)}
+				<p>Section block {i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 			{/each}
 		</Padding>
 	</Sidebar>
