@@ -1,10 +1,11 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Padding from './Padding/Padding.svelte';
-	import Panel from './Panel/Panel.svelte';
+	import Padding from '../Padding/Padding.svelte';
+	import Panel from '../Panel/Panel.svelte';
+	import Button from '../Button/Button.svelte';
 
 	const { Story } = defineMeta({
-		title: 'Examples/Forms',
+		title: 'Components/Forms',
 		tags: ['autodocs']
 	});
 </script>
@@ -111,12 +112,67 @@
 		<Panel>
 			<Padding size="l">
 				<div class="akui-field">
-					<label>Bespoke Input (Bypasses AKUI styles)</label>
-					<input type="text" class="bespoke" placeholder="Browser default style" />
+					<label for="bespoke-1">Bespoke Input (Bypasses AKUI styles)</label>
+					<input type="text" id="bespoke-1" class="bespoke" placeholder="Browser default style" />
 				</div>
 				<div class="akui-field">
-					<label>AKUI Input (Standard)</label>
-					<input type="text" placeholder="AKUI premium style" />
+					<label for="standard-1">AKUI Input (Standard)</label>
+					<input type="text" id="standard-1" placeholder="AKUI premium style" />
+				</div>
+			</Padding>
+		</Panel>
+	</div>
+</Story>
+
+<Story name="Field with Button">
+	<div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+		<!-- Standard Side-by-Side -->
+		<Panel>
+			<Padding size="l">
+				<p class="akui-label">Standard Side-by-Side (Flex gap)</p>
+				<div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+					<div class="akui-field" style="margin-bottom: 0; flex-grow: 1;">
+						<label for="search-1">Search</label>
+						<input type="text" id="search-1" placeholder="Search for anything..." />
+					</div>
+					<Button variant="accent" label="Search" />
+				</div>
+			</Padding>
+		</Panel>
+
+		<!-- Joined Group Pattern -->
+		<Panel>
+			<Padding size="l">
+				<p class="akui-label">Joined Group (Merged Borders)</p>
+				<div style="display: flex; align-items: flex-end;">
+					<div class="akui-field" style="margin-bottom: 0; flex-grow: 1;">
+						<label for="subscribe-1">Email Newsletter</label>
+						<input
+							type="email"
+							id="subscribe-1"
+							placeholder="you@example.com"
+							style="border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;"
+						/>
+					</div>
+					<Button
+						variant="accent"
+						label="Subscribe"
+						style="border-top-left-radius: 0; border-bottom-left-radius: 0;"
+					/>
+				</div>
+			</Padding>
+		</Panel>
+
+		<!-- Icons with Input -->
+		<Panel>
+			<Padding size="l">
+				<p class="akui-label">Input with Icon Button</p>
+				<div style="display: flex; gap: 0.25rem; align-items: flex-end;">
+					<div class="akui-field" style="margin-bottom: 0; flex-grow: 1;">
+						<label for="url-1">Project URL</label>
+						<input type="text" id="url-1" value="https://github.com/ash/svelte-akui" readonly />
+					</div>
+					<Button icon="clipboard" iconPosition="only" label="Copy URL" />
 				</div>
 			</Padding>
 		</Panel>
