@@ -1,15 +1,26 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	interface Props {
 		children: Snippet;
 		class?: string;
+		x?: number;
+		y?: number;
+		origin?: string;
 	}
 
-	let { children, class: className = '' }: Props = $props();
+	let { children, class: className = '', x, y, origin = 'top-left' }: Props = $props();
 </script>
 
-<div class="akui-desktop-menu-layer {className}">
+<div
+	class="akui-desktop-menu-layer {className}"
+	onclick={(e) => e.stopPropagation()}
+	style:left="{x}px"
+	style:top="{y}px"
+	style:transform-origin={origin.split('-').join(' ')}
+	transition:fade={{ duration: 250 }}
+>
 	<div class="akui-menu-card">
 		<div class="akui-menu-scroll-area">
 			{@render children()}
@@ -18,6 +29,23 @@
 </div>
 
 <style>
+	.akui-menu-desktop-backdrop {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: transparent;
+		z-index: 1000;
+		pointer-events: auto;
+	}
+
+	.akui-desktop-menu-layer {
+		position: fixed;
+		z-index: 1001;
+		pointer-events: auto;
+	}
+
 	.akui-menu-card {
 		background: var(--akui-bg);
 		color: var(--akui-fg);

@@ -8,7 +8,6 @@
 
 	const { Story } = defineMeta({
 		title: 'Components/Menu',
-		component: Menu,
 		tags: ['autodocs']
 	});
 </script>
@@ -32,7 +31,7 @@
 		</Button>
 
 		{#if showMobile}
-			<Menu forceMobile={true} showBackdrop={false} onClose={() => (showMobile = false)}>
+			<Menu forceMobile={true} showBackdrop={true} onClose={() => (showMobile = false)}>
 				<MenuButton icon="share" label="Share" />
 				<MenuButton icon="link-45deg" label="Copy Link" />
 				<Padding size="m">

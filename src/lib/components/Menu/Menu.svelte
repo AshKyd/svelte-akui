@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type Snippet, onMount } from 'svelte';
-	import { fly, scale } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import MenuDesktop from './MenuDesktop.svelte';
 	import MenuMobile from './MenuMobile.svelte';
 
@@ -58,6 +58,8 @@
 		adjustedY = nextY;
 	}
 
+	let rendered = $state(false);
+
 	onMount(() => {
 		const handleResize = () => {
 			windowWidth = window.innerWidth;
@@ -68,6 +70,7 @@
 		// Show dialog as modal on mount
 		if (dialog && !dialog.open) {
 			dialog.showModal();
+			rendered = true;
 		}
 
 		return () => {
@@ -92,80 +95,70 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_click_events_have_key_events -->
 <dialog
 	bind:this={dialog}
 	oncancel={handleCancel}
 	onclick={handleClose}
+	transition:fade={{ duration: 250 }}
 	class="akui-menu-dialog"
-	class:no-backdrop={!showBackdrop}
-	style:background="transparent"
 >
-	<!-- Front-layer: The menu content stops propagation! -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<div onclick={(e) => e.stopPropagation()}>
+	{#if rendered}
+		{#if showBackdrop}
+			<div class="akui-menu-backdrop" transition:fade={{ duration: 250 }}></div>
+		{/if}
+
 		{#if isMobile}
-			<div class="akui-menu-mobile-wrapper" transition:fly={{ y: 40, duration: 400, opacity: 0 }}>
-				<MenuMobile class={className}>
-					{@render children()}
-				</MenuMobile>
-			</div>
+			<MenuMobile class={className}>
+				{@render children()}
+			</MenuMobile>
 		{:else}
-			<div
-				class="akui-menu-desktop-wrapper"
-				bind:this={container}
-				style:left="{adjustedX}px"
-				style:top="{adjustedY}px"
-				style:transform-origin={origin.split('-').join(' ')}
-				in:scale={{ duration: 300, start: 0.9, opacity: 0 }}
-				out:scale={{ duration: 400, start: 0.95, opacity: 0 }}
-			>
-				<MenuDesktop class={className}>
+			<div bind:this={container} class="akui-menu-desktop-proxy">
+				<MenuDesktop class={className} x={adjustedX} y={adjustedY} {origin}>
 					{@render children()}
 				</MenuDesktop>
 			</div>
 		{/if}
-	</div>
+	{/if}
 </dialog>
 
 <style>
 	.akui-menu-dialog {
+		margin: 0;
+		padding: 0;
+		border: none;
+		background: transparent;
+		overflow: visible;
 		position: fixed;
 		top: 0;
 		left: 0;
 		width: 100vw;
 		height: 100vh;
-		background: transparent;
-		border: none;
-		margin: 0;
-		padding: 0;
-		overflow: hidden;
-		display: flex;
-		flex-direction: column;
+		display: block;
+		max-width: none;
+		max-height: none;
+		pointer-events: auto;
+	}
+
+	.akui-menu-dialog[open] {
+		display: block;
 	}
 
 	.akui-menu-dialog::backdrop {
-		background: rgba(0, 0, 0, 0.4);
-		backdrop-filter: blur(4px);
-	}
-
-	.akui-menu-dialog.no-backdrop::backdrop {
 		background: transparent;
-		backdrop-filter: none;
 	}
 
-	/* Force desktop wrapper to respect its coordinates */
-	.akui-menu-desktop-wrapper {
+	.akui-menu-backdrop {
 		position: fixed;
-		z-index: 1001;
-	}
-
-	.akui-menu-mobile-wrapper {
-		position: fixed;
-		bottom: 0;
+		top: 0;
 		left: 0;
 		right: 0;
-		z-index: 1001;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.4);
+		backdrop-filter: blur(4px);
+		z-index: 1000;
+	}
+
+	.akui-menu-desktop-proxy {
+		display: contents;
 	}
 </style>
