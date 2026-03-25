@@ -169,11 +169,11 @@
 		<Panel>
 			<Padding size="l">
 				<div class="akui-field">
-					<label for="bespoke-1">Bespoke Input (Bypasses AKUI styles)</label>
+					<label for="bespoke-1">Bespoke Input (Bypasses Akui styles)</label>
 					<input type="text" id="bespoke-1" class="bespoke" placeholder="Browser default style" />
 				</div>
-				<Field label="AKUI Input (Standard)">
-					<TextInput placeholder="AKUI premium style" />
+				<Field label="Akui Input (Standard)">
+					<TextInput placeholder="Akui" />
 				</Field>
 			</Padding>
 		</Panel>

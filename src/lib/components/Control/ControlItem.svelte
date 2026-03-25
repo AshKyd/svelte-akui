@@ -74,7 +74,7 @@
 	}
 
 	.akui-control-item:hover {
-		background-color: var(--akui-bg-secondary);
+		background-color: var(--akui-bg-hover);
 	}
 
 	.akui-control-item:active {
@@ -82,7 +82,7 @@
 	}
 
 	.akui-control-item:focus-visible {
-		background-color: var(--akui-bg-secondary);
+		background-color: var(--akui-bg-hover);
 		box-shadow: inset 0 0 0 2px var(--akui-bg-accent);
 	}
 

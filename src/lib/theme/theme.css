@@ -7,6 +7,7 @@
 	--akui-bg-accent: #2563eb;
 	--akui-bg-accent-rgb: 37, 99, 235;
 	--akui-fg-accent: #ffffff;
+	--akui-bg-hover: rgba(0, 0, 0, 0.05);
 
 	--akui-bg-button: #e5e7eb;
 	--akui-fg-button: #000000;
@@ -44,6 +45,8 @@
 	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
 	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
 	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
+	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
 	--akui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234b5563' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
 
 	--akui-transition-theme:
@@ -58,6 +61,7 @@
 	--akui-bg-accent: #3b82f6;
 	--akui-bg-accent-rgb: 59, 130, 246;
 	--akui-fg-accent: #ffffff;
+	--akui-bg-hover: rgba(255, 255, 255, 0.1);
 
 	--akui-bg-button: #1f2937;
 	--akui-fg-button: #ffffff;
@@ -89,12 +93,14 @@
 	--akui-radius-l: 12px;
 
 	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.3);
 	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.4);
-	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3);
 	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
+	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
 	--akui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
 
 	--akui-transition-theme:
@@ -184,11 +190,17 @@ textarea:not(.bespoke) {
 	appearance: none;
 	background-color: transparent;
 	border: 1px solid var(--akui-border-input);
+	border-radius: var(--akui-radius-m);
 	color: var(--akui-fg);
 	font-family: inherit;
 	font-size: 0.9375rem;
 	outline: none;
+	box-shadow: var(--akui-shadow-sunken);
 	transition: all 0.2s ease;
+}
+
+select:not(.bespoke) {
+	box-shadow: var(--akui-shadow-shiny);
 }
 
 input:not(.bespoke):focus,

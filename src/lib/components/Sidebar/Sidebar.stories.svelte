@@ -17,7 +17,7 @@
 </script>
 
 {#snippet sidebarFooter()}
-	<Small tag="p">© 2024 AKUI Design</Small>
+	<Small tag="p">© 2024 Akui</Small>
 	<Small tag="p">v1.0.4-beta</Small>
 {/snippet}
 

@@ -142,8 +142,6 @@
 		border-radius: var(--akui-radius-l);
 		border: 1px solid var(--akui-border-input);
 		box-shadow:
-			var(--akui-glow-top),
-			var(--akui-glow-bottom),
 			0 20px 25px -5px rgba(0, 0, 0, 0.4),
 			0 10px 10px -5px rgba(0, 0, 0, 0.2);
 		display: flex;
@@ -160,13 +158,9 @@
 			max-height: none;
 		}
 
-		.akui-modal-fullscreen-mobile {
-			width: 100vw;
-			height: 100vh;
-			max-width: none;
-			max-height: none;
+		.akui-modal-fullscreen-mobile,
+		.akui-modal-fullscreen-mobile .akui-modal-header {
 			border-radius: 0;
-			border: none;
 		}
 	}
 
@@ -176,6 +170,9 @@
 		padding: var(--akui-space-m);
 		border-bottom: 1px solid var(--akui-border-input);
 		background: var(--akui-bg-secondary);
+		box-shadow: var(--akui-glow-top), var(--akui-glow-bottom);
+		border-top-left-radius: var(--akui-radius-l);
+		border-top-right-radius: var(--akui-radius-l);
 		gap: var(--akui-space-m);
 	}
 

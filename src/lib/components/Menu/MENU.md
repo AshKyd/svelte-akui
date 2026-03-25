@@ -1,6 +1,6 @@
-# AKUI Menu System
+# Akui Menu System
 
-The AKUI Menu system is a responsive, highly accessible menu solution built on the native HTML `<dialog>` element. It automatically handles the transition between a floating desktop menu and a mobile bottom-sheet.
+The Akui Menu system is a responsive, highly accessible menu solution built on the native HTML `<dialog>` element. It automatically handles the transition between a floating desktop menu and a mobile bottom-sheet.
 
 ## 1. Principles
 

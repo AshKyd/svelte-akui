@@ -8,7 +8,7 @@
 <UIRoot bind:mode bind:resolvedMode>
 	<div class="demo-container">
 		<header>
-			<h1>AKUI Design System</h1>
+			<h1>Akui Design System</h1>
 			<p>Current Mode: <strong>{resolvedMode}</strong> (Configured: {mode ?? 'system'})</p>
 
 			<select bind:value={mode} class="theme-toggle">
