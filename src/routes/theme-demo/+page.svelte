@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { UIRoot, Panel, Button, Icon, ButtonGroup } from '$lib';
+	import { UIRoot, Panel, Button, Icon, InputGroup } from '$lib';
 
 	let mode = $state<'light' | 'dark' | undefined>(undefined);
 	let resolvedMode = $state<'light' | 'dark'>('light');
@@ -21,25 +21,25 @@
 		<section class="demo-section">
 			<h2>Button Groups</h2>
 			<div class="row">
-				<ButtonGroup>
+				<InputGroup joined>
 					<Button label="Left" />
 					<Button label="Middle" />
 					<Button label="Right" />
-				</ButtonGroup>
+				</InputGroup>
 			</div>
 			<div class="row" style="margin-top: 1rem;">
-				<ButtonGroup variant="accent">
+				<InputGroup joined>
 					<Button icon="plus-lg" label="Add" variant="accent" />
 					<Button icon="pencil" label="Edit" variant="accent" />
 					<Button icon="trash" label="Delete" variant="accent" />
-				</ButtonGroup>
+				</InputGroup>
 			</div>
 			<div class="row" style="margin-top: 1rem;">
-				<ButtonGroup size="small">
+				<InputGroup joined size="small">
 					<Button icon="align-left" iconPosition="only" label="Align Left" />
 					<Button icon="align-center" iconPosition="only" label="Align Center" />
 					<Button icon="align-right" iconPosition="only" label="Align Right" />
-				</ButtonGroup>
+				</InputGroup>
 			</div>
 		</section>
 
@@ -79,11 +79,11 @@
 
 		<section class="demo-section">
 			<h2>Button Groups</h2>
-			<div class="akui-btn-group">
+			<InputGroup joined>
 				<Button label="Profile" />
 				<Button label="Settings" />
 				<Button label="Logout" />
-			</div>
+			</InputGroup>
 		</section>
 
 		<section class="demo-section">
@@ -113,7 +113,10 @@
 			<h2>Cards & Nested Radii</h2>
 			<div class="akui-card">
 				<h3>Card Title</h3>
-				<p>This card uses <code>--akui-radius-l</code>. The button inside uses <code>--akui-radius-m</code> to maintain visual harmony.</p>
+				<p>
+					This card uses <code>--akui-radius-l</code>. The button inside uses
+					<code>--akui-radius-m</code> to maintain visual harmony.
+				</p>
 				<div class="row">
 					<button class="akui-btn">Nested Button</button>
 					<button class="akui-btn accent">Nested Accent</button>

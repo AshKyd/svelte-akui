@@ -32,13 +32,13 @@
 </script>
 
 <li role="none" class="akui-control-item-wrapper">
-	<button type="button" {role} class="akui-control-button {className}" {onclick} {...rest}>
-		<Padding size="m" class="akui-control-button-inner">
-			<div class="akui-control-button-content">
+	<button type="button" {role} class="akui-control-item {className}" {onclick} {...rest}>
+		<Padding size="m" class="akui-control-item-inner">
+			<div class="akui-control-item-content">
 				{#if icon}
-					<Icon name={icon} size="1.25em" class="akui-control-button-icon" />
+					<Icon name={icon} size="1.25em" class="akui-control-item-icon" />
 				{/if}
-				<span class="akui-control-button-label">
+				<span class="akui-control-item-label">
 					{#if children}
 						{@render children()}
 					{:else}
@@ -56,7 +56,7 @@
 		list-style: none;
 	}
 
-	.akui-control-button {
+	.akui-control-item {
 		display: block;
 		width: 100%;
 		appearance: none;
@@ -73,37 +73,37 @@
 		outline: none;
 	}
 
-	.akui-control-button:hover {
+	.akui-control-item:hover {
 		background-color: var(--akui-bg-secondary);
 	}
 
-	.akui-control-button:active {
+	.akui-control-item:active {
 		background-color: var(--akui-bg-button-hover);
 	}
 
-	.akui-control-button:focus-visible {
+	.akui-control-item:focus-visible {
 		background-color: var(--akui-bg-secondary);
 		box-shadow: inset 0 0 0 2px var(--akui-bg-accent);
 	}
 
-	.akui-control-button-content {
+	.akui-control-item-content {
 		display: flex;
 		align-items: center;
 		gap: var(--akui-space-m);
 	}
 
-	.akui-control-button-label {
+	.akui-control-item-label {
 		flex: 1;
 		font-size: 0.95rem;
 		font-weight: 500;
 	}
 
-	:global(.akui-control-button-icon) {
+	:global(.akui-control-item-icon) {
 		color: var(--akui-fg-secondary);
 		transition: color 0.2s ease;
 	}
 
-	.akui-control-button:hover :global(.akui-control-button-icon) {
+	.akui-control-item:hover :global(.akui-control-item-icon) {
 		color: var(--akui-fg);
 	}
 </style>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
-	import { ControlButton } from '../Control/index.ts';
+	import { ControlItem } from '../Control/index.ts';
 
 	interface Props {
 		/** Optional icon name (Bootstrap Icon). */
@@ -28,9 +28,9 @@
 </script>
 
 {#if customContent}
-	<ControlButton {icon} {label} {onclick} class={className} {...rest}>
+	<ControlItem {icon} {label} {onclick} class={className} {...rest}>
 		{@render customContent()}
-	</ControlButton>
+	</ControlItem>
 {:else}
-	<ControlButton {icon} {label} {onclick} class={className} {...rest} />
+	<ControlItem {icon} {label} {onclick} class={className} {...rest} />
 {/if}

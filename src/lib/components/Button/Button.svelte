@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { getContext, type Snippet } from 'svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import { INPUT_GROUP_CONTEXT, type InputGroupContext } from '../Input/context.ts';
 
 	interface Props {
 		/** Is this the principal call to action? */
@@ -22,7 +23,7 @@
 		/** Bindable reference to the underlying button element. */
 		element?: HTMLButtonElement;
 		/** Spread remaining attributes to the button element. */
-		[key: string]: any;
+		[key: string]: unknown;
 	}
 
 	let {
@@ -38,12 +39,18 @@
 		...rest
 	}: Props = $props();
 
+	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
+	const inheritedSize = $derived(groupContext?.size ?? 'medium');
+
 	let isIconOnly = $derived(iconPosition === 'only' || (!label && !children && !!icon));
+
+	// Use our size if specified (not default), otherwise fall back to group size
+	const effectiveSize = $derived(size !== 'medium' ? size : inheritedSize);
 </script>
 
 <button
 	type="button"
-	class="akui-btn {variant} {size === 'medium' ? '' : size} {isIconOnly
+	class="akui-btn {variant} {effectiveSize === 'medium' ? '' : effectiveSize} {isIconOnly
 		? 'icon-only'
 		: ''} {className}"
 	aria-label={isIconOnly ? label : undefined}

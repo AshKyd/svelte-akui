@@ -1,7 +1,7 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import { Menu, MenuItem, MenuContent } from './index.js';
-	import ButtonGroup from '../ButtonGroup/ButtonGroup.svelte';
+	import { InputGroup } from '../Input/index.js';
 	import MenuDemo from './MenuDemo.svelte';
 	import Button from '../Button/Button.svelte';
 
@@ -33,10 +33,10 @@
 				<MenuItem icon="share" label="Share" />
 				<MenuItem icon="link-45deg" label="Copy Link" />
 				<MenuContent>
-					<ButtonGroup>
-						<Button style="flex: 1;">Option A</Button>
-						<Button style="flex: 1;">Option B</Button>
-					</ButtonGroup>
+					<InputGroup joined style="width: 100%;">
+						<Button style="flex: 1;" label="Option A" />
+						<Button style="flex: 1;" label="Option B" />
+					</InputGroup>
 				</MenuContent>
 				<MenuItem icon="trash-fill" label="Delete" style="color: #ef4444;" />
 				<MenuItem label="Cancel" onclick={() => (showMobile = false)} />

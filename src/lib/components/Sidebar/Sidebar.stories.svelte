@@ -4,7 +4,7 @@
 	import Padding from '../Padding/Padding.svelte';
 	import Button from '../Button/Button.svelte';
 	import Small from '../Small/Small.svelte';
-	import { ControlButton } from '../Control/index.ts';
+	import { ControlItem } from '../Control/index.ts';
 
 	const { Story } = defineMeta({
 		title: 'Components/Sidebar',
@@ -22,10 +22,10 @@
 {/snippet}
 
 {#snippet sidebarProp()}
-	<ControlButton icon="house" label="Dashboard" />
-	<ControlButton icon="person" label="Profile" />
-	<ControlButton icon="gear" label="Settings" />
-	<ControlButton icon="box-arrow-right" label="Sign Out" />
+	<ControlItem icon="house" label="Dashboard" />
+	<ControlItem icon="person" label="Profile" />
+	<ControlItem icon="gear" label="Settings" />
+	<ControlItem icon="box-arrow-right" label="Sign Out" />
 {/snippet}
 
 <Story name="Interactive">

@@ -1,7 +1,7 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import { ControlGroup, ControlButton, ControlContent, ControlHeader } from './index.ts';
-	import ButtonGroup from '../ButtonGroup/ButtonGroup.svelte';
+	import { ControlGroup, ControlItem, ControlContent, ControlHeader } from './index.ts';
+	import { InputGroup } from '../Input/index.ts';
 	import Button from '../Button/Button.svelte';
 	import Padding from '../Padding/Padding.svelte';
 
@@ -17,17 +17,17 @@
 		style="max-width: 320px; border: 1px solid var(--akui-border-input); border-radius: var(--akui-radius-m); overflow: hidden; background: var(--akui-bg);"
 	>
 		<ControlGroup>
-			<ControlButton icon="person" label="Profile Settings" />
-			<ControlButton icon="bell" label="Notifications" />
+			<ControlItem icon="person" label="Profile Settings" />
+			<ControlItem icon="bell" label="Notifications" />
 
 			<ControlContent>
 				<div style="display: flex; flex-direction: column; gap: 0.75rem;">
 					<ControlHeader label="Display Mode" />
-					<ButtonGroup>
-						<Button style="flex: 1;" size="small" variant="accent">Light</Button>
-						<Button style="flex: 1;" size="small">Dark</Button>
-						<Button style="flex: 1;" size="small">Auto</Button>
-					</ButtonGroup>
+					<InputGroup joined style="display: flex;">
+						<Button style="flex: 1;" size="small" variant="accent" label="Light" />
+						<Button style="flex: 1;" size="small" label="Dark" />
+						<Button style="flex: 1;" size="small" label="Auto" />
+					</InputGroup>
 				</div>
 			</ControlContent>
 
@@ -38,8 +38,8 @@
 				</div>
 			</ControlContent>
 
-			<ControlButton icon="shield-lock" label="Privacy & Security" />
-			<ControlButton icon="box-arrow-right" label="Sign Out" style="color: #ef4444;" />
+			<ControlItem icon="shield-lock" label="Privacy & Security" />
+			<ControlItem icon="box-arrow-right" label="Sign Out" style="color: #ef4444;" />
 		</ControlGroup>
 	</div>
 </Story>
