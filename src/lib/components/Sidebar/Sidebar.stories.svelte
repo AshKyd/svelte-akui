@@ -4,6 +4,7 @@
 	import Padding from '../Padding/Padding.svelte';
 	import Button from '../Button/Button.svelte';
 	import Small from '../Small/Small.svelte';
+	import { ControlButton } from '../Control/index.ts';
 
 	const { Story } = defineMeta({
 		title: 'Components/Sidebar',
@@ -21,17 +22,10 @@
 {/snippet}
 
 {#snippet sidebarProp()}
-	<Padding>
-		<p><strong>Sidebar Area</strong></p>
-		<p>Dashboard</p>
-		<p>Settings</p>
-		<div style="height: 120vh; margin-top: 1rem; border-top: 1px solid #eee;">
-			<p>Scrollable...</p>
-			{#each Array.from({ length: 10 }, (_, k) => k) as i (i)}
-				<p>Item {i + 1}</p>
-			{/each}
-		</div>
-	</Padding>
+	<ControlButton icon="house" label="Dashboard" />
+	<ControlButton icon="person" label="Profile" />
+	<ControlButton icon="gear" label="Settings" />
+	<ControlButton icon="box-arrow-right" label="Sign Out" />
 {/snippet}
 
 <Story name="Interactive">

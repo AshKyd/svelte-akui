@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ControlGroup } from '../Control/index.ts';
 
 	interface Props {
 		children: Snippet;
@@ -25,9 +26,9 @@
 >
 	<div class="akui-mobile-menu-content" transition:fade={{ duration: 250 }}>
 		<div class="akui-menu-mobile-handle"></div>
-		<ul role="menu" class="akui-menu-scroll-area">
+		<ControlGroup role="menu" class="akui-menu-scroll-area">
 			{@render children()}
-		</ul>
+		</ControlGroup>
 	</div>
 </div>
 
@@ -88,11 +89,5 @@
 		list-style: none;
 		display: flex;
 		flex-direction: column;
-	}
-
-	/* Enhance mobile items: subtle separators between everything except the last child or dividers themselves */
-	.akui-menu-scroll-area :global(.akui-menu-item-wrapper:not(:last-child)),
-	.akui-menu-scroll-area :global(.akui-menu-content:not(:last-child)) {
-		border-bottom: 1px solid var(--akui-border-input);
 	}
 </style>

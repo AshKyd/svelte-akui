@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
-	import { ControlContent } from '../Control/index.ts';
+	import Padding from '../Padding/Padding.svelte';
 
 	interface Props {
 		/** The custom content to render. */
@@ -16,4 +16,15 @@
 	let { children, size = 'm', class: className = '', ...rest }: Props = $props();
 </script>
 
-<ControlContent {size} class={className} {...rest} {children} />
+<li role="none" class="akui-control-content {className}">
+	<Padding {size} {...rest}>
+		{@render children()}
+	</Padding>
+</li>
+
+<style>
+	.akui-control-content {
+		display: block;
+		list-style: none;
+	}
+</style>

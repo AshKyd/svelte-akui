@@ -1,6 +1,6 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import { Menu, MenuItem, MenuContent, MenuDivider } from './index.js';
+	import { Menu, MenuItem, MenuContent } from './index.js';
 	import ButtonGroup from '../ButtonGroup/ButtonGroup.svelte';
 	import MenuDemo from './MenuDemo.svelte';
 	import Button from '../Button/Button.svelte';
@@ -38,7 +38,6 @@
 						<Button style="flex: 1;">Option B</Button>
 					</ButtonGroup>
 				</MenuContent>
-				<MenuDivider />
 				<MenuItem icon="trash-fill" label="Delete" style="color: #ef4444;" />
 				<MenuItem label="Cancel" onclick={() => (showMobile = false)} />
 			</Menu>

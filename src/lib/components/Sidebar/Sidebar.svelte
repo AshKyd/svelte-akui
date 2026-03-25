@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet, onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ControlGroup } from '../Control/index.ts';
 
 	interface Props {
 		/** The main content of the application. */
@@ -62,7 +63,9 @@
 				</div>
 			{/if}
 			<div class="akui-sidebar-inner">
-				{@render sidebar?.()}
+				<ControlGroup role="navigation">
+					{@render sidebar?.()}
+				</ControlGroup>
 			</div>
 			{#if footer}
 				<div class="akui-sidebar-footer">

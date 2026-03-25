@@ -6,6 +6,7 @@
 	import Button from '../Button/Button.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import Small from '../Small/Small.svelte';
+	import { ControlButton } from '../Control/index.ts';
 
 	const { Story } = defineMeta({
 		title: 'Components/Header',
@@ -36,11 +37,9 @@
 {/snippet}
 
 {#snippet sidebarNav()}
-	<Padding>
-		<p>Sidebar Navigation</p>
-		<p>Dashboard</p>
-		<p>Analytics</p>
-	</Padding>
+	<ControlButton icon="house" label="Dashboard" />
+	<ControlButton icon="graph-up" label="Analytics" />
+	<ControlButton icon="gear" label="Settings" />
 {/snippet}
 
 {#snippet headerWithSidebar()}

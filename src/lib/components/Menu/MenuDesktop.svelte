@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ControlGroup } from '../Control/index.ts';
 
 	interface Props {
 		children: Snippet;
@@ -12,9 +13,9 @@
 
 <div class="akui-desktop-menu-layer {className}" transition:fade={{ duration: 250 }}>
 	<div class="akui-menu-card">
-		<ul role="menu" class="akui-menu-scroll-area">
+		<ControlGroup role="menu" class="akui-menu-scroll-area">
 			{@render children()}
-		</ul>
+		</ControlGroup>
 	</div>
 </div>
 
@@ -48,11 +49,5 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
-	}
-
-	/* Consistency: subtle separators between everything except the last child or dividers themselves */
-	.akui-menu-scroll-area :global(.akui-menu-item-wrapper:not(:last-child)),
-	.akui-menu-scroll-area :global(.akui-menu-content:not(:last-child)) {
-		border-bottom: 1px solid var(--akui-border-input);
 	}
 </style>

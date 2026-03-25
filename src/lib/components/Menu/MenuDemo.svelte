@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Menu, MenuItem, MenuContent, MenuDivider } from './index.js';
+	import { Menu, MenuItem, MenuContent } from './index.ts';
 
 	let coords = $state({ x: 100, y: 100 });
 	let visible = $state(false);
@@ -26,7 +26,6 @@
 		<Menu x={coords.x} y={coords.y} onClose={() => (visible = false)}>
 			<MenuItem icon="person" label="Profile" />
 			<MenuItem icon="gear" label="Settings" />
-			<MenuDivider />
 			<MenuContent>
 				<div style="display: flex; flex-direction: column; gap: 0.5rem;">
 					<span
@@ -36,7 +35,6 @@
 					<input type="range" style="width: 100%;" />
 				</div>
 			</MenuContent>
-			<MenuDivider />
 			<MenuItem icon="box-arrow-right" label="Logout" />
 		</Menu>
 	{/if}

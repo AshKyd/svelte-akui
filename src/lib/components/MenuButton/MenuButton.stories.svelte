@@ -1,7 +1,7 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import MenuButton from './MenuButton.svelte';
-	import { MenuItem, MenuDivider } from '../Menu/index.js';
+	import { MenuItem } from '../Menu/index.js';
 
 	const { Story } = defineMeta({
 		title: 'Components/MenuButton',
@@ -15,7 +15,6 @@
 {#snippet demoMenu()}
 	<MenuItem icon="person" label="Profile" />
 	<MenuItem icon="gear" label="Settings" />
-	<MenuDivider />
 	<MenuItem icon="box-arrow-right" label="Sign out" />
 {/snippet}
 
