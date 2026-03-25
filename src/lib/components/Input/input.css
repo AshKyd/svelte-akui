@@ -1,0 +1,97 @@
+/* Shared styles for all input types */
+
+.akui-input-base {
+	appearance: none;
+	border: 1px solid var(--akui-border-input);
+	border-radius: var(--akui-radius-m);
+	color: var(--akui-fg);
+	font-family: inherit;
+	outline: none;
+	transition: all 0.2s ease;
+	box-shadow: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
+	background-color: var(--akui-bg);
+	box-sizing: border-box;
+	width: 100%;
+	line-height: inherit;
+	font-size: 0.9375rem;
+	/* Overridable padding variables */
+	--akui-input-py: 0px;
+	--akui-input-px: 0.75rem;
+	padding: var(--akui-input-py) var(--akui-input-px);
+}
+
+.akui-input-base:focus {
+	border-color: var(--akui-bg-accent);
+	box-shadow:
+		0 0 0 2px rgba(var(--akui-bg-accent-rgb), 0.2),
+		var(--akui-glow-inset-top),
+		var(--akui-glow-inset-bottom);
+}
+
+.akui-input-base:disabled {
+	background-color: var(--akui-bg-secondary);
+	color: var(--akui-fg-secondary);
+	cursor: not-allowed;
+	opacity: 0.8;
+}
+
+/* Sizing Variants */
+.akui-input-base.small {
+	height: 1.75rem;
+	--akui-input-px: 0.5rem;
+	font-size: 0.8rem;
+	border-radius: var(--akui-radius-s);
+}
+
+.akui-input-base.medium {
+	height: 2.25rem;
+	--akui-input-px: 0.75rem;
+}
+
+.akui-input-base.large {
+	height: 3rem;
+	--akui-input-px: 1.5rem;
+	font-size: 1.1rem;
+	border-radius: var(--akui-radius-l);
+}
+
+/* TextArea Specific */
+textarea.akui-input-base {
+	min-height: 5rem;
+	height: auto;
+	--akui-input-py: 0.5rem;
+	line-height: 1.5;
+	resize: vertical;
+}
+
+textarea.akui-input-base.small {
+	min-height: 4rem;
+	--akui-input-py: 0.375rem;
+}
+
+textarea.akui-input-base.large {
+	min-height: 8rem;
+	--akui-input-py: 0.75rem;
+}
+
+/* Select Specific */
+select.akui-input-base {
+	background-image: var(--akui-select-arrow);
+	background-repeat: no-repeat;
+	background-position: right 0.75rem center;
+	background-size: 1rem;
+	padding-right: 2.5rem;
+}
+
+/* Shared sr-only class if not already global */
+.akui-sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}

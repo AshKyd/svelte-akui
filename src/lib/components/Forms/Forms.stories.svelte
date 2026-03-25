@@ -3,7 +3,7 @@
 	import Padding from '../Padding/Padding.svelte';
 	import Panel from '../Panel/Panel.svelte';
 	import Button from '../Button/Button.svelte';
-	import { InputField, InputGroup } from '../Input/index.ts';
+	import { Field, TextInput, PasswordInput, TextArea, Select, InputGroup } from '../Input/index.ts';
 	import { Fieldset } from '../Fieldset/index.ts';
 
 	const { Story } = defineMeta({
@@ -18,39 +18,40 @@
 			<Padding size="l">
 				<form onsubmit={(e) => e.preventDefault()}>
 					<Fieldset legend="Personal Information" isInForm>
-						<InputField
-							label="Full Name"
-							placeholder="John Doe"
-							required
-							hint="Enter your legal full name."
-						/>
+						<Field label="Full Name" required hint="Enter your legal full name.">
+							<TextInput placeholder="John Doe" />
+						</Field>
 
-						<InputField label="Email Address" type="email" placeholder="john@example.com" />
+						<Field label="Email Address">
+							<TextInput type="email" placeholder="john@example.com" />
+						</Field>
 
 						<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-							<InputField label="Password" type="password" value="secret" />
-							<InputField label="Phone Number" type="tel" placeholder="+1 (555) 000-0000" />
+							<Field label="Password">
+								<PasswordInput value="secret" />
+							</Field>
+							<Field label="Phone Number">
+								<TextInput type="tel" placeholder="+1 (555) 000-0000" />
+							</Field>
 						</div>
 					</Fieldset>
 
 					<Padding y size="m">
 						<Fieldset legend="Preferences" isInForm>
-							<InputField
-								label="Primary Role"
-								type="select"
-								options={[
-									{ value: 'developer', label: 'Developer' },
-									{ value: 'designer', label: 'Designer' },
-									{ value: 'manager', label: 'Manager' },
-									{ value: 'other', label: 'Other' }
-								]}
-							/>
+							<Field label="Primary Role">
+								<Select
+									options={[
+										{ value: 'developer', label: 'Developer' },
+										{ value: 'designer', label: 'Designer' },
+										{ value: 'manager', label: 'Manager' },
+										{ value: 'other', label: 'Other' }
+									]}
+								/>
+							</Field>
 
-							<InputField
-								label="Biography"
-								type="textarea"
-								placeholder="Tell us about yourself..."
-							/>
+							<Field label="Biography">
+								<TextArea placeholder="Tell us about yourself..." />
+							</Field>
 
 							<div class="akui-field">
 								<label
@@ -84,7 +85,9 @@
 						</Fieldset>
 					</Padding>
 
-					<InputField label="Birth Date" type="date" />
+					<Field label="Birth Date">
+						<TextInput type="date" />
+					</Field>
 
 					<div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
 						<Button label="Reset" type="reset" />
@@ -103,7 +106,9 @@
 			<Padding size="l">
 				<p class="akui-label">Standard Side-by-Side (Space Gap)</p>
 				<InputGroup>
-					<InputField label="Search" placeholder="Search for anything..." />
+					<Field label="Search">
+						<TextInput placeholder="Search for anything..." />
+					</Field>
 					<Button variant="accent" label="Search" />
 				</InputGroup>
 			</Padding>
@@ -114,7 +119,9 @@
 			<Padding size="l">
 				<p class="akui-label">Joined Group (Merged Borders)</p>
 				<InputGroup joined>
-					<InputField label="Email Newsletter" type="email" placeholder="you@example.com" />
+					<Field label="Email Newsletter">
+						<TextInput type="email" placeholder="you@example.com" />
+					</Field>
 					<Button variant="accent" label="Subscribe" />
 				</InputGroup>
 			</Padding>
@@ -125,7 +132,9 @@
 			<Padding size="l">
 				<p class="akui-label">Input with Icon Button</p>
 				<InputGroup joined>
-					<InputField label="Project URL" value="https://github.com/ash/svelte-akui" readonly />
+					<Field label="Project URL">
+						<TextInput value="https://github.com/ash/svelte-akui" readonly />
+					</Field>
 					<Button icon="clipboard" iconPosition="only" label="Copy URL" />
 				</InputGroup>
 			</Padding>
@@ -136,17 +145,18 @@
 			<Padding size="l">
 				<p class="akui-label">Prefix Select + Input + Action</p>
 				<InputGroup joined>
-					<InputField
-						label="Region"
-						type="select"
-						options={[
-							{ value: 'us', label: 'US' },
-							{ value: 'eu', label: 'EU' },
-							{ value: 'au', label: 'AU' }
-						]}
-						style="width: 80px;"
-					/>
-					<InputField label="Domain Name" placeholder="example.com" />
+					<Field label="Region" style="width: 80px;">
+						<Select
+							options={[
+								{ value: 'us', label: 'US' },
+								{ value: 'eu', label: 'EU' },
+								{ value: 'au', label: 'AU' }
+							]}
+						/>
+					</Field>
+					<Field label="Domain Name">
+						<TextInput placeholder="example.com" />
+					</Field>
 					<Button variant="accent" icon="plus" iconPosition="only" label="Add Domain" />
 				</InputGroup>
 			</Padding>
@@ -162,7 +172,9 @@
 					<label for="bespoke-1">Bespoke Input (Bypasses AKUI styles)</label>
 					<input type="text" id="bespoke-1" class="bespoke" placeholder="Browser default style" />
 				</div>
-				<InputField label="AKUI Input (Standard)" placeholder="AKUI premium style" />
+				<Field label="AKUI Input (Standard)">
+					<TextInput placeholder="AKUI premium style" />
+				</Field>
 			</Padding>
 		</Panel>
 	</div>

@@ -2,11 +2,10 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Fieldset from './Fieldset.svelte';
 	import Button from '../Button/Button.svelte';
-	import { InputField } from '../Input/index.ts';
+	import { Field, TextInput, Select } from '../Input/index.ts';
 
 	const { Story } = defineMeta({
 		title: 'Components/Fieldset',
-		component: Fieldset,
 		tags: ['autodocs']
 	});
 </script>
@@ -14,8 +13,12 @@
 <Story name="Basic">
 	<div style="max-width: 500px;">
 		<Fieldset legend="Account Settings">
-			<InputField label="Username" placeholder="johndoe" />
-			<InputField label="Email" type="email" placeholder="john@example.com" />
+			<Field label="Username">
+				<TextInput placeholder="johndoe" />
+			</Field>
+			<Field label="Email">
+				<TextInput type="email" placeholder="john@example.com" />
+			</Field>
 		</Fieldset>
 	</div>
 </Story>
@@ -28,22 +31,22 @@
 				<Button size="small" label="Reset" />
 			{/snippet}
 
-			<InputField
-				label="Email Notifications"
-				type="select"
-				options={[
-					{ value: 'on', label: 'On' },
-					{ value: 'off', label: 'Off' }
-				]}
-			/>
-			<InputField
-				label="SMS Alerts"
-				type="select"
-				options={[
-					{ value: 'on', label: 'On' },
-					{ value: 'off', label: 'Off' }
-				]}
-			/>
+			<Field label="Email Notifications">
+				<Select
+					options={[
+						{ value: 'on', label: 'On' },
+						{ value: 'off', label: 'Off' }
+					]}
+				/>
+			</Field>
+			<Field label="SMS Alerts">
+				<Select
+					options={[
+						{ value: 'on', label: 'On' },
+						{ value: 'off', label: 'Off' }
+					]}
+				/>
+			</Field>
 		</Fieldset>
 	</div>
 </Story>
@@ -63,8 +66,12 @@
 	<div style="max-width: 500px;">
 		<form onsubmit={(e) => e.preventDefault()}>
 			<Fieldset legend="Personal Details" isInForm>
-				<InputField label="First Name" />
-				<InputField label="Last Name" />
+				<Field label="First Name">
+					<TextInput />
+				</Field>
+				<Field label="Last Name">
+					<TextInput />
+				</Field>
 			</Fieldset>
 		</form>
 	</div>

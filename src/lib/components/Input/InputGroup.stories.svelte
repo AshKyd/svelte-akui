@@ -1,14 +1,13 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import InputGroup from './InputGroup.svelte';
-	import InputField from './InputField.svelte';
+	import { Field, TextInput, Select } from './index.ts';
 	import Button from '../Button/Button.svelte';
 	import Panel from '../Panel/Panel.svelte';
 	import Padding from '../Padding/Padding.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Input/InputGroup',
-		component: InputGroup,
 		tags: ['autodocs']
 	});
 </script>
@@ -18,8 +17,12 @@
 		<Panel>
 			<Padding size="l">
 				<div style="display: flex; flex-direction: column; gap: 1rem;">
-					<InputField label="Disabled Input" value="Cannot edit this" disabled />
-					<InputField label="Readonly Input" value="Can select but not edit" readonly />
+					<Field label="Disabled Input">
+						<TextInput value="Cannot edit this" disabled />
+					</Field>
+					<Field label="Readonly Input">
+						<TextInput value="Can select but not edit" readonly />
+					</Field>
 				</div>
 			</Padding>
 		</Panel>
@@ -34,7 +37,9 @@
 					Joint groups share a single outer shadow and border-radius.
 				</p>
 				<InputGroup joined>
-					<InputField label="Search" placeholder="Search components..." />
+					<Field label="Search">
+						<TextInput placeholder="Search components..." />
+					</Field>
 					<Button variant="accent" label="Search" />
 				</InputGroup>
 			</Padding>
@@ -47,8 +52,12 @@
 		<Panel>
 			<Padding size="l">
 				<InputGroup>
-					<InputField label="First Name" placeholder="John" />
-					<InputField label="Last Name" placeholder="Doe" />
+					<Field label="First Name">
+						<TextInput placeholder="John" />
+					</Field>
+					<Field label="Last Name">
+						<TextInput placeholder="Doe" />
+					</Field>
 					<Button label="Save" />
 				</InputGroup>
 			</Padding>
@@ -59,17 +68,23 @@
 <Story name="Size Inheritance">
 	<div style="display: flex; flex-direction: column; gap: 2rem;">
 		<InputGroup joined size="small">
-			<InputField label="Small" placeholder="Small size..." />
+			<Field label="Small">
+				<TextInput placeholder="Small size..." />
+			</Field>
 			<Button label="Small" />
 		</InputGroup>
 
 		<InputGroup joined size="medium">
-			<InputField label="Medium" placeholder="Medium size..." />
+			<Field label="Medium">
+				<TextInput placeholder="Medium size..." />
+			</Field>
 			<Button label="Medium" />
 		</InputGroup>
 
 		<InputGroup joined size="large">
-			<InputField label="Large" placeholder="Large size..." />
+			<Field label="Large">
+				<TextInput placeholder="Large size..." />
+			</Field>
 			<Button label="Large" />
 		</InputGroup>
 	</div>
@@ -80,16 +95,17 @@
 		<Panel>
 			<Padding size="l">
 				<InputGroup joined>
-					<InputField
-						label="Protocol"
-						type="select"
-						options={[
-							{ value: 'http', label: 'http://' },
-							{ value: 'https', label: 'https://' }
-						]}
-						style="width: 100px;"
-					/>
-					<InputField label="Domain" placeholder="example.com" />
+					<Field label="Protocol" style="width: 100px;">
+						<Select
+							options={[
+								{ value: 'http', label: 'http://' },
+								{ value: 'https', label: 'https://' }
+							]}
+						/>
+					</Field>
+					<Field label="Domain">
+						<TextInput placeholder="example.com" />
+					</Field>
 					<Button variant="accent" icon="plus" iconPosition="only" label="Add" />
 				</InputGroup>
 			</Padding>
@@ -127,7 +143,9 @@
 		<Panel>
 			<Padding size="l">
 				<InputGroup joined style="width: 100%;">
-					<InputField label="Search" placeholder="Search for files, users, and more..." />
+					<Field label="Search">
+						<TextInput placeholder="Search for files, users, and more..." />
+					</Field>
 					<Button variant="accent" label="Search" />
 				</InputGroup>
 			</Padding>
@@ -140,7 +158,9 @@
 		<Panel>
 			<Padding size="l">
 				<InputGroup joined>
-					<InputField label="API Key" value="sk_test_51Mz..." readonly />
+					<Field label="API Key">
+						<TextInput value="sk_test_51Mz..." readonly />
+					</Field>
 					<Button icon="clipboard" iconPosition="only" label="Copy" />
 					<Button icon="arrow-clockwise" iconPosition="only" label="Regenerate" />
 				</InputGroup>
