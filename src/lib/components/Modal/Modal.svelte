@@ -21,9 +21,19 @@
 		footer?: import('svelte').Snippet;
 		/** Default slot for modal content. */
 		children?: import('svelte').Snippet;
+		/** Whether the modal should be fullscreen on mobile devices. Defaults to false. */
+		fullscreenOnMobile?: boolean;
 	}
 
-	let { title, icon, onClose, showCloseButton = true, footer, children }: Props = $props();
+	let {
+		title,
+		icon,
+		onClose,
+		showCloseButton = true,
+		footer,
+		children,
+		fullscreenOnMobile = false
+	}: Props = $props();
 
 	let dialog: HTMLDialogElement;
 	let visible = $state(false);
@@ -60,12 +70,14 @@
 <dialog
 	bind:this={dialog}
 	class="akui-modal-dialog"
+	class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
 	onclick={handleBackdropClick}
 	onclose={onClose}
 >
 	{#if visible}
 		<div
 			class="akui-modal-content"
+			class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
 			in:scale={{ duration: 200, start: 0.95 }}
 			out:scale={{ duration: 200, start: 0.95 }}
 		>
@@ -137,7 +149,25 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 320px;
+		max-height: inherit; /* Inherit the dialog's max-height (90vh) */
 		overflow: hidden;
+		transition: var(--akui-transition-theme);
+	}
+
+	@media (max-width: 720px) {
+		dialog.akui-modal-fullscreen-mobile {
+			max-width: none;
+			max-height: none;
+		}
+
+		.akui-modal-fullscreen-mobile {
+			width: 100vw;
+			height: 100vh;
+			max-width: none;
+			max-height: none;
+			border-radius: 0;
+			border: none;
+		}
 	}
 
 	.akui-modal-header {

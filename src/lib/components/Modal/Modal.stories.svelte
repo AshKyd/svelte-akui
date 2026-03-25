@@ -45,6 +45,25 @@
 		</Padding>
 	</Modal>
 </Story>
+<Story name="Mobile Fullscreen">
+	<Modal
+		title="Mobile View"
+		icon="phone"
+		fullscreenOnMobile={true}
+		onClose={() => console.log('Close')}
+	>
+		<Padding>
+			<h2>Fullscreen Content</h2>
+			<p>On devices smaller than 720px, this modal takes up the entire screen.</p>
+			{#each Array(20) as _, i (i)}
+				<p>
+					This is some scrolling example content to verify the header and footer behavior. The modal
+					body will scroll while the title and actions stay fixed.
+				</p>
+			{/each}
+		</Padding>
+	</Modal>
+</Story>
 
 <Story name="Custom Padding">
 	<Modal title="No Padding" onClose={() => console.log('Close requested')}>
