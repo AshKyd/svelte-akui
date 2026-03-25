@@ -3,3 +3,6 @@ export * from './components/Panel/index.js';
 export * from './components/Button/index.js';
 export * from './components/Icon/index.js';
 export * from './components/ButtonGroup/index.js';
+export * from './components/Loader/index.js';
+export * from './components/Modal/index.js';
+export * from './components/Padding/index.js';
