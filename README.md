@@ -1,6 +1,6 @@
-# AKUI (Antigravity UI)
+# Svelte Akui
 
-A modular UI library built for **Svelte 5** designed for building web apps.
+A modular UI library built for **Svelte 5** designed for building web apps. This is a personal project, very unstable and likely to change without notice.
 
 ## Getting Started
 

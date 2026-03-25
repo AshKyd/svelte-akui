@@ -56,7 +56,7 @@
 	.akui-input-group.joined {
 		gap: 0;
 		border-radius: var(--akui-radius-m);
-		box-shadow: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+		box-shadow: var(--akui-shadow-shiny);
 		isolation: isolate;
 	}
 

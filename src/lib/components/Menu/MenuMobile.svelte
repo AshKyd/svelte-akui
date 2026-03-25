@@ -61,7 +61,9 @@
 		border-top: 1px solid var(--akui-border, rgba(0, 0, 0, 0.1));
 		border-radius: 1rem 1rem 0 0;
 		padding-bottom: env(safe-area-inset-bottom);
-		box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.1);
+		box-shadow:
+			var(--akui-shadow-shiny),
+			0 -10px 25px -5px rgba(0, 0, 0, 0.1);
 		display: flex;
 		flex-direction: column;
 		max-height: 90vh;

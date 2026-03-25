@@ -43,6 +43,7 @@
 	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.05);
 	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
 	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
 	--akui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234b5563' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
 
 	--akui-transition-theme:
@@ -93,6 +94,7 @@
 	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.4);
 	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.1);
 	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3);
+	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
 	--akui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
 
 	--akui-transition-theme:
@@ -114,7 +116,7 @@
 	border-radius: var(--akui-radius-m);
 	background-color: var(--akui-bg-button);
 	color: var(--akui-fg-button);
-	box-shadow: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+	box-shadow: var(--akui-shadow-shiny);
 	cursor: pointer;
 	transition: var(--akui-transition-theme);
 	text-decoration: none;

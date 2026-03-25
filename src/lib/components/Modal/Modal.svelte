@@ -140,7 +140,7 @@
 		background: var(--akui-bg);
 		color: var(--akui-fg);
 		border-radius: var(--akui-radius-l);
-		border: 2px solid var(--akui-border-input);
+		border: 1px solid var(--akui-border-input);
 		box-shadow:
 			var(--akui-glow-top),
 			var(--akui-glow-bottom),
