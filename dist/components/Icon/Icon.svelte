@@ -39,7 +39,7 @@
 		import: 'default'
 	});
 
-	console.log(`[AKUI] Found ${Object.keys(iconModules).length} icons in glob.`);
+	console.log(`[Akui] Found ${Object.keys(iconModules).length} icons in glob.`);
 
 	let svgContent = $state<string | null>(null);
 
@@ -50,7 +50,7 @@
 			let loader = iconModules[path];
 
 			if (!loader) {
-				console.error(`[AKUI] Icon "${name}" not found. Falling back to exclamation-triangle.`);
+				console.error(`[Akui] Icon "${name}" not found. Falling back to exclamation-triangle.`);
 				loader = iconModules[fallbackPath];
 			}
 
@@ -60,11 +60,11 @@
 						svgContent = content;
 					})
 					.catch((err) => {
-						console.error(`[AKUI] Error loading icon "${name}":`, err);
+						console.error(`[Akui] Error loading icon "${name}":`, err);
 						svgContent = null;
 					});
 			} else {
-				console.error(`[AKUI] Critical: Default fallback icon not found at ${fallbackPath}`);
+				console.error(`[Akui] Critical: Default fallback icon not found at ${fallbackPath}`);
 				svgContent = null;
 			}
 		}

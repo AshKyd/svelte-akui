@@ -56,7 +56,7 @@
 	.akui-input-group.joined {
 		gap: 0;
 		border-radius: var(--akui-radius-m);
-		box-shadow: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+		box-shadow: var(--akui-shadow-subtle);
 		isolation: isolate;
 	}
 
@@ -68,9 +68,23 @@
 		border-radius: var(--akui-radius-l);
 	}
 
-	/* Reset children in joined groups */
-	.akui-input-group.joined :global(> *) {
-		box-shadow: none !important;
+	/* Apply sunken glows to text controls in joined groups */
+	.akui-input-group.joined :global(> * input),
+	.akui-input-group.joined :global(> * textarea) {
+		box-shadow: var(--akui-shadow-sunken) !important;
+	}
+
+	/* Apply raised glows to interactive controls in joined groups */
+	.akui-input-group.joined :global(> * select),
+	.akui-input-group.joined :global(> * .akui-btn),
+	.akui-input-group.joined :global(> .akui-btn) {
+		box-shadow: var(--akui-shadow-glow) !important;
+	}
+
+	/* Preserve active state for buttons in groups */
+	.akui-input-group.joined :global(> * .akui-btn:active),
+	.akui-input-group.joined :global(> .akui-btn:active) {
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 	}
 
 	/* Handle internal radii and borders for joined children */

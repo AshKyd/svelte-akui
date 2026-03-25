@@ -28,11 +28,11 @@
 	.akui-menu-card {
 		background: var(--akui-bg, #ffffff);
 		color: var(--akui-fg, #000000);
-		border: 1px solid var(--akui-border, rgba(255, 255, 255, 0.1));
+		border: 1px solid var(--akui-border-input, rgba(0, 0, 0, 0.1));
 		border-radius: 0.75rem;
 		box-shadow:
 			var(--akui-shadow-shiny),
-			0 10px 25px -5px rgba(0, 0, 0, 0.3);
+			0 1px 3px rgba(0, 0, 0, 0.15);
 		overflow: hidden;
 		display: flex;
 		flex-direction: column;

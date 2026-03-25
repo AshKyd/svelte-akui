@@ -21,10 +21,7 @@
 	.akui-panel {
 		border-radius: var(--akui-radius-m);
 		padding: 1rem;
-		box-shadow:
-			var(--akui-glow-top),
-			var(--akui-glow-bottom),
-			var(--akui-shadow-subtle);
+		box-shadow: var(--akui-shadow-shiny);
 		border: 1px solid rgba(0, 0, 0, 0.1);
 	}
 

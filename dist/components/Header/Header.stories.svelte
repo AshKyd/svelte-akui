@@ -22,13 +22,13 @@
 </script>
 
 {#snippet sidebarFooter()}
-	<Small tag="p">© 2024 AKUI Design</Small>
+	<Small tag="p">© 2024 Akui</Small>
 	<Small tag="p">v1.0.4-beta</Small>
 {/snippet}
 
 {#snippet titleSnippet()}
 	<Icon name="bolt-fill" colour="var(--akui-bg-accent)" size="1.25rem" />
-	<span style="margin-left: 0.5rem;">AKUI App</span>
+	<span style="margin-left: 0.5rem;">Akui App</span>
 {/snippet}
 
 {#snippet actionsSnippet()}

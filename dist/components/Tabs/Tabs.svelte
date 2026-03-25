@@ -141,7 +141,7 @@
 		z-index: 4;
 		height: calc(100% + 1px);
 		/* The shadow helps it feel "raised" */
-		box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+		box-shadow: var(--akui-glow-top);
 	}
 
 	/* Use a pseudo-element to mask the bottom border correctly */
@@ -173,7 +173,7 @@
 		position: relative;
 		z-index: 1;
 		margin-top: -1px; /* Seamless integration with tabs */
-		box-shadow: var(--akui-shadow-sm);
+		box-shadow: var(--akui-shadow-shiny);
 	}
 
 	.akui-tabs-border-line {
