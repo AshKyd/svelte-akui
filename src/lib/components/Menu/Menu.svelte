@@ -79,7 +79,15 @@
 	});
 
 	$effect(() => {
-		if (x !== undefined || y !== undefined || origin || isMobile || container) {
+		if (rendered && container) {
+			const observer = new ResizeObserver(updatePosition);
+			observer.observe(container);
+			return () => observer.disconnect();
+		}
+	});
+
+	$effect(() => {
+		if (rendered && (x !== undefined || y !== undefined || origin || isMobile)) {
 			updatePosition();
 		}
 	});
@@ -95,6 +103,7 @@
 	}
 </script>
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <dialog
 	bind:this={dialog}
 	oncancel={handleCancel}
@@ -112,8 +121,15 @@
 				{@render children()}
 			</MenuMobile>
 		{:else}
-			<div bind:this={container} class="akui-menu-desktop-proxy">
-				<MenuDesktop class={className} x={adjustedX} y={adjustedY} {origin}>
+			<div
+				bind:this={container}
+				class="akui-menu-desktop-container"
+				style:left="{adjustedX}px"
+				style:top="{adjustedY}px"
+				style:transform-origin={origin.split('-').join(' ')}
+				onclick={(e) => e.stopPropagation()}
+			>
+				<MenuDesktop class={className}>
 					{@render children()}
 				</MenuDesktop>
 			</div>
@@ -158,7 +174,10 @@
 		z-index: 1000;
 	}
 
-	.akui-menu-desktop-proxy {
-		display: contents;
+	.akui-menu-desktop-container {
+		position: fixed;
+		z-index: 1001;
+		pointer-events: auto;
+		display: inline-block;
 	}
 </style>
