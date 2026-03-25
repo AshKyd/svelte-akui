@@ -1,65 +1,76 @@
-# Svelte library
+# AKUI (Antigravity UI)
 
-Everything you need to build a Svelte library, powered by [`sv`](https://npmjs.com/package/sv).
+A modular UI library built for **Svelte 5** designed for building web apps.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+## Getting Started
 
-## Creating a project
+Wrap your application in the `UIRoot` component to set up the design system's CSS variables and global styles.
 
-If you're seeing this, you've probably already done this step. Congrats!
+```svelte
+<script>
+	import { UIRoot } from 'svelte-akui';
+</script>
 
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+<UIRoot>
+	<!-- Your application content here -->
+</UIRoot>
 ```
 
-To recreate this project with the same configuration:
+## Component Index
 
-```sh
-# recreate this project
-npx sv@0.12.7 create --template library --types ts --add prettier eslint storybook --install npm svelte-akui
-```
+### Layout & Foundation
 
-## Developing
+- **`UIRoot`**: Required parent wrapper. Sets the base font, HSL color tokens, and manages theme state.
+- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors.
+- **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
+- **`Divider`**: A 1px horizontal or vertical line for visual separation.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Input System
 
-```sh
-npm run dev
+Components should be composed: wrap any input in a `Field` to add a label.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- **`Field`**: Adds a `label` and `hint` (helper text) to a child. Automatically links the label to the input ID.
+- **`TextInput`**: One-line field. Supports standard types (`text`, `email`, `tel`, `url`, `search`, `number`, `date`, `color`). Supports `small`, `medium`, and `large` sizes.
+- **`TextArea`**: Multi-line field. Supports `small`, `medium`, and `large` sizes and vertical resizing.
+- **`Select`**: Drop-down menu for picking from `options`.
+- **`PasswordInput`**: A text field with a toggle button to show or hide the password characters.
+- **`ColourInput`**: A field with a manual hex code input and a clickable color swatch trigger.
+- **`InputGroup`**: Aligns multiple inputs or buttons in a row. Use `joined` to merge their borders into a single unit. Inherits `size` to all children.
+- **`Fieldset`**: Groups related fields with a `legend`. Use `isInForm` for correct ARIA role behavior in form tags.
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+### Actions & Navigation
 
-## Building
+- **`Button`**: Primary interactive element. Supports `regular` and `accent` colors, and `small`, `medium`, and `large` sizes. Can include an `icon` with `iconPosition` (`left`, `right`, or `only`).
+- **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
+- **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuContent` (container), and `MenuDivider`.
+- **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view.
+- **`Header`**: Top navigation and branding bar.
 
-To build your library:
+### Feedback & Overlays
 
-```sh
-npm pack
-```
+- **`Loader`**: A spinning animation for background tasks.
+- **`LoaderOverlay`**: Covers the parent container with a semi-transparent layer and a loader to block interaction.
+- **`Modal`**: A centered dialog box for critical actions or information. Supports titles, action bars, and optional fullscreen view on mobile.
 
-To create a production version of your showcase app:
+### Misc
 
-```sh
-npm run build
-```
+- **`Icon`**: Renders a vector icon by name. Supports custom `size` (px).
+- **`Small`**: Semantic utility for secondary or small-print text.
 
-You can preview the production build with `npm run preview`.
+## Implementation Guidelines
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+### 1. Composition
 
-## Publishing
+The input system avoids monolithic components. Use the `Field` component to wrap raw inputs (`TextInput`, `Select`, etc.) to add labels and technical metadata without bloating the individual input components.
 
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
+### 2. Context-based Sizing
 
-To publish your library to [npm](https://www.npmjs.com):
+Components support `small`, `medium` (default), and `large` sizes. When components are placed inside an `InputGroup`, they inherit the group's size using Svelte context.
 
-```sh
-npm publish
-```
+### 3. ARIA Grouping
+
+Use `Fieldset` for groups of related inputs. Setting `isInForm` correctly assigns accessibility roles for better screen reader support.
+
+### 4. Direct Theming
+
+Styles are controlled by CSS variables using HSL values. You can override these in your local CSS to change colors, radii, or spacing globally.

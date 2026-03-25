@@ -9,3 +9,4 @@ export * from './components/Menu/index.js';
 export * from './components/Control/index.js';
 export * from './components/Fieldset/index.js';
 export * from './components/Input/index.js';
+export * from './components/Tabs/index.js';
