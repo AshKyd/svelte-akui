@@ -7,6 +7,10 @@
 		children: Snippet;
 		/** The content to be displayed in the sidebar. */
 		sidebar: Snippet;
+		/** Optional header to be integrated (above on desktop, shifting on mobile). */
+		header?: Snippet;
+		/** Optional title/logo to be shown in the sidebar on mobile. */
+		title?: Snippet;
 		/** Whether the sidebar is open (primarily for mobile). */
 		isOpen?: boolean;
 		/** The width of the sidebar. Defaults to '280px'. */
@@ -18,6 +22,8 @@
 	let {
 		children,
 		sidebar,
+		header,
+		title,
 		isOpen = $bindable(false),
 		width = '280px',
 		class: className = ''
@@ -35,48 +41,71 @@
 	});
 </script>
 
-<div
-	class="akui-sidebar-layout {className}"
-	class:is-mobile={isMobile}
-	class:is-open={isOpen}
-	style:--sidebar-width={width}
->
-	<aside class="akui-sidebar">
-		<div class="akui-sidebar-inner">
-			{@render sidebar?.()}
-		</div>
-	</aside>
+<div class="akui-sidebar-wrapper">
+	{#if !isMobile && header}
+		{@render header()}
+	{/if}
 
-	<main class="akui-main">
-		{#if isMobile && isOpen}
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div
-				class="akui-sidebar-backdrop"
-				onclick={() => (isOpen = false)}
-				transition:fade={{ duration: 200 }}
-			></div>
-		{/if}
-		<div class="akui-main-content">
-			{@render children?.()}
-		</div>
-	</main>
+	<div
+		class="akui-sidebar-layout {className}"
+		class:is-mobile={isMobile}
+		class:is-open={isOpen}
+		style:--sidebar-width={width}
+	>
+		<aside class="akui-sidebar">
+			{#if isMobile && title}
+				<div class="akui-sidebar-mobile-title">
+					{@render title()}
+				</div>
+			{/if}
+			<div class="akui-sidebar-inner">
+				{@render sidebar?.()}
+			</div>
+		</aside>
+
+		<main class="akui-main">
+			{#if isMobile && isOpen}
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<div
+					class="akui-sidebar-backdrop"
+					onclick={() => (isOpen = false)}
+					transition:fade={{ duration: 200 }}
+				></div>
+			{/if}
+
+			{#if isMobile && header}
+				{@render header()}
+			{/if}
+
+			<div class="akui-main-content">
+				{@render children?.()}
+			</div>
+		</main>
+	</div>
 </div>
 
 <style>
+	.akui-sidebar-wrapper {
+		display: flex;
+		flex-direction: column;
+		min-height: 100vh;
+	}
+
 	.akui-sidebar-layout {
 		display: flex;
 		width: 100%;
-		min-height: 100vh;
+		flex: 1;
 		position: relative;
 		transition: transform 0.3s ease;
 		background-color: var(--akui-bg);
 		color: var(--akui-fg);
+		align-items: stretch; /* Ensure children stretch to full height */
 	}
 
 	.akui-sidebar {
 		width: var(--sidebar-width);
-		height: 100vh;
+		min-height: 100%;
 		position: sticky;
 		top: 0;
 		flex-shrink: 0;
@@ -85,6 +114,12 @@
 		z-index: 20;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.akui-sidebar-mobile-title {
+		padding: var(--akui-space-m);
+		border-bottom: 1px solid var(--akui-border-input);
+		font-weight: 600;
 	}
 
 	.akui-sidebar-inner {
@@ -108,14 +143,18 @@
 
 	/* Mobile Styles */
 	@media (max-width: 768px) {
+		.akui-sidebar-wrapper {
+			min-height: 100vh;
+			overflow-x: hidden;
+		}
+
 		.akui-sidebar-layout {
-			/* Ensure we don't clip the sidebar when it's at the left edge */
 			overflow: visible;
 		}
 
 		.akui-sidebar {
-			position: relative; /* Back to relative but shifted out */
-			margin-left: calc(-1 * var(--sidebar-width));
+			position: absolute;
+			left: calc(-1 * var(--sidebar-width));
 			height: 100vh;
 			z-index: 20;
 		}
@@ -132,16 +171,18 @@
 			right: 0;
 			background: rgba(0, 0, 0, 0.4);
 			z-index: 15;
-			/* Since the parent is transformed, we need to counter-transform the backdrop 
-			   to keep it covering the entire screen. */
 			width: 100vw;
 			height: 100vh;
 			transform: translateX(calc(-1 * var(--sidebar-width)));
 		}
 
-		/* Prevent the entire page from having a horizontal scrollbar */
 		:global(body) {
 			overflow-x: hidden;
 		}
+	}
+
+	:global([data-theme='dark']) .akui-sidebar {
+		background: var(--akui-bg-secondary);
+		border-right-color: rgba(255, 255, 255, 0.05);
 	}
 </style>
