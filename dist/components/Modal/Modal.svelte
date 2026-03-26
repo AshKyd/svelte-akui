@@ -163,11 +163,21 @@
 		dialog.akui-modal-fullscreen-mobile {
 			max-width: none;
 			max-height: none;
+			padding: 0;
+			margin: 0;
+			width: 100%;
+			height: 100dvh;
 		}
 
 		.akui-modal-fullscreen-mobile,
 		.akui-modal-fullscreen-mobile .akui-modal-header {
 			border-radius: 0;
+		}
+
+		.akui-modal-content.akui-modal-fullscreen-mobile {
+			height: 100dvh;
+			width: 100%;
+			border: none;
 		}
 	}
 
