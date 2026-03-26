@@ -13,6 +13,8 @@
 		title?: string;
 		/** Optional icon name (Bootstrap Icon) to display next to the title. */
 		icon?: string;
+		/** Optional snippet for a custom icon. Overrides the icon prop. */
+		iconSnippet?: import('svelte').Snippet;
 		/** Callback when the modal requests to close. */
 		onClose: () => void;
 		/** Whether to show the close button in the header. Defaults to true. */
@@ -28,6 +30,7 @@
 	let {
 		title,
 		icon,
+		iconSnippet,
 		onClose,
 		showCloseButton = true,
 		footer,
@@ -83,7 +86,11 @@
 		>
 			<header class="akui-modal-header">
 				<div class="akui-modal-title-group">
-					{#if icon}
+					{#if iconSnippet}
+						<div class="akui-modal-icon-container">
+							{@render iconSnippet()}
+						</div>
+					{:else if icon}
 						<Icon name={icon} size="1.125rem" class="akui-modal-icon" />
 					{/if}
 					{#if title}
@@ -181,6 +188,22 @@
 		align-items: center;
 		gap: var(--akui-space-m);
 		flex: 1;
+	}
+
+	.akui-modal-icon-container {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 1.125rem;
+		height: 1.125rem;
+		flex-shrink: 0;
+		margin-top: -1px; /* Optical adjustment */
+	}
+
+	.akui-modal-icon-container :global(img) {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
 	}
 
 	:global(.akui-modal-icon) {

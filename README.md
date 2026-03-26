@@ -50,7 +50,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 - **`Loader`**: A spinning animation for background tasks.
 - **`LoaderOverlay`**: Covers the parent container with a semi-transparent layer and a loader to block interaction.
-- **`Modal`**: A centered dialog box for critical actions or information. Supports titles, action bars, and optional fullscreen view on mobile.
+- **`Modal`**: A centered dialog box for critical actions or information. Supports titles, action bars, custom icons via snippets, and optional fullscreen view on mobile.
 
 ### Misc
 

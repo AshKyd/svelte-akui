@@ -7,6 +7,8 @@ interface Props {
     title?: string;
     /** Optional icon name (Bootstrap Icon) to display next to the title. */
     icon?: string;
+    /** Optional snippet for a custom icon. Overrides the icon prop. */
+    iconSnippet?: import('svelte').Snippet;
     /** Callback when the modal requests to close. */
     onClose: () => void;
     /** Whether to show the close button in the header. Defaults to true. */
