@@ -181,6 +181,24 @@
 	width: 3rem;
 }
 
+/* Global Link Styles */
+a:not(.bespoke) {
+	color: var(--akui-bg-accent);
+	text-decoration: none;
+	transition: var(--akui-transition-theme);
+}
+
+a:not(.bespoke):hover {
+	text-decoration: underline;
+	color: var(--akui-bg-accent-hover);
+}
+
+a:not(.bespoke):focus-visible {
+	outline: 2px solid var(--akui-bg-accent);
+	outline-offset: 2px;
+	border-radius: var(--akui-radius-s);
+}
+
 /* Global Form Controls (Reset Only) */
 input:not(.bespoke):not([type='checkbox']):not([type='radio']):not([type='range']):not(
 		[type='file']
