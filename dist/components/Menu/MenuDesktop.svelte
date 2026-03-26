@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import { ControlGroup } from '../Control/index.js';
 
 	interface Props {
@@ -11,7 +12,10 @@
 	let { children, class: className = '' }: Props = $props();
 </script>
 
-<div class="akui-desktop-menu-layer {className}" transition:fade={{ duration: 250 }}>
+<div
+	class="akui-desktop-menu-layer {className}"
+	transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+>
 	<div class="akui-menu-card">
 		<ControlGroup role="menu" class="akui-menu-scroll-area">
 			{@render children()}

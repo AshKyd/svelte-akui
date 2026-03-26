@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import { ControlGroup } from '../Control/index.ts';
 
 	interface Props {
@@ -17,14 +18,21 @@
 	// }
 </script>
 
-<!-- The akui-menu-mobile-backdrop div and its conditional rendering block have been removed -->
+<!-- Rendered side-by-side with the mobile menu content layer -->
+<div
+	class="akui-menu-mobile-backdrop"
+	transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+></div>
 
 <div
 	class="akui-mobile-menu-layer {className}"
 	role="presentation"
 	onclick={(e) => e.stopPropagation()}
 >
-	<div class="akui-mobile-menu-content" transition:fade={{ duration: 250 }}>
+	<div
+		class="akui-mobile-menu-content"
+		transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+	>
 		<div class="akui-menu-mobile-handle"></div>
 		<ControlGroup role="menu" class="akui-menu-scroll-area">
 			{@render children()}

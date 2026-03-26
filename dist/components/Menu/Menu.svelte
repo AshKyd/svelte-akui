@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet, onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import MenuDesktop from './MenuDesktop.svelte';
 	import MenuMobile from './MenuMobile.svelte';
 
@@ -105,14 +106,10 @@
 	bind:this={dialog}
 	oncancel={handleCancel}
 	onclick={handleClose}
-	transition:fade={{ duration: 250 }}
+	transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
 	class="akui-menu-dialog"
 >
 	{#if rendered}
-		{#if isMobile}
-			<div class="akui-menu-backdrop" transition:fade={{ duration: 250 }}></div>
-		{/if}
-
 		{#if isMobile}
 			<MenuMobile class={className}>
 				{@render children()}
@@ -159,17 +156,6 @@
 
 	.akui-menu-dialog::backdrop {
 		background: transparent;
-	}
-
-	.akui-menu-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.4);
-		backdrop-filter: blur(4px);
-		z-index: 1000;
 	}
 
 	.akui-menu-desktop-container {

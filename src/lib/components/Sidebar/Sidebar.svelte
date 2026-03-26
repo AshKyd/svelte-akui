@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet, onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import { ControlGroup } from '../Control/index.ts';
 
 	interface Props {
@@ -81,7 +82,7 @@
 				<div
 					class="akui-sidebar-backdrop"
 					onclick={() => (isOpen = false)}
-					transition:fade={{ duration: 200 }}
+					transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
 				></div>
 			{/if}
 
