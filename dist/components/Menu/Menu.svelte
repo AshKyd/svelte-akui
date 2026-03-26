@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { type Snippet, onMount } from 'svelte';
+	import { type Snippet, onMount, setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import MenuDesktop from './MenuDesktop.svelte';
 	import MenuMobile from './MenuMobile.svelte';
+	import { MENU_CONTEXT_KEY } from './index.js';
 
 	interface Props {
 		x?: number;
@@ -24,6 +25,12 @@
 		forceMobile = false,
 		origin = 'top-left'
 	}: Props = $props();
+
+	function handleClose() {
+		if (onClose) onClose();
+	}
+
+	setContext(MENU_CONTEXT_KEY, { close: handleClose });
 
 	let dialog = $state<HTMLDialogElement>();
 	let container = $state<HTMLDivElement>();
@@ -90,10 +97,6 @@
 			updatePosition();
 		}
 	});
-
-	function handleClose() {
-		if (onClose) onClose();
-	}
 
 	function handleCancel(e: Event) {
 		e.preventDefault();

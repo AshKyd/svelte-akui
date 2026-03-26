@@ -42,7 +42,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 - **`Button`**: Primary interactive element. Supports `regular` and `accent` colors, and `small`, `medium`, and `large` sizes. Can include an `icon` with `iconPosition` (`left`, `right`, or `only`).
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
-- **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuContent` (container), and `MenuDivider`.
+- **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
 - **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view.
 - **`Header`**: Top navigation and branding bar.
 
@@ -73,4 +73,17 @@ Use `Fieldset` for groups of related inputs. Setting `isInForm` correctly assign
 
 ### 4. Direct Theming
 
-Styles are controlled by CSS variables using HSL values. You can override these in your local CSS to change colors, radii, or spacing globally.
+### 5. Advanced Menu Usage
+
+Any custom component nested inside a `Menu` can trigger it to close using the `useMenu` hook. This is useful for interactive content or custom actions that aren't using the standard `MenuItem`.
+
+```svelte
+<script>
+	import { useMenu } from 'svelte-akui';
+	const menu = useMenu();
+</script>
+
+<button onclick={() => menu?.close()}> Clicking this will close the menu </button>
+```
+
+Forms and other interactive elements inside a `Menu` will not close the menu by default because click events are stopped at the menu container level. Only explicit calls to `menu.close()` or clicking a `MenuItem` will trigger a closure.

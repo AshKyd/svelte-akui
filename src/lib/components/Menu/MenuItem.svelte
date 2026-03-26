@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { ControlItem } from '../Control/index.ts';
+	import { useMenu } from './index.js';
 
 	interface Props {
 		/** Optional icon name (Bootstrap Icon). */
@@ -25,12 +26,19 @@
 		class: className = '',
 		...rest
 	}: Props = $props();
+
+	const menu = useMenu();
+
+	function handleClick(e: MouseEvent) {
+		if (onclick) onclick(e);
+		if (menu) menu.close();
+	}
 </script>
 
 {#if customContent}
-	<ControlItem {icon} {label} {onclick} class={className} {...rest}>
+	<ControlItem {icon} {label} onclick={handleClick} class={className} {...rest}>
 		{@render customContent()}
 	</ControlItem>
 {:else}
-	<ControlItem {icon} {label} {onclick} class={className} {...rest} />
+	<ControlItem {icon} {label} onclick={handleClick} class={className} {...rest} />
 {/if}

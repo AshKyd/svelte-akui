@@ -11,5 +11,6 @@ export * from './components/Fieldset/index.js';
 export * from './components/Input/index.js';
 export * from './components/Tabs/index.js';
 export * from './components/MenuButton/index.js';
-export { default as Header } from './components/Header/Header.svelte';
+export * from './components/Small/index.js';
+export * from './components/Header/index.js';
 export * from './constants.js';
