@@ -28,7 +28,7 @@
 		return () => mql.removeEventListener('change', handler);
 	});
 
-	const currentTheme = $derived(mode ?? systemMode);
+	const currentTheme = $derived.by(() => mode ?? systemMode);
 </script>
 
 <div class="akui-root" data-theme={currentTheme}>

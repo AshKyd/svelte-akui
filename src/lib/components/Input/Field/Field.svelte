@@ -31,7 +31,7 @@
 	}: Props = $props();
 
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
-	const inJoinedGroup = $derived(groupContext?.joined ?? false);
+	const inJoinedGroup = $derived.by(() => groupContext?.joined ?? false);
 </script>
 
 <div class="akui-field {className}" {style}>

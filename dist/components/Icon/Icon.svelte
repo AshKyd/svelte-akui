@@ -71,7 +71,7 @@
 	});
 
 	// Normalize size to include units if it's a number
-	let computedSize = $derived(typeof size === 'number' ? `${size}px` : size);
+	let computedSize = $derived.by(() => (typeof size === 'number' ? `${size}px` : size));
 </script>
 
 <span

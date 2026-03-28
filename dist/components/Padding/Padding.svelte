@@ -44,8 +44,8 @@
 	}: Props = $props();
 
 	// Determine which sides to apply padding to
-	const isSpecific = $derived(x || y || top || bottom || left || right);
-	const applyAll = $derived(!isSpecific || all);
+	const isSpecific = $derived.by(() => x || y || top || bottom || left || right);
+	const applyAll = $derived.by(() => !isSpecific || all);
 
 	const paddingStyle = $derived.by(() => {
 		const varName = `--akui-space-${size}`;

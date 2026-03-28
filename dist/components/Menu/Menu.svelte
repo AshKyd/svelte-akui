@@ -35,10 +35,10 @@
 	let dialog = $state<HTMLDialogElement>();
 	let container = $state<HTMLDivElement>();
 	let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-	const isMobile = $derived(forceMobile || windowWidth <= 720);
+	const isMobile = $derived.by(() => forceMobile || windowWidth <= 720);
 
-	let adjustedX = $state(x ?? 100);
-	let adjustedY = $state(y ?? 100);
+	let adjustedX = $state(100);
+	let adjustedY = $state(100);
 
 	function updatePosition() {
 		if (typeof window === 'undefined' || isMobile || !container) return;

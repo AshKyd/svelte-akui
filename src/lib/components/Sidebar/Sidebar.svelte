@@ -35,7 +35,7 @@
 	}: Props = $props();
 
 	let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-	const isMobile = $derived(windowWidth <= 768);
+	const isMobile = $derived.by(() => windowWidth <= 768);
 
 	onMount(() => {
 		const handleResize = () => {

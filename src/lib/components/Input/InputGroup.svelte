@@ -46,11 +46,16 @@
 
 <style>
 	.akui-input-group {
-		display: inline-flex;
+		display: flex;
 		align-items: flex-end;
 		gap: var(--akui-space-s);
-		width: max-content;
+		width: 100%;
 		max-width: 100%;
+	}
+
+	.akui-input-group > :global(*) {
+		flex: 1;
+		min-width: 0;
 	}
 
 	.akui-input-group.joined {

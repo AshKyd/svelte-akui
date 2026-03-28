@@ -44,8 +44,8 @@
 		}
 	});
 
-	const activeItem = $derived(items.find((i) => i.id === activeId));
-	const hasContent = $derived(items.some((i) => i.content));
+	const activeItem = $derived.by(() => items.find((i) => i.id === activeId));
+	const hasContent = $derived.by(() => items.some((i) => i.content));
 </script>
 
 <div class="akui-tabs {className}" {style} {...rest}>

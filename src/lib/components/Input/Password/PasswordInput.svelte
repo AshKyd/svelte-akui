@@ -36,11 +36,11 @@
 	}: Props = $props();
 
 	let showPassword = $state(false);
-	const type = $derived(showPassword ? 'text' : 'password');
+	const type = $derived.by(() => (showPassword ? 'text' : 'password'));
 
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
-	const inheritedSize = $derived(groupContext?.size ?? 'medium');
-	const effectiveSize = $derived(size ?? inheritedSize);
+	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
+	const effectiveSize = $derived.by(() => size ?? inheritedSize);
 </script>
 
 <div class="akui-password-wrapper {effectiveSize}">

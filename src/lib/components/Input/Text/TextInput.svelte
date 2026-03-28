@@ -37,9 +37,9 @@
 	}: Props = $props();
 
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
-	const inheritedSize = $derived(groupContext?.size ?? 'medium');
+	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 
-	const effectiveSize = $derived(size ?? inheritedSize);
+	const effectiveSize = $derived.by(() => size ?? inheritedSize);
 </script>
 
 <input

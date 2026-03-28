@@ -40,12 +40,12 @@
 	}: Props = $props();
 
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
-	const inheritedSize = $derived(groupContext?.size ?? 'medium');
+	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 
-	let isIconOnly = $derived(iconPosition === 'only' || (!label && !children && !!icon));
+	let isIconOnly = $derived.by(() => iconPosition === 'only' || (!label && !children && !!icon));
 
 	// Use our size if specified (not default), otherwise fall back to group size
-	const effectiveSize = $derived(size !== 'medium' ? size : inheritedSize);
+	const effectiveSize = $derived.by(() => (size !== 'medium' ? size : inheritedSize));
 </script>
 
 <button
