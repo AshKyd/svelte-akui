@@ -9,7 +9,7 @@
 	outline: none;
 	transition: all 0.2s ease;
 	box-shadow: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
-	background-color: var(--akui-bg);
+	background-color: var(--akui-bg-input);
 	box-sizing: border-box;
 	width: 100%;
 	line-height: inherit;
@@ -75,12 +75,34 @@ textarea.akui-input-base.large {
 }
 
 /* Select Specific */
-select.akui-input-base {
-	background-image: var(--akui-select-arrow);
-	background-repeat: no-repeat;
-	background-position: right 0.75rem center;
-	background-size: 1rem;
+.akui-select-container {
+	display: grid;
+	position: relative;
+	width: 100%;
+	color: var(--akui-fg);
+}
+
+.akui-select-container > select.akui-input-base {
+	grid-area: 1 / 1;
 	padding-right: 2.5rem;
+}
+
+.akui-select-container > .akui-select-arrow {
+	grid-area: 1 / 1;
+	justify-self: end;
+	align-self: center;
+	margin-right: 0.75rem;
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	color: currentColor;
+	opacity: 0.5; /* Make it a bit more subtle like the old implementation */
+	transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.akui-select-container:focus-within > .akui-select-arrow {
+	color: var(--akui-bg-accent);
+	opacity: 1;
 }
 
 /* Shared sr-only class if not already global */
