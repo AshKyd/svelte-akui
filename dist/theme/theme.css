@@ -47,7 +47,6 @@
 	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
 	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
 	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
-	--akui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234b5563' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
 
 	--akui-transition-theme:
 		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -101,7 +100,6 @@
 	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
 	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
 	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
-	--akui-select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
 
 	--akui-transition-theme:
 		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -206,7 +204,7 @@ input:not(.bespoke):not([type='checkbox']):not([type='radio']):not([type='range'
 select:not(.bespoke),
 textarea:not(.bespoke) {
 	appearance: none;
-	background-color: transparent;
+	background-color: var(--akui-bg-input);
 	border: 1px solid var(--akui-border-input);
 	border-radius: var(--akui-radius-m);
 	color: var(--akui-fg);
@@ -231,10 +229,6 @@ textarea:not(.bespoke):focus {
 select:not(.bespoke) {
 	appearance: none;
 	-webkit-appearance: none;
-	background-image: var(--akui-select-arrow);
-	background-repeat: no-repeat;
-	background-position: right 0.75rem center;
-	background-size: 1rem;
 	padding-right: 2.5rem;
 }
 
