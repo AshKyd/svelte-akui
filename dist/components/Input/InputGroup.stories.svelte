@@ -40,7 +40,7 @@
 					<Field label="Search">
 						<TextInput placeholder="Search components..." />
 					</Field>
-					<Button variant="accent" label="Search" />
+					<Button variant="accent" label="Search" style="flex: none;" />
 				</InputGroup>
 			</Padding>
 		</Panel>
@@ -58,7 +58,7 @@
 					<Field label="Last Name">
 						<TextInput placeholder="Doe" />
 					</Field>
-					<Button label="Save" />
+					<Button label="Save" style="flex: none;" />
 				</InputGroup>
 			</Padding>
 		</Panel>
@@ -106,7 +106,13 @@
 					<Field label="Domain">
 						<TextInput placeholder="example.com" />
 					</Field>
-					<Button variant="accent" icon="plus" iconPosition="only" label="Add" />
+					<Button
+						variant="accent"
+						icon="plus"
+						iconPosition="only"
+						label="Add"
+						style="flex: none;"
+					/>
 				</InputGroup>
 			</Padding>
 		</Panel>
@@ -146,7 +152,7 @@
 					<Field label="Search">
 						<TextInput placeholder="Search for files, users, and more..." />
 					</Field>
-					<Button variant="accent" label="Search" />
+					<Button variant="accent" label="Search" style="flex: none;" />
 				</InputGroup>
 			</Padding>
 		</Panel>
@@ -161,8 +167,13 @@
 					<Field label="API Key">
 						<TextInput value="sk_test_51Mz..." readonly />
 					</Field>
-					<Button icon="clipboard" iconPosition="only" label="Copy" />
-					<Button icon="arrow-clockwise" iconPosition="only" label="Regenerate" />
+					<Button icon="clipboard" iconPosition="only" label="Copy" style="flex: none;" />
+					<Button
+						icon="arrow-clockwise"
+						iconPosition="only"
+						label="Regenerate"
+						style="flex: none;"
+					/>
 				</InputGroup>
 			</Padding>
 		</Panel>

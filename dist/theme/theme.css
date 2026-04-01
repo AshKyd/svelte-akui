@@ -54,28 +54,28 @@
 }
 
 [data-theme='dark'] {
-	--akui-bg: #030712;
+	--akui-bg: #0d0f14;
 	--akui-fg: #ffffff;
-	--akui-bg-secondary: #111827;
+	--akui-bg-secondary: #161920;
 	--akui-fg-secondary: #9ca3af;
 	--akui-bg-accent: #3b82f6;
 	--akui-bg-accent-rgb: 59, 130, 246;
 	--akui-fg-accent: #ffffff;
 	--akui-bg-hover: rgba(255, 255, 255, 0.1);
 
-	--akui-bg-button: #1f2937;
+	--akui-bg-button: #232731;
 	--akui-fg-button: #ffffff;
-	--akui-bg-button-hover: #374151;
-	--akui-bg-button-focus: #4b5563;
+	--akui-bg-button-hover: #393f4e;
+	--akui-bg-button-focus: #4d556a;
 
 	--akui-bg-accent-hover: #2563eb;
 	--akui-bg-accent-focus: #1d4ed8;
 
 	/* Form Controls */
-	--akui-bg-input: #111827;
+	--akui-bg-input: #161920;
 	--akui-fg-input: #ffffff;
 	--akui-fg-placeholder: #4b5563;
-	--akui-border-input: #374151;
+	--akui-border-input: #39404e;
 	--akui-ring-focus: rgba(59, 130, 246, 0.4);
 
 	/* Spacing / Padding */

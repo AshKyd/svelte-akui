@@ -63,5 +63,8 @@
 	},
 	"keywords": [
 		"svelte"
-	]
+	],
+	"dependencies": {
+		"svelte-bootstrap-icons": "^3.3.0"
+	}
 }
