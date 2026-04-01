@@ -5,11 +5,13 @@
 	interface Props {
 		/** The child component (the story). */
 		children: Snippet;
+		/** Optional theme mode override ('light' or 'dark'). */
+		mode?: 'light' | 'dark';
 	}
 
-	let { children }: Props = $props();
+	let { children, mode }: Props = $props();
 </script>
 
-<UIRoot>
+<UIRoot {mode}>
 	{@render children()}
 </UIRoot>

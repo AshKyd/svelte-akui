@@ -1,4 +1,5 @@
 import type { Preview } from '@storybook/sveltekit'
+import { withThemeByDataAttribute } from '@storybook/addon-themes'
 import StorybookDecorator from '../src/lib/components/StorybookDecorator.svelte'
 
 const preview: Preview = {
@@ -11,7 +12,22 @@ const preview: Preview = {
     },
   },
   decorators: [
-    () => StorybookDecorator,
+    withThemeByDataAttribute({
+      themes: {
+        light: 'light',
+        dark: 'dark',
+      },
+      defaultTheme: 'light',
+      attributeName: 'data-theme',
+    }),
+    (Story, { globals }) => {
+      return {
+        Component: StorybookDecorator,
+        props: {
+          mode: globals.theme as 'light' | 'dark',
+        },
+      }
+    },
   ],
 };
 
