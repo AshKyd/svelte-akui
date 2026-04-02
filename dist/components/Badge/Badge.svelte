@@ -71,8 +71,8 @@
 		border-radius: var(--akui-radius-m);
 		padding: 0 1rem;
 		font-weight: 600;
-		font-size: 0.85rem;
-		min-height: 2rem;
+		font-size: 0.9375rem;
+		min-height: 2.25rem;
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 		border: 1px solid rgba(255, 255, 255, 0.1);
@@ -91,7 +91,11 @@
 
 	/* Text Gradient Logic */
 	.akui-badge-text {
-		background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+		background: linear-gradient(
+			to bottom,
+			rgba(var(--akui-fg-rgb), 1),
+			rgba(var(--akui-fg-rgb), 0.8)
+		);
 		background-clip: text;
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
@@ -100,8 +104,8 @@
 	.akui-badge.accent .akui-badge-text {
 		background: linear-gradient(
 			to bottom,
-			rgba(var(--akui-bg-accent-rgb), 0.8),
-			rgba(var(--akui-bg-accent-rgb), 0.6)
+			rgba(var(--akui-bg-accent-rgb), 0.9),
+			rgba(var(--akui-bg-accent-rgb), 0.7)
 		);
 		background-clip: text;
 		-webkit-background-clip: text;
@@ -111,13 +115,13 @@
 	/* Regular variant */
 	.akui-badge.regular {
 		color: var(--akui-fg);
-		border-color: rgba(255, 255, 255, 0.1);
-		box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+		border-color: rgba(var(--akui-fg-rgb), 0.1);
+		box-shadow: 0 0 10px rgba(var(--akui-fg-rgb), 0.05);
 	}
 
 	.akui-badge.regular.has-bg {
-		background: rgba(255, 255, 255, 0.05);
-		text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+		background: rgba(var(--akui-fg-rgb), 0.05);
+		text-shadow: 0 0 8px rgba(var(--akui-fg-rgb), 0.1);
 	}
 
 	:global([data-theme='dark']) .akui-badge.regular {
@@ -133,7 +137,7 @@
 
 	.akui-badge.accent.has-bg {
 		background: rgba(var(--akui-bg-accent-rgb), 0.15);
-		text-shadow: 0 0 10px rgba(var(--akui-bg-accent-rgb), 0.4);
+		text-shadow: 0 0 10px rgba(var(--akui-bg-accent-rgb), 0.3);
 	}
 
 	/* Sizing */
