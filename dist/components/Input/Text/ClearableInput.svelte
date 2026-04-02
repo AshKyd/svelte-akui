@@ -1,97 +1,94 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import TextInput from '../Text/TextInput.svelte';
+	import TextInput from './TextInput.svelte';
 	import InputWithIcon from '../InputWithIcon.svelte';
 	import Icon from '../../Icon/Icon.svelte';
 	import { INPUT_GROUP_CONTEXT, type InputGroupContext } from '../context.js';
-	import '../input.css';
 
-	export interface Props {
-		/** Value of the password input. */
+	interface Props {
+		/** Value of the input. */
 		value?: string | null;
 		/** Placeholder text. */
 		placeholder?: string;
 		/** Optional size override. */
 		size?: 'small' | 'medium' | 'large';
-		/** Whether the field is required. */
-		required?: boolean;
-		/** Whether to show the visibility toggle. Defaults to true. */
-		toggleable?: boolean;
-		/** Whether the field is disabled. */
+		/** Whether the input is disabled. */
 		disabled?: boolean;
-		/** Additional CSS classes. */
+		/** Additional CSS classes for the input. */
 		class?: string;
 		/** Spread remaining attributes to the input element. */
 		[key: string]: unknown;
 	}
 
 	let {
-		value = $bindable(),
+		value = $bindable(''),
 		placeholder,
 		size,
-		required = false,
-		toggleable = true,
 		disabled = false,
 		class: className = '',
 		...rest
 	}: Props = $props();
 
-	let showPassword = $state(false);
-	const type = $derived.by(() => (showPassword ? 'text' : 'password'));
-
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
 	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
+
+	let inputEl = $state<HTMLInputElement>();
+
+	function handleClear() {
+		value = '';
+		inputEl?.focus();
+	}
 </script>
 
 <InputWithIcon size={effectiveSize} class={className}>
 	<TextInput
-		{type}
+		bind:this={inputEl}
 		bind:value
 		{placeholder}
 		{size}
-		{required}
 		{disabled}
-		class="akui-password-input"
 		{...rest}
 	/>
 
-	{#if toggleable}
-		{#snippet right()}
+	{#snippet right()}
+		{#if value && !disabled}
 			<button
 				type="button"
-				class="akui-password-toggle"
-				onclick={() => (showPassword = !showPassword)}
+				class="akui-clear-button"
+				onclick={handleClear}
+				aria-label="Clear input"
 				tabindex="-1"
-				aria-label={showPassword ? 'Hide password' : 'Show password'}
-				{disabled}
 			>
-				<Icon name={showPassword ? 'eye-slash' : 'eye'} size="1rem" />
+				<Icon name="x" size="0.875rem" />
 			</button>
-		{/snippet}
-	{/if}
+		{/if}
+	{/snippet}
 </InputWithIcon>
 
 <style>
-	.akui-password-toggle {
+	.akui-clear-button {
 		background: none;
 		border: none;
 		padding: 0.25rem;
 		cursor: pointer;
 		color: var(--akui-fg-secondary);
 		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: auto;
 		border-radius: var(--akui-radius-s);
 		transition: all 0.2s ease;
-		pointer-events: auto;
+		margin-right: -0.25rem;
 	}
 
-	.akui-password-toggle:hover:not(:disabled) {
+	.akui-clear-button:hover {
 		color: var(--akui-fg);
 		background-color: var(--akui-bg-secondary);
 	}
 
-	.akui-password-toggle:disabled {
-		cursor: not-allowed;
-		opacity: 0.5;
+	/* Adjust for focus or specific feedback if desired */
+	.akui-clear-button:active {
+		transform: scale(0.9);
 	}
 </style>

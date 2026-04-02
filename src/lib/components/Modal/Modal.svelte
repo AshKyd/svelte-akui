@@ -59,6 +59,7 @@
 		visible = false;
 		// Wait for transition to finish
 		setTimeout(() => {
+			if (dialog.open) dialog.close();
 			onClose();
 		}, 200); // Matches transition duration
 	}
@@ -68,6 +69,10 @@
 			requestClose();
 		}
 	}
+
+	const hasHeader = $derived.by(() => {
+		return Boolean(title || icon || iconSnippet || showCloseButton);
+	});
 </script>
 
 <dialog
@@ -84,25 +89,32 @@
 			in:scale={{ duration: 200, start: 0.95 }}
 			out:scale={{ duration: 200, start: 0.95 }}
 		>
-			<header class="akui-modal-header">
-				<div class="akui-modal-title-group">
-					{#if iconSnippet}
-						<div class="akui-modal-icon-container">
-							{@render iconSnippet()}
-						</div>
-					{:else if icon}
-						<Icon name={icon} size="1.125rem" class="akui-modal-icon" />
+			{#if hasHeader}
+				<header class="akui-modal-header">
+					<div class="akui-modal-title-group">
+						{#if iconSnippet}
+							<div class="akui-modal-icon-container">
+								{@render iconSnippet()}
+							</div>
+						{:else if icon}
+							<Icon name={icon} size="1.125rem" class="akui-modal-icon" />
+						{/if}
+						{#if title}
+							<h2 class="akui-modal-title">{title}</h2>
+						{/if}
+					</div>
+					{#if showCloseButton}
+						<button
+							type="button"
+							class="akui-modal-close"
+							onclick={requestClose}
+							aria-label="Close"
+						>
+							<Icon name="x-lg" size="1.25em" />
+						</button>
 					{/if}
-					{#if title}
-						<h2 class="akui-modal-title">{title}</h2>
-					{/if}
-				</div>
-				{#if showCloseButton}
-					<button type="button" class="akui-modal-close" onclick={requestClose} aria-label="Close">
-						<Icon name="x-lg" size="1.25em" />
-					</button>
-				{/if}
-			</header>
+				</header>
+			{/if}
 
 			<div class="akui-modal-body">
 				{@render children?.()}
@@ -122,10 +134,11 @@
 		padding: 0;
 		border: none;
 		background: transparent;
-		max-width: 90vw;
+		max-width: 95vw;
 		max-height: 90vh;
 		outline: none;
 		overflow: visible;
+		margin: auto;
 	}
 
 	.akui-modal-dialog::backdrop {
@@ -154,6 +167,7 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 320px;
+		max-width: 40rem;
 		max-height: inherit; /* Inherit the dialog's max-height (90vh) */
 		overflow: hidden;
 		transition: var(--akui-transition-theme);
@@ -178,6 +192,7 @@
 			height: 100dvh;
 			width: 100%;
 			border: none;
+			max-width: none;
 		}
 	}
 

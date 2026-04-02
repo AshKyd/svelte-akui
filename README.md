@@ -31,9 +31,11 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 - **`Field`**: Adds a `label` and `hint` (helper text) to a child. Automatically links the label to the input ID.
 - **`TextInput`**: One-line field. Supports standard types (`text`, `email`, `tel`, `url`, `search`, `number`, `date`, `color`). Supports `small`, `medium`, and `large` sizes.
+- **`ClearableInput`**: A text field with a one-click "X" button to reset the value. Ideal for search and filter fields.
 - **`TextArea`**: Multi-line field. Supports `small`, `medium`, and `large` sizes and vertical resizing.
 - **`Select`**: Drop-down menu for picking from `options`.
 - **`PasswordInput`**: A text field with a toggle button to show or hide the password characters.
+- **`InputWithIcon`**: A layout utility that wraps an input and handles the positioning and spacing for left or right icons/actions.
 - **`ColourInput`**: A field with a manual hex code input and a clickable color swatch trigger.
 - **`InputGroup`**: Aligns multiple inputs or buttons in a row. Use `joined` to merge their borders into a single unit. Inherits `size` to all children.
 - **`Fieldset`**: Groups related fields with a `legend`. Use `isInForm` for correct ARIA role behavior in form tags.

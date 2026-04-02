@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, tick } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
 
 	interface Props {
@@ -15,25 +15,43 @@
 		position?: 'top' | 'bottom' | 'left' | 'right';
 		/** Border radius size ('s', 'm', 'l', etc.). Defaults to 's'. */
 		radius?: string;
+		/** Whether the tooltip stays open for interaction. Defaults to false. */
+		persistent?: boolean;
+		/** How the tooltip is triggered. 'hover' is default. 'click' allows manual toggle. */
+		trigger?: 'hover' | 'click';
 		/** Additional CSS classes. */
 		class?: string;
 		/** Style overrides. */
 		style?: string;
 	}
 
-	let props: Props = $props();
+	let {
+		children,
+		visible = $bindable(false),
+		x = 0,
+		y = 0,
+		position = 'top',
+		radius = 's',
+		persistent = false,
+		trigger = 'hover',
+		class: className = '',
+		style: styleOverride = ''
+	}: Props = $props();
+
+	let tooltipEl = $state<HTMLElement>();
+	let edgeOffsets = $state({ x: 0, y: 0 });
 
 	let tooltipStyle = $derived.by(() => {
 		const base = `
-			left: ${props.x ?? 0}px;
-			top: ${props.y ?? 0}px;
+			left: ${x}px;
+			top: ${y}px;
 			position: fixed;
 			z-index: 10000;
-			pointer-events: none;
-			transform: ${getTranslate(props.position ?? 'top')};
+			pointer-events: ${persistent ? 'auto' : 'none'};
+			transform: ${getTranslate(position)} translate(${edgeOffsets.x}px, ${edgeOffsets.y}px);
 			transition: transform 0.15s ease;
 		`;
-		return base + (props.style ?? '');
+		return base + styleOverride;
 	});
 
 	function getTranslate(pos: string) {
@@ -51,8 +69,61 @@
 		}
 	}
 
+	$effect(() => {
+		if (visible && tooltipEl) {
+			try {
+				tooltipEl.showPopover();
+				
+				// Calculate clamping offsets after popover is shown
+				tick().then(() => {
+					if (!tooltipEl) return;
+					const rect = tooltipEl.getBoundingClientRect();
+					const margin = 20; // 20px padding from screen edge
+					const windowWidth = window.innerWidth;
+					const windowHeight = window.innerHeight;
+
+					let ox = 0;
+					let oy = 0;
+
+					if (rect.left < margin) {
+						ox = margin - rect.left;
+					} else if (rect.right > windowWidth - margin) {
+						ox = windowWidth - margin - rect.right;
+					}
+
+					if (rect.top < margin) {
+						oy = margin - rect.top;
+					} else if (rect.bottom > windowHeight - margin) {
+						oy = windowHeight - margin - rect.bottom;
+					}
+
+					edgeOffsets = { x: ox, y: oy };
+				});
+			} catch (e) {
+				// Fallback
+			}
+		} else if (tooltipEl) {
+			try {
+				tooltipEl.hidePopover();
+				edgeOffsets = { x: 0, y: 0 };
+			} catch (e) {
+				// Fallback
+			}
+		}
+	});
+
+	function handleWindowAction(e: Event) {
+		if (!visible || !tooltipEl) return;
+		
+		if (!tooltipEl.contains(e.target as Node)) {
+			if (trigger === 'click') {
+				visible = false;
+			}
+		}
+	}
+
 	function flyFromSource(node: HTMLElement, { duration = 150, distance = 10, easing = cubicOut }) {
-		const pos = props.position ?? 'top';
+		const pos = position;
 		const xSign = pos === 'right' ? -1 : pos === 'left' ? 1 : 0;
 		const ySign = pos === 'bottom' ? -1 : pos === 'top' ? 1 : 0;
 
@@ -63,22 +134,27 @@
 				const u = 1 - t;
 				const tx = xSign * distance * u;
 				const ty = ySign * distance * u;
+				
 				return `
 					opacity: ${t};
-					transform: ${getTranslate(pos)} translate(${tx}px, ${ty}px);
+					transform: ${getTranslate(pos)} translate(${edgeOffsets.x + tx}px, ${edgeOffsets.y + ty}px);
 				`;
 			}
 		};
 	}
 </script>
 
-{#if props.visible && props.children}
+<svelte:window onclick={handleWindowAction} onkeydown={(e) => e.key === 'Escape' && (visible = false)} />
+
+{#if visible && children}
 	<div
+		bind:this={tooltipEl}
+		popover="manual"
 		transition:flyFromSource={{ duration: 150 }}
-		class="akui-tooltip {props.position ?? 'top'} {props.class ?? ''}"
-		style="{tooltipStyle}; --akui-tooltip-radius: var(--akui-radius-{props.radius ?? 's'});"
+		class="akui-tooltip {position} {className}"
+		style="{tooltipStyle}; --akui-tooltip-radius: var(--akui-radius-{radius});"
 	>
-		{@render props.children()}
+		{@render children()}
 	</div>
 {/if}
 
@@ -92,12 +168,10 @@
 			var(--akui-shadow-shiny),
 			0 4px 12px rgba(0, 0, 0, 0.1);
 		color: var(--akui-fg);
-		max-width: 300px;
-		word-wrap: break-word;
 		border: 1px solid rgba(var(--akui-fg-rgb, 0, 0, 0), 0.1);
+		max-width: 90vw; /* Limit width on mobile */
 	}
 
-	/* Dark mode specific tweak if needed, but theme variables should handle it */
 	:global([data-theme='dark']) .akui-tooltip {
 		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
