@@ -17,4 +17,5 @@ export * from './components/Divider/index.js';
 export { default as Sidebar } from './components/Sidebar/Sidebar.svelte';
 export * from './components/Badge/index.js';
 export * from './components/Header/index.js';
+export * from './components/Glow/index.js';
 export * from './constants.js';

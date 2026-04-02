@@ -3,6 +3,7 @@
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import { ControlGroup } from '../Control/index.ts';
+	import { Glow } from '../Glow/index.js';
 
 	interface Props {
 		children: Snippet;
@@ -33,6 +34,7 @@
 		class="akui-mobile-menu-content"
 		transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
 	>
+		<Glow />
 		<div class="akui-menu-mobile-handle"></div>
 		<ControlGroup role="menu" class="akui-menu-scroll-area">
 			{@render children()}
@@ -70,7 +72,7 @@
 		border-radius: 1rem 1rem 0 0;
 		padding-bottom: env(safe-area-inset-bottom);
 		box-shadow:
-			var(--akui-shadow-shiny),
+			var(--akui-shadow-subtle),
 			0 -1px 3px rgba(0, 0, 0, 0.15);
 		display: flex;
 		flex-direction: column;

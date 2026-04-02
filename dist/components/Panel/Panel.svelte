@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
+	import { Glow } from '../Glow/index.js';
 
 	interface Props {
 		/** The background colour of the panel. */
@@ -18,6 +19,7 @@
 </script>
 
 <div class="akui-panel {colour} radius-{radius} {className}" {style}>
+	<Glow />
 	{@render children()}
 </div>
 
@@ -30,24 +32,11 @@
 		border: 1px solid rgba(0, 0, 0, 0.1);
 	}
 
-	/* Shiny overlay to keep effects on top of content */
-	.akui-panel::after {
-		content: '';
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		box-shadow: var(--akui-shadow-shiny);
-		border-radius: inherit;
-		z-index: 10;
-	}
-
-	.akui-panel.radius-regular,
-	.akui-panel.radius-regular::after {
+	.akui-panel.radius-regular {
 		border-radius: var(--akui-radius-m);
 	}
 
-	.akui-panel.radius-full,
-	.akui-panel.radius-full::after {
+	.akui-panel.radius-full {
 		border-radius: 9999px;
 	}
 

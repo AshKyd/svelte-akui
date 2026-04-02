@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 	import Icon from '../Icon/Icon.svelte';
+	import { Glow } from '../Glow/index.js';
 
 	/**
 	 * @component Modal
@@ -89,6 +90,7 @@
 			in:scale={{ duration: 200, start: 0.95 }}
 			out:scale={{ duration: 200, start: 0.95 }}
 		>
+			<Glow />
 			{#if hasHeader}
 				<header class="akui-modal-header">
 					<div class="akui-modal-title-group">
@@ -157,6 +159,7 @@
 	}
 
 	.akui-modal-content {
+		position: relative;
 		background: var(--akui-bg);
 		color: var(--akui-fg);
 		border-radius: var(--akui-radius-l);
