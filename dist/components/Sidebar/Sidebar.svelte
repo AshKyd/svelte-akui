@@ -101,25 +101,24 @@
 	.akui-sidebar-wrapper {
 		display: flex;
 		flex-direction: column;
-		min-height: 100vh;
+		height: 100dvh;
+		overflow: hidden;
 	}
 
 	.akui-sidebar-layout {
 		display: flex;
 		width: 100%;
 		flex: 1;
+		min-height: 0;
 		position: relative;
 		transition: transform 0.3s ease;
 		background-color: var(--akui-bg);
 		color: var(--akui-fg);
-		align-items: stretch; /* Ensure children stretch to full height */
 	}
 
 	.akui-sidebar {
 		width: var(--sidebar-width);
-		min-height: 100%;
-		position: sticky;
-		top: 0;
+		height: 100%;
 		flex-shrink: 0;
 		background: var(--akui-bg);
 		border-right: 1px solid var(--akui-border-input);
@@ -141,7 +140,6 @@
 
 	.akui-sidebar-footer {
 		padding: var(--akui-space-m);
-		padding-top: 0;
 	}
 
 	.akui-main {
@@ -151,6 +149,7 @@
 		display: flex;
 		flex-direction: column;
 		z-index: 10;
+		overflow-y: auto;
 	}
 
 	.akui-main-content {
@@ -173,7 +172,7 @@
 		.akui-sidebar {
 			position: absolute; /* Back to relative but shifted out */
 			left: calc(-1 * var(--sidebar-width));
-			height: 100vh;
+			height: 100dvh;
 			z-index: 20;
 		}
 

@@ -43,6 +43,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 ### Actions & Navigation
 
 - **`Button`**: Primary interactive element. Supports `regular` and `accent` colors, and `small`, `medium`, and `large` sizes. Can include an `icon` with `iconPosition` (`left`, `right`, or `only`).
+- **`Badge`**: Informative label or tag. Supports `regular` and `accent` variants, backdrop blur, and text glows. Can be used as a link by providing an `href`.
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
 - **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view.

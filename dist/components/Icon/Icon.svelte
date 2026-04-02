@@ -33,42 +33,25 @@
 	}: Props = $props();
 
 	// Use a glob to ensure Vite knows which icons to bundle.
-	// We use multiple patterns to handle both src (4 levels deep) and dist (3 levels deep).
-	const iconModules = import.meta.glob<string>(
-		[
-			'/node_modules/bootstrap-icons/icons/*.svg',
-			'../../../../node_modules/bootstrap-icons/icons/*.svg',
-			'../../../../../node_modules/bootstrap-icons/icons/*.svg'
-		],
-		{
-			query: '?raw',
-			import: 'default'
-		}
-	);
+	// Root-relative path is resolved from the project root in Vite.
+	const iconModules = import.meta.glob<string>('/node_modules/bootstrap-icons/icons/*.svg', {
+		query: '?raw',
+		import: 'default'
+	});
 
-	console.log(`[Akui] Icon system v2.2 loaded. Matched ${Object.keys(iconModules).length} icons.`);
+	console.log(`[Akui] Found ${Object.keys(iconModules).length} icons in glob.`);
 
 	let svgContent = $state<string | null>(null);
 
 	$effect(() => {
 		if (name) {
-			const potentialPaths = [
-				`/node_modules/bootstrap-icons/icons/${name}.svg`,
-				`../../../../node_modules/bootstrap-icons/icons/${name}.svg`,
-				`../../../../../node_modules/bootstrap-icons/icons/${name}.svg`
-			];
-
-			const fallbackPaths = [
-				'/node_modules/bootstrap-icons/icons/exclamation-triangle.svg',
-				'../../../../node_modules/bootstrap-icons/icons/exclamation-triangle.svg',
-				'../../../../../node_modules/bootstrap-icons/icons/exclamation-triangle.svg'
-			];
-
-			let loader = potentialPaths.map((p) => iconModules[p]).find((l) => !!l);
+			const path = `/node_modules/bootstrap-icons/icons/${name}.svg`;
+			const fallbackPath = '/node_modules/bootstrap-icons/icons/exclamation-triangle.svg';
+			let loader = iconModules[path];
 
 			if (!loader) {
 				console.error(`[Akui] Icon "${name}" not found. Falling back to exclamation-triangle.`);
-				loader = fallbackPaths.map((p) => iconModules[p]).find((l) => !!l);
+				loader = iconModules[fallbackPath];
 			}
 
 			if (loader) {
@@ -81,7 +64,7 @@
 						svgContent = null;
 					});
 			} else {
-				console.error(`[Akui] Critical: Default fallback icon not found. Checked: ${fallbackPaths.join(', ')}`);
+				console.error(`[Akui] Critical: Default fallback icon not found at ${fallbackPath}`);
 				svgContent = null;
 			}
 		}

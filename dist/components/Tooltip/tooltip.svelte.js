@@ -1,4 +1,3 @@
-export { default as Tooltip } from './Tooltip.svelte';
 /**
  * A Svelte 5 construct to manage tooltip state and positioning.
  * Returns reactive state and event handlers to be applied to a trigger element.

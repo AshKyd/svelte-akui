@@ -1,4 +1,3 @@
-export { default as Tooltip } from './Tooltip.svelte';
 
 export interface TooltipOptions {
 	/** Fixed position or 'auto' (default) */

@@ -13,6 +13,8 @@ export * from './components/Tabs/index.js';
 export * from './components/MenuButton/index.js';
 export * from './components/Small/index.js';
 export * from './components/Tooltip/index.js';
+export * from './components/Divider/index.js';
 export { default as Sidebar } from './components/Sidebar/Sidebar.svelte';
+export * from './components/Badge/index.js';
 export * from './components/Header/index.js';
 export * from './constants.js';
