@@ -52,13 +52,13 @@
 {#if href}
 	<a
 		{href}
-		class="akui-badge {variant} {size} {hasBackground ? 'has-bg' : ''} {className}"
+		class="akui-badge bespoke {variant} {size} {hasBackground ? 'has-bg' : ''} {className}"
 		{...rest}
 	>
 		{@render content()}
 	</a>
 {:else}
-	<div class="akui-badge {variant} {size} {hasBackground ? 'has-bg' : ''} {className}" {...rest}>
+	<div class="akui-badge bespoke {variant} {size} {hasBackground ? 'has-bg' : ''} {className}" {...rest}>
 		{@render content()}
 	</div>
 {/if}
@@ -89,27 +89,9 @@
 		gap: 0.5rem;
 	}
 
-	/* Text Gradient Logic */
+	/* Text styling */
 	.akui-badge-text {
-		background: linear-gradient(
-			to bottom,
-			rgba(var(--akui-fg-rgb), 1),
-			rgba(var(--akui-fg-rgb), 0.8)
-		);
-		background-clip: text;
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-	}
-
-	.akui-badge.accent .akui-badge-text {
-		background: linear-gradient(
-			to bottom,
-			rgba(var(--akui-bg-accent-rgb), 0.9),
-			rgba(var(--akui-bg-accent-rgb), 0.7)
-		);
-		background-clip: text;
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
+		color: inherit;
 	}
 
 	/* Regular variant */
@@ -178,5 +160,6 @@
 	a.akui-badge:hover {
 		border-color: var(--akui-bg-accent);
 		transform: translateY(-1px);
+		text-decoration: none;
 	}
 </style>
