@@ -42,10 +42,18 @@
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
 	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
+
+	let inputEl = $state<ReturnType<typeof TextInput>>();
+
+	/** Focuses the input element. */
+	export function focus() {
+		inputEl?.focus();
+	}
 </script>
 
-<InputWithIcon size={effectiveSize} class={className}>
+<InputWithIcon size={effectiveSize} class={className} right={toggleable ? visibilityToggle : undefined}>
 	<TextInput
+		bind:this={inputEl}
 		{type}
 		bind:value
 		{placeholder}
@@ -55,22 +63,20 @@
 		class="akui-password-input"
 		{...rest}
 	/>
-
-	{#if toggleable}
-		{#snippet right()}
-			<button
-				type="button"
-				class="akui-password-toggle"
-				onclick={() => (showPassword = !showPassword)}
-				tabindex="-1"
-				aria-label={showPassword ? 'Hide password' : 'Show password'}
-				{disabled}
-			>
-				<Icon name={showPassword ? 'eye-slash' : 'eye'} size="1rem" />
-			</button>
-		{/snippet}
-	{/if}
 </InputWithIcon>
+
+{#snippet visibilityToggle()}
+	<button
+		type="button"
+		class="akui-password-toggle"
+		onclick={() => (showPassword = !showPassword)}
+		tabindex="-1"
+		aria-label={showPassword ? 'Hide password' : 'Show password'}
+		{disabled}
+	>
+		<Icon name={showPassword ? 'eye-slash' : 'eye'} size="1rem" />
+	</button>
+{/snippet}
 
 <style>
 	.akui-password-toggle {

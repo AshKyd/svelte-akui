@@ -33,7 +33,7 @@
 	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
 
-	let inputEl = $state<HTMLInputElement>();
+	let inputEl = $state<{ focus: () => void }>();
 
 	function handleClear() {
 		value = '';

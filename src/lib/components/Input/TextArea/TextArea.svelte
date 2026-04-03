@@ -36,9 +36,17 @@
 	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
 	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
+
+	let inputEl = $state<HTMLTextAreaElement>();
+
+	/** Focuses the textarea element. */
+	export function focus() {
+		inputEl?.focus();
+	}
 </script>
 
 <textarea
+	bind:this={inputEl}
 	class="akui-input-base {effectiveSize} {className}"
 	{placeholder}
 	bind:value

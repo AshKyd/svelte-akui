@@ -40,9 +40,17 @@
 	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
 
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
+
+	let inputEl = $state<HTMLInputElement>();
+
+	/** Focuses the input element. */
+	export function focus() {
+		inputEl?.focus();
+	}
 </script>
 
 <input
+	bind:this={inputEl}
 	{type}
 	class="akui-input-base {effectiveSize} {className}"
 	{placeholder}

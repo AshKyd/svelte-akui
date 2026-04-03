@@ -19,6 +19,8 @@ export interface Props {
     /** Spread remaining attributes to the input element. */
     [key: string]: unknown;
 }
-declare const TextInput: import("svelte").Component<Props, {}, "value">;
+declare const TextInput: import("svelte").Component<Props, {
+    focus: () => void;
+}, "value">;
 type TextInput = ReturnType<typeof TextInput>;
 export default TextInput;

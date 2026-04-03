@@ -56,23 +56,23 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Modal`**: A centered dialog box for critical actions or information. Supports titles, action bars, custom icons via snippets, and optional fullscreen view on mobile.
 - **`Tooltip`**: A floating label that appears on hover or touch. Use the `createTooltip` construct to manage state and position. Supports glassmorphism, automatic positioning based on screen edges, and customizable `radius` (defaults to `'s'`).
 
-	```svelte
-	<script>
-		import { createTooltip, Tooltip, Button, Padding } from 'svelte-akui';
-		const tooltip = createTooltip({ position: 'top' });
-	</script>
+  ```svelte
+  <script>
+  	import { createTooltip, Tooltip, Button, Padding } from 'svelte-akui';
+  	const tooltip = createTooltip({ position: 'top' });
+  </script>
 
-	<Button {...tooltip.handlers}>Hover me</Button>
-	<Tooltip 
-		visible={tooltip.visible} 
-		x={tooltip.x} 
-		y={tooltip.y} 
-		position={tooltip.position}
-		radius="m"
-	>
-		<Padding size="s">Tooltip Content</Padding>
-	</Tooltip>
-	```
+  <Button {...tooltip.handlers}>Hover me</Button>
+  <Tooltip
+  	visible={tooltip.visible}
+  	x={tooltip.x}
+  	y={tooltip.y}
+  	position={tooltip.position}
+  	radius="m"
+  >
+  	<Padding size="s">Tooltip Content</Padding>
+  </Tooltip>
+  ```
 
 ### Misc
 

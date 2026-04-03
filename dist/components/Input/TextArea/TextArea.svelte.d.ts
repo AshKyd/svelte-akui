@@ -17,6 +17,8 @@ export interface Props {
     /** Spread remaining attributes to the textarea element. */
     [key: string]: unknown;
 }
-declare const TextArea: import("svelte").Component<Props, {}, "value">;
+declare const TextArea: import("svelte").Component<Props, {
+    focus: () => void;
+}, "value">;
 type TextArea = ReturnType<typeof TextArea>;
 export default TextArea;

@@ -17,6 +17,8 @@ export interface Props {
     /** Spread remaining attributes to the input element. */
     [key: string]: unknown;
 }
-declare const PasswordInput: import("svelte").Component<Props, {}, "value">;
+declare const PasswordInput: import("svelte").Component<Props, {
+    focus: () => void;
+}, "value">;
 type PasswordInput = ReturnType<typeof PasswordInput>;
 export default PasswordInput;
