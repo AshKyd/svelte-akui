@@ -90,9 +90,11 @@
 				</div>
 			{/if}
 			<div class="akui-sidebar-inner">
-				<ControlGroup role="navigation" id="akui-sidebar-navigation">
-					{@render sidebar?.()}
-				</ControlGroup>
+				<nav aria-label="Main Navigation">
+					<ControlGroup id="akui-sidebar-navigation">
+						{@render sidebar?.()}
+					</ControlGroup>
+				</nav>
 			</div>
 			{#if footer}
 				<div class="akui-sidebar-footer">
