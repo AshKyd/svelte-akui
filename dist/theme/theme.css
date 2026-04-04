@@ -186,7 +186,7 @@
 /* Global Link Styles */
 a:not(.bespoke) {
 	color: var(--akui-bg-accent);
-	text-decoration: none;
+	text-decoration: underline;
 	transition: var(--akui-transition-theme);
 }
 
