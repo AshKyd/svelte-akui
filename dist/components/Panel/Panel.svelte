@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { Glow } from '../Glow/index.js';
 
-	interface Props {
+	interface Props extends HTMLAttributes<HTMLElement> {
 		/** The background colour of the panel. */
 		colour?: 'regular' | 'secondary' | 'accent';
 		/** The content to render inside the panel. */
@@ -13,15 +14,30 @@
 		style?: string;
 		/** The corner radius of the panel. Defaults to 'regular'. 'full' is infinite (circular). */
 		radius?: 'regular' | 'full';
+		/** The HTML element to use. Defaults to 'div'. */
+		tag?: keyof HTMLElementTagNameMap;
 	}
 
-	let { colour = 'regular', children, class: className = '', style = '', radius = 'regular' }: Props = $props();
+	let {
+		colour = 'regular',
+		children,
+		class: className = '',
+		style = '',
+		radius = 'regular',
+		tag = 'div',
+		...rest
+	}: Props = $props();
 </script>
 
-<div class="akui-panel {colour} radius-{radius} {className}" {style}>
+<svelte:element
+	this={tag}
+	class="akui-panel {colour} radius-{radius} {className}"
+	{style}
+	{...rest}
+>
 	<Glow />
 	{@render children()}
-</div>
+</svelte:element>
 
 <style>
 	.akui-panel {
