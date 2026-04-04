@@ -85,8 +85,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
   ```html
   <button aria-label="Close">
-    <Icon name="x" />
-    <span class="sr-only">Close dialog</span>
+  	<Icon name="x" />
+  	<span class="sr-only">Close dialog</span>
   </button>
   ```
 
@@ -104,7 +104,13 @@ Components support `small`, `medium` (default), and `large` sizes. When componen
 
 Use `Fieldset` for groups of related inputs. Setting `isInForm` correctly assigns accessibility roles for better screen reader support.
 
-### 4. Direct Theming
+### 4. Theme & Dark Mode
+
+`svelte-akui` supports automatic dark mode switching based on browser preference. By default, `UIRoot` will detect the system preference if no `mode` is provided.
+
+For the best experience in a new project:
+
+- **Global `color-scheme`**: Set `color-scheme: light dark` in your global CSS to ensure native elements like scrollbars match the theme on page load before akui takes over.
 
 ### 5. Advanced Menu Usage
 
@@ -129,22 +135,23 @@ To maintain valid HTML, children within the `sidebar` snippet should be `Control
 
 ```svelte
 <Sidebar>
-  {#snippet sidebar()}
-    <!-- Standard nav items -->
-    <ControlItem label="Dashboard" icon="house" href="/" />
-    <ControlDivider />
-    
-    <!-- Non-nav content still benefits from the layout -->
-    <ControlContent>
-      <div class="user-profile">
-        <img src="..." alt="" />
-        <span>User Name</span>
-      </div>
-    </ControlContent>
-  {/snippet}
+	{#snippet sidebar()}
+		<!-- Standard nav items -->
+		<ControlItem label="Dashboard" icon="house" href="/" />
+		<ControlDivider />
+
+		<!-- Non-nav content still benefits from the layout -->
+		<ControlContent>
+			<div class="user-profile">
+				<img src="..." alt="" />
+				<span>User Name</span>
+			</div>
+		</ControlContent>
+	{/snippet}
 </Sidebar>
 ```
 
 **ARIA Notes**:
+
 - The hamburger button in the `Header` component automatically links to the sidebar via `aria-controls="akui-sidebar-navigation"`.
-- If you have multiple distinct navigation groups in the sidebar, you can use `ControlGroup` manually *within* a `ControlContent` if needed, but be mindful of nesting `<ul>` tags inappropriately.
+- If you have multiple distinct navigation groups in the sidebar, you can use `ControlGroup` manually _within_ a `ControlContent` if needed, but be mindful of nesting `<ul>` tags inappropriately.
