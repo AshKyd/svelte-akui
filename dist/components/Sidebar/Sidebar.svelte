@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet, onMount } from 'svelte';
+	import { type Snippet, onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
 	import { ControlGroup } from '../Control/index.js';
@@ -44,7 +44,33 @@
 		window.addEventListener('resize', handleResize);
 		return () => window.removeEventListener('resize', handleResize);
 	});
+
+	let sidebarEl = $state<HTMLElement | null>(null);
+	let lastFocusedEl: Element | null = null;
+
+	$effect(() => {
+		if (isMobile && isOpen) {
+			// Save the currently focused element to return focus later
+			lastFocusedEl = document.activeElement;
+			// Move focus to the first interactive element in the sidebar
+			tick().then(() => {
+				const focusable = sidebarEl?.querySelector('a, button, [tabindex="1"],[tabindex="0"]') as HTMLElement;
+				focusable?.focus();
+			});
+		} else if (isMobile && !isOpen && lastFocusedEl instanceof HTMLElement) {
+			// Restore focus when the menu closes
+			lastFocusedEl.focus();
+		}
+	});
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape' && isMobile && isOpen) {
+			isOpen = false;
+		}
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="akui-sidebar-wrapper">
 	{#if !isMobile && header}
@@ -57,14 +83,14 @@
 		class:is-open={isOpen}
 		style:--sidebar-width={width}
 	>
-		<aside class="akui-sidebar">
+		<aside bind:this={sidebarEl} class="akui-sidebar">
 			{#if isMobile && title}
 				<div class="akui-sidebar-mobile-title">
 					{@render title()}
 				</div>
 			{/if}
 			<div class="akui-sidebar-inner">
-				<ControlGroup role="navigation">
+				<ControlGroup role="navigation" id="akui-sidebar-navigation">
 					{@render sidebar?.()}
 				</ControlGroup>
 			</div>
@@ -90,7 +116,7 @@
 				{@render header()}
 			{/if}
 
-			<div class="akui-main-content">
+			<div class="akui-main-content" inert={isMobile && isOpen}>
 				{@render children?.()}
 			</div>
 		</main>

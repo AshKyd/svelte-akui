@@ -48,6 +48,8 @@
 				onclick={() => (sidebarOpen = !sidebarOpen)}
 				class="akui-hamburger"
 				aria-label="Toggle Menu"
+				aria-expanded={sidebarOpen}
+				aria-controls="akui-sidebar-navigation"
 			/>
 		{/if}
 

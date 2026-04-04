@@ -311,3 +311,16 @@ input:not(.bespoke):disabled {
 	margin-top: 0.25rem;
 	color: #ef4444; /* Standard error red */
 }
+
+/* Accessibility utility for screen-reader only text */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}

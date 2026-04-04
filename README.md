@@ -46,8 +46,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Badge`**: Informative label or tag. Supports `regular` and `accent` variants, backdrop blur, and text glows. Can be used as a link by providing an `href`.
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
-- **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view.
-- **`Header`**: Top navigation and branding bar.
+- **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for consistent styling.
+- **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
 
 ### Feedback & Overlays
 
@@ -79,6 +79,17 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Icon`**: Renders a vector icon by name. Supports custom `size` (px).
 - **`Small`**: Semantic utility for secondary or small-print text.
 
+### Accessibility Utilities
+
+- **`.sr-only`**: CSS class for elements that should be hidden visually but remain accessible to screen readers. Use this for descriptive labels on icon-only buttons or additional context in lists.
+
+  ```html
+  <button aria-label="Close">
+    <Icon name="x" />
+    <span class="sr-only">Close dialog</span>
+  </button>
+  ```
+
 ## Implementation Guidelines
 
 ### 1. Composition
@@ -109,3 +120,31 @@ Any custom component nested inside a `Menu` can trigger it to close using the `u
 ```
 
 Forms and other interactive elements inside a `Menu` will not close the menu by default because click events are stopped at the menu container level. Only explicit calls to `menu.close()` or clicking a `MenuItem` will trigger a closure.
+
+### 6. Sidebar Composition & ARIA
+
+The `Sidebar` component's `sidebar` snippet is rendered inside a `ControlGroup` (`<ul>`) with `role="navigation"`. This ensures consistent spacing and dividers between items.
+
+To maintain valid HTML, children within the `sidebar` snippet should be `ControlItem`, `ControlDivider`, or `ControlContent` (which wrap their content in `<li>`).
+
+```svelte
+<Sidebar>
+  {#snippet sidebar()}
+    <!-- Standard nav items -->
+    <ControlItem label="Dashboard" icon="house" href="/" />
+    <ControlDivider />
+    
+    <!-- Non-nav content still benefits from the layout -->
+    <ControlContent>
+      <div class="user-profile">
+        <img src="..." alt="" />
+        <span>User Name</span>
+      </div>
+    </ControlContent>
+  {/snippet}
+</Sidebar>
+```
+
+**ARIA Notes**:
+- The hamburger button in the `Header` component automatically links to the sidebar via `aria-controls="akui-sidebar-navigation"`.
+- If you have multiple distinct navigation groups in the sidebar, you can use `ControlGroup` manually *within* a `ControlContent` if needed, but be mindful of nesting `<ul>` tags inappropriately.
