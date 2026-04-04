@@ -54,6 +54,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Loader`**: A spinning animation for background tasks.
 - **`LoaderOverlay`**: Covers the parent container with a semi-transparent layer and a loader to block interaction.
 - **`Modal`**: A centered dialog box for critical actions or information. Supports titles, action bars, custom icons via snippets, and optional fullscreen view on mobile.
+- **`InfoBox`**: A non-intrusive notification or reminder. Supports `variant` (`info`, `warning`, `error`), custom icons or `iconSnippet`, a `title`, and an optional `action` snippet on the right side.
 - **`Tooltip`**: A floating label that appears on hover or touch. Use the `createTooltip` construct to manage state and position. Supports glassmorphism, automatic positioning based on screen edges, and customizable `radius` (defaults to `'s'`).
 
   ```svelte
