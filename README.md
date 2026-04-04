@@ -21,7 +21,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 ### Layout & Foundation
 
 - **`UIRoot`**: Required parent wrapper. Sets the base font, HSL color tokens, and manages theme state.
-- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors.
+- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics.
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
 
