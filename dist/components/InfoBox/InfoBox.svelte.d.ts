@@ -1,5 +1,6 @@
 import type { Snippet } from 'svelte';
-interface Props {
+import type { HTMLAttributes } from 'svelte/elements';
+interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
     /** The variant of the info box. */
     variant?: 'info' | 'warning' | 'error';
     /** Optional icon name. */
@@ -14,6 +15,8 @@ interface Props {
     children?: Snippet;
     /** Additional CSS classes. */
     class?: string;
+    /** The HTML element to use. Defaults to 'div'. */
+    tag?: keyof HTMLElementTagNameMap;
     /** Spread remaining attributes. */
     [key: string]: unknown;
 }
