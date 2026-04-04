@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import Icon from '../Icon/Icon.svelte';
 
-	interface Props {
+	interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
 		/** The variant of the info box. */
 		variant?: 'info' | 'warning' | 'error';
 		/** Optional icon name. */
@@ -17,6 +18,8 @@
 		children?: Snippet;
 		/** Additional CSS classes. */
 		class?: string;
+		/** The HTML element to use. Defaults to 'div'. */
+		tag?: keyof HTMLElementTagNameMap;
 		/** Spread remaining attributes. */
 		[key: string]: unknown;
 	}
@@ -29,6 +32,7 @@
 		action,
 		children,
 		class: className = '',
+		tag = 'div',
 		...rest
 	}: Props = $props();
 
@@ -41,7 +45,7 @@
 	});
 </script>
 
-<div class="akui-infobox bespoke {variant} {className}" {...rest}>
+<svelte:element this={tag} class="akui-infobox bespoke {variant} {className}" {...rest}>
 	<div class="akui-infobox-header">
 		<div class="akui-infobox-leading">
 			{#if iconSnippet}
@@ -74,7 +78,7 @@
 			</div>
 		{/if}
 	</div>
-</div>
+</svelte:element>
 
 <style>
 	.akui-infobox {
