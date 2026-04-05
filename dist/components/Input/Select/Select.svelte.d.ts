@@ -6,6 +6,7 @@ export interface Props {
     options?: Array<{
         value: string;
         label: string;
+        disabled?: boolean;
     }>;
     /** Placeholder text (shown as disabled first option). */
     placeholder?: string;

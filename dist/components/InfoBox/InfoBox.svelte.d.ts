@@ -2,7 +2,7 @@ import type { Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
 interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
     /** The variant of the info box. */
-    variant?: 'info' | 'warning' | 'error';
+    variant?: 'info' | 'warning' | 'error' | 'accent';
     /** Optional icon name. */
     icon?: string;
     /** Optional custom icon snippet. */

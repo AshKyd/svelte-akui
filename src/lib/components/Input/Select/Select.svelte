@@ -9,7 +9,7 @@
 		/** Value of the select. */
 		value?: string | number | null;
 		/** Options to display in the select. */
-		options?: Array<{ value: string; label: string }>;
+		options?: Array<{ value: string; label: string; disabled?: boolean }>;
 		/** Placeholder text (shown as disabled first option). */
 		placeholder?: string;
 		/** Optional size override. Falls back to group context. */
@@ -49,7 +49,7 @@
 			<option value="" disabled selected>{placeholder}</option>
 		{/if}
 		{#each options as option (option.value)}
-			<option value={option.value}>{option.label}</option>
+			<option value={option.value} disabled={option.disabled}>{option.label}</option>
 		{/each}
 	</select>
 	<div class="akui-select-arrow" aria-hidden="true">

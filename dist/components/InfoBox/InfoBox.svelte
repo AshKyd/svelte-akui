@@ -5,7 +5,7 @@
 
 	interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
 		/** The variant of the info box. */
-		variant?: 'info' | 'warning' | 'error';
+		variant?: 'info' | 'warning' | 'error' | 'accent';
 		/** Optional icon name. */
 		icon?: string;
 		/** Optional custom icon snippet. */
@@ -144,6 +144,14 @@
 		border-left: 4px solid var(--akui-bg-accent);
 	}
 	.akui-infobox.info .akui-infobox-leading {
+		color: var(--akui-bg-accent);
+	}
+
+	.akui-infobox.accent {
+		border-left: 4px solid var(--akui-bg-accent);
+		background: rgba(var(--akui-bg-accent-rgb), 0.08);
+	}
+	.akui-infobox.accent .akui-infobox-leading {
 		color: var(--akui-bg-accent);
 	}
 
