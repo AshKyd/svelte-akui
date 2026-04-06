@@ -5,4 +5,5 @@ export { default as PasswordInput } from './Password/PasswordInput.svelte';
 export { default as ClearableInput } from './Text/ClearableInput.svelte';
 export { default as InputWithIcon } from './InputWithIcon.svelte';
 export { default as Select } from './Select/Select.svelte';
+export { default as Field } from './Field/Field.svelte';
 export { INPUT_GROUP_CONTEXT, type InputGroupContext } from './context.ts';

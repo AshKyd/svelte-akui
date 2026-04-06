@@ -12,6 +12,8 @@ interface Props {
     icon?: string;
     /** Where to place the icon relative to the text */
     iconPosition?: 'left' | 'right' | 'only';
+    /** Should a loading spinner be shown? (Disables interaction) */
+    loading?: boolean;
     /** The content to render inside the button (overrides label) */
     children?: Snippet;
     /** The onclick event handler */
