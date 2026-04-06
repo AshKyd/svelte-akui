@@ -6,6 +6,7 @@ interface Props {
     variant?: 'regular' | 'accent';
     /** How large should the button be? */
     size?: 'small' | 'medium' | 'large';
+    radius?: 'regular' | 'full';
     /** Button contents (ignored if iconPosition is 'only') */
     label?: string;
     /** The name of the icon to display */

@@ -11,6 +11,7 @@
 		variant?: 'regular' | 'accent';
 		/** How large should the button be? */
 		size?: 'small' | 'medium' | 'large';
+		radius?: 'regular' | 'full';
 		/** Button contents (ignored if iconPosition is 'only') */
 		label?: string;
 		/** The name of the icon to display */
@@ -35,6 +36,7 @@
 		href,
 		variant = 'regular',
 		size = 'medium',
+		radius = 'regular',
 		label,
 		icon,
 		iconPosition = 'left',
@@ -55,7 +57,7 @@
 	const effectiveSize = $derived.by(() => (size !== 'medium' ? size : inheritedSize));
 
 	const commonClasses = $derived(
-		`akui-btn ${variant} ${effectiveSize === 'medium' ? '' : effectiveSize} ${isIconOnly ? 'icon-only' : ''} ${loading ? 'loading' : ''} ${className}`
+		`akui-btn ${variant} ${effectiveSize === 'medium' ? '' : effectiveSize} ${isIconOnly ? 'icon-only' : ''} ${loading ? 'loading' : ''} ${className} radius--${radius}`
 	);
 </script>
 
@@ -156,5 +158,9 @@
 	.akui-btn-inner.opacity-0 {
 		opacity: 0;
 		pointer-events: none;
+	}
+
+	.radius--full {
+		border-radius: 100vw;
 	}
 </style>
