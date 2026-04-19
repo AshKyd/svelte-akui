@@ -16,6 +16,8 @@
 		role?: string;
 		/** Additional CSS classes. */
 		class?: string;
+		/** Whether the item is currently selected/active. */
+		selected?: boolean;
 		/** Spread remaining attributes. */
 		[key: string]: unknown;
 	}
@@ -27,12 +29,20 @@
 		children,
 		role = 'menuitem',
 		class: className = '',
+		selected = false,
 		...rest
 	}: Props = $props();
 </script>
 
 <li role="none" class="akui-control-item-wrapper">
-	<button type="button" {role} class="akui-control-item {className}" {onclick} {...rest}>
+	<button
+		type="button"
+		{role}
+		class="akui-control-item {className}"
+		class:selected
+		{onclick}
+		{...rest}
+	>
 		<Padding size="m" class="akui-control-item-inner">
 			<div class="akui-control-item-content">
 				{#if icon}
@@ -85,6 +95,12 @@
 		background-color: var(--akui-bg-hover);
 		box-shadow: inset 0 0 0 2px var(--akui-bg-accent);
 	}
+	
+	.akui-control-item.selected {
+		background-color: rgba(var(--akui-bg-accent-rgb), 0.1);
+		color: var(--akui-bg-accent);
+		border-left: 3px solid var(--akui-bg-accent);
+	}
 
 	.akui-control-item-content {
 		display: flex;
@@ -105,5 +121,9 @@
 
 	.akui-control-item:hover :global(.akui-control-item-icon) {
 		color: var(--akui-fg);
+	}
+
+	.akui-control-item.selected :global(.akui-control-item-icon) {
+		color: var(--akui-bg-accent);
 	}
 </style>
