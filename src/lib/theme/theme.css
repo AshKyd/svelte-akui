@@ -120,11 +120,10 @@
 	justify-content: center;
 	padding: 0.5rem 1rem;
 	font-weight: 500;
-	border: 1px solid rgba(0, 0, 0, 0.1);
+	border: 1px solid transparent;
 	border-radius: var(--akui-radius-m);
-	background-color: var(--akui-bg-button);
-	color: var(--akui-fg-button);
-	box-shadow: var(--akui-shadow-shiny);
+	background-color: transparent;
+	color: currentColor;
 	cursor: pointer;
 	transition: var(--akui-transition-theme);
 	text-decoration: none;
@@ -134,23 +133,46 @@
 	box-sizing: border-box;
 }
 
-.akui-btn:hover {
+.akui-btn:active {
+	transform: translateY(1px);
+}
+
+.akui-btn.regular {
+	background-color: var(--akui-bg-button);
+	color: var(--akui-fg-button);
+	border-color: rgba(0, 0, 0, 0.1);
+	box-shadow: var(--akui-shadow-shiny);
+}
+
+.akui-btn.regular:hover {
 	background-color: var(--akui-bg-button-hover);
 }
 
-.akui-btn:active {
+.akui-btn.regular:active {
 	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-	transform: translateY(1px);
 }
 
 .akui-btn.accent {
 	background-color: var(--akui-bg-accent);
 	color: var(--akui-fg-accent);
 	border-color: rgba(0, 0, 0, 0.2);
+	box-shadow: var(--akui-shadow-shiny);
 }
 
 .akui-btn.accent:hover {
 	background-color: var(--akui-bg-accent-hover);
+}
+
+.akui-btn.accent:active {
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.akui-btn.ghost {
+	/* Uses base styles (transparent, inherit color) */
+}
+
+.akui-btn.ghost:hover {
+	background-color: var(--akui-bg-hover);
 }
 
 .akui-btn.small {

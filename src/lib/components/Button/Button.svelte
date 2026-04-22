@@ -8,7 +8,7 @@
 		/** Optional URL to turn this button into a link. */
 		href?: string;
 		/** Is this the principal call to action? */
-		variant?: 'regular' | 'accent';
+		variant?: 'regular' | 'accent' | 'ghost';
 		/** How large should the button be? */
 		size?: 'small' | 'medium' | 'large';
 		radius?: 'regular' | 'full';
