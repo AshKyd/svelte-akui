@@ -92,7 +92,7 @@
 		class="akui-badge bespoke {size} {className}"
 		class:no-close={!onClose}
 		class:has-colour={!!effectiveColour}
-		style={effectiveColour ? `--badge-bg: var(--akui-${effectiveColour}-bg); --badge-fg: var(--akui-${effectiveColour}-fg); --badge-border: var(--akui-${effectiveColour}-border);` : ''}
+		style={effectiveColour ? `--badge-bg: var(--akui-color-${effectiveColour}-bg); --badge-fg: var(--akui-color-${effectiveColour}-fg); --badge-border: var(--akui-color-${effectiveColour}-border);` : ''}
 		{...rest}
 	>
 		{@render badge_inner()}
@@ -102,7 +102,7 @@
 		class="akui-badge bespoke {size} {className}"
 		class:no-close={!onClose}
 		class:has-colour={!!effectiveColour}
-		style={effectiveColour ? `--badge-bg: var(--akui-${effectiveColour}-bg); --badge-fg: var(--akui-${effectiveColour}-fg); --badge-border: var(--akui-${effectiveColour}-border);` : ''}
+		style={effectiveColour ? `--badge-bg: var(--akui-color-${effectiveColour}-bg); --badge-fg: var(--akui-color-${effectiveColour}-fg); --badge-border: var(--akui-color-${effectiveColour}-border);` : ''}
 		{...rest}
 	>
 		{@render badge_inner()}
