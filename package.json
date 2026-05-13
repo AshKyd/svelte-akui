@@ -67,6 +67,7 @@
 		"svelte"
 	],
 	"dependencies": {
+		"msrand": "^2.0.0",
 		"svelte-bootstrap-icons": "^3.3.0"
 	}
 }

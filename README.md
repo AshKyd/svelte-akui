@@ -34,6 +34,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`ClearableInput`**: A text field with a one-click "X" button to reset the value. Ideal for search and filter fields.
 - **`TextArea`**: Multi-line field. Supports `small`, `medium`, and `large` sizes and vertical resizing.
 - **`Select`**: Drop-down menu for picking from `options`.
+- **`Typeahead`**: An input field that supports suggestions and multi-selection via badges. Can be configured for "tagging" mode using `allowFreetext`, where commas or Enter create new items. Expands downward as content grows.
 - **`PasswordInput`**: A text field with a toggle button to show or hide the password characters.
 - **`InputWithIcon`**: A layout utility that wraps an input and handles the positioning and spacing for left or right icons/actions.
 - **`ColourInput`**: A field with a manual hex code input and a clickable color swatch trigger.
@@ -113,7 +114,14 @@ For the best experience in a new project:
 
 - **Global `color-scheme`**: Set `color-scheme: light dark` in your global CSS to ensure native elements like scrollbars match the theme on page load before akui takes over.
 
-### 5. Advanced Menu Usage
+### 5. Skeuomorphic Depth & Affordance
+
+Maintain a consistent visual language of depth to communicate interactivity:
+- **Elevated (Convex)**: Use light top and dark bottom inner shadows for buttons and actionable triggers to make them appear raised.
+- **Recessed (Concave)**: Use dark top and light bottom inner shadows for `TextInput`, `TextArea`, and `Typeahead` to signify they are "hollow" containers for data.
+- **Smoothness**: Use the `Glow` component to add soft, neumorphic transitions that enhance these effects without harsh borders.
+
+### 6. Advanced Menu Usage
 
 Any custom component nested inside a `Menu` can trigger it to close using the `useMenu` hook. This is useful for interactive content or custom actions that aren't using the standard `MenuItem`.
 

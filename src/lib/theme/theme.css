@@ -52,6 +52,31 @@
 
 	--akui-transition-theme:
 		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+	/* Semantic Badge Colors (Subtle) */
+	--akui-green-bg: rgba(74, 222, 128, 0.15);
+	--akui-green-fg: #065f46;
+	--akui-green-border: rgba(74, 222, 128, 0.2);
+
+	--akui-blue-bg: rgba(96, 165, 250, 0.15);
+	--akui-blue-fg: #1e3a8a;
+	--akui-blue-border: rgba(96, 165, 250, 0.2);
+
+	--akui-orange-bg: rgba(251, 146, 60, 0.15);
+	--akui-orange-fg: #7c2d12;
+	--akui-orange-border: rgba(251, 146, 60, 0.2);
+
+	--akui-pink-bg: rgba(244, 114, 182, 0.15);
+	--akui-pink-fg: #831843;
+	--akui-pink-border: rgba(244, 114, 182, 0.2);
+
+	--akui-purple-bg: rgba(167, 139, 250, 0.15);
+	--akui-purple-fg: #4c1d95;
+	--akui-purple-border: rgba(167, 139, 250, 0.2);
+
+	--akui-amber-bg: rgba(251, 191, 36, 0.15);
+	--akui-amber-fg: #78350f;
+	--akui-amber-border: rgba(251, 191, 36, 0.2);
 }
 
 [data-theme='dark'] {
@@ -107,6 +132,31 @@
 
 	--akui-transition-theme:
 		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+	/* Semantic Badge Colors (Subtle) */
+	--akui-green-bg: rgba(74, 222, 128, 0.1);
+	--akui-green-fg: #4ade80;
+	--akui-green-border: rgba(74, 222, 128, 0.2);
+
+	--akui-blue-bg: rgba(96, 165, 250, 0.1);
+	--akui-blue-fg: #60a5fa;
+	--akui-blue-border: rgba(96, 165, 250, 0.2);
+
+	--akui-orange-bg: rgba(251, 146, 60, 0.1);
+	--akui-orange-fg: #fb923c;
+	--akui-orange-border: rgba(251, 146, 60, 0.2);
+
+	--akui-pink-bg: rgba(244, 114, 182, 0.1);
+	--akui-pink-fg: #f472b6;
+	--akui-pink-border: rgba(244, 114, 182, 0.2);
+
+	--akui-purple-bg: rgba(167, 139, 250, 0.1);
+	--akui-purple-fg: #a78bfa;
+	--akui-purple-border: rgba(167, 139, 250, 0.2);
+
+	--akui-amber-bg: rgba(251, 191, 36, 0.1);
+	--akui-amber-fg: #fbbf24;
+	--akui-amber-border: rgba(251, 191, 36, 0.2);
 }
 
 * {
