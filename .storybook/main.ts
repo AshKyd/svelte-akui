@@ -8,6 +8,13 @@ const config: StorybookConfig = {
     "@storybook/addon-svelte-csf",
     "@storybook/addon-themes"
   ],
-  "framework": "@storybook/sveltekit"
+  "framework": "@storybook/sveltekit",
+  "core": {
+    "disableTelemetry": true,
+    "disableWhatsNewNotifications": true
+  },
+  "features": {
+    "sidebarOnboardingChecklist": false
+  }
 };
 export default config;
