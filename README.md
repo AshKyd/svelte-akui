@@ -92,6 +92,59 @@ Components should be composed: wrap any input in a `Field` to add a label.
   </button>
   ```
 
+## Application Shell & Layout
+
+For most applications, you'll want a persistent navigation and branding bar. In `svelte-akui`, the **`Sidebar`** is the primary orchestrator of this layout.
+
+### The Responsive Shell
+
+The `Sidebar` component handles the transitions between desktop and mobile views. It accepts three key snippets: `sidebar` (the main navigation), `header` (the top branding bar), and `footer` (bottom navigation or user profile).
+
+**Key Responsibilities:**
+- **Desktop**: The `Header` sits at the top of the screen. The `Sidebar` is fixed to the left.
+- **Mobile**: The `Header` remains at the top. The `Sidebar` becomes a slide-out overlay. The hamburger menu (in the `Header`) automatically controls the `Sidebar` visibility.
+- **Dynamic Title**: The layout automatically handles title positioning. You can provide a `title` snippet to the `Sidebar` which the shell will move between the `Header` (on desktop) and the `Sidebar` menu (on mobile) as needed.
+
+### Golden Path Implementation
+
+```svelte
+<script>
+	import { Sidebar, Header, ControlItem, ControlDivider, Padding } from 'svelte-akui';
+	let isSidebarOpen = $state(false);
+</script>
+
+<Sidebar bind:isOpen={isSidebarOpen}>
+	<!-- Main navigation -->
+	{#snippet sidebar()}
+		<ControlItem label="Dashboard" icon="house" href="/" active />
+		<ControlItem label="Messages" icon="chat-left-text" href="/messages" />
+		<ControlDivider />
+		<ControlItem label="Settings" icon="gear" href="/settings" />
+	{/snippet}
+
+	<!-- Top branding and actions -->
+	{#snippet header()}
+		<Header>
+			{#snippet title()}
+				<strong>MyApp</strong>
+			{/snippet}
+			
+			{#snippet actions()}
+				<!-- Icons/Buttons for the right side of the header -->
+			{/snippet}
+		</Header>
+	{/snippet}
+
+	<!-- Main Application Content -->
+	<main>
+		<Padding size="l">
+			<h1>Dashboard</h1>
+			<p>Your content goes here.</p>
+		</Padding>
+	</main>
+</Sidebar>
+```
+
 ## Implementation Guidelines
 
 ### 1. Composition
