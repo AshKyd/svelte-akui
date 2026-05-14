@@ -1,16 +1,23 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import type { HTMLAttributes } from 'svelte/elements';
+	import { type Snippet } from 'svelte';
 	import Icon from '../Icon/Icon.svelte';
 
-	interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
+	interface Props {
+		/** The HTML element to use. Defaults to 'aside'. */
+		tag?: keyof HTMLElementTagNameMap;
+		/** The ARIA role. */
+		role?: string;
 		/** The variant of the info box. */
-		variant?: 'info' | 'warning' | 'error' | 'accent';
-		/** Optional icon name. */
+		variant?: 'info' | 'success' | 'warning' | 'error' | 'message';
+		/** Whether to show the icon. If false, retains spacing. */
+		showIcon?: boolean;
+		/** Whether to strip outer borders and shadows for list usage. */
+		naked?: boolean;
+		/** Optional icon name override. */
 		icon?: string;
 		/** Optional custom icon snippet. */
 		iconSnippet?: Snippet;
-		/** Optional title text. */
+		/** Optional title text or snippet. */
 		title?: string | Snippet;
 		/** Optional trailing action snippet. */
 		action?: Snippet;
@@ -18,98 +25,168 @@
 		children?: Snippet;
 		/** Additional CSS classes. */
 		class?: string;
-		/** The HTML element to use. Defaults to 'div'. */
-		tag?: keyof HTMLElementTagNameMap;
+		/** Optional callback for dismissing the info box. */
+		onClose?: () => void;
 		/** Spread remaining attributes. */
 		[key: string]: unknown;
 	}
 
 	let {
+		tag = 'aside',
+		role,
 		variant = 'info',
+		showIcon = true,
+		naked = false,
 		icon,
 		iconSnippet,
 		title,
 		action,
 		children,
 		class: className = '',
-		tag = 'div',
+		onClose,
 		...rest
 	}: Props = $props();
 
-	// Default icons for variants if none provided
-	let defaultIcon = $derived.by(() => {
-		if (icon) return icon;
-		if (variant === 'warning') return 'exclamation-triangle';
-		if (variant === 'error') return 'exclamation-octagon';
-		return 'info-circle';
-	});
+	const DEFAULT_ICONS = {
+		success: 'check-circle',
+		warning: 'alert-triangle',
+		error: 'alert-circle',
+		message: '',
+		info: 'info-circle-fill'
+	} as const;
+
+	const effectiveIcon = $derived(icon || DEFAULT_ICONS[variant] || DEFAULT_ICONS.info);
 </script>
 
-<svelte:element this={tag} class="akui-infobox bespoke {variant} {className}" {...rest}>
-	<div class="akui-infobox-header">
-		<div class="akui-infobox-leading">
+<svelte:element
+	this={tag}
+	{role}
+	class="akui-infobox bespoke {variant} {className}"
+	class:has-title={!!title}
+	class:naked
+	{...rest}
+>
+	<div class="akui-infobox-icon">
+		{#if showIcon}
 			{#if iconSnippet}
 				{@render iconSnippet()}
-			{:else}
-				<Icon name={defaultIcon} size={20} />
+			{:else if effectiveIcon}
+				<Icon name={effectiveIcon} size={20} />
 			{/if}
-		</div>
+		{/if}
+	</div>
 
-		<div class="akui-infobox-body">
-			{#if title}
-				<div class="akui-infobox-title">
-					{#if typeof title === 'string'}
-						{title}
-					{:else}
-						{@render title()}
-					{/if}
-				</div>
-			{/if}
-			{#if children}
-				<div class="akui-infobox-content">
-					{@render children()}
-				</div>
-			{/if}
-		</div>
-
-		{#if action}
-			<div class="akui-infobox-action">
-				{@render action()}
+	<div class="akui-infobox-body">
+		{#if title}
+			<div class="akui-infobox-title">
+				{#if typeof title === 'string'}
+					{title}
+				{:else}
+					{@render title()}
+				{/if}
+			</div>
+		{/if}
+		{#if children}
+			<div class="akui-infobox-content">
+				{@render children()}
 			</div>
 		{/if}
 	</div>
+
+	{#if action || onClose}
+		<div class="akui-infobox-trailing">
+			{#if action}
+				<div class="akui-infobox-action">
+					{@render action()}
+				</div>
+			{/if}
+			{#if onClose}
+				<button
+					type="button"
+					class="akui-infobox-close"
+					onclick={onClose}
+					aria-label="Dismiss"
+				>
+					<Icon name="x" size={18} />
+				</button>
+			{/if}
+		</div>
+	{/if}
 </svelte:element>
 
 <style>
 	.akui-infobox {
-		position: relative;
-		overflow: hidden;
-		border-radius: var(--akui-radius-m);
+		display: flex;
+		gap: 1rem;
 		padding: 1rem 1.25rem;
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
-		border: 1px solid rgba(var(--akui-fg-rgb), 0.08);
-		background: rgba(var(--akui-fg-rgb), 0.03);
+		border-radius: var(--akui-radius-m);
+		background: var(--box-bg);
+		color: var(--box-fg);
+		border: 1px solid var(--box-border);
+		box-shadow: 
+			inset 0 1px 0 rgba(255, 255, 255, 0.15), 
+			inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 		transition: var(--akui-transition-theme);
+		align-items: center; /* Centre by default (no title) */
+	}
+
+	/* Variant Colours */
+	.akui-infobox.info {
+		--box-bg: var(--akui-color-blue-bg);
+		--box-fg: var(--akui-color-blue-fg);
+		--box-border: var(--akui-color-blue-border);
+	}
+	.akui-infobox.success {
+		--box-bg: var(--akui-color-green-bg);
+		--box-fg: var(--akui-color-green-fg);
+		--box-border: var(--akui-color-green-border);
+	}
+	.akui-infobox.warning {
+		--box-bg: var(--akui-color-orange-bg);
+		--box-fg: var(--akui-color-orange-fg);
+		--box-border: var(--akui-color-orange-border);
+	}
+	.akui-infobox.error {
+		--box-bg: var(--akui-color-pink-bg);
+		--box-fg: var(--akui-color-pink-fg);
+		--box-border: var(--akui-color-pink-border);
+	}
+	.akui-infobox.message {
+		--box-bg: var(--akui-bg-input);
+		--box-fg: var(--akui-fg-secondary);
+		--box-border: var(--akui-border-input);
+	}
+
+	.akui-infobox.has-title {
+		align-items: flex-start; /* Align to top if title is present */
+	}
+
+	.akui-infobox.naked {
+		border: none;
+		border-radius: 0;
 	}
 
 	:global([data-theme='dark']) .akui-infobox {
 		border-color: rgba(255, 255, 255, 0.05);
-		background: rgba(255, 255, 255, 0.02);
+		box-shadow: 
+			inset 0 1px 0 rgba(255, 255, 255, 0.05), 
+			inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 	}
 
-	.akui-infobox-header {
+	.akui-infobox-icon {
+		width: 20px;
+		height: 24px; /* Increased to match trailing actions */
 		display: flex;
 		align-items: center;
-		gap: 1rem;
-	}
-
-	.akui-infobox-leading {
+		justify-content: center;
 		flex-shrink: 0;
-		display: flex;
-		align-items: center;
-		color: var(--akui-fg-secondary);
-		transition: color 0.3s ease;
+		color: inherit;
+		opacity: 0.9;
+	}
+
+	.akui-infobox.has-title .akui-infobox-icon,
+	.akui-infobox.has-title .akui-infobox-trailing {
+		padding-top: 1px; /* Reduced since container is now larger */
 	}
 
 	.akui-infobox-body {
@@ -118,19 +195,28 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
+		justify-content: center; /* Centre content vertically in the body container */
 	}
 
 	.akui-infobox-title {
 		font-weight: 700;
 		font-size: 0.9375rem;
-		margin-bottom: 0.125rem;
-		color: var(--akui-fg);
+		color: inherit;
 	}
 
 	.akui-infobox-content {
 		font-size: 0.875rem;
-		color: var(--akui-fg-secondary);
 		line-height: 1.5;
+		color: inherit;
+		opacity: 0.9;
+	}
+
+	.akui-infobox-trailing {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		flex-shrink: 0;
+		height: 24px; /* Unified with icon container height */
 	}
 
 	.akui-infobox-action {
@@ -139,42 +225,41 @@
 		align-items: center;
 	}
 
-	/* Variants */
-	.akui-infobox.info {
-		border-left: 4px solid var(--akui-bg-accent);
-	}
-	.akui-infobox.info .akui-infobox-leading {
-		color: var(--akui-bg-accent);
-	}
-
-	.akui-infobox.accent {
-		border-left: 4px solid var(--akui-bg-accent);
-		background: rgba(var(--akui-bg-accent-rgb), 0.08);
-	}
-	.akui-infobox.accent .akui-infobox-leading {
-		color: var(--akui-bg-accent);
-	}
-
-	.akui-infobox.warning {
-		border-left: 4px solid #f59e0b;
-		background: rgba(245, 158, 11, 0.05);
-	}
-	.akui-infobox.warning .akui-infobox-leading {
-		color: #f59e0b;
+	.akui-infobox-close {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border: 1px solid transparent;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		opacity: 0.7;
+		border-radius: var(--akui-radius-s);
+		transition: all 0.2s ease;
+		padding: 0;
+		position: relative;
 	}
 
-	.akui-infobox.error {
-		border-left: 4px solid #ef4444;
-		background: rgba(239, 68, 68, 0.05);
-	}
-	.akui-infobox.error .akui-infobox-leading {
-		color: #ef4444;
+	.akui-infobox-close:hover,
+	.akui-infobox-close:focus-visible {
+		opacity: 1;
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.2);
+		box-shadow: 
+			inset 0 1px 0 rgba(255, 255, 255, 0.2),
+			inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+			0 1px 2px rgba(0, 0, 0, 0.1);
+		outline: none;
 	}
 
-	:global([data-theme='dark']) .akui-infobox.warning {
-		background: rgba(245, 158, 11, 0.1);
-	}
-	:global([data-theme='dark']) .akui-infobox.error {
-		background: rgba(239, 68, 68, 0.1);
+	.akui-infobox-close:active {
+		background: rgba(0, 0, 0, 0.05);
+		border-color: rgba(0, 0, 0, 0.1);
+		box-shadow: 
+			inset 0 1px 2px rgba(0, 0, 0, 0.15),
+			0 0 0 transparent;
+		transform: translateY(0.5px);
 	}
 </style>
