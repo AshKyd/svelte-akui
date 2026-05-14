@@ -15,6 +15,15 @@ const config: StorybookConfig = {
   },
   "features": {
     "sidebarOnboardingChecklist": false
-  }
+  },
+  async viteFinal(config) {
+    return {
+      ...config,
+      build: {
+        ...config.build,
+        reportCompressedSize: false,
+      },
+    };
+  },
 };
 export default config;

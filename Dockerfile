@@ -4,10 +4,11 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --ignore-scripts
 
 # Copy source and build Storybook
 COPY . .
+ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN npm run build-storybook
 
 # Serve Stage
