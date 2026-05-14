@@ -1,0 +1,23 @@
+services:
+  akui:
+    build: .
+    container_name: akui.kyd.au
+    restart: unless-stopped
+    networks:
+      - traefik_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
+      # Router configuration
+      - "traefik.http.routers.akui.rule=Host(`akui.kyd.au`)"
+      - "traefik.http.routers.akui.entrypoints=websecure"
+      - "traefik.http.routers.akui.tls.certresolver=le"
+      # Middleware for compression (gzip/zstd)
+      - "traefik.http.routers.akui.middlewares=akui-compress"
+      - "traefik.http.middlewares.akui-compress.compress=true"
+      # Service configuration
+      - "traefik.http.services.akui.loadbalancer.server.port=80"
+
+networks:
+  traefik_default:
+    external: true
