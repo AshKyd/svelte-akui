@@ -12,6 +12,8 @@ interface Props {
     role?: string;
     /** Additional CSS classes. */
     class?: string;
+    /** Whether the item is currently selected/active. */
+    selected?: boolean;
     /** Spread remaining attributes. */
     [key: string]: unknown;
 }

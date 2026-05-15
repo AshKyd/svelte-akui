@@ -50,8 +50,33 @@
 	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
 	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
 
-	--akui-transition-theme:
-		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+	/* 
+	 * Design Tokens: Coloured Components (Badges, Labels, etc.)
+	 * These can be overridden by clients to customize the semantic palette.
+	 */
+	--akui-color-blue-bg: rgba(96, 165, 250, 0.15);
+	--akui-color-blue-fg: #1e3a8a;
+	--akui-color-blue-border: rgba(96, 165, 250, 0.2);
+
+	--akui-color-green-bg: rgba(74, 222, 128, 0.15);
+	--akui-color-green-fg: #065f46;
+	--akui-color-green-border: rgba(74, 222, 128, 0.2);
+
+	--akui-color-orange-bg: rgba(251, 146, 60, 0.15);
+	--akui-color-orange-fg: #7c2d12;
+	--akui-color-orange-border: rgba(251, 146, 60, 0.2);
+
+	--akui-color-pink-bg: rgba(244, 114, 182, 0.15);
+	--akui-color-pink-fg: #831843;
+	--akui-color-pink-border: rgba(244, 114, 182, 0.2);
+
+	--akui-color-purple-bg: rgba(167, 139, 250, 0.15);
+	--akui-color-purple-fg: #4c1d95;
+	--akui-color-purple-border: rgba(167, 139, 250, 0.2);
+
+	--akui-color-amber-bg: rgba(251, 191, 36, 0.15);
+	--akui-color-amber-fg: #78350f;
+	--akui-color-amber-border: rgba(251, 191, 36, 0.2);
 }
 
 [data-theme='dark'] {
@@ -107,6 +132,31 @@
 
 	--akui-transition-theme:
 		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+	/* Design Tokens: Coloured Components (Dark Mode) */
+	--akui-color-blue-bg: rgba(96, 165, 250, 0.1);
+	--akui-color-blue-fg: #60a5fa;
+	--akui-color-blue-border: rgba(96, 165, 250, 0.2);
+
+	--akui-color-green-bg: rgba(74, 222, 128, 0.1);
+	--akui-color-green-fg: #4ade80;
+	--akui-color-green-border: rgba(74, 222, 128, 0.2);
+
+	--akui-color-orange-bg: rgba(251, 146, 60, 0.1);
+	--akui-color-orange-fg: #fb923c;
+	--akui-color-orange-border: rgba(251, 146, 60, 0.2);
+
+	--akui-color-pink-bg: rgba(244, 114, 182, 0.1);
+	--akui-color-pink-fg: #f472b6;
+	--akui-color-pink-border: rgba(244, 114, 182, 0.2);
+
+	--akui-color-purple-bg: rgba(167, 139, 250, 0.1);
+	--akui-color-purple-fg: #a78bfa;
+	--akui-color-purple-border: rgba(167, 139, 250, 0.2);
+
+	--akui-color-amber-bg: rgba(251, 191, 36, 0.1);
+	--akui-color-amber-fg: #fbbf24;
+	--akui-color-amber-border: rgba(251, 191, 36, 0.2);
 }
 
 * {
@@ -120,11 +170,10 @@
 	justify-content: center;
 	padding: 0.5rem 1rem;
 	font-weight: 500;
-	border: 1px solid rgba(0, 0, 0, 0.1);
+	border: 1px solid transparent;
 	border-radius: var(--akui-radius-m);
-	background-color: var(--akui-bg-button);
-	color: var(--akui-fg-button);
-	box-shadow: var(--akui-shadow-shiny);
+	background-color: transparent;
+	color: currentColor;
 	cursor: pointer;
 	transition: var(--akui-transition-theme);
 	text-decoration: none;
@@ -134,23 +183,46 @@
 	box-sizing: border-box;
 }
 
-.akui-btn:hover {
+.akui-btn:active {
+	transform: translateY(1px);
+}
+
+.akui-btn.regular {
+	background-color: var(--akui-bg-button);
+	color: var(--akui-fg-button);
+	border-color: rgba(0, 0, 0, 0.1);
+	box-shadow: var(--akui-shadow-shiny);
+}
+
+.akui-btn.regular:hover {
 	background-color: var(--akui-bg-button-hover);
 }
 
-.akui-btn:active {
+.akui-btn.regular:active {
 	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-	transform: translateY(1px);
 }
 
 .akui-btn.accent {
 	background-color: var(--akui-bg-accent);
 	color: var(--akui-fg-accent);
 	border-color: rgba(0, 0, 0, 0.2);
+	box-shadow: var(--akui-shadow-shiny);
 }
 
 .akui-btn.accent:hover {
 	background-color: var(--akui-bg-accent-hover);
+}
+
+.akui-btn.accent:active {
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.akui-btn.ghost {
+	/* Uses base styles (transparent, inherit color) */
+}
+
+.akui-btn.ghost:hover {
+	background-color: var(--akui-bg-hover);
 }
 
 .akui-btn.small {

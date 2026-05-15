@@ -1,13 +1,20 @@
-import type { Snippet } from 'svelte';
-import type { HTMLAttributes } from 'svelte/elements';
-interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
+import { type Snippet } from 'svelte';
+interface Props {
+    /** The HTML element to use. Defaults to 'aside'. */
+    tag?: keyof HTMLElementTagNameMap;
+    /** The ARIA role. */
+    role?: string;
     /** The variant of the info box. */
-    variant?: 'info' | 'warning' | 'error' | 'accent';
-    /** Optional icon name. */
+    variant?: 'info' | 'success' | 'warning' | 'error' | 'message';
+    /** Whether to show the icon. If false, retains spacing. */
+    showIcon?: boolean;
+    /** Whether to strip outer borders and shadows for list usage. */
+    naked?: boolean;
+    /** Optional icon name override. */
     icon?: string;
     /** Optional custom icon snippet. */
     iconSnippet?: Snippet;
-    /** Optional title text. */
+    /** Optional title text or snippet. */
     title?: string | Snippet;
     /** Optional trailing action snippet. */
     action?: Snippet;
@@ -15,8 +22,8 @@ interface Props extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
     children?: Snippet;
     /** Additional CSS classes. */
     class?: string;
-    /** The HTML element to use. Defaults to 'div'. */
-    tag?: keyof HTMLElementTagNameMap;
+    /** Optional callback for dismissing the info box. */
+    onClose?: () => void;
     /** Spread remaining attributes. */
     [key: string]: unknown;
 }

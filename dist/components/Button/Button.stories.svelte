@@ -11,7 +11,7 @@
 		argTypes: {
 			variant: {
 				control: { type: 'select' },
-				options: ['regular', 'accent']
+				options: ['regular', 'accent', 'ghost']
 			},
 			size: {
 				control: { type: 'select' },
@@ -28,6 +28,7 @@
 <Story name="Regular" args={{ variant: 'regular', label: 'Regular Button' }} />
 
 <Story name="Accent" args={{ variant: 'accent', label: 'Accent Button' }} />
+<Story name="Ghost" args={{ variant: 'ghost', label: 'Ghost Button' }} />
 
 <Story name="Small" args={{ size: 'small', label: 'Small Button' }} />
 
