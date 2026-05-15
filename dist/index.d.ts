@@ -19,4 +19,5 @@ export * from './components/Badge/index.js';
 export * from './components/Header/index.js';
 export * from './components/Glow/index.js';
 export * from './components/InfoBox/index.js';
+export * from './components/Tree/index.js';
 export * from './constants.js';
