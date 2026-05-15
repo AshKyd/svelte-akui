@@ -2,8 +2,10 @@ import { type Snippet } from 'svelte';
 interface Props {
     /** The main content of the application. */
     children: Snippet;
-    /** The content to be displayed in the sidebar. */
-    sidebar: Snippet;
+    /** The content to be displayed in the sidebar navigation (automatically wrapped in a ControlGroup). */
+    sidebar?: Snippet;
+    /** Generic content to be displayed in the sidebar, rendered without any automatic wrapping. */
+    sidebarBody?: Snippet;
     /** Optional header to be integrated (above on desktop, shifting on mobile). */
     header?: Snippet;
     /** Optional footer to be displayed at the bottom of the sidebar. */

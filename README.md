@@ -47,7 +47,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Badge`**: Informative label or tag. Supports `regular` and `accent` variants, backdrop blur, and text glows. Can be used as a link by providing an `href`.
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
-- **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for consistent styling.
+- **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for navigation items, while the `sidebarBody` snippet allows for generic content (like Trees or custom layouts).
 - **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
 
 ### Feedback & Overlays
@@ -122,6 +122,13 @@ The `Sidebar` component handles the transitions between desktop and mobile views
 		<ControlItem label="Settings" icon="gear" href="/settings" />
 	{/snippet}
 
+	<!-- Custom sidebar content (e.g. Trees, user profiles) -->
+	{#snippet sidebarBody()}
+		<Padding size="m">
+			<Small>Custom Sidebar Content</Small>
+		</Padding>
+	{/snippet}
+
 	<!-- Top branding and actions -->
 	{#snippet header()}
 		<Header>
@@ -191,7 +198,7 @@ Forms and other interactive elements inside a `Menu` will not close the menu by 
 
 ### 6. Sidebar Composition & ARIA
 
-The `Sidebar` component's `sidebar` snippet is rendered inside a `ControlGroup` (`<ul>`) with `role="navigation"`. This ensures consistent spacing and dividers between items.
+The `Sidebar` component's `sidebar` snippet is rendered inside a `ControlGroup` (`<ul>`) with `role="navigation"`. This ensures consistent spacing and dividers between items. For generic content that shouldn't be wrapped in a list (like a Tree or a custom layout), use the `sidebarBody` snippet.
 
 To maintain valid HTML, children within the `sidebar` snippet should be `ControlItem`, `ControlDivider`, or `ControlContent` (which wrap their content in `<li>`).
 
@@ -209,6 +216,13 @@ To maintain valid HTML, children within the `sidebar` snippet should be `Control
 				<span>User Name</span>
 			</div>
 		</ControlContent>
+	{/snippet}
+</Sidebar>
+
+<!-- sidebarBody is unwrapped -->
+<Sidebar>
+	{#snippet sidebarBody()}
+		<div class="my-tree">...</div>
 	{/snippet}
 </Sidebar>
 ```
