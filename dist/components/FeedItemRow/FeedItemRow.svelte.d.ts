@@ -26,6 +26,8 @@ interface Props {
     fit?: 'cover' | 'contain' | 'auto';
     /** Additional CSS classes */
     class?: string;
+    /** Callback when the item is clicked */
+    onclick?: (e: MouseEvent) => void;
 }
 declare const FeedItemRow: import("svelte").Component<Props, {}, "">;
 type FeedItemRow = ReturnType<typeof FeedItemRow>;

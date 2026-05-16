@@ -30,6 +30,8 @@
 		fit?: 'cover' | 'contain' | 'auto';
 		/** Additional CSS classes */
 		class?: string;
+		/** Callback when the item is clicked */
+		onclick?: (e: MouseEvent) => void;
 	}
 
 	let {
@@ -45,7 +47,8 @@
 		layout = 'compact',
 		ratio = '16 / 9',
 		fit = 'auto',
-		class: className = ''
+		class: className = '',
+		onclick
 	}: Props = $props();
 
 	const isExternal = $derived(href?.startsWith('http'));
@@ -53,6 +56,7 @@
 
 <a
 	{href}
+	{onclick}
 	class="akui-feed-item-row {className}"
 	class:active
 	class:unread
