@@ -6,9 +6,7 @@ interface Props {
     /** Set of expanded item IDs */
     expanded?: Set<string>;
     /** Optional icon snippet for custom icon rendering */
-    icon?: Snippet<[{
-        item: TreeItemData;
-    }]>;
+    icon?: Snippet<[TreeItemData]>;
     /** Additional CSS classes */
     class?: string;
     /** Callback when an item is selected (clicked) */

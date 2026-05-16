@@ -6,9 +6,7 @@ declare const TreeItem: import("svelte").Component<{
     onToggle?: (id: string) => void;
     onSelect?: (item: TreeItemData) => void;
     /** Optional snippet to override icon rendering */
-    iconSnippet?: Snippet<[{
-        item: TreeItemData;
-    }]>;
+    iconSnippet?: Snippet<[TreeItemData]>;
 }, {}, "">;
 type TreeItem = ReturnType<typeof TreeItem>;
 export default TreeItem;

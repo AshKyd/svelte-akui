@@ -1,5 +1,5 @@
 import FeedItemRow from '../FeedItemRow/FeedItemRow.svelte';
-import type { ComponentProps } from 'svelte';
+import { type Snippet, type ComponentProps } from 'svelte';
 type RowProps = ComponentProps<typeof FeedItemRow>;
 interface ItemData extends RowProps {
     /** Unique identifier for the item */

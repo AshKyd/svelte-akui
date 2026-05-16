@@ -1,7 +1,9 @@
 <script lang="ts">
 	import FeedItemRow from '../FeedItemRow/FeedItemRow.svelte';
 	import Divider from '../Divider/Divider.svelte';
-	import type { ComponentProps } from 'svelte';
+	import Icon from '../Icon/Icon.svelte';
+	import DynamicImage from '../DynamicImage/DynamicImage.svelte';
+	import { type Snippet, type ComponentProps } from 'svelte';
 
 	// Extract props from FeedItemRow but exclude 'class'
 	type RowProps = ComponentProps<typeof FeedItemRow>;
@@ -44,8 +46,29 @@
 
 <div class="akui-feed-items-column {className}">
 	{#each items as item, i (item.id)}
-		{@const rowIcon = icon ? () => icon(item) : item.icon}
-		{@const rowImage = image ? () => image(item) : item.image}
+		{#snippet rowIcon()}
+			{#if icon}
+				{@render icon(item)}
+			{:else if item.icon}
+				{#if typeof item.icon === 'string'}
+					<Icon name={item.icon} size={16} />
+				{:else}
+					{@render item.icon()}
+				{/if}
+			{/if}
+		{/snippet}
+
+		{#snippet rowImage()}
+			{#if image}
+				{@render image(item)}
+			{:else if item.image}
+				{#if typeof item.image === 'string'}
+					<DynamicImage src={item.image} fit={item.fit ?? fit} ratio={item.ratio ?? ratio} />
+				{:else}
+					{@render item.image()}
+				{/if}
+			{/if}
+		{/snippet}
 
 		<div class="akui-feed-items-column-item">
 			<FeedItemRow
