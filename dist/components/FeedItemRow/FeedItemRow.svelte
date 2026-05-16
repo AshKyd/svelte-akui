@@ -52,11 +52,21 @@
 	}: Props = $props();
 
 	const isExternal = $derived(href?.startsWith('http'));
+	function handleClick(e: MouseEvent) {
+		onclick?.(e);
+	}
+
+	function handleAuxClick(e: MouseEvent) {
+		if (e.button === 1) {
+			onclick?.(e);
+		}
+	}
 </script>
 
 <a
 	{href}
-	{onclick}
+	onclick={handleClick}
+	onauxclick={handleAuxClick}
 	class="akui-feed-item-row {className}"
 	class:active
 	class:unread

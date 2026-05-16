@@ -52,11 +52,21 @@
 	}: Props = $props();
 
 	const isExternal = $derived(href?.startsWith('http'));
+	function handleClick(e: MouseEvent) {
+		onclick?.(e);
+	}
+
+	function handleAuxClick(e: MouseEvent) {
+		if (e.button === 1) {
+			onclick?.(e);
+		}
+	}
 </script>
 
 <a
 	{href}
-	{onclick}
+	onclick={handleClick}
+	onauxclick={handleAuxClick}
 	class="akui-feed-item-row {className}"
 	class:active
 	class:unread
@@ -236,7 +246,7 @@
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
-		transition: color 0.15s ease;
+		transition: color 0.2s ease;
 	}
 
 	.akui-feed-item-row.unread .akui-feed-item-row-title {
