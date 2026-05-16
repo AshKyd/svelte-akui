@@ -20,7 +20,7 @@
 		onToggle?: (id: string) => void;
 		onSelect?: (item: TreeItemData) => void;
 		/** Optional snippet to override icon rendering */
-		iconSnippet?: Snippet<[{ item: TreeItemData }]>;
+		iconSnippet?: Snippet<[TreeItemData]>;
 	}
 
 	let {
@@ -47,6 +47,20 @@
 		e.stopPropagation();
 		onSelect?.(item);
 	}
+	function handleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			handleSelect();
+		}
+	}
+
+	function handleChevronKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.stopPropagation();
+			e.preventDefault();
+			handleToggle(e as unknown as MouseEvent);
+		}
+	}
 </script>
 
 <li
@@ -60,22 +74,25 @@
 		class="akui-tree-item-row"
 		style="--depth: {depth}"
 		onclick={handleSelect}
+		onkeydown={handleKeyDown}
+		role="button"
 		tabindex="0"
 	>
 		<!-- Icon Column / Chevron -->
 		<div class="akui-tree-item-icon">
 			{#if isFolder}
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div 
+				<button 
+					type="button"
 					class="akui-tree-chevron" 
 					class:expanded={isExpanded}
 					onclick={handleToggle}
+					onkeydown={handleChevronKeyDown}
+					aria-label={isExpanded ? 'Collapse' : 'Expand'}
 				>
 					<Icon name="chevron-right" size={14} />
-				</div>
+				</button>
 			{:else if iconSnippet}
-				{@render iconSnippet({ item })}
+				{@render iconSnippet(item)}
 			{:else if item.icon}
 				<Icon name={item.icon} size={14} />
 			{/if}
@@ -148,7 +165,27 @@
 		flex-shrink: 0;
 	}
 
+	.akui-tree-item-favicon {
+		width: 14px;
+		height: 14px;
+		border-radius: 2px;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.akui-tree-item-favicon img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
 	.akui-tree-chevron {
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
 		transition: all 0.2s ease;
 		display: flex;
 		align-items: center;
@@ -159,6 +196,7 @@
 		height: 20px;
 		margin: -2px;
 		border-radius: var(--akui-radius-s);
+		outline: none;
 	}
 
 	.akui-tree-chevron:hover {

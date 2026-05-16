@@ -46,17 +46,6 @@
 	}: Props = $props();
 
 	const isExternal = $derived(href?.startsWith('http'));
-
-	const isUrl = (s: string) => s.includes('/') || s.includes('.');
-
-	let iconContent = $derived.by(() => {
-		if (!icon) return null;
-		if (typeof icon === 'string') {
-			if (isUrl(icon)) return 'image';
-			return 'icon';
-		}
-		return 'snippet';
-	});
 </script>
 
 <a
@@ -83,15 +72,11 @@
 	<div class="akui-feed-item-row-layout">
 		{#if icon}
 			<div class="akui-feed-item-row-icon">
-				{#if iconContent === 'icon'}
-					<Icon name={icon as string} size={16} />
+				{#if typeof icon === 'string'}
+					<Icon name={icon} size={16} />
 				{:else}
 					<div class="akui-feed-item-row-icon-inner">
-						{#if iconContent === 'image'}
-							<DynamicImage src={icon as string} fit="cover" ratio="1 / 1" />
-						{:else if typeof icon === 'function'}
-							{@render (icon as Snippet)()}
-						{/if}
+						{@render icon()}
 					</div>
 				{/if}
 			</div>
