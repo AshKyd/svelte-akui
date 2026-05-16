@@ -18,6 +18,8 @@
 		image?: string | Snippet;
 		/** Whether the item is currently selected/active */
 		active?: boolean;
+		/** Whether the item is unread. Read items have dimmed titles. */
+		unread?: boolean;
 		/** Link destination */
 		href?: string;
 		/** Layout style: 'compact' (side image) or 'hero' (top image) */
@@ -38,6 +40,7 @@
 		icon,
 		image,
 		active = false,
+		unread = true,
 		href,
 		layout = 'compact',
 		ratio = '16 / 9',
@@ -52,6 +55,7 @@
 	{href}
 	class="akui-feed-item-row {className}"
 	class:active
+	class:unread
 	class:hero={layout === 'hero'}
 	target={isExternal ? '_blank' : undefined}
 	rel={isExternal ? 'noopener noreferrer' : undefined}
@@ -223,11 +227,16 @@
 		font-size: var(--akui-font-size-m);
 		font-weight: 600;
 		line-height: 1.3;
-		color: var(--akui-fg);
+		color: var(--akui-fg-secondary);
 		display: -webkit-box;
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+		transition: color 0.15s ease;
+	}
+
+	.akui-feed-item-row.unread .akui-feed-item-row-title {
+		color: var(--akui-fg);
 	}
 
 	.akui-feed-item-row-excerpt {

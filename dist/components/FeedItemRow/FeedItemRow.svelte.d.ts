@@ -14,6 +14,8 @@ interface Props {
     image?: string | Snippet;
     /** Whether the item is currently selected/active */
     active?: boolean;
+    /** Whether the item is unread. Read items have dimmed titles. */
+    unread?: boolean;
     /** Link destination */
     href?: string;
     /** Layout style: 'compact' (side image) or 'hero' (top image) */
