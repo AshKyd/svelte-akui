@@ -49,6 +49,15 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
 - **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for navigation items, while the `sidebarBody` snippet allows for generic content (like Trees or custom layouts).
 - **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
+- **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box.
+
+### Media & Lists
+
+- **`FeedItemRow`**: A flexible grid-based item for list views.
+  - Supports `title` (2-line truncation) and `excerpt` (2-line truncation).
+  - Optional `icon` (left) and `image` (right).
+  - Metadata row (`tag` and `time`) with custom alignment.
+  - Semantic `<a>` tag wrapper with `active` and `focus` states.
 
 ### Feedback & Overlays
 

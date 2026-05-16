@@ -20,4 +20,7 @@ export * from './components/Header/index.js';
 export * from './components/Glow/index.js';
 export * from './components/InfoBox/index.js';
 export * from './components/Tree/index.js';
+export * from './components/FeedItemRow/index.js';
+export * from './components/FeedItemsColumn/index.js';
+export * from './components/DynamicImage/index.js';
 export * from './constants.js';
