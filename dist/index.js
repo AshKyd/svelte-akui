@@ -23,4 +23,5 @@ export * from './components/Tree/index.js';
 export * from './components/FeedItemRow/index.js';
 export * from './components/FeedItemsColumn/index.js';
 export * from './components/DynamicImage/index.js';
+export { default as ProgressBar } from './components/ProgressBar/ProgressBar.svelte';
 export * from './constants.js';

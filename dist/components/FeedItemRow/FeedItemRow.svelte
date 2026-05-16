@@ -162,7 +162,7 @@
 	}
 
 	.akui-feed-item-row.active {
-		background-color: var(--akui-bg-active);
+		background-color: var(--akui-bg-secondary);
 	}
 
 	.akui-feed-item-row:focus {
