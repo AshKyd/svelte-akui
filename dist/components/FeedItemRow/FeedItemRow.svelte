@@ -246,7 +246,7 @@
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
-		transition: color 0.15s ease;
+		transition: color 0.2s ease;
 	}
 
 	.akui-feed-item-row.unread .akui-feed-item-row-title {
