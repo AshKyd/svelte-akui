@@ -83,13 +83,20 @@
 		{/if}
 
 		<div class="akui-feed-item-row-content">
-			<!-- Metadata Row (Tag and Time) -->
+			<!-- Metadata Row (Tag/Title and Time) -->
 			<div class="akui-feed-item-row-meta">
-				<span class="akui-feed-item-row-tag">{tag || ''}</span>
+				{#if tag}
+					<span class="akui-feed-item-row-tag">{tag}</span>
+				{:else}
+					<h4 class="akui-feed-item-row-title">{title}</h4>
+				{/if}
 				<span class="akui-feed-item-row-time">{time || ''}</span>
 			</div>
 
-			<h4 class="akui-feed-item-row-title">{title}</h4>
+			{#if tag}
+				<h4 class="akui-feed-item-row-title">{title}</h4>
+			{/if}
+
 			{#if excerpt}
 				<p class="akui-feed-item-row-excerpt">{excerpt}</p>
 			{/if}
@@ -189,10 +196,10 @@
 	.akui-feed-item-row-meta {
 		display: flex;
 		justify-content: space-between;
-		align-items: flex-end;
+		align-items: baseline;
 		font-size: var(--akui-font-size-xs);
 		color: var(--akui-fg-secondary);
-		min-height: 1.2em;
+		gap: var(--akui-space-m);
 	}
 
 	.akui-feed-item-row-tag {
@@ -211,6 +218,7 @@
 	}
 
 	.akui-feed-item-row-title {
+		flex: 1;
 		margin: 0;
 		font-size: var(--akui-font-size-m);
 		font-weight: 600;
