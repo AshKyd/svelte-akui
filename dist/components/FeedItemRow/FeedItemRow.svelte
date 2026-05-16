@@ -20,6 +20,8 @@
 		active?: boolean;
 		/** Whether the item is unread. Read items have dimmed titles. */
 		unread?: boolean;
+		/** Optional unique identifier for selection tracking */
+		id?: string;
 		/** Link destination */
 		href?: string;
 		/** Layout style: 'compact' (side image) or 'hero' (top image) */
@@ -43,6 +45,7 @@
 		image,
 		active = false,
 		unread = true,
+		id,
 		href,
 		layout = 'compact',
 		ratio = '16 / 9',
@@ -67,6 +70,9 @@
 	{href}
 	onclick={handleClick}
 	onauxclick={handleAuxClick}
+	data-selectable
+	data-id={id || href}
+	tabindex="0"
 	class="akui-feed-item-row {className}"
 	class:active
 	class:unread
@@ -147,6 +153,7 @@
 		position: relative;
 		cursor: pointer;
 		user-select: none;
+		scroll-margin-top: 64px;
 	}
 /* ... rest of the styles ... */
 
@@ -158,8 +165,15 @@
 		background-color: var(--akui-bg-active);
 	}
 
+	.akui-feed-item-row:focus {
+		background-color: var(--akui-bg-hover);
+		box-shadow: inset 3px 0 0 var(--akui-bg-accent);
+	}
+
 	.akui-feed-item-row:focus-visible {
-		box-shadow: 0 0 0 2px var(--akui-ring-color, var(--akui-fg-accent));
+		box-shadow: 
+			inset 3px 0 0 var(--akui-bg-accent),
+			0 0 0 2px var(--akui-ring-color, var(--akui-fg-accent));
 		z-index: 10;
 	}
 
