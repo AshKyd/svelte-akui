@@ -76,8 +76,8 @@
 				layout={item.layout ?? layout}
 				fit={item.fit ?? fit}
 				ratio={item.ratio ?? ratio}
-				icon={rowIcon}
-				image={rowImage}
+				icon={(icon || item.icon) ? rowIcon : undefined}
+				image={(image || item.image) ? rowImage : undefined}
 				onclick={() => onselect?.(item.id)}
 			/>
 		</div>
