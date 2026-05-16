@@ -94,6 +94,9 @@
 			{:else if iconSnippet}
 				{@render iconSnippet(item)}
 			{:else if item.icon}
+				{#if item.icon.startsWith('http')}
+					{console.warn('TreeItem - URL icon passed to Icon fallback:', item.icon, 'Snippet present:', !!iconSnippet)}
+				{/if}
 				<Icon name={item.icon} size={14} />
 			{/if}
 		</div>
