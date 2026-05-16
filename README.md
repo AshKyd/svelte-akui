@@ -50,6 +50,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for navigation items, while the `sidebarBody` snippet allows for generic content (like Trees or custom layouts).
 - **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box.
+- **`FeedItemsColumn`**: A vertical list of `FeedItemRow` components with built-in dividers and column-level snippet overrides for icons and images.
+- **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
 
 ### Media & Lists
 
@@ -58,6 +60,16 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Optional `icon` (left) and `image` (right).
   - Metadata row (`tag` and `time`) with custom alignment.
   - Semantic `<a>` tag wrapper with `active` and `focus` states.
+  - Supports `layout="hero"` for top-aligned large thumbnails.
+
+- **`FeedItemsColumn`**: A container for stacked feed items.
+  - Manages dividers between items.
+  - Allows column-level `icon` and `image` snippet overrides for consistent branding (e.g., grayscale favicons).
+
+- **`DynamicImage`**: Smart image handling with smooth transitions.
+  - Automatic `object-fit` selection based on container ratio.
+  - Solid color loading placeholders.
+  - Built-in opacity fade-in.
 
 ### Feedback & Overlays
 
