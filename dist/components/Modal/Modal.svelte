@@ -36,7 +36,7 @@
 		showCloseButton = true,
 		footer,
 		children,
-		fullscreenOnMobile = false
+		fullscreenOnMobile = true
 	}: Props = $props();
 
 	let dialog: HTMLDialogElement;
