@@ -119,14 +119,14 @@ export function keyboardNavigation(node: HTMLElement, options: KeyboardNavOption
 		}
 	}
 
-	node.addEventListener('keydown', handleKeyDown);
+	window.addEventListener('keydown', handleKeyDown);
 
 	return {
 		update(newOptions: KeyboardNavOptions) {
 			options = newOptions;
 		},
 		destroy() {
-			node.removeEventListener('keydown', handleKeyDown);
+			window.removeEventListener('keydown', handleKeyDown);
 		}
 	};
 }
