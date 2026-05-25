@@ -34,6 +34,10 @@
 		class?: string;
 		/** Callback when the item is clicked */
 		onclick?: (e: MouseEvent) => void;
+		/** Whether the item is bookmarked */
+		bookmarked?: boolean;
+		/** Callback when the bookmark button is clicked */
+		onbookmark?: (e: MouseEvent) => void;
 	}
 
 	let {
@@ -51,10 +55,28 @@
 		ratio = '16 / 9',
 		fit = 'auto',
 		class: className = '',
-		onclick
+		bookmarked = false,
+		onclick,
+		onbookmark
 	}: Props = $props();
 
 	const isExternal = $derived(href?.startsWith('http'));
+	let isButtonFocused = $state(false);
+	let isHoveringLeft = $state(false);
+
+	function handlePointerMove(e: PointerEvent) {
+		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+		const x = e.clientX - rect.left;
+		const isLeft = x < 64; // Only trigger in the leftmost 64px
+		if (isHoveringLeft !== isLeft) {
+			isHoveringLeft = isLeft;
+		}
+	}
+
+	function handlePointerLeave() {
+		isHoveringLeft = false;
+	}
+
 	function handleClick(e: MouseEvent) {
 		onclick?.(e);
 	}
@@ -64,22 +86,37 @@
 			onclick?.(e);
 		}
 	}
+
+	function handleBookmarkClick(e: MouseEvent) {
+		e.stopPropagation();
+		e.preventDefault();
+		onbookmark?.(e);
+	}
+
+	function handleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			onclick?.(e as unknown as MouseEvent);
+		}
+	}
 </script>
 
-<a
-	{href}
-	onclick={handleClick}
-	onauxclick={handleAuxClick}
-	data-selectable
-	data-id={id || href}
-	tabindex="0"
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<div
 	class="akui-feed-item-row {className}"
 	class:active
 	class:unread
 	class:hero={layout === 'hero'}
-	target={isExternal ? '_blank' : undefined}
-	rel={isExternal ? 'noopener noreferrer' : undefined}
-	aria-current={active ? 'true' : undefined}
+	class:bookmarked
+	class:hover-left={isHoveringLeft}
+	onpointermove={handlePointerMove}
+	onpointerleave={handlePointerLeave}
+	onclick={!href && onclick ? handleClick : undefined}
+	onkeydown={!href && onclick ? handleKeyDown : undefined}
+	tabindex={!href && onclick ? 0 : undefined}
+	role={!href && onclick ? 'button' : undefined}
+	data-selectable
+	data-id={id || href}
 >
 	<!-- Hero Thumbnail (Top) -->
 	{#if layout === 'hero' && image}
@@ -94,13 +131,39 @@
 
 	<!-- Main Layout Container -->
 	<div class="akui-feed-item-row-layout">
-		{#if icon}
-			<div class="akui-feed-item-row-icon">
-				{#if typeof icon === 'string'}
-					<Icon name={icon} size={16} />
-				{:else}
-					<div class="akui-feed-item-row-icon-inner">
-						{@render icon()}
+		<!-- Left icon / Favicon / Bookmark Button area -->
+		{#if icon || onbookmark || bookmarked}
+			<div class="akui-feed-item-row-left-aside" class:has-no-icon={!icon}>
+				{#if onbookmark || bookmarked}
+					<button
+						type="button"
+						class="akui-feed-item-row-bookmark-btn"
+						class:bookmarked
+						onclick={handleBookmarkClick}
+						onfocus={() => (isButtonFocused = true)}
+						onblur={() => (isButtonFocused = false)}
+						aria-label={bookmarked ? 'Remove bookmark' : 'Add bookmark'}
+					>
+						<Icon
+							name={bookmarked ? 'bookmark-fill' : 'bookmark'}
+							size={16}
+							colour="currentColor"
+						/>
+					</button>
+				{/if}
+
+				{#if icon}
+					<div
+						class="akui-feed-item-row-icon"
+						class:hidden-for-bookmark={bookmarked || isButtonFocused}
+					>
+						{#if typeof icon === 'string'}
+							<Icon name={icon} size={16} />
+						{:else}
+							<div class="akui-feed-item-row-icon-inner">
+								{@render icon()}
+							</div>
+						{/if}
 					</div>
 				{/if}
 			</div>
@@ -112,13 +175,45 @@
 				{#if tag}
 					<span class="akui-feed-item-row-tag">{tag}</span>
 				{:else}
-					<h4 class="akui-feed-item-row-title">{title}</h4>
+					<h4 class="akui-feed-item-row-title">
+						{#if href}
+							<a
+								{href}
+								class="akui-feed-item-row-link"
+								onclick={handleClick}
+								onauxclick={handleAuxClick}
+								target={isExternal ? '_blank' : undefined}
+								rel={isExternal ? 'noopener noreferrer' : undefined}
+								aria-current={active ? 'true' : undefined}
+							>
+								{title}
+							</a>
+						{:else}
+							<span class="akui-feed-item-row-title-text">{title}</span>
+						{/if}
+					</h4>
 				{/if}
 				<span class="akui-feed-item-row-time">{time || ''}</span>
 			</div>
 
 			{#if tag}
-				<h4 class="akui-feed-item-row-title">{title}</h4>
+				<h4 class="akui-feed-item-row-title">
+					{#if href}
+						<a
+							{href}
+							class="akui-feed-item-row-link"
+							onclick={handleClick}
+							onauxclick={handleAuxClick}
+							target={isExternal ? '_blank' : undefined}
+							rel={isExternal ? 'noopener noreferrer' : undefined}
+							aria-current={active ? 'true' : undefined}
+						>
+							{title}
+						</a>
+					{:else}
+						<span class="akui-feed-item-row-title-text">{title}</span>
+					{/if}
+				</h4>
 			{/if}
 
 			{#if excerpt}
@@ -128,7 +223,10 @@
 
 		<!-- Compact Thumbnail (Side) -->
 		{#if layout === 'compact' && image}
-			<div class="akui-feed-item-row-image" style:aspect-ratio={layout === 'compact' ? '1 / 1' : ratio}>
+			<div
+				class="akui-feed-item-row-image"
+				style:aspect-ratio={layout === 'compact' ? '1 / 1' : ratio}
+			>
 				{#if typeof image === 'string'}
 					<DynamicImage src={image} alt="" {fit} />
 				{:else}
@@ -137,7 +235,7 @@
 			</div>
 		{/if}
 	</div>
-</a>
+</div>
 
 <style>
 	.akui-feed-item-row {
@@ -145,7 +243,7 @@
 		padding: var(--akui-space-m);
 		text-decoration: none !important; /* Bespoke link: no underline */
 		color: var(--akui-fg);
-		background-color: transparent;
+		background-color: var(--akui-bg, #ffffff);
 		transition: 
 			background-color 0.15s ease,
 			box-shadow 0.15s ease;
@@ -155,7 +253,6 @@
 		user-select: none;
 		scroll-margin-top: 64px;
 	}
-/* ... rest of the styles ... */
 
 	.akui-feed-item-row:hover {
 		background-color: var(--akui-bg-hover);
@@ -165,16 +262,42 @@
 		background-color: var(--akui-bg-secondary);
 	}
 
-	.akui-feed-item-row:focus {
-		background-color: var(--akui-bg-hover);
-		box-shadow: inset 3px 0 0 var(--akui-bg-accent);
+	.akui-feed-item-row.bookmarked {
+		background-color: rgba(255, 193, 7, 0.05);
 	}
 
-	.akui-feed-item-row:focus-visible {
-		box-shadow: 
-			inset 3px 0 0 var(--akui-bg-accent),
-			0 0 0 2px var(--akui-ring-color, var(--akui-fg-accent));
-		z-index: 10;
+	:global([data-theme='dark']) .akui-feed-item-row {
+		background-color: var(--akui-bg, #1a1a1a);
+	}
+
+	:global([data-theme='dark']) .akui-feed-item-row.bookmarked {
+		background-color: rgba(255, 193, 7, 0.02);
+	}
+
+	.akui-feed-item-row:focus-within {
+		background-color: var(--akui-bg-hover);
+	}
+
+	.akui-feed-item-row-link,
+	.akui-feed-item-row-link:hover,
+	.akui-feed-item-row-link:focus,
+	.akui-feed-item-row-link:active,
+	.akui-feed-item-row-link:visited {
+		color: inherit;
+		text-decoration: none !important;
+		outline: none;
+	}
+
+	.akui-feed-item-row-link::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		transition: box-shadow 0.15s ease;
+	}
+
+	.akui-feed-item-row-link:focus-visible {
+		outline: none;
 	}
 
 	.akui-feed-item-row.hero {
@@ -194,18 +317,118 @@
 	/* Metadata row at the top */
 	.akui-feed-item-row-layout {
 		display: flex;
-		gap: var(--akui-space-m);
+		gap: 0;
 		align-items: flex-start;
 	}
 
-	.akui-feed-item-row-icon {
+	.akui-feed-item-row-left-aside {
+		position: relative;
+		width: 16px;
+		height: 16px;
 		flex-shrink: 0;
-		padding-top: var(--akui-space-xs);
+		margin-top: var(--akui-space-xs);
+		margin-right: var(--akui-space-m);
+		z-index: 2;
+		transition: 
+			width 0.2s ease,
+			margin-right 0.2s ease,
+			opacity 0.2s ease;
+	}
+
+	.akui-feed-item-row-left-aside.has-no-icon {
+		width: 0;
+		margin-right: 0;
+		opacity: 0;
+		overflow: hidden;
+	}
+
+	.akui-feed-item-row.hover-left .akui-feed-item-row-left-aside.has-no-icon,
+	.akui-feed-item-row.bookmarked .akui-feed-item-row-left-aside.has-no-icon,
+	.akui-feed-item-row-left-aside.has-no-icon:has(*:focus-visible) {
+		width: 16px;
+		margin-right: var(--akui-space-m);
+		opacity: 1;
+		overflow: visible;
+	}
+
+	.akui-feed-item-row-bookmark-btn {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 16px;
+		height: 16px;
+		border: none;
+		background: transparent;
+		color: var(--akui-fg-secondary);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		opacity: 0;
+		transform: scale(0.8);
+		transition: 
+			opacity 0.2s ease,
+			transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+			color 0.15s ease;
+		outline: none;
+		pointer-events: none;
+		padding: 0;
+		--akui-gold: #b58100;
+	}
+
+	:global([data-theme='dark']) .akui-feed-item-row-bookmark-btn {
+		--akui-gold: #fbbf24;
+	}
+
+	.akui-feed-item-row-bookmark-btn:hover {
+		color: var(--akui-gold);
+	}
+
+	.akui-feed-item-row-bookmark-btn:focus-visible {
+		outline: 2px solid var(--akui-bg-accent, #2563eb);
+		outline-offset: 2px;
+		border-radius: 2px;
+		opacity: 1;
+		transform: scale(1);
+		pointer-events: auto;
+	}
+
+	.akui-feed-item-row-bookmark-btn:active {
+		transform: scale(0.9);
+	}
+
+	.akui-feed-item-row-bookmark-btn.bookmarked {
+		color: var(--akui-gold);
+	}
+
+	.akui-feed-item-row.hover-left .akui-feed-item-row-bookmark-btn,
+	.akui-feed-item-row.bookmarked .akui-feed-item-row-bookmark-btn {
+		opacity: 1;
+		transform: scale(1);
+		pointer-events: auto;
+	}
+
+	.akui-feed-item-row-icon {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 16px;
+		height: 16px;
 		opacity: 0.7;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 16px;
+		transition: 
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	.akui-feed-item-row-icon.hidden-for-bookmark,
+	.akui-feed-item-row.hover-left .akui-feed-item-row-icon,
+	.akui-feed-item-row.bookmarked .akui-feed-item-row-icon {
+		opacity: 0;
+		transform: scale(0.8);
+		pointer-events: none;
 	}
 
 	.akui-feed-item-row-icon-inner {
@@ -285,6 +508,7 @@
 		overflow: hidden;
 		background-color: var(--akui-bg-secondary);
 		margin-top: var(--akui-space-xs);
+		margin-left: var(--akui-space-m);
 	}
 
 	.akui-feed-item-image img {

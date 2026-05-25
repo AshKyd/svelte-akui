@@ -50,6 +50,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for navigation items, while the `sidebarBody` snippet allows for generic content (like Trees or custom layouts).
 - **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box.
+- **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`FeedItemsColumn`**: A vertical list of `FeedItemRow` components with built-in dividers and column-level snippet overrides for icons and images.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
 
