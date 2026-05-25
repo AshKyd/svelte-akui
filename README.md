@@ -115,6 +115,35 @@ Components should be composed: wrap any input in a `Field` to add a label.
   </button>
   ```
 
+### Keyboard Utilities
+
+- **`keyboardNavigation`**: A Svelte action to enable list keyboard navigation.
+  - Supports **J** and **K** keys for next/previous item focus navigation.
+  - Supports **Enter** key to trigger click event handlers on the selected item.
+  - Supports custom key mapping shortcuts via the `keyMap` option.
+  - Scans for nested elements marked with `data-selectable` and reads their ID from `data-id`.
+
+  ```svelte
+  <script>
+  	import { keyboardNavigation } from 'svelte-akui';
+  	
+  	function handleBookmark(id) {
+  		// Custom logic
+  	}
+  </script>
+
+  <div 
+  	use:keyboardNavigation={{
+  		keyMap: {
+  			b: (id) => handleBookmark(id)
+  		}
+  	}}
+  >
+  	<div data-selectable data-id="item-1">Item 1</div>
+  	<div data-selectable data-id="item-2">Item 2</div>
+  </div>
+  ```
+
 ## Application Shell & Layout
 
 For most applications, you'll want a persistent navigation and branding bar. In `svelte-akui`, the **`Sidebar`** is the primary orchestrator of this layout.
