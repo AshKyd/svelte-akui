@@ -6,6 +6,8 @@ export interface KeyboardNavOptions {
 	keyMap?: Record<string, (id: string, element: HTMLElement) => void>;
 	/** Custom selector to identify selectable elements. Defaults to '[data-selectable]'. */
 	selector?: string;
+	/** Callback when the selected item changes via J/K keyboard navigation. */
+	onSelect?: (id: string, element: HTMLElement) => void;
 }
 
 /**
@@ -45,6 +47,11 @@ export function keyboardNavigation(node: HTMLElement, options: KeyboardNavOption
 				item.setAttribute('tabindex', '-1');
 				item.focus();
 			}
+		}
+
+		if (options.onSelect) {
+			const id = item.getAttribute('data-id') || '';
+			options.onSelect(id, item);
 		}
 	};
 

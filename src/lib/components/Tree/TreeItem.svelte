@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, getContext } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import Icon from '../Icon/Icon.svelte';
 
@@ -61,6 +61,76 @@
 			handleToggle(e as unknown as MouseEvent);
 		}
 	}
+
+	// Drag and Drop implementation
+	const dragCtx = getContext<any>('akui-tree-drag');
+	const isDragDropSupported = typeof window !== 'undefined' && 'draggable' in document.createElement('span');
+
+	let isDragOver = $state(false);
+
+	function handleDragStart(e: DragEvent) {
+		if (!dragCtx || !dragCtx.draggable) return;
+		dragCtx.activeDragId = item.id;
+		e.dataTransfer?.setData('text/plain', item.id);
+		if (e.dataTransfer) {
+			e.dataTransfer.effectAllowed = 'move';
+		}
+	}
+
+	function handleDragEnd() {
+		if (!dragCtx) return;
+		dragCtx.activeDragId = null;
+		isDragOver = false;
+	}
+
+	function handleDragOver(e: DragEvent) {
+		if (!dragCtx || !dragCtx.draggable) return;
+		const draggedId = dragCtx.activeDragId;
+		if (!draggedId || draggedId === item.id) return;
+
+		let allowed = true;
+		if (dragCtx.onDragOver) {
+			allowed = dragCtx.onDragOver(draggedId, item.id);
+		}
+
+		if (allowed) {
+			e.preventDefault();
+			if (e.dataTransfer) {
+				e.dataTransfer.dropEffect = 'move';
+			}
+		}
+	}
+
+	function handleDragEnter(e: DragEvent) {
+		if (!dragCtx || !dragCtx.draggable) return;
+		const draggedId = dragCtx.activeDragId;
+		if (!draggedId || draggedId === item.id) return;
+
+		let allowed = true;
+		if (dragCtx.onDragOver) {
+			allowed = dragCtx.onDragOver(draggedId, item.id);
+		}
+
+		if (allowed) {
+			isDragOver = true;
+		}
+	}
+
+	function handleDragLeave() {
+		isDragOver = false;
+	}
+
+	function handleDrop(e: DragEvent) {
+		if (!dragCtx || !dragCtx.draggable) return;
+		e.preventDefault();
+		isDragOver = false;
+
+		const draggedId = dragCtx.activeDragId || e.dataTransfer?.getData('text/plain');
+		if (draggedId && draggedId !== item.id) {
+			dragCtx.onDrop?.(draggedId, item.id);
+		}
+		dragCtx.activeDragId = null;
+	}
 </script>
 
 <li
@@ -72,11 +142,19 @@
 >
 	<div
 		class="akui-tree-item-row"
+		class:drag-over={isDragOver}
 		style="--depth: {depth}"
 		onclick={handleSelect}
 		onkeydown={handleKeyDown}
 		role="button"
 		tabindex="0"
+		draggable={dragCtx?.draggable && isDragDropSupported}
+		ondragstart={handleDragStart}
+		ondragend={handleDragEnd}
+		ondragover={handleDragOver}
+		ondragenter={handleDragEnter}
+		ondragleave={handleDragLeave}
+		ondrop={handleDrop}
 	>
 		<!-- Icon Column / Chevron -->
 		<div class="akui-tree-item-icon">
@@ -154,6 +232,16 @@
 	.akui-tree-item-row:focus-visible {
 		box-shadow: 0 0 0 2px var(--akui-bg-accent);
 		background-color: var(--akui-bg-hover);
+	}
+
+	.akui-tree-item-row.drag-over {
+		background-color: var(--akui-bg-hover);
+		outline: 2px dashed var(--akui-bg-accent, #2563eb);
+		outline-offset: -2px;
+	}
+
+	:global(.akui-tree.dragging) .akui-tree-item-row * {
+		pointer-events: none;
 	}
 
 	.akui-tree-item-icon {

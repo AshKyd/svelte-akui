@@ -47,6 +47,9 @@
 			use:keyboardNavigation={{
 				keyMap: {
 					b: (id) => handleToggleBookmark(id)
+				},
+				onSelect: (id) => {
+					message = `Navigated to item ${id} (onSelect callback fired)`;
 				}
 			}}
 			class="selectable-list"

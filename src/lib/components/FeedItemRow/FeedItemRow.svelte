@@ -254,6 +254,24 @@
 		scroll-margin-top: 64px;
 	}
 
+	.akui-feed-item-row::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 3px;
+		background-color: var(--akui-bg-accent, #2563eb);
+		opacity: 0;
+		transition: opacity 0.15s ease;
+		z-index: 2;
+	}
+
+	.akui-feed-item-row:hover::before,
+	.akui-feed-item-row:focus-within::before {
+		opacity: 1;
+	}
+
 	.akui-feed-item-row:hover {
 		background-color: var(--akui-bg-hover);
 	}

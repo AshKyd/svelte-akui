@@ -53,6 +53,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`FeedItemsColumn`**: A vertical list of `FeedItemRow` components with built-in dividers and column-level snippet overrides for icons and images.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
+- **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), and HTML5 drag-and-drop moves with built-in validation.
 
 ### Media & Lists
 
@@ -71,6 +72,11 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Automatic `object-fit` selection based on container ratio.
   - Solid color loading placeholders.
   - Built-in opacity fade-in.
+
+- **`Tree`**: Collapsible tree navigation.
+  - Recursively renders hierarchical nodes.
+  - Supports keyboard navigation (arrows to traverse, Space to toggle, Enter to select).
+  - Supports `draggable` prop with `onDragOver` (drop validation) and `onDrop` callbacks for custom move/reorder logic.
 
 ### Feedback & Overlays
 
@@ -122,6 +128,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Supports **Enter** key to trigger click event handlers on the selected item.
   - Supports custom key mapping shortcuts via the `keyMap` option.
   - Scans for nested elements marked with `data-selectable` and reads their ID from `data-id`.
+  - Supports `onSelect` callback option, fired immediately when navigation changes the focused item.
 
   ```svelte
   <script>
