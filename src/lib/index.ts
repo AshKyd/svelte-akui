@@ -24,6 +24,7 @@ export * from './components/FeedItemRow/index.js';
 export * from './components/FeedItemsColumn/index.js';
 export * from './components/DynamicImage/index.js';
 export * from './components/SwipeAction/index.js';
+export * from './components/FilePicker/index.js';
 export { default as ProgressBar } from './components/ProgressBar/ProgressBar.svelte';
 export * from './hooks/keyboardNavigation.js';
 export * from './constants.js';

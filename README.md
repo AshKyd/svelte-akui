@@ -32,6 +32,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Field`**: Adds a `label` and `hint` (helper text) to a child. Automatically links the label to the input ID.
 - **`TextInput`**: One-line field. Supports standard types (`text`, `email`, `tel`, `url`, `search`, `number`, `date`, `color`). Supports `small`, `medium`, and `large` sizes.
 - **`ClearableInput`**: A text field with a one-click "X" button to reset the value. Ideal for search and filter fields.
+- **`FilePicker`**: A button-styled file selector. Wraps a hidden native file input and opens a file selection dialog on click. Supports `accept`, `multiple`, and `onchange`, and matches standard `Button` variants, sizes, and icon positions.
 - **`TextArea`**: Multi-line field. Supports `small`, `medium`, and `large` sizes and vertical resizing.
 - **`Select`**: Drop-down menu for picking from `options`.
 - **`Typeahead`**: An input field that supports suggestions and multi-selection via badges. Can be configured for "tagging" mode using `allowFreetext`, where commas or Enter create new items. Expands downward as content grows.
