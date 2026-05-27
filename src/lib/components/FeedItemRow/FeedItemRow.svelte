@@ -63,17 +63,36 @@
 	const isExternal = $derived(href?.startsWith('http'));
 	let isButtonFocused = $state(false);
 	let isHoveringLeft = $state(false);
+	let dwellTimer: ReturnType<typeof setTimeout> | null = null;
 
 	function handlePointerMove(e: PointerEvent) {
 		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
 		const x = e.clientX - rect.left;
-		const isLeft = x < 64; // Only trigger in the leftmost 64px
-		if (isHoveringLeft !== isLeft) {
-			isHoveringLeft = isLeft;
+		const isLeft = x < 64;
+
+		if (isLeft && !isHoveringLeft) {
+			// Start dwell — only reveal bookmark after the cursor lingers
+			if (dwellTimer === null) {
+				dwellTimer = setTimeout(() => {
+					isHoveringLeft = true;
+					dwellTimer = null;
+				}, 200);
+			}
+		} else if (!isLeft) {
+			// Cursor moved out of zone: cancel pending dwell and hide immediately
+			if (dwellTimer !== null) {
+				clearTimeout(dwellTimer);
+				dwellTimer = null;
+			}
+			isHoveringLeft = false;
 		}
 	}
 
 	function handlePointerLeave() {
+		if (dwellTimer !== null) {
+			clearTimeout(dwellTimer);
+			dwellTimer = null;
+		}
 		isHoveringLeft = false;
 	}
 
@@ -244,7 +263,7 @@
 		text-decoration: none !important; /* Bespoke link: no underline */
 		color: var(--akui-fg);
 		background-color: var(--akui-bg, #ffffff);
-		transition: 
+		transition:
 			background-color 0.15s ease,
 			box-shadow 0.15s ease;
 		outline: none;
@@ -348,7 +367,7 @@
 		margin-top: var(--akui-space-xs);
 		margin-right: var(--akui-space-m);
 		z-index: 2;
-		transition: 
+		transition:
 			width 0.2s ease,
 			margin-right 0.2s ease,
 			opacity 0.2s ease;
@@ -385,7 +404,7 @@
 		cursor: pointer;
 		opacity: 0;
 		transform: scale(0.8);
-		transition: 
+		transition:
 			opacity 0.2s ease,
 			transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
 			color 0.15s ease;
@@ -437,7 +456,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transition: 
+		transition:
 			opacity 0.2s ease,
 			transform 0.2s ease;
 	}
