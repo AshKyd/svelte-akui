@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+	let storyBookmarked = $state(false);
 </script>
 
 <Story name="Default">
@@ -152,6 +153,41 @@
 		excerpt="Leading geologists and nature-listeners have published a comprehensive guide to the subtle harmonics and rhythmic patterns found in ancient waterway stones."
 		time="10m ago"
 		unread={false}
+		href="#"
+	/>
+</Story>
+
+<Story name="Interactive Bookmark">
+	<FeedItemRow
+		title="Renovating the old drop tower: local cooperative begins clearing brambles"
+		excerpt="Volunteers gathered with pruners and tea flasks to begin restoring the abandoned drop tower. Rumours of a friendly ghost residing on the third floor have not been confirmed."
+		time="4h ago"
+		bookmarked={storyBookmarked}
+		onbookmark={() => {
+			storyBookmarked = !storyBookmarked;
+		}}
+		href="#"
+	/>
+</Story>
+
+<Story name="Bookmarked State">
+	<FeedItemRow
+		title="Town council allocates 300 gold pieces to pixie-light maintenance"
+		excerpt="Following a heated debate on municipal spending, the council approved a budget prioritizing public pathway illumination over the proposed wizarding statue."
+		time="15m ago"
+		bookmarked={true}
+		href="#"
+	/>
+</Story>
+
+<Story name="Favicon and Bookmark Hover">
+	<FeedItemRow
+		title="Archmage Jarethan Kilgrave funds new library wing, denies influence-peddling rumours"
+		excerpt="Kilgrave stated his donation was purely out of community goodwill and nothing to do with his pending zoning permit for the dark summoning circle."
+		time="Yesterday"
+		icon="stars"
+		bookmarked={false}
+		onbookmark={() => {}}
 		href="#"
 	/>
 </Story>

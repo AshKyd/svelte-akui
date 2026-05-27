@@ -1,4 +1,4 @@
-import FeedItemsColumn from './FeedItemsColumn.svelte';
+import FeedItemGroup from './FeedItemGroup.svelte';
 interface $$__sveltets_2_IsomorphicComponent<Props extends Record<string, any> = any, Events extends Record<string, any> = any, Slots extends Record<string, any> = any, Exports = {}, Bindings = string> {
     new (options: import('svelte').ComponentConstructorOptions<Props>): import('svelte').SvelteComponent<Props, Events, Slots> & {
         $$bindings?: Bindings;
@@ -12,8 +12,8 @@ interface $$__sveltets_2_IsomorphicComponent<Props extends Record<string, any> =
     };
     z_$$bindings?: Bindings;
 }
-declare const FeedItemsColumn: $$__sveltets_2_IsomorphicComponent<Record<string, never>, {
+declare const FeedItemGroup: $$__sveltets_2_IsomorphicComponent<Record<string, never>, {
     [evt: string]: CustomEvent<any>;
 }, {}, {}, string>;
-type FeedItemsColumn = InstanceType<typeof FeedItemsColumn>;
-export default FeedItemsColumn;
+type FeedItemGroup = InstanceType<typeof FeedItemGroup>;
+export default FeedItemGroup;

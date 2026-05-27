@@ -30,6 +30,10 @@ interface Props {
     class?: string;
     /** Callback when the item is clicked */
     onclick?: (e: MouseEvent) => void;
+    /** Whether the item is bookmarked */
+    bookmarked?: boolean;
+    /** Callback when the bookmark button is clicked */
+    onbookmark?: (e: MouseEvent) => void;
 }
 declare const FeedItemRow: import("svelte").Component<Props, {}, "">;
 type FeedItemRow = ReturnType<typeof FeedItemRow>;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, setContext } from 'svelte';
 	import TreeItem, { type TreeItemData } from './TreeItem.svelte';
 
 	interface Props {
@@ -15,6 +15,12 @@
 		onSelect?: (item: TreeItemData) => void;
 		/** Callback when a folder is toggled */
 		onToggle?: (id: string) => void;
+		/** Whether item drag & drop is enabled */
+		draggable?: boolean;
+		/** Callback to validate if dropping draggedId on targetId is allowed */
+		onDragOver?: (draggedId: string, targetId: string) => boolean;
+		/** Callback when an item is dropped onto a target */
+		onDrop?: (draggedId: string, targetId: string) => void;
 	}
 
 	let {
@@ -22,9 +28,26 @@
 		expanded = $bindable(new Set()),
 		icon,
 		class: className = '',
+		draggable = false,
 		onSelect,
-		onToggle
+		onToggle,
+		onDragOver,
+		onDrop
 	}: Props = $props();
+
+	let dragContext = $state<{
+		activeDragId: string | null;
+	}>({
+		activeDragId: null
+	});
+
+	setContext('akui-tree-drag', {
+		get activeDragId() { return dragContext.activeDragId; },
+		set activeDragId(val) { dragContext.activeDragId = val; },
+		get draggable() { return draggable; },
+		onDragOver,
+		onDrop
+	});
 
 	function handleToggle(id: string) {
 		if (expanded.has(id)) {
@@ -102,6 +125,7 @@
 <ul
 	role="tree"
 	class="akui-tree {className}"
+	class:dragging={dragContext.activeDragId !== null}
 	onkeydown={handleKeyDown}
 >
 	{#each items as item}

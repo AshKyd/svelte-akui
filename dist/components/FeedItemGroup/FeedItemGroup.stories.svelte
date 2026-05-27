@@ -1,9 +1,9 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import FeedItemsColumn from './FeedItemsColumn.svelte';
+	import FeedItemGroup from './FeedItemGroup.svelte';
 
 	const { Story } = defineMeta({
-		title: 'Components/FeedItemsColumn',
+		title: 'Components/FeedItemGroup',
 		tags: ['autodocs']
 	});
 
@@ -59,6 +59,16 @@
 			time: '3h ago',
 			image: '/faded_gallery-SiAJGyR15Aw-unsplash.jpg',
 			href: '#'
+		},
+		{
+			id: 3,
+			title: 'Nap schedules of sleepy dragons altered by daylight savings',
+			excerpt:
+				'Local dragon caretakers report minor grumpiness and slightly warmer sparks after the clock change.',
+			tag: 'Fauna',
+			time: '4h ago',
+			image: '/philip-oroni-KbusKKAZ968-unsplash.jpg',
+			href: '#'
 		}
 	];
 </script>
@@ -68,19 +78,19 @@
 
 <Story name="Compact Column">
 	<div style="max-width: 400px;">
-		<FeedItemsColumn items={mockItems} fit="cover" />
+		<FeedItemGroup items={mockItems} fit="cover" />
 	</div>
 </Story>
 
 <Story name="Hero Column">
 	<div style="max-width: 500px;">
-		<FeedItemsColumn items={mockHeroItems} layout="hero" fit="cover" />
+		<FeedItemGroup items={mockHeroItems} layout="hero" fit="cover" />
 	</div>
 </Story>
 
 <Story name="Mixed Layouts">
 	<div style="max-width: 500px;">
-		<FeedItemsColumn
+		<FeedItemGroup
 			items={[
 				{ ...mockHeroItems[0], layout: 'hero' },
 				{ ...mockItems[1], layout: 'compact' },
@@ -88,6 +98,12 @@
 			]}
 			fit="cover"
 		/>
+	</div>
+</Story>
+
+<Story name="Grid Layout">
+	<div style="width: 100%; max-width: 1000px;">
+		<FeedItemGroup items={mockHeroItems} display="grid" layout="hero" fit="cover" />
 	</div>
 </Story>
 
@@ -111,7 +127,7 @@
 	{/snippet}
 
 	<div style="max-width: 400px;">
-		<FeedItemsColumn 
+		<FeedItemGroup 
 			items={mockItems} 
 			icon={grayscaleIcon}
 			fit="cover" 

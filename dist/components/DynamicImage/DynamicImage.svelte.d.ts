@@ -12,6 +12,8 @@ interface Props {
     fit?: 'cover' | 'contain' | 'auto';
     /** Aspect ratio difference threshold for 'auto' fit (0.0 to 1.0) */
     threshold?: number;
+    /** Border radius of the image container. Defaults to '2px'. */
+    radius?: string | number;
     /** Loading handler */
     onload?: (dims: {
         width: number;

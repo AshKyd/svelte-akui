@@ -13,6 +13,12 @@ interface Props {
     onSelect?: (item: TreeItemData) => void;
     /** Callback when a folder is toggled */
     onToggle?: (id: string) => void;
+    /** Whether item drag & drop is enabled */
+    draggable?: boolean;
+    /** Callback to validate if dropping draggedId on targetId is allowed */
+    onDragOver?: (draggedId: string, targetId: string) => boolean;
+    /** Callback when an item is dropped onto a target */
+    onDrop?: (draggedId: string, targetId: string) => void;
 }
 declare const Tree: import("svelte").Component<Props, {}, "expanded">;
 type Tree = ReturnType<typeof Tree>;

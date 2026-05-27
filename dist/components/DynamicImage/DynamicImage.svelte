@@ -16,6 +16,8 @@
 		fit?: 'cover' | 'contain' | 'auto';
 		/** Aspect ratio difference threshold for 'auto' fit (0.0 to 1.0) */
 		threshold?: number;
+		/** Border radius of the image container. Defaults to '2px'. */
+		radius?: string | number;
 		/** Loading handler */
 		onload?: (dims: { width: number; height: number; ratio: number }) => void;
 		/** Error handler */
@@ -31,6 +33,7 @@
 		alt = '',
 		fit = 'auto',
 		threshold = 0.15,
+		radius = '2px',
 		onload,
 		onerror,
 		class: className = '',
@@ -81,7 +84,8 @@
 	class="akui-dynamic-image-container {className}" 
 	bind:clientWidth={containerWidth}
 	bind:clientHeight={containerHeight}
-	{style}
+	style={style}
+	style:border-radius={typeof radius === 'number' ? `${radius}px` : radius}
 >
 	<!-- Placeholder Background -->
 	<div class="akui-dynamic-image-placeholder" class:error>
