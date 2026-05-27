@@ -301,6 +301,7 @@
 	.akui-feed-item-row-link:focus,
 	.akui-feed-item-row-link:active,
 	.akui-feed-item-row-link:visited {
+		display: block;
 		color: inherit;
 		text-decoration: none !important;
 		outline: none;
