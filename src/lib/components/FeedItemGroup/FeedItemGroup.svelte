@@ -8,7 +8,7 @@
 	// Extract props from FeedItemRow but exclude 'class'
 	type RowProps = ComponentProps<typeof FeedItemRow>;
 
-	interface ItemData extends RowProps {
+	interface ItemData extends Omit<RowProps, 'id'> {
 		/** Unique identifier for the item */
 		id: string | number;
 	}
@@ -49,38 +49,15 @@
 
 <div class="akui-feed-item-group akui-display-{display} {className}">
 	{#each items as item, i (item.id)}
-		{#snippet rowIcon()}
-			{#if icon}
-				{@render icon(item)}
-			{:else if item.icon}
-				{#if typeof item.icon === 'string'}
-					<Icon name={item.icon} size={16} />
-				{:else}
-					{@render item.icon()}
-				{/if}
-			{/if}
-		{/snippet}
-
-		{#snippet rowImage()}
-			{#if image}
-				{@render image(item)}
-			{:else if item.image}
-				{#if typeof item.image === 'string'}
-					<DynamicImage src={item.image} fit={item.fit ?? fit} ratio={item.ratio ?? ratio} />
-				{:else}
-					{@render item.image()}
-				{/if}
-			{/if}
-		{/snippet}
-
 		<div class="akui-feed-item-group-item">
 			<FeedItemRow
 				{...item}
+				id={String(item.id)}
 				layout={item.layout ?? layout}
 				fit={item.fit ?? fit}
 				ratio={item.ratio ?? ratio}
-				icon={(icon || item.icon) ? rowIcon : undefined}
-				image={(image || item.image) ? rowImage : undefined}
+				icon={icon ? () => icon(item) : item.icon}
+				image={image ? () => image(item) : item.image}
 				onclick={() => onselect?.(item.id)}
 			/>
 		</div>

@@ -24,6 +24,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 - **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics.
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
+- **`Masonry`**: A lightweight grid layout component that arranges items vertically based on their heights. Supports custom columns, grid gaps, and padding. Exposes a bindable `refreshLayout` method to manually trigger layout updates for dynamic content.
 
 ### Input System
 
@@ -292,3 +293,24 @@ To maintain valid HTML, children within the `sidebar` snippet should be `Control
 
 - The hamburger button in the `Header` component automatically links to the sidebar via `aria-controls="akui-sidebar-navigation"`.
 - If you have multiple distinct navigation groups in the sidebar, you can use `ControlGroup` manually _within_ a `ControlContent` if needed, but be mindful of nesting `<ul>` tags inappropriately.
+
+### 7. Masonry Layout
+
+The `Masonry` component is used to arrange elements in columns of equal width, packing them tightly by placing each item into the currently shortest column. Visual placements are updated using absolute positioning to maintain a correct DOM tab-focus order. All standard HTML attributes (such as `class`, `role`, or `aria-label`) are forwarded directly to the container element.
+
+When your grid contains dynamic or asynchronous content (such as images that change size after loading), you should bind to the `refreshLayout` prop and trigger it when the content size changes:
+
+```svelte
+<script>
+	import { Masonry } from 'svelte-akui';
+	let refresh;
+</script>
+
+<Masonry bind:refreshLayout={refresh}>
+	<div class="card">
+		<img src="magic-garden.jpg" alt="Night-lilac garden" onload={refresh} />
+		<p>Glowing night-lilac seeds shared by elves.</p>
+	</div>
+	<!-- More items -->
+</Masonry>
+```
