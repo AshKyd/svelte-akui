@@ -21,7 +21,7 @@ export * from './components/Glow/index.js';
 export * from './components/InfoBox/index.js';
 export * from './components/Tree/index.js';
 export * from './components/FeedItemRow/index.js';
-export * from './components/FeedItemsColumn/index.js';
+export * from './components/FeedItemGroup/index.js';
 export * from './components/DynamicImage/index.js';
 export * from './components/SwipeAction/index.js';
 export * from './components/FilePicker/index.js';

@@ -16,6 +16,8 @@
 	interface Props {
 		/** Array of feed items to display */
 		items: ItemData[];
+		/** Layout orientation of the items group */
+		display?: 'column' | 'grid';
 		/** Shared layout for all items (compact or hero) */
 		layout?: 'compact' | 'hero';
 		/** Shared fit mode for all images */
@@ -24,9 +26,9 @@
 		ratio?: string | number;
 		/** Callback when an item is clicked */
 		onselect?: (id: string | number) => void;
-		/** Optional snippet override for icons in this column */
+		/** Optional snippet override for icons in this group */
 		icon?: Snippet<[ItemData]>;
-		/** Optional snippet override for images in this column */
+		/** Optional snippet override for images in this group */
 		image?: Snippet<[ItemData]>;
 		/** Additional CSS classes for the container */
 		class?: string;
@@ -34,6 +36,7 @@
 
 	let {
 		items = [],
+		display = 'column',
 		layout = 'compact',
 		fit = 'auto',
 		ratio,
@@ -44,7 +47,7 @@
 	}: Props = $props();
 </script>
 
-<div class="akui-feed-items-column {className}">
+<div class="akui-feed-item-group akui-display-{display} {className}">
 	{#each items as item, i (item.id)}
 		{#snippet rowIcon()}
 			{#if icon}
@@ -70,7 +73,7 @@
 			{/if}
 		{/snippet}
 
-		<div class="akui-feed-items-column-item">
+		<div class="akui-feed-item-group-item">
 			<FeedItemRow
 				{...item}
 				layout={item.layout ?? layout}
@@ -81,16 +84,25 @@
 				onclick={() => onselect?.(item.id)}
 			/>
 		</div>
-		{#if i < items.length - 1}
+		{#if display === 'column' && i < items.length - 1}
 			<Divider />
 		{/if}
 	{/each}
 </div>
 
 <style>
-	.akui-feed-items-column {
+	.akui-feed-item-group {
+		width: 100%;
+	}
+
+	.akui-feed-item-group.akui-display-column {
 		display: flex;
 		flex-direction: column;
-		width: 100%;
+	}
+
+	.akui-feed-item-group.akui-display-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+		gap: 16px;
 	}
 </style>

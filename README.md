@@ -52,7 +52,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
-- **`FeedItemsColumn`**: A vertical list of `FeedItemRow` components with built-in dividers and column-level snippet overrides for icons and images.
+- **`FeedItemGroup`**: A container for displaying `FeedItemRow` components in a column or grid layout. Supports built-in dividers for columns and group-level snippet overrides for icons and images.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
 - **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), and HTML5 drag-and-drop moves with built-in validation.
 
@@ -65,9 +65,10 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Semantic `<a>` tag wrapper with `active` and `focus` states.
   - Supports `layout="hero"` for top-aligned large thumbnails.
 
-- **`FeedItemsColumn`**: A container for stacked feed items.
-  - Manages dividers between items.
-  - Allows column-level `icon` and `image` snippet overrides for consistent branding (e.g., grayscale favicons).
+- **`FeedItemGroup`**: A container for stacked or grid-based feed items.
+  - Supports `display` prop (`'column'` or `'grid'`).
+  - Manages dividers between items in column mode.
+  - Allows group-level `icon` and `image` snippet overrides for consistent branding (e.g., grayscale favicons).
 
 - **`DynamicImage`**: Smart image handling with smooth transitions.
   - Automatic `object-fit` selection based on container ratio.
