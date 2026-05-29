@@ -21,11 +21,7 @@
 		class?: string;
 	}
 
-	let {
-		items,
-		icon,
-		class: className = ''
-	}: Props = $props();
+	let { items, icon, class: className = '' }: Props = $props();
 </script>
 
 <div class="akui-infoboxes {className}">
