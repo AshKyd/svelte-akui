@@ -36,22 +36,21 @@
 </script>
 
 <script lang="ts">
-	let isOpen = $state(false);
+	let permanentOpen = $state(true);
+	let dismissibleOpen = $state(true);
+	let modalOpen = $state(false);
 </script>
 
 {#snippet sidebarFooter()}
-	<Small tag="p">© 2024 Akui</Small>
+	<Small tag="p">© 2026 Akui</Small>
 	<Small tag="p">v1.0.4-beta</Small>
 {/snippet}
 
-{#snippet sidebarProp()}
+{#snippet sidebarContent()}
 	<ControlItem icon="house" label="Dashboard" />
 	<ControlItem icon="person" label="Profile" />
 	<ControlItem icon="gear" label="Settings" />
 	<ControlItem icon="box-arrow-right" label="Sign Out" />
-{/snippet}
-
-{#snippet treeView()}
 	<Padding size="s" y>
 		<Small tag="h3" style="margin-left: var(--akui-space-m); margin-bottom: var(--akui-space-s); display: block; opacity: 0.6;">
 			Feeds
@@ -60,33 +59,56 @@
 	</Padding>
 {/snippet}
 
-<Story name="Interactive">
-	<Sidebar sidebar={sidebarProp} footer={sidebarFooter} bind:isOpen>
-		<Padding size="l">
-			<Button onclick={() => (isOpen = !isOpen)} class="mobile-only">Toggle Sidebar</Button>
-			<h1>Main Content Area</h1>
-			<p>This is a simplified sidebar implementation using basic text and the Padding component.</p>
-			{#each Array.from({ length: 10 }, (_, k) => k) as i (i)}
-				<p>Section block {i + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-			{/each}
-		</Padding>
-	</Sidebar>
+<Story name="Permanent">
+	<div class="layout-demo">
+		<Sidebar title="Cosy Reader" icon="book" content={sidebarContent} footer={sidebarFooter} mode="permanent" />
+		<div class="main-content-demo">
+			<Padding size="l">
+				<h1>Permanent Mode</h1>
+				<p>The sidebar is always visible and occupies space on the screen.</p>
+			</Padding>
+		</div>
+	</div>
 </Story>
 
-<Story name="With Tree">
-	<Sidebar sidebar={sidebarProp} sidebarBody={treeView} footer={sidebarFooter} bind:isOpen>
-		<Padding size="l">
-			<Button onclick={() => (isOpen = !isOpen)} class="mobile-only">Toggle Sidebar</Button>
-			<h1>Application with Tree</h1>
-			<p>The tree view on the left is rendered using the <code>sidebarBody</code> snippet.</p>
-		</Padding>
-	</Sidebar>
+<Story name="Dismissible">
+	<div class="layout-demo">
+		<Sidebar title="Cosy Reader" icon="book" content={sidebarContent} footer={sidebarFooter} mode="dismissible" bind:isOpen={dismissibleOpen} />
+		<div class="main-content-demo">
+			<Padding size="l">
+				<Button onclick={() => (dismissibleOpen = !dismissibleOpen)}>Toggle Sidebar</Button>
+				<h1>Dismissible Mode</h1>
+				<p>The sidebar adjusts the layout space smoothly without squashing internal elements.</p>
+			</Padding>
+		</div>
+	</div>
+</Story>
+
+<Story name="Modal">
+	<div class="layout-demo">
+		<Sidebar title="Cosy Reader" icon="book" content={sidebarContent} footer={sidebarFooter} mode="modal" bind:isOpen={modalOpen} />
+		<div class="main-content-demo">
+			<Padding size="l">
+				<Button onclick={() => (modalOpen = true)}>Open Modal Sidebar</Button>
+				<h1>Modal Mode</h1>
+				<p>The sidebar slides in on top of content with a dark scrim backdrop.</p>
+			</Padding>
+		</div>
+	</div>
 </Story>
 
 <style>
-	@media (min-width: 769px) {
-		:global(.mobile-only) {
-			display: none;
-		}
+	.layout-demo {
+		display: flex;
+		height: 400px;
+		border: 1px solid var(--akui-border-input);
+		overflow: hidden;
+		position: relative;
+		background: var(--akui-bg);
+	}
+	.main-content-demo {
+		flex: 1;
+		overflow-y: auto;
+		background: var(--akui-bg-secondary);
 	}
 </style>

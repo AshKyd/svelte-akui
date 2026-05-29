@@ -25,6 +25,9 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
 - **`Masonry`**: A lightweight grid layout component that arranges items vertically based on their heights. Supports custom columns, grid gaps, and padding. Exposes a bindable `refreshLayout` method to manually trigger layout updates for dynamic content.
+- **`AdaptivePane`**: A generic component for building Canonical Layouts (List-Detail pattern). Uses `minWidth` and Svelte's `bind:clientWidth` to automatically adapt between a split (multi-pane) view on large screens and a stacked (single-pane) view on smaller screens, driven by the `baseRouteId` vs `currentRouteId`. Supports an optional `hideNestedWhenEmpty` prop to collapse the detail pane on desktop when no item is selected, expanding it smoothly when navigated.
+- **`NavigationBar`**: Bottom navigation container for mobile screen dimensions. Evenly spaces up to 5 `NavigationBarItem` components.
+- **`NavigationBarItem`**: Destination button inside the NavigationBar. Supports `label`, `icon`, `active` states, and `href`.
 
 ### Input System
 
@@ -49,8 +52,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Badge`**: Informative label or tag. Supports `regular` and `accent` variants, backdrop blur, and text glows. Can be used as a link by providing an `href`.
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
-- **`Sidebar`**: Sticky left-hand navigation. Transitions between a fixed desktop view and an overlay mobile view. The `sidebar` snippet is automatically wrapped in a `ControlGroup` for navigation items, while the `sidebarBody` snippet allows for generic content (like Trees or custom layouts).
-- **`Header`**: Top navigation and branding bar. Includes a hamburger menu toggle for the sidebar on mobile.
+- **`Sidebar`**: A side navigation drawer component. It supports permanent, modal, and dismissible layout modes. Features a scrollable top section using the `content` snippet and a fixed bottom section using the `footer` snippet. Supports `title` and `icon` (SVG name or image URL) properties to render an optional app branding header at the top of the drawer. In dismissible mode, it transitions width smoothly without squashing child elements. In modal mode, it displays as an overlay with a clickable backdrop and includes a visually hidden, accessible close button at the top of the drawer by default to support screen reader navigation.
+- **`Header`**: A Top App Bar component. It provides three layout zones using the `navigation`, `title`, and `actions` snippets. Supports a `pinned` prop to set whether the bar remains sticky at the top of the viewport or scrolls away with the page.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`FeedItemGroup`**: A container for displaying `FeedItemRow` components in a column or grid layout. Supports built-in dividers for columns and group-level snippet overrides for icons and images.
@@ -156,63 +159,21 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 ## Application Shell & Layout
 
-For most applications, you'll want a persistent navigation and branding bar. In `svelte-akui`, the **`Sidebar`** is the primary orchestrator of this layout.
+To build a responsive application shell, position the `Sidebar` alongside the main content area in a flex container or grid layout. Coordinate the shell's components by following this checklist:
 
-### The Responsive Shell
+- **Track Viewport Width**: Bind the window's inner width to track the viewport size.
+- **Determine Mobile State**: Check if the width is less than the `AdaptivePane` `minWidth` threshold (defaults to `768px`).
+- **Share Layout State**: Expose the mobile state and a sidebar toggle method to child pages using Svelte context.
+- **Configure Sidebar Mode**: Set the `Sidebar` `mode` dynamically to `'modal'` on mobile and `'dismissible'` on desktop.
+- **Coordinate Sidebar Visibility**: Automatically close the sidebar when entering mobile view, and open it when returning to desktop view.
+- **Show Hamburger Trigger**: In page headers, check the layout context and render a hamburger `Button` in the navigation snippet on mobile to open the sidebar.
+- **Optional Split Views**: Wrap any layout blocks in `AdaptivePane` to present them side-by-side on desktop and stacked on mobile. This component is optional and accommodates any content layout.
+  - *Tip: Bind `currentRouteId` reactively to SvelteKit optional routing parameters (e.g. `[[articleId]]`) to support deep linking and browser history navigation.*
 
-The `Sidebar` component handles the transitions between desktop and mobile views. It accepts three key snippets: `sidebar` (the main navigation), `header` (the top branding bar), and `footer` (bottom navigation or user profile).
-
-**Key Responsibilities:**
-- **Desktop**: The `Header` sits at the top of the screen. The `Sidebar` is fixed to the left.
-- **Mobile**: The `Header` remains at the top. The `Sidebar` becomes a slide-out overlay. The hamburger menu (in the `Header`) automatically controls the `Sidebar` visibility.
-- **Dynamic Title**: The layout automatically handles title positioning. You can provide a `title` snippet to the `Sidebar` which the shell will move between the `Header` (on desktop) and the `Sidebar` menu (on mobile) as needed.
-
-### Golden Path Implementation
-
-```svelte
-<script>
-	import { Sidebar, Header, ControlItem, ControlDivider, Padding } from 'svelte-akui';
-	let isSidebarOpen = $state(false);
-</script>
-
-<Sidebar bind:isOpen={isSidebarOpen}>
-	<!-- Main navigation -->
-	{#snippet sidebar()}
-		<ControlItem label="Dashboard" icon="house" href="/" active />
-		<ControlItem label="Messages" icon="chat-left-text" href="/messages" />
-		<ControlDivider />
-		<ControlItem label="Settings" icon="gear" href="/settings" />
-	{/snippet}
-
-	<!-- Custom sidebar content (e.g. Trees, user profiles) -->
-	{#snippet sidebarBody()}
-		<Padding size="m">
-			<Small>Custom Sidebar Content</Small>
-		</Padding>
-	{/snippet}
-
-	<!-- Top branding and actions -->
-	{#snippet header()}
-		<Header>
-			{#snippet title()}
-				<strong>MyApp</strong>
-			{/snippet}
-			
-			{#snippet actions()}
-				<!-- Icons/Buttons for the right side of the header -->
-			{/snippet}
-		</Header>
-	{/snippet}
-
-	<!-- Main Application Content -->
-	<main>
-		<Padding size="l">
-			<h1>Dashboard</h1>
-			<p>Your content goes here.</p>
-		</Padding>
-	</main>
-</Sidebar>
-```
+For complete implementation templates, see the Storybook stories:
+- [AdaptivePane Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Layout/AdaptivePane.stories.svelte)
+- [Sidebar Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Sidebar/Sidebar.stories.svelte)
+- [Header Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Header/Header.stories.svelte)
 
 ## Implementation Guidelines
 
@@ -260,39 +221,30 @@ Forms and other interactive elements inside a `Menu` will not close the menu by 
 
 ### 6. Sidebar Composition & ARIA
 
-The `Sidebar` component's `sidebar` snippet is rendered inside a `ControlGroup` (`<ul>`) with `role="navigation"`. This ensures consistent spacing and dividers between items. For generic content that shouldn't be wrapped in a list (like a Tree or a custom layout), use the `sidebarBody` snippet.
-
-To maintain valid HTML, children within the `sidebar` snippet should be `ControlItem`, `ControlDivider`, or `ControlContent` (which wrap their content in `<li>`).
+The `Sidebar` component provides two primary snippets: `content` and `footer`.
+To set up standard lists of items, wrap your `ControlItem`, `ControlDivider` or custom content elements inside a `ControlGroup` component inside the `content` snippet.
 
 ```svelte
-<Sidebar>
-	{#snippet sidebar()}
-		<!-- Standard nav items -->
-		<ControlItem label="Dashboard" icon="house" href="/" />
-		<ControlDivider />
-
-		<!-- Non-nav content still benefits from the layout -->
-		<ControlContent>
-			<div class="user-profile">
-				<img src="..." alt="" />
-				<span>User Name</span>
-			</div>
-		</ControlContent>
+<Sidebar title="Cosy Reader" icon="book">
+	{#snippet content()}
+		<ControlGroup>
+			<ControlItem label="Dashboard" icon="house" href="/" />
+			<ControlDivider />
+			<ControlItem label="Profile" icon="person" href="/profile" />
+		</ControlGroup>
 	{/snippet}
-</Sidebar>
 
-<!-- sidebarBody is unwrapped -->
-<Sidebar>
-	{#snippet sidebarBody()}
-		<div class="my-tree">...</div>
+	{#snippet footer()}
+		<Padding size="m">
+			<Small>v1.0.4</Small>
+		</Padding>
 	{/snippet}
 </Sidebar>
 ```
 
-**ARIA Notes**:
-
-- The hamburger button in the `Header` component automatically links to the sidebar via `aria-controls="akui-sidebar-navigation"`.
-- If you have multiple distinct navigation groups in the sidebar, you can use `ControlGroup` manually _within_ a `ControlContent` if needed, but be mindful of nesting `<ul>` tags inappropriately.
+**Accessibility & ARIA Notes**:
+- The component supports an `inert` attribute automatically when closed in `modal` or `dismissible` modes to prevent keyboard focus of offscreen elements.
+- When `mode="modal"` and the drawer is open, keyboard navigation traps focus and the Escape key can be used to dismiss the drawer.
 
 ### 7. Masonry Layout
 

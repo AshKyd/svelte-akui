@@ -1,20 +1,20 @@
 import { type Snippet } from 'svelte';
 interface Props {
-    /** The main content of the application. */
-    children: Snippet;
-    /** The content to be displayed in the sidebar navigation (automatically wrapped in a ControlGroup). */
-    sidebar?: Snippet;
-    /** Generic content to be displayed in the sidebar, rendered without any automatic wrapping. */
-    sidebarBody?: Snippet;
-    /** Optional header to be integrated (above on desktop, shifting on mobile). */
-    header?: Snippet;
+    /** Optional title to show in the sidebar header branding. */
+    title?: string;
+    /** Optional icon (name from icon set or absolute URL) to show in the sidebar header. */
+    icon?: string;
+    /** The content to be displayed in the scrollable top section of the sidebar. */
+    content?: Snippet;
     /** Optional footer to be displayed at the bottom of the sidebar. */
     footer?: Snippet;
-    /** Optional title/logo to be shown in the sidebar on mobile. */
-    title?: Snippet;
-    /** Whether the sidebar is open (primarily for mobile). */
+    /** Whether the sidebar drawer is open (for modal and dismissible modes). */
     isOpen?: boolean;
-    /** The width of the sidebar. Defaults to '280px'. */
+    /** The mode of the sidebar: permanent, modal, or dismissible. */
+    mode?: 'permanent' | 'modal' | 'dismissible';
+    /** Whether to show a close button at the top of the drawer. Defaults to true in modal mode, false otherwise. */
+    showCloseButton?: boolean;
+    /** The width of the sidebar when open. Defaults to '280px'. */
     width?: string;
     /** Additional CSS classes for the container. */
     class?: string;

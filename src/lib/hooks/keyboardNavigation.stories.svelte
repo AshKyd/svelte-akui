@@ -3,7 +3,7 @@
 	import { keyboardNavigation } from './keyboardNavigation.js';
 
 	const { Story } = defineMeta({
-		title: 'Utilities/keyboardNavigation',
+		title: 'Components/keyboardNavigation',
 		tags: ['autodocs']
 	});
 </script>

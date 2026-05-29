@@ -5,8 +5,7 @@
 	const sizes = ['xs', 's', 'm', 'l', 'xl'] as const;
 
 	const { Story } = defineMeta({
-		title: 'Utilities/Padding',
-		component: Padding,
+		title: 'Components/Padding',
 		tags: ['autodocs'],
 		argTypes: {
 			size: {

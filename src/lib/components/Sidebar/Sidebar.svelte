@@ -1,73 +1,74 @@
 <script lang="ts">
-	import { type Snippet, onMount, tick } from 'svelte';
+	import { type Snippet, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
-	import { ControlGroup } from '../Control/index.ts';
+	import { ANIMATION_DURATION } from '../../constants.js';
+	import Button from '../Button/Button.svelte';
+	import Icon from '../Icon/Icon.svelte';
+	import Header from '../Header/Header.svelte';
 
 	interface Props {
-		/** The main content of the application. */
-		children: Snippet;
-		/** The content to be displayed in the sidebar navigation (automatically wrapped in a ControlGroup). */
-		sidebar?: Snippet;
-		/** Generic content to be displayed in the sidebar, rendered without any automatic wrapping. */
-		sidebarBody?: Snippet;
-		/** Optional header to be integrated (above on desktop, shifting on mobile). */
-		header?: Snippet;
+		/** Optional title to show in the sidebar header branding. */
+		title?: string;
+		/** Optional icon (name from icon set or absolute URL) to show in the sidebar header. */
+		icon?: string;
+		/** The content to be displayed in the scrollable top section of the sidebar. */
+		content?: Snippet;
 		/** Optional footer to be displayed at the bottom of the sidebar. */
 		footer?: Snippet;
-		/** Optional title/logo to be shown in the sidebar on mobile. */
-		title?: Snippet;
-		/** Whether the sidebar is open (primarily for mobile). */
+		/** Whether the sidebar drawer is open (for modal and dismissible modes). */
 		isOpen?: boolean;
-		/** The width of the sidebar. Defaults to '280px'. */
+		/** The mode of the sidebar: permanent, modal, or dismissible. */
+		mode?: 'permanent' | 'modal' | 'dismissible';
+		/** Whether to show a close button at the top of the drawer. Defaults to true in modal mode, false otherwise. */
+		showCloseButton?: boolean;
+		/** The width of the sidebar when open. Defaults to '280px'. */
 		width?: string;
 		/** Additional CSS classes for the container. */
 		class?: string;
 	}
 
 	let {
-		children,
-		sidebar,
-		sidebarBody,
-		header,
-		footer,
 		title,
-		isOpen = $bindable(false),
+		icon,
+		content,
+		footer,
+		isOpen = $bindable(true),
+		mode = 'permanent',
+		showCloseButton: userShowCloseButton,
 		width = '280px',
 		class: className = ''
 	}: Props = $props();
 
-	let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-	const isMobile = $derived.by(() => windowWidth <= 768);
-
-	onMount(() => {
-		const handleResize = () => {
-			windowWidth = window.innerWidth;
-		};
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
-	});
+	const showCloseButton = $derived(
+		userShowCloseButton !== undefined ? userShowCloseButton : mode === 'modal'
+	);
 
 	let sidebarEl = $state<HTMLElement | null>(null);
 	let lastFocusedEl: Element | null = null;
 
 	$effect(() => {
-		if (isMobile && isOpen) {
+		const isModal = mode === 'modal';
+		const isDismissible = mode === 'dismissible';
+		const needsFocusTrap = (isModal || isDismissible) && isOpen;
+
+		if (needsFocusTrap) {
 			// Save the currently focused element to return focus later
 			lastFocusedEl = document.activeElement;
 			// Move focus to the first interactive element in the sidebar
 			tick().then(() => {
-				const focusable = sidebarEl?.querySelector('a, button, [tabindex="1"],[tabindex="0"]') as HTMLElement;
+				const focusable = sidebarEl?.querySelector(
+					'a, button, [tabindex="1"],[tabindex="0"]'
+				) as HTMLElement;
 				focusable?.focus();
 			});
-		} else if (isMobile && !isOpen && lastFocusedEl instanceof HTMLElement) {
+		} else if ((isModal || isDismissible) && !isOpen && lastFocusedEl instanceof HTMLElement) {
 			// Restore focus when the menu closes
 			lastFocusedEl.focus();
 		}
 	});
 
 	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Escape' && isMobile && isOpen) {
+		if (event.key === 'Escape' && mode === 'modal' && isOpen) {
 			isOpen = false;
 		}
 	}
@@ -75,163 +76,184 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="akui-sidebar-wrapper">
-	{#if !isMobile && header}
-		{@render header()}
-	{/if}
-
+{#if mode === 'modal' && isOpen}
 	<div
-		class="akui-sidebar-layout {className}"
-		class:is-mobile={isMobile}
-		class:is-open={isOpen}
-		style:--sidebar-width={width}
-	>
-		<aside bind:this={sidebarEl} class="akui-sidebar">
-			{#if isMobile && title}
-				<div class="akui-sidebar-mobile-title">
-					{@render title()}
-				</div>
-			{/if}
-			<div class="akui-sidebar-inner">
-				{#if sidebar}
-					<nav aria-label="Main Navigation">
-						<ControlGroup id="akui-sidebar-navigation">
-							{@render sidebar()}
-						</ControlGroup>
-					</nav>
-				{/if}
-				{@render sidebarBody?.()}
+		class="akui-sidebar-scrim"
+		onclick={() => (isOpen = false)}
+		transition:fade={{ duration: ANIMATION_DURATION }}
+		aria-hidden="true"
+	></div>
+{/if}
+
+<aside
+	bind:this={sidebarEl}
+	class="akui-sidebar {className}"
+	class:is-open={isOpen}
+	class:mode-permanent={mode === 'permanent'}
+	class:mode-modal={mode === 'modal'}
+	class:mode-dismissible={mode === 'dismissible'}
+	style:--sidebar-width={width}
+	inert={(mode === 'modal' || mode === 'dismissible') && !isOpen}
+	role={mode === 'modal' ? 'dialog' : 'navigation'}
+	aria-modal={mode === 'modal' ? 'true' : undefined}
+	aria-label={mode === 'modal' ? 'Navigation Drawer' : undefined}
+>
+	<div class="akui-sidebar-inner" style:width>
+		{#if title || icon || showCloseButton}
+			<Header class="akui-sidebar-header" pinned={false}>
+				{#snippet title()}
+					<div class="akui-sidebar-brand">
+						{#if icon}
+							<div class="akui-sidebar-brand-icon">
+								{#if icon.startsWith('http') || icon.startsWith('/') || icon.includes('.')}
+									<img src={icon} alt="" class="akui-sidebar-brand-img" />
+								{:else}
+									<Icon name={icon} size={20} />
+								{/if}
+							</div>
+						{/if}
+						{#if title}
+							<span class="akui-sidebar-brand-title">{title}</span>
+						{/if}
+					</div>
+				{/snippet}
+
+				{#snippet actions()}
+					{#if showCloseButton}
+						<Button
+							variant="ghost"
+							icon="x-lg"
+							iconPosition="only"
+							label="Close Drawer"
+							onclick={() => (isOpen = false)}
+						/>
+					{/if}
+				{/snippet}
+			</Header>
+		{/if}
+		{#if content}
+			<div class="akui-sidebar-content">
+				{@render content()}
 			</div>
-			{#if footer}
-				<div class="akui-sidebar-footer">
-					{@render footer()}
-				</div>
-			{/if}
-		</aside>
-
-		<main class="akui-main">
-			{#if isMobile && isOpen}
-				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-				<div
-					class="akui-sidebar-backdrop"
-					onclick={() => (isOpen = false)}
-					transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
-				></div>
-			{/if}
-
-			{#if isMobile && header}
-				{@render header()}
-			{/if}
-
-			<div class="akui-main-content" inert={isMobile && isOpen}>
-				{@render children?.()}
+		{/if}
+		{#if footer}
+			<div class="akui-sidebar-footer">
+				{@render footer()}
 			</div>
-		</main>
+		{/if}
 	</div>
-</div>
+</aside>
 
 <style>
-	.akui-sidebar-wrapper {
+	.akui-sidebar {
+		height: 100dvh;
+		background: var(--akui-bg);
+		border-right: 1px solid var(--akui-border-input);
+		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
-		height: 100dvh;
 		overflow: hidden;
 	}
 
-	.akui-sidebar-layout {
-		display: flex;
-		width: 100%;
-		flex: 1;
-		min-height: 0;
-		position: relative;
-		transition: transform 0.3s ease;
-		background-color: var(--akui-bg);
-		color: var(--akui-fg);
-	}
-
-	.akui-sidebar {
-		width: var(--sidebar-width);
-		height: 100%;
-		flex-shrink: 0;
-		background: var(--akui-bg);
-		border-right: 1px solid var(--akui-border-input);
-		z-index: 20;
+	.akui-sidebar-inner {
 		display: flex;
 		flex-direction: column;
+		height: 100%;
+		flex-shrink: 0;
 	}
 
-	.akui-sidebar-mobile-title {
-		padding: var(--akui-space-m);
-		border-bottom: 1px solid var(--akui-border-input);
-		font-weight: 600;
+	:global(.akui-sidebar .akui-sidebar-header) {
+		flex-shrink: 0;
 	}
 
-	.akui-sidebar-inner {
+	.akui-sidebar-brand {
+		display: flex;
+		align-items: center;
+		gap: var(--akui-space-m);
+		min-width: 0;
+	}
+
+	.akui-sidebar-brand-icon {
+		width: 20px;
+		height: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.akui-sidebar-brand-img {
+		max-width: 100%;
+		max-height: 100%;
+		object-fit: contain;
+	}
+
+	.akui-sidebar-brand-title {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.akui-sidebar-content {
 		flex: 1;
 		overflow-y: auto;
 	}
 
 	.akui-sidebar-footer {
 		padding: var(--akui-space-m);
+		border-top: 1px solid var(--akui-border-input);
 	}
 
-	.akui-main {
-		flex: 1;
-		min-width: 0;
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		z-index: 10;
-		overflow-y: auto;
+	/* Modes */
+	.akui-sidebar.mode-permanent {
+		width: var(--sidebar-width);
 	}
 
-	.akui-main-content {
-		flex: 1;
-		background-color: var(--akui-bg);
+	.akui-sidebar.mode-dismissible {
+		width: 0;
+		border-right-width: 0;
+		transition:
+			width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			border-color 0.3s ease;
 	}
 
-	/* Mobile Styles */
-	@media (max-width: 768px) {
-		.akui-sidebar-wrapper {
-			min-height: 100vh;
-			overflow-x: hidden;
-		}
+	.akui-sidebar.mode-dismissible.is-open {
+		width: var(--sidebar-width);
+		border-right-width: 1px;
+	}
 
-		.akui-sidebar-layout {
-			/* Ensure we don't clip the sidebar when it's at the left edge */
-			overflow: visible;
-		}
+	.akui-sidebar.mode-modal {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 100;
+		width: var(--sidebar-width);
+		transform: translateX(-100%);
+		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		box-shadow: var(--akui-shadow-l, 0 8px 32px rgba(0, 0, 0, 0.2));
+	}
 
-		.akui-sidebar {
-			position: absolute; /* Back to relative but shifted out */
-			left: calc(-1 * var(--sidebar-width));
-			height: 100dvh;
-			z-index: 20;
-		}
+	.akui-sidebar.mode-modal.is-open {
+		transform: translateX(0);
+	}
 
-		.akui-sidebar-layout.is-open {
-			transform: translateX(var(--sidebar-width));
-		}
-
-		.akui-sidebar-backdrop {
-			position: absolute;
-			top: 0;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			background: rgba(0, 0, 0, 0.4);
-			z-index: 15;
-		}
-
-		/* Prevent the entire page from having a horizontal scrollbar */
-		:global(body) {
-			overflow-x: hidden;
-		}
+	/* Scrim */
+	.akui-sidebar-scrim {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.4);
+		z-index: 99;
 	}
 
 	:global([data-theme='dark']) .akui-sidebar {
 		background: var(--akui-bg-secondary);
 		border-right-color: rgba(255, 255, 255, 0.05);
+	}
+
+	:global([data-theme='dark']) .akui-sidebar-footer {
+		border-top-color: rgba(255, 255, 255, 0.05);
 	}
 </style>

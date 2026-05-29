@@ -1,70 +1,48 @@
 <script lang="ts">
-	import { type Snippet, onMount } from 'svelte';
-	import Button from '../Button/Button.svelte';
+	import { type Snippet } from 'svelte';
 
 	interface Props {
+		/** Svelte snippet for the left-aligned navigation (e.g. menu button). */
+		navigation?: Snippet;
 		/** Svelte snippet for the app brand/title/logo. */
 		title?: Snippet;
 		/** Svelte snippet for header actions (right-aligned). */
-		children?: Snippet;
-		/** Whether the linked sidebar is open (primarily for mobile). */
-		sidebarOpen?: boolean;
-		/** Whether to show the hamburger menu (if a sidebar is available). */
-		hasSidebar?: boolean;
+		actions?: Snippet;
+		/** Whether the header is pinned/sticky to the top of the viewport. */
+		pinned?: boolean;
 		/** Additional CSS classes for the header. */
 		class?: string;
 	}
 
 	let {
+		navigation,
 		title,
-		children,
-		sidebarOpen = $bindable(false),
-		hasSidebar = false,
+		actions,
+		pinned = true,
 		class: className = ''
 	}: Props = $props();
-
-	let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-	const isMobile = $derived.by(() => windowWidth <= 768);
-
-	onMount(() => {
-		const handleResize = () => {
-			windowWidth = window.innerWidth;
-		};
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
-	});
-
-	// Logic for title visibility on mobile
-	const showTitle = $derived.by(() => !isMobile || !hasSidebar);
 </script>
 
-<header class="akui-header {className}">
+<header class="akui-header {className}" class:pinned>
 	<div class="akui-header-left">
-		{#if isMobile && hasSidebar}
-			<Button
-				variant="regular"
-				icon="list"
-				iconPosition="only"
-				onclick={() => (sidebarOpen = !sidebarOpen)}
-				class="akui-hamburger"
-				aria-label="Toggle Menu"
-				aria-expanded={sidebarOpen}
-				aria-controls="akui-sidebar-navigation"
-			/>
+		{#if navigation}
+			<div class="akui-header-navigation">
+				{@render navigation()}
+			</div>
 		{/if}
 
-		{#if showTitle && title}
+		{#if title}
 			<div class="akui-header-title">
 				{@render title()}
 			</div>
 		{/if}
 	</div>
 
-	<div class="akui-header-right">
-		{#if children}
-			{@render children()}
-		{/if}
-	</div>
+	{#if actions}
+		<div class="akui-header-actions">
+			{@render actions()}
+		</div>
+	{/if}
 </header>
 
 <style>
@@ -78,10 +56,14 @@
 		color: var(--akui-fg);
 		border-bottom: 1px solid var(--akui-border-input);
 		box-sizing: border-box;
+		width: 100%;
+		position: relative;
+	}
+
+	.akui-header.pinned {
 		position: sticky;
 		top: 0;
 		z-index: 50;
-		width: 100%;
 	}
 
 	.akui-header-left {
@@ -97,15 +79,10 @@
 		align-items: center;
 	}
 
-	.akui-header-right {
+	.akui-header-actions {
 		display: flex;
 		align-items: center;
 		gap: var(--akui-space-s);
-	}
-
-	/* Ensure the hamburger button doesn't have extra margin/padding that breaks alignment */
-	:global(.akui-hamburger) {
-		margin: 0;
 	}
 
 	@media (max-width: 768px) {

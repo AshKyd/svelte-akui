@@ -396,3 +396,50 @@ input:not(.bespoke):disabled {
 	white-space: nowrap;
 	border-width: 0;
 }
+
+/* SvelteKit View Transitions (Cosy Fantasy Spring Animations) */
+::view-transition-old(page) {
+	animation: none; /* Old page stays in place by default */
+}
+::view-transition-new(page) {
+	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+}
+
+/* When navigating "back", new page stays, old page slides out to the right */
+html.transition-back ::view-transition-old(page) {
+	animation: akui-slide-out 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+	z-index: 2; /* Ensure old page slides over the new page */
+}
+html.transition-back ::view-transition-new(page) {
+	animation: none;
+}
+
+/* When navigating "forward", old page stays, new page slides in from the right */
+html.transition-forward ::view-transition-old(page) {
+	animation: none;
+}
+html.transition-forward ::view-transition-new(page) {
+	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+}
+
+@keyframes akui-slide-in {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+@keyframes akui-slide-out {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+}

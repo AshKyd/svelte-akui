@@ -4,8 +4,7 @@
 	import StorybookDecorator from '../StorybookDecorator.svelte';
 
 	const { Story } = defineMeta({
-		title: 'Feedback/ProgressBar',
-		component: ProgressBar,
+		title: 'Components/ProgressBar',
 		decorators: [() => StorybookDecorator]
 	});
 </script>

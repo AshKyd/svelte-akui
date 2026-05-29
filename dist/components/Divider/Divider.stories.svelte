@@ -4,8 +4,7 @@
 	import StorybookDecorator from '../StorybookDecorator.svelte';
 
 	const { Story } = defineMeta({
-		title: 'Layout & Foundation/Divider',
-		component: Divider,
+		title: 'Components/Divider',
 		decorators: [() => StorybookDecorator]
 	});
 </script>
