@@ -37,7 +37,6 @@
 
 <style>
 	.akui-root {
-		display: contents;
 		isolation: isolate;
 	}
 

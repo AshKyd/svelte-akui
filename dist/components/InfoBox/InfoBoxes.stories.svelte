@@ -31,7 +31,7 @@
 </script>
 
 <Story name="Default (Stacked)">
-	<div style="width: 400px; border: 1px solid var(--akui-border-input); border-radius: 8px; overflow: hidden;">
+	<div style="width: 400px;">
 		<InfoBoxes {items} />
 	</div>
 </Story>
@@ -79,9 +79,7 @@
 		}
 	</style>
 
-	<div
-		style="width: 400px; border: 1px solid var(--akui-border-input); border-radius: 8px; overflow: hidden;"
-	>
+	<div style="width: 400px;">
 		<InfoBoxes {items} icon={customIcon} />
 	</div>
 </Story>
