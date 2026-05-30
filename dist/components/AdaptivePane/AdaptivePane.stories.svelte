@@ -81,6 +81,8 @@
 			lastExpandActiveItem = found;
 		}
 	});
+
+	let mainPaneWidth = $state(320);
 </script>
 
 {#snippet mainPane({ isStacked })}
@@ -228,12 +230,26 @@
 	</div>
 {/snippet}
 
-<!-- Standard desktop view (split) -->
-<Story name="Desktop (Split View)">
+<!-- Standard desktop view (split with resizable support) -->
+<Story name="Desktop (Split View, Resizable)">
 	<div
-		style="height: 600px; width: 100%; border: 1px solid var(--akui-border-input); border-radius: 8px; overflow: hidden; background-color: var(--akui-bg-secondary, #f9fafb);"
+		style="display: flex; flex-direction: column; gap: 0.5rem; height: 650px; width: 100%;"
 	>
-		<AdaptivePane minWidth={768} baseRouteId="/inbox" {currentRouteId} {mainPane} {nestedPane} />
+		<p style="margin: 0; padding: 0 1rem; font-size: 0.9rem; color: var(--akui-fg-secondary);">
+			Main pane width: {mainPaneWidth}px (drag border to resize)
+		</p>
+		<div
+			style="flex: 1; border: 1px solid var(--akui-border-input); border-radius: 8px; overflow: hidden; background-color: var(--akui-bg-secondary, #f9fafb);"
+		>
+			<AdaptivePane
+				minWidth={768}
+				baseRouteId="/inbox"
+				{currentRouteId}
+				{mainPane}
+				{nestedPane}
+				bind:mainPaneWidth
+			/>
+		</div>
 	</div>
 </Story>
 

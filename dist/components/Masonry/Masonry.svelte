@@ -43,6 +43,7 @@
 
 	let grids: GridInfo[] = [];
 	let masonryElement: HTMLElement | undefined = $state();
+	let containerWidth = $state(0);
 
 	const refresh = async () => {
 		grids.forEach(async (grid) => {
@@ -58,13 +59,13 @@
 			}
 
 			// Calculate widths and offsets relative to the padding boundary
-			const containerWidth = grid._el.getBoundingClientRect().width;
+			const containerWidthVal = grid._el.getBoundingClientRect().width;
 			const paddingLeft = parseFloat(style.paddingLeft || '0');
 			const paddingRight = parseFloat(style.paddingRight || '0');
 			const paddingTop = parseFloat(style.paddingTop || '0');
 			const paddingBottom = parseFloat(style.paddingBottom || '0');
 
-			const contentWidth = containerWidth - paddingLeft - paddingRight;
+			const contentWidth = containerWidthVal - paddingLeft - paddingRight;
 			const totalGridWidth = ncol * colWidth + (ncol - 1) * gap;
 			const remainingSpace = Math.max(0, contentWidth - totalGridWidth);
 			const justifyContent = style.justifyContent || 'center';
@@ -138,20 +139,20 @@
 	};
 
 	onMount(() => {
-		let observer: MutationObserver | null = null;
+		let mutationObserver: MutationObserver | null = null;
 
 		if (masonryElement) {
-			observer = new MutationObserver(() => {
+			mutationObserver = new MutationObserver(() => {
 				calcGrid([masonryElement!]);
 			});
-			observer.observe(masonryElement, {
+			mutationObserver.observe(masonryElement, {
 				childList: true
 			});
 		}
 
 		return () => {
-			if (observer) {
-				observer.disconnect();
+			if (mutationObserver) {
+				mutationObserver.disconnect();
 			}
 		};
 	});
@@ -162,12 +163,20 @@
 			calcGrid([masonryElement]);
 		}
 	});
+
+	// Reactively trigger layout updates whenever container width changes (e.g. sidebar toggles)
+	$effect(() => {
+		if (containerWidth > 0) {
+			refresh();
+		}
+	});
 </script>
 
 <svelte:window onresize={refresh} />
 
 <div
 	bind:this={masonryElement}
+	bind:clientWidth={containerWidth}
 	class="akui-masonry"
 	style={`
       --masonry-grid-gap: ${gridGap}; 

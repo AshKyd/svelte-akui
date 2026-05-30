@@ -4,6 +4,7 @@
 	import { ANIMATION_DURATION } from '../../constants.js';
 	import Button from '../Button/Button.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import Header from '../Header/Header.svelte';
 
 	interface Props {
 		/** Optional title to show in the sidebar header branding. */
@@ -99,33 +100,36 @@
 >
 	<div class="akui-sidebar-inner" style:width>
 		{#if title || icon || showCloseButton}
-			<div class="akui-sidebar-header">
-				<div class="akui-sidebar-brand">
-					{#if icon}
-						<div class="akui-sidebar-brand-icon">
-							{#if icon.startsWith('http') || icon.startsWith('/') || icon.includes('.')}
-								<img src={icon} alt="" class="akui-sidebar-brand-img" />
-							{:else}
-								<Icon name={icon} size={24} />
-							{/if}
-						</div>
-					{/if}
-					{#if title}
-						<span class="akui-sidebar-brand-title">{title}</span>
-					{/if}
-				</div>
-				{#if showCloseButton}
-					<div class="akui-sidebar-close">
+			<Header class="akui-sidebar-header" pinned={false}>
+				{#snippet title()}
+					<div class="akui-sidebar-brand">
+						{#if icon}
+							<div class="akui-sidebar-brand-icon">
+								{#if icon.startsWith('http') || icon.startsWith('/') || icon.includes('.')}
+									<img src={icon} alt="" class="akui-sidebar-brand-img" />
+								{:else}
+									<Icon name={icon} size={20} />
+								{/if}
+							</div>
+						{/if}
+						{#if title}
+							<span class="akui-sidebar-brand-title">{title}</span>
+						{/if}
+					</div>
+				{/snippet}
+
+				{#snippet actions()}
+					{#if showCloseButton}
 						<Button
 							variant="ghost"
-							icon="x"
+							icon="x-lg"
 							iconPosition="only"
 							label="Close Drawer"
 							onclick={() => (isOpen = false)}
 						/>
-					</div>
-				{/if}
-			</div>
+					{/if}
+				{/snippet}
+			</Header>
 		{/if}
 		{#if content}
 			<div class="akui-sidebar-content">
@@ -158,15 +162,8 @@
 		flex-shrink: 0;
 	}
 
-	.akui-sidebar-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: var(--akui-space-m);
-		min-height: 4rem;
-		box-sizing: border-box;
-		border-bottom: 1px solid var(--akui-border-input);
-		gap: var(--akui-space-s);
+	:global(.akui-sidebar .akui-sidebar-header) {
+		flex-shrink: 0;
 	}
 
 	.akui-sidebar-brand {
@@ -177,8 +174,8 @@
 	}
 
 	.akui-sidebar-brand-icon {
-		width: 24px;
-		height: 24px;
+		width: 20px;
+		height: 20px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -192,18 +189,9 @@
 	}
 
 	.akui-sidebar-brand-title {
-		font-weight: 600;
-		font-size: 1.125rem;
-		color: var(--akui-fg);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
-	}
-
-	.akui-sidebar-close {
-		display: flex;
-		align-items: center;
-		flex-shrink: 0;
 	}
 
 	.akui-sidebar-content {
@@ -263,10 +251,6 @@
 	:global([data-theme='dark']) .akui-sidebar {
 		background: var(--akui-bg-secondary);
 		border-right-color: rgba(255, 255, 255, 0.05);
-	}
-
-	:global([data-theme='dark']) .akui-sidebar-header {
-		border-bottom-color: rgba(255, 255, 255, 0.05);
 	}
 
 	:global([data-theme='dark']) .akui-sidebar-footer {

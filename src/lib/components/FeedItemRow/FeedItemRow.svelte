@@ -490,24 +490,26 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: baseline;
-		font-size: var(--akui-font-size-xs);
+		font-size: var(--akui-font-size-xs, 0.725rem);
 		color: var(--akui-fg-secondary);
 		gap: var(--akui-space-m);
 	}
 
 	.akui-feed-item-row-tag {
-		font-weight: 600;
+		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		margin-right: var(--akui-space-s);
+		opacity: 0.85;
 	}
 
 	.akui-feed-item-row-time {
 		white-space: nowrap;
 		flex-shrink: 0;
+		opacity: 0.8;
 	}
 
 	.akui-feed-item-row-title {
