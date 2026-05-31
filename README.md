@@ -24,6 +24,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 - **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics.
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
+- **`ReaderTypography`**: A wrapper for formatted reading content (such as blog posts or articles). Provides styled global overrides inside a `.reader-typography` container, adjusting margins, headings, paragraph heights, link styles with hover transitions, and embedding responsive 16:9 iframes and media with rounded corners and subtle shadow glows.
 - **`Masonry`**: A lightweight grid layout component that arranges items vertically based on their heights. Supports custom columns, grid gaps, and padding. Exposes a bindable `refreshLayout` method to manually trigger layout updates for dynamic content.
 - **`AdaptivePane`**: A generic component for building Canonical Layouts (List-Detail pattern). Uses `minWidth` and Svelte's `bind:clientWidth` to automatically adapt between a split (multi-pane) view on large screens and a stacked (single-pane) view on smaller screens, driven by the `baseRouteId` vs `currentRouteId`. On desktop, panes are resizable via an integrated visual drag handler. Supports custom width parameters (`mainPaneWidth`, `minMainPaneWidth`, `maxMainPaneWidth`) and an optional `hideNestedWhenEmpty` prop to collapse the detail pane on desktop when no item is selected, expanding it smoothly when navigated.
 - **`DragHandler`**: A visual drag handler component supporting pointer events to handle dragging interactions. Offers high-quality visual feedback with modern hover and active styles. Used to build resizable interfaces such as sidebars or split pane views.
@@ -59,7 +60,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`FeedItemGroup`**: A container for displaying `FeedItemRow` components in a column or grid layout. Supports built-in dividers for columns and group-level snippet overrides for icons and images.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
-- **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), and HTML5 drag-and-drop moves with built-in validation.
+- **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), HTML5 drag-and-drop moves with built-in validation, and size options ('small', 'large') to match control styles.
 
 ### Media & Lists
 
@@ -84,6 +85,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Recursively renders hierarchical nodes.
   - Supports keyboard navigation (arrows to traverse, Space to toggle, Enter to select).
   - Supports `draggable` prop with `onDragOver` (drop validation) and `onDrop` callbacks for custom move/reorder logic.
+  - Supports `size` prop (`'small'` or `'large'`) to control padding and typography (e.g. `'large'` matches standard `ControlItem` styles).
 
 ### Feedback & Overlays
 

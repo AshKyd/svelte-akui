@@ -18,13 +18,13 @@
 		mainPane?: Snippet<[{ isStacked: boolean }]>;
 		/** Snippet for the nested pane (e.g. Detail/Reader). Passes transition state details. */
 		nestedPane?: Snippet<[{ isStacked: boolean }]>;
-		/** Bindable width (in pixels) for the main pane on desktop. Defaults to 320. */
+		/** Bindable width (in pixels) for the main pane on desktop. Defaults to 400. */
 		mainPaneWidth?: number;
-		/** Minimum allowed width for the main pane. Defaults to 320. */
+		/** Minimum allowed width for the main pane. Defaults to 400. */
 		minMainPaneWidth?: number;
 		/** Maximum allowed width for the main pane. Defaults to Infinity. */
 		maxMainPaneWidth?: number;
-		/** Minimum allowed width for the nested detail pane on desktop. Defaults to 320. */
+		/** Minimum allowed width for the nested detail pane on desktop. Defaults to 400. */
 		minNestedPaneWidth?: number;
 	}
 
@@ -35,10 +35,10 @@
 		hideNestedWhenEmpty = false,
 		mainPane,
 		nestedPane,
-		mainPaneWidth = $bindable(320),
-		minMainPaneWidth = 320,
+		mainPaneWidth = $bindable(400),
+		minMainPaneWidth = 400,
 		maxMainPaneWidth = Infinity,
-		minNestedPaneWidth = 320
+		minNestedPaneWidth = 400
 	}: Props = $props();
 
 	// Initialize container width with window.innerWidth if available to prevent
@@ -178,7 +178,7 @@
 	.akui-pane-main {
 		flex: 1 1 auto;
 		max-width: 400px;
-		min-width: 320px;
+		min-width: 400px;
 		height: 100%;
 		overflow-y: auto;
 		border-right: 1px solid var(--akui-border-input, #e5e7eb);

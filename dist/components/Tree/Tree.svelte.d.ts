@@ -19,6 +19,8 @@ interface Props {
     onDragOver?: (draggedId: string, targetId: string) => boolean;
     /** Callback when an item is dropped onto a target */
     onDrop?: (draggedId: string, targetId: string) => void;
+    /** Size of the tree items. Defaults to 'small'. */
+    size?: 'small' | 'large';
 }
 declare const Tree: import("svelte").Component<Props, {}, "expanded">;
 type Tree = ReturnType<typeof Tree>;

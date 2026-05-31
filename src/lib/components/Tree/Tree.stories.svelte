@@ -44,6 +44,12 @@
 	</div>
 </Story>
 
+<Story name="Large Spacious">
+	<div style="width: 260px;">
+		<Tree {items} size="large" expanded={new Set(['group-1'])} />
+	</div>
+</Story>
+
 <Story name="Custom Favicons">
 	{#snippet customIcon({ item })}
 		<div

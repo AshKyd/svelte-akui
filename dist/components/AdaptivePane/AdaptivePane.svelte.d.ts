@@ -16,13 +16,13 @@ interface Props {
     nestedPane?: Snippet<[{
         isStacked: boolean;
     }]>;
-    /** Bindable width (in pixels) for the main pane on desktop. Defaults to 320. */
+    /** Bindable width (in pixels) for the main pane on desktop. Defaults to 400. */
     mainPaneWidth?: number;
-    /** Minimum allowed width for the main pane. Defaults to 320. */
+    /** Minimum allowed width for the main pane. Defaults to 400. */
     minMainPaneWidth?: number;
     /** Maximum allowed width for the main pane. Defaults to Infinity. */
     maxMainPaneWidth?: number;
-    /** Minimum allowed width for the nested detail pane on desktop. Defaults to 320. */
+    /** Minimum allowed width for the nested detail pane on desktop. Defaults to 400. */
     minNestedPaneWidth?: number;
 }
 declare const AdaptivePane: import("svelte").Component<Props, {}, "mainPaneWidth">;

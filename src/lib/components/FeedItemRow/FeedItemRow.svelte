@@ -515,7 +515,7 @@
 	.akui-feed-item-row-title {
 		flex: 1;
 		margin: 0;
-		font-size: var(--akui-font-size-m);
+		font-size: var(--akui-font-size-m, 1rem);
 		font-weight: 600;
 		line-height: 1.3;
 		color: var(--akui-fg-secondary);
@@ -532,7 +532,7 @@
 
 	.akui-feed-item-row-excerpt {
 		margin: 0;
-		font-size: var(--akui-font-size-s);
+		font-size: var(--akui-font-size-s, 0.875rem);
 		color: var(--akui-fg-secondary);
 		line-height: 1.4;
 		display: -webkit-box;

@@ -70,6 +70,9 @@
 		display: flex;
 		align-items: center;
 		gap: var(--akui-space-m);
+		min-width: 0;
+		flex: 1;
+		overflow: hidden;
 	}
 
 	.akui-header-title {
@@ -77,6 +80,10 @@
 		font-size: 1.125rem;
 		display: flex;
 		align-items: center;
+		min-width: 0;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 
 	.akui-header-actions {

@@ -16,7 +16,9 @@
 	interface Props {
 		item: TreeItemData;
 		depth?: number;
+		parentId?: string;
 		expanded?: Set<string>;
+		size?: 'small' | 'large';
 		onToggle?: (id: string) => void;
 		onSelect?: (item: TreeItemData) => void;
 		/** Optional snippet to override icon rendering */
@@ -26,7 +28,9 @@
 	let {
 		item,
 		depth = 0,
+		parentId,
 		expanded = new Set(),
+		size = 'small',
 		onToggle,
 		onSelect,
 		iconSnippet
@@ -66,11 +70,14 @@
 	const dragCtx = getContext<any>('akui-tree-drag');
 	const isDragDropSupported = typeof window !== 'undefined' && 'draggable' in document.createElement('span');
 
-	let isDragOver = $state(false);
+	const targetId = $derived(isFolder ? item.id : (parentId || item.id));
+	const isDragOver = $derived(!!(dragCtx && (dragCtx.activeTargetId === item.id || dragCtx.hoveredItemId === item.id)));
 
 	function handleDragStart(e: DragEvent) {
 		if (!dragCtx || !dragCtx.draggable) return;
 		dragCtx.activeDragId = item.id;
+		dragCtx.activeTargetId = null;
+		dragCtx.hoveredItemId = null;
 		e.dataTransfer?.setData('text/plain', item.id);
 		if (e.dataTransfer) {
 			e.dataTransfer.effectAllowed = 'move';
@@ -80,17 +87,18 @@
 	function handleDragEnd() {
 		if (!dragCtx) return;
 		dragCtx.activeDragId = null;
-		isDragOver = false;
+		dragCtx.activeTargetId = null;
+		dragCtx.hoveredItemId = null;
 	}
 
 	function handleDragOver(e: DragEvent) {
 		if (!dragCtx || !dragCtx.draggable) return;
 		const draggedId = dragCtx.activeDragId;
-		if (!draggedId || draggedId === item.id) return;
+		if (!draggedId || draggedId === targetId) return;
 
 		let allowed = true;
 		if (dragCtx.onDragOver) {
-			allowed = dragCtx.onDragOver(draggedId, item.id);
+			allowed = dragCtx.onDragOver(draggedId, targetId);
 		}
 
 		if (allowed) {
@@ -98,36 +106,57 @@
 			if (e.dataTransfer) {
 				e.dataTransfer.dropEffect = 'move';
 			}
+			
+			// Keep active target and hovered item updated on dragover to prevent DOM bubbling flicker
+			if (dragCtx.activeTargetId !== targetId) {
+				dragCtx.activeTargetId = targetId;
+			}
+			if (dragCtx.hoveredItemId !== item.id) {
+				dragCtx.hoveredItemId = item.id;
+			}
 		}
 	}
 
 	function handleDragEnter(e: DragEvent) {
 		if (!dragCtx || !dragCtx.draggable) return;
 		const draggedId = dragCtx.activeDragId;
-		if (!draggedId || draggedId === item.id) return;
+		if (!draggedId || draggedId === targetId) return;
 
 		let allowed = true;
 		if (dragCtx.onDragOver) {
-			allowed = dragCtx.onDragOver(draggedId, item.id);
+			allowed = dragCtx.onDragOver(draggedId, targetId);
 		}
 
 		if (allowed) {
-			isDragOver = true;
+			dragCtx.activeTargetId = targetId;
+			dragCtx.hoveredItemId = item.id;
 		}
 	}
 
 	function handleDragLeave() {
-		isDragOver = false;
+		if (dragCtx) {
+			if (dragCtx.activeTargetId === targetId) {
+				dragCtx.activeTargetId = null;
+			}
+			if (dragCtx.hoveredItemId === item.id) {
+				dragCtx.hoveredItemId = null;
+			}
+		}
 	}
 
 	function handleDrop(e: DragEvent) {
 		if (!dragCtx || !dragCtx.draggable) return;
 		e.preventDefault();
-		isDragOver = false;
+		if (dragCtx.activeTargetId === targetId) {
+			dragCtx.activeTargetId = null;
+		}
+		if (dragCtx.hoveredItemId === item.id) {
+			dragCtx.hoveredItemId = null;
+		}
 
 		const draggedId = dragCtx.activeDragId || e.dataTransfer?.getData('text/plain');
-		if (draggedId && draggedId !== item.id) {
-			dragCtx.onDrop?.(draggedId, item.id);
+		if (draggedId && draggedId !== targetId) {
+			dragCtx.onDrop?.(draggedId, targetId);
 		}
 		dragCtx.activeDragId = null;
 	}
@@ -142,6 +171,7 @@
 >
 	<div
 		class="akui-tree-item-row"
+		class:large={size === 'large'}
 		class:drag-over={isDragOver}
 		style="--depth: {depth}"
 		onclick={handleSelect}
@@ -167,12 +197,12 @@
 					onkeydown={handleChevronKeyDown}
 					aria-label={isExpanded ? 'Collapse' : 'Expand'}
 				>
-					<Icon name="chevron-right" size={14} />
+					<Icon name="chevron-right" size={size === 'large' ? 18 : 14} />
 				</button>
 			{:else if iconSnippet}
 				{@render iconSnippet(item)}
 			{:else if item.icon}
-				<Icon name={item.icon} size={14} />
+				<Icon name={item.icon} size={size === 'large' ? 20 : 14} />
 			{/if}
 		</div>
 
@@ -195,7 +225,9 @@
 				<svelte:self
 					item={child}
 					depth={depth + 1}
+					parentId={item.id}
 					{expanded}
+					{size}
 					{onToggle}
 					{onSelect}
 					{iconSnippet}
@@ -223,6 +255,32 @@
 		transition: background-color 0.15s ease;
 		outline: none;
 		gap: 8px;
+	}
+
+	.akui-tree-item-row.large {
+		padding: 10px 16px;
+		gap: var(--akui-space-m);
+		margin-left: calc(var(--depth) * 28px);
+	}
+
+	.akui-tree-item-row.large .akui-tree-item-label {
+		font-size: 0.95rem;
+		font-weight: 500;
+	}
+
+	.akui-tree-item-row.large .akui-tree-item-status {
+		font-size: 0.8rem;
+	}
+
+	.akui-tree-item-row.large .akui-tree-item-icon {
+		width: 24px;
+		height: 24px;
+	}
+
+	.akui-tree-item-row.large .akui-tree-chevron {
+		width: 24px;
+		height: 24px;
+		margin: 0;
 	}
 
 	.akui-tree-item-row:hover {

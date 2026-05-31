@@ -21,6 +21,8 @@
 		onDragOver?: (draggedId: string, targetId: string) => boolean;
 		/** Callback when an item is dropped onto a target */
 		onDrop?: (draggedId: string, targetId: string) => void;
+		/** Size of the tree items. Defaults to 'small'. */
+		size?: 'small' | 'large';
 	}
 
 	let {
@@ -32,18 +34,27 @@
 		onSelect,
 		onToggle,
 		onDragOver,
-		onDrop
+		onDrop,
+		size = 'small'
 	}: Props = $props();
 
 	let dragContext = $state<{
 		activeDragId: string | null;
+		activeTargetId: string | null;
+		hoveredItemId: string | null;
 	}>({
-		activeDragId: null
+		activeDragId: null,
+		activeTargetId: null,
+		hoveredItemId: null
 	});
 
 	setContext('akui-tree-drag', {
 		get activeDragId() { return dragContext.activeDragId; },
 		set activeDragId(val) { dragContext.activeDragId = val; },
+		get activeTargetId() { return dragContext.activeTargetId; },
+		set activeTargetId(val) { dragContext.activeTargetId = val; },
+		get hoveredItemId() { return dragContext.hoveredItemId; },
+		set hoveredItemId(val) { dragContext.hoveredItemId = val; },
 		get draggable() { return draggable; },
 		onDragOver,
 		onDrop
@@ -132,6 +143,7 @@
 		<TreeItem
 			{item}
 			{expanded}
+			{size}
 			onToggle={handleToggle}
 			onSelect={onSelect}
 			iconSnippet={icon}
