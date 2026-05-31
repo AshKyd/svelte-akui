@@ -26,6 +26,10 @@
 		children?: import('svelte').Snippet;
 		/** Whether the modal should be fullscreen on mobile devices. Defaults to false. */
 		fullscreenOnMobile?: boolean;
+		/** Optional minimum width of the modal on desktop. */
+		minWidth?: string;
+		/** Optional minimum height of the modal on desktop. */
+		minHeight?: string;
 	}
 
 	let {
@@ -36,7 +40,9 @@
 		showCloseButton = true,
 		footer,
 		children,
-		fullscreenOnMobile = false
+		fullscreenOnMobile = false,
+		minWidth,
+		minHeight
 	}: Props = $props();
 
 	let dialog: HTMLDialogElement;
@@ -87,6 +93,8 @@
 		<div
 			class="akui-modal-content"
 			class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
+			style:--akui-modal-min-width={minWidth}
+			style:--akui-modal-min-height={minHeight}
 			in:scale={{ duration: 200, start: 0.95 }}
 			out:scale={{ duration: 200, start: 0.95 }}
 		>
@@ -169,7 +177,8 @@
 			0 10px 10px -5px rgba(0, 0, 0, 0.2);
 		display: flex;
 		flex-direction: column;
-		min-width: 320px;
+		min-width: var(--akui-modal-min-width, 320px);
+		min-height: var(--akui-modal-min-height, auto);
 		max-width: 40rem;
 		max-height: inherit; /* Inherit the dialog's max-height (90vh) */
 		overflow: hidden;
@@ -177,6 +186,11 @@
 	}
 
 	@media (max-width: 720px) {
+		.akui-modal-content {
+			min-width: 0 !important;
+			min-height: 0 !important;
+		}
+
 		dialog.akui-modal-fullscreen-mobile {
 			max-width: none;
 			max-height: none;

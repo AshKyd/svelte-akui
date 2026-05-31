@@ -19,6 +19,10 @@ interface Props {
     children?: import('svelte').Snippet;
     /** Whether the modal should be fullscreen on mobile devices. Defaults to false. */
     fullscreenOnMobile?: boolean;
+    /** Optional minimum width of the modal on desktop. */
+    minWidth?: string;
+    /** Optional minimum height of the modal on desktop. */
+    minHeight?: string;
 }
 declare const Modal: import("svelte").Component<Props, {}, "">;
 type Modal = ReturnType<typeof Modal>;
