@@ -350,6 +350,11 @@
 		color: var(--akui-fg);
 	}
 
+	.akui-tree-chevron:focus-visible {
+		outline: 2px solid var(--akui-bg-accent, #2563eb);
+		outline-offset: 2px;
+	}
+
 	.akui-tree-chevron.expanded {
 		transform: rotate(90deg);
 	}
