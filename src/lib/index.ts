@@ -1,6 +1,7 @@
 export { default as UIRoot } from './components/UIRoot.svelte';
 export * from './components/Panel/index.js';
 export * from './components/Button/index.js';
+export { default as FeedbackButton } from './components/FeedbackButton/index.js';
 export * from './components/Icon/index.js';
 export * from './components/Loader/index.js';
 export * from './components/Modal/index.js';

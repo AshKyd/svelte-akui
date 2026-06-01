@@ -52,6 +52,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 ### Actions & Navigation
 
 - **`Button`**: Primary interactive element. Supports `regular`, `accent`, and `ghost` variants, and `small`, `medium`, and `large` sizes. The `ghost` variant has a transparent background and no border until hover. Can include an `icon` with `iconPosition` (`left`, `right`, or `only`).
+- **`FeedbackButton`**: A button wrapper that manages loading, success, and error feedback states automatically. When an asynchronous click handler (`onclick` returning a `Promise`) is triggered, the button transitions to a loading state with a spinner, followed by a temporary success/error state with custom icons and labels, before reverting back to the idle state. Includes an accessible live region for screen readers.
 - **`Badge`**: Informative label or tag. Supports `regular` and `accent` variants, backdrop blur, and text glows. Can be used as a link by providing an `href`.
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
