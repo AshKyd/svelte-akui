@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, untrack } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import Icon from '../Icon/Icon.svelte';
@@ -51,12 +51,44 @@
 	import { getTheme } from '../../hooks/theme.svelte.js';
 
 	let measuredHeight = $state(0);
+	let isTransitioning = $state(false);
+	let wrapperEl = $state<HTMLDivElement>();
+	let currentHeight = $state<string>('auto');
 
 	// JS Preloader logic for background image
 	const theme = getTheme();
 	const isDark = $derived(theme.current === 'dark');
 
 	let isMobile = $state(false);
+
+	let oldHeight = 0;
+
+	// Capture the current height before the DOM updates to the new viewState
+	$effect.pre(() => {
+		const _ = viewState;
+		if (wrapperEl) {
+			oldHeight = wrapperEl.getBoundingClientRect().height;
+		}
+	});
+
+	// Apply the height transition after the DOM has updated
+	$effect(() => {
+		const _ = viewState;
+		if (wrapperEl && oldHeight > 0) {
+			// Lock directly on the element style first (bypassing Svelte state batching)
+			wrapperEl.style.height = `${oldHeight}px`;
+
+			// Force layout reflow
+			void wrapperEl.offsetHeight;
+
+			// Set the target height to transition to
+			const targetHeight = untrack(() => measuredHeight);
+			if (targetHeight) {
+				currentHeight = `${targetHeight}px`;
+				wrapperEl.style.height = `${targetHeight}px`;
+			}
+		}
+	});
 	let bgLoaded = $state(false);
 
 	// Derive currently active background image URL matching CSS fallback rules
@@ -172,14 +204,19 @@
 
 			<div class="akui-auth-form-wrapper">
 				<div 
+					bind:this={wrapperEl}
 					class="akui-auth-panel-content-wrapper" 
-					style="height: {measuredHeight ? `${measuredHeight}px` : 'auto'};"
+					style="
+						height: {currentHeight};
+						--height-duration: {transitionParams.duration ?? 300}ms;
+					"
 				>
 					{#key viewState}
 						<div
 							class="akui-auth-step-content"
 							bind:clientHeight={measuredHeight}
 							class:loading
+							class:no-css-transition={isTransitioning}
 							in:slideTransition={{
 								direction: slideDirection,
 								type: 'in',
@@ -191,6 +228,19 @@
 								type: 'out',
 								duration: transitionParams.duration ?? 250,
 								delay: transitionParams.delay ?? 0
+							}}
+							onintrostart={() => {
+								isTransitioning = true;
+							}}
+							onintroend={() => {
+								setTimeout(() => {
+									isTransitioning = false;
+									currentHeight = 'auto';
+									if (wrapperEl) wrapperEl.style.height = '';
+								}, 50);
+							}}
+							onoutrostart={() => {
+								isTransitioning = true;
 							}}
 						>
 							{@render children()}
@@ -314,18 +364,23 @@
 	.akui-auth-panel-content-wrapper {
 		position: relative;
 		width: 100%;
-		transition: height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+		transition: height var(--height-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
 		overflow: hidden;
 	}
 
 	.akui-auth-step-content {
 		width: 100%;
 		box-sizing: border-box;
+		will-change: transform;
+		transform: translate3d(0, 0, 0);
 		transition:
 			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
 			opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 		opacity: 1;
-		transform: translateX(0);
+	}
+
+	.akui-auth-step-content.no-css-transition {
+		transition: none !important;
 	}
 
 	/* Absolute positioning for the outgoing element during transition */
