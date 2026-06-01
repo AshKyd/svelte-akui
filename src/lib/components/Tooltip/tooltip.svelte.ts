@@ -69,6 +69,10 @@ export function createTooltip(options: TooltipOptions = {}) {
 	}
 
 	function show(event: MouseEvent | FocusEvent | TouchEvent) {
+		// Do not show tooltips on touch/mobile devices that do not support hover.
+		if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
+			return;
+		}
 		const node = event.currentTarget as HTMLElement;
 		const isTouch = 'touches' in event;
 		updatePosition(node, isTouch);
