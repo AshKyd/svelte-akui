@@ -50,6 +50,59 @@
 
 	let measuredHeight = $state(0);
 
+	// JS Preloader logic for background image
+	let isMobile = $state(false);
+	let isDark = $state(false);
+	let bgLoaded = $state(false);
+
+	// Derive currently active background image URL matching CSS fallback rules
+	const currentBgUrl = $derived.by(() => {
+		if (isMobile) {
+			if (isDark) {
+				return darkMobileBackgroundImage || darkBackgroundImage || mobileBackgroundImage || backgroundImage;
+			}
+			return mobileBackgroundImage || backgroundImage;
+		} else {
+			if (isDark) {
+				return darkBackgroundImage || backgroundImage;
+			}
+			return backgroundImage;
+		}
+	});
+
+	// Reset loaded state when background URL changes
+	$effect(() => {
+		if (currentBgUrl) {
+			bgLoaded = false;
+		}
+	});
+
+	// Manage media listeners and theme observers
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+
+		const mobileQuery = window.matchMedia('(max-width: 767px)');
+		isMobile = mobileQuery.matches;
+		const handleMobileChange = (e: MediaQueryListEvent) => {
+			isMobile = e.matches;
+		};
+		mobileQuery.addEventListener('change', handleMobileChange);
+
+		isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+		const observer = new MutationObserver(() => {
+			isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+		});
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme']
+		});
+
+		return () => {
+			mobileQuery.removeEventListener('change', handleMobileChange);
+			observer.disconnect();
+		};
+	});
+
 	// Custom transition function that supports sliding based on physical direction
 	function slideTransition(
 		node: HTMLElement,
@@ -98,14 +151,18 @@
 
 <div
 	class="akui-auth-shell-wrapper"
-	style="
-		--desktop-bg: {backgroundImage ? `url(${backgroundImage})` : 'none'};
-		--dark-desktop-bg: {darkBackgroundImage ? `url(${darkBackgroundImage})` : backgroundImage ? `url(${backgroundImage})` : 'none'};
-		--mobile-bg: {mobileBackgroundImage ? `url(${mobileBackgroundImage})` : backgroundImage ? `url(${backgroundImage})` : 'none'};
-		--dark-mobile-bg: {darkMobileBackgroundImage ? `url(${darkMobileBackgroundImage})` : darkBackgroundImage ? `url(${darkBackgroundImage})` : mobileBackgroundImage ? `url(${mobileBackgroundImage})` : backgroundImage ? `url(${backgroundImage})` : 'none'};
-		--mobile-reserve: {mobileReservePixels}px;
-	"
+	style="--mobile-reserve: {mobileReservePixels}px;"
 >
+	{#if currentBgUrl}
+		<img
+			src={currentBgUrl}
+			alt=""
+			class="akui-auth-bg-img"
+			class:loaded={bgLoaded}
+			onload={() => { bgLoaded = true; }}
+		/>
+	{/if}
+
 	{#if backTo}
 		<a href={backTo} class="akui-auth-back-btn" aria-label="Go back">
 			<Icon name="arrow-left" size={20} />
@@ -166,21 +223,38 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
 		box-sizing: border-box;
 		background-color: var(--akui-bg-secondary);
-		transition: background-image 0.3s ease;
+		overflow: hidden;
 	}
 
-	/* CSS variables for background settings */
-	.akui-auth-shell-wrapper {
-		background-image: var(--desktop-bg);
+	.akui-auth-bg-img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		z-index: 0;
+		opacity: 0;
+		transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+		pointer-events: none;
 	}
 
-	:global([data-theme='dark']) .akui-auth-shell-wrapper {
-		background-image: var(--dark-desktop-bg, var(--desktop-bg));
+	.akui-auth-bg-img.loaded {
+		opacity: 1;
+	}
+
+	.akui-auth-shell-content-container {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-template-rows: 1fr;
+		align-items: center;
+		justify-items: center;
+		width: 100%;
+		height: 100%;
+		z-index: 1; /* Sit above the background fade-in layer */
 	}
 
 	.akui-auth-panel {
@@ -288,14 +362,9 @@
 	/* Responsive layouts */
 	@media (max-width: 767px) {
 		.akui-auth-shell-wrapper {
-			background-image: var(--mobile-bg);
 			justify-content: flex-end;
 			padding-top: var(--mobile-reserve);
 			overflow-y: auto;
-		}
-
-		:global([data-theme='dark']) .akui-auth-shell-wrapper {
-			background-image: var(--dark-mobile-bg, var(--mobile-bg));
 		}
 
 		.akui-auth-panel {
