@@ -57,7 +57,7 @@
 	const effectiveSize = $derived.by(() => (size !== 'medium' ? size : inheritedSize));
 
 	const commonClasses = $derived(
-		`akui-btn ${variant} ${effectiveSize === 'medium' ? '' : effectiveSize} ${isIconOnly ? 'icon-only' : ''} ${loading ? 'loading' : ''} ${className} radius--${radius}`
+		`akui-btn bespoke ${variant} ${effectiveSize === 'medium' ? '' : effectiveSize} ${isIconOnly ? 'icon-only' : ''} ${loading ? 'loading' : ''} ${className} radius--${radius}`
 	);
 </script>
 
@@ -130,9 +130,8 @@
 		transition: var(--akui-transition-theme);
 	}
 
-	/* Reset link color inheritance and decoration */
+	/* Reset link decoration */
 	a.akui-btn {
-		color: inherit;
 		text-decoration: none !important;
 	}
 
