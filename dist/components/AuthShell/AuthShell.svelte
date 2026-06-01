@@ -48,11 +48,15 @@
 		children
 	}: Props = $props();
 
+	import { getTheme } from '../../hooks/theme.svelte.js';
+
 	let measuredHeight = $state(0);
 
 	// JS Preloader logic for background image
+	const theme = getTheme();
+	const isDark = $derived(theme.current === 'dark');
+
 	let isMobile = $state(false);
-	let isDark = $state(false);
 	let bgLoaded = $state(false);
 
 	// Derive currently active background image URL matching CSS fallback rules
@@ -77,7 +81,7 @@
 		}
 	});
 
-	// Manage media listeners and theme observers
+	// Manage media listeners
 	$effect(() => {
 		if (typeof window === 'undefined') return;
 
@@ -88,18 +92,8 @@
 		};
 		mobileQuery.addEventListener('change', handleMobileChange);
 
-		isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-		const observer = new MutationObserver(() => {
-			isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-		});
-		observer.observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ['data-theme']
-		});
-
 		return () => {
 			mobileQuery.removeEventListener('change', handleMobileChange);
-			observer.disconnect();
 		};
 	});
 

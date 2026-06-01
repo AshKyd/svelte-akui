@@ -34,4 +34,5 @@ export * from './components/ReaderTypography/index.js';
 export * from './components/Table/index.js';
 export * from './components/AuthShell/index.js';
 export * from './hooks/keyboardNavigation.js';
+export * from './hooks/theme.svelte.js';
 export * from './constants.js';

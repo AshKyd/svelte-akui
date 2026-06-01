@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, setContext } from 'svelte';
 	import '../theme/theme.css';
 
 	interface Props {
@@ -29,6 +29,10 @@
 	});
 
 	const currentTheme = $derived.by(() => mode ?? systemMode);
+
+	setContext('akui-theme', {
+		get current() { return currentTheme; }
+	});
 </script>
 
 <div class="akui-root" data-theme={currentTheme}>
