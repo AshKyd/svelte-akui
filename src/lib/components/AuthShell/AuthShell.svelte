@@ -60,6 +60,30 @@
 	const isDark = $derived(theme.current === 'dark');
 
 	let isMobile = $state(false);
+	let visualViewportHeight = $state<string>('100dvh');
+
+	// Adjust wrapper height to match the visual viewport (handles mobile keyboard overlays)
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+
+		const handleViewportChange = () => {
+			if (window.visualViewport) {
+				visualViewportHeight = `${window.visualViewport.height}px`;
+			}
+		};
+
+		window.visualViewport?.addEventListener('resize', handleViewportChange);
+		window.visualViewport?.addEventListener('scroll', handleViewportChange);
+		window.addEventListener('resize', handleViewportChange);
+
+		handleViewportChange();
+
+		return () => {
+			window.visualViewport?.removeEventListener('resize', handleViewportChange);
+			window.visualViewport?.removeEventListener('scroll', handleViewportChange);
+			window.removeEventListener('resize', handleViewportChange);
+		};
+	});
 
 	let oldHeight = 0;
 
@@ -177,7 +201,7 @@
 
 <div
 	class="akui-auth-shell-wrapper"
-	style="--mobile-reserve: {mobileReservePixels}px;"
+	style="--mobile-reserve: {mobileReservePixels}px; height: {visualViewportHeight}; min-height: {visualViewportHeight};"
 >
 	{#if currentBgUrl}
 		<img
