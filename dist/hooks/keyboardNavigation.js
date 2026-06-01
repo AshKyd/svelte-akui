@@ -51,25 +51,33 @@ export function keyboardNavigation(node, options = {}) {
         if (items.length === 0)
             return;
         const current = getCurrentlySelected(items);
+        let currentIndex = current?.index ?? -1;
+        // If no item is currently focused, but we have an activeId option, resolve its index in the selectable list
+        if (currentIndex === -1 && options.activeId) {
+            const index = items.findIndex((item) => item.getAttribute('data-id') === options.activeId);
+            if (index !== -1) {
+                currentIndex = index;
+            }
+        }
         // J key (Next item)
         if (e.key === 'j' || e.key === 'J') {
             e.preventDefault();
-            if (!current) {
+            if (currentIndex === -1) {
                 focusItem(items[0]);
             }
-            else if (current.index < items.length - 1) {
-                focusItem(items[current.index + 1]);
+            else if (currentIndex < items.length - 1) {
+                focusItem(items[currentIndex + 1]);
             }
             return;
         }
         // K key (Previous item)
         if (e.key === 'k' || e.key === 'K') {
             e.preventDefault();
-            if (!current) {
+            if (currentIndex === -1) {
                 focusItem(items[0]);
             }
-            else if (current.index > 0) {
-                focusItem(items[current.index - 1]);
+            else if (currentIndex > 0) {
+                focusItem(items[currentIndex - 1]);
             }
             return;
         }
@@ -86,17 +94,18 @@ export function keyboardNavigation(node, options = {}) {
             return;
         }
         // Custom key mappings
-        if (current && options.keyMap) {
-            const id = current.element.getAttribute('data-id') || '';
+        const activeEl = current ? current.element : (currentIndex !== -1 ? items[currentIndex] : null);
+        if (activeEl && options.keyMap) {
+            const id = activeEl.getAttribute('data-id') || '';
             const key = e.key;
             const lowerKey = key.toLowerCase();
             if (options.keyMap[key]) {
                 e.preventDefault();
-                options.keyMap[key](id, current.element);
+                options.keyMap[key](id, activeEl);
             }
             else if (options.keyMap[lowerKey]) {
                 e.preventDefault();
-                options.keyMap[lowerKey](id, current.element);
+                options.keyMap[lowerKey](id, activeEl);
             }
         }
     }

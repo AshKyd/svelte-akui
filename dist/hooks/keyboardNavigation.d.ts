@@ -8,6 +8,8 @@ export interface KeyboardNavOptions {
     selector?: string;
     /** Callback when the selected item changes via J/K keyboard navigation. */
     onSelect?: (id: string, element: HTMLElement) => void;
+    /** The ID of the currently active/selected item. Allows J/K navigation to continue from here if focus was moved away. */
+    activeId?: string;
 }
 /**
  * Svelte action to enable J/K keyboard navigation, Enter triggers, and configurable key combos.
