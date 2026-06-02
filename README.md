@@ -121,6 +121,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 - **`Icon`**: Renders a vector icon by name. Supports custom `size` (px).
 - **`Small`**: Semantic utility for secondary or small-print text.
+- **`RelativeTime`**: Renders a relative time string (e.g., "just now", "3 hours ago", "2 Jun"). Displays an accessible tooltip showing the full local date and time on hover/focus. Accepts a configurable `thresholdDays` parameter before reverting to a short date (defaults to 7). Also exports the underlying `formatRelativeTime` formatting function for utility use.
 
 ### Accessibility Utilities
 
