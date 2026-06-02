@@ -30,6 +30,7 @@ export * from './components/SwipeAction/index.js';
 export * from './components/FilePicker/index.js';
 export * from './components/Masonry/index.js';
 export { default as ProgressBar } from './components/ProgressBar/ProgressBar.svelte';
+export * from './components/ProgressXmasTree/index.js';
 export * from './components/ReaderTypography/index.js';
 export * from './components/Table/index.js';
 export * from './components/AuthShell/index.js';
