@@ -25,10 +25,10 @@
 		<div style="display: flex; flex-direction: column; gap: var(--akui-space-m, 1rem);">
 			<div style="text-align: center; margin-bottom: 8px;">
 				<div style="font-size: var(--akui-font-size-xl, 1.5rem); font-weight: 700; color: var(--akui-fg);">
-					Toadstool Council
+					Wand Licensing Portal
 				</div>
 				<div style="font-size: var(--akui-font-size-s, 0.875rem); color: var(--akui-fg-secondary); margin-top: 4px;">
-					Authorize your daily spellcast quota
+					Login to authenticate your magical implement
 				</div>
 			</div>
 
@@ -45,7 +45,7 @@
 			</Button>
 
 			<div style="text-align: center; font-size: 0.875rem; color: var(--akui-fg-secondary); margin-top: 8px;">
-				First time visiting? <a href="#register" style="color: var(--akui-bg-accent); font-weight: 500;">Register your familiar</a>
+				First time visiting? <a href="#register" style="color: var(--akui-bg-accent); font-weight: 500;">Register your wand</a>
 			</div>
 		</div>
 	</AuthShell>
@@ -60,10 +60,10 @@
 		<div style="display: flex; flex-direction: column; gap: var(--akui-space-m, 1rem);">
 			<div style="text-align: center; margin-bottom: 8px;">
 				<div style="font-size: var(--akui-font-size-xl, 1.5rem); font-weight: 700; color: var(--akui-fg);">
-					Toadstool Council
+					Wand Licensing Portal
 				</div>
 				<div style="font-size: var(--akui-font-size-s, 0.875rem); color: var(--akui-fg-secondary); margin-top: 4px;">
-					Authorize your daily spellcast quota
+					Login to authenticate your magical implement
 				</div>
 			</div>
 
@@ -85,15 +85,15 @@
 			<div style="display: flex; flex-direction: column; gap: var(--akui-space-m, 1rem);">
 				<div style="text-align: center; margin-bottom: 8px;">
 					<div style="font-size: var(--akui-font-size-xl, 1.5rem); font-weight: 700; color: var(--akui-fg);">
-						Dragon Napping Registry
+						Wand Licensing Portal
 					</div>
 					<div style="font-size: var(--akui-font-size-s, 0.875rem); color: var(--akui-fg-secondary); margin-top: 4px;">
-						Enter details to schedule a napping dragon
+						Login to authenticate your magical implement
 					</div>
 				</div>
 
-				<Field label="Ranger Username">
-					<TextInput placeholder="elf_ranger_42" />
+				<Field label="Wand Serial Number">
+					<TextInput placeholder="e.g. OAK-1294-DRAGON" />
 				</Field>
 
 				<Button variant="accent" style="width: 100%;" onclick={handleLoginSubmit}>
@@ -101,7 +101,7 @@
 				</Button>
 
 				<div style="text-align: center; font-size: 0.875rem; color: var(--akui-fg-secondary);">
-					Need a ranger license? 
+					Need a wand license? 
 					<button onclick={goToRegister} style="background: none; border: none; color: var(--akui-bg-accent); font-weight: 500; cursor: pointer; padding: 0;">
 						Register here
 					</button>
@@ -111,19 +111,19 @@
 			<div style="display: flex; flex-direction: column; gap: var(--akui-space-m, 1rem);">
 				<div style="text-align: center; margin-bottom: 8px;">
 					<div style="font-size: var(--akui-font-size-xl, 1.5rem); font-weight: 700; color: var(--akui-fg);">
-						Familiar Registration
+						Wand Registration
 					</div>
 					<div style="font-size: var(--akui-font-size-s, 0.875rem); color: var(--akui-fg-secondary); margin-top: 4px;">
-						Register your familiar (toad, owl, or cat)
+						Register your newly crafted magical implement
 					</div>
 				</div>
 
-				<Field label="Familiar Name">
-					<TextInput placeholder="e.g. Barnaby" />
+				<Field label="Core Material">
+					<TextInput placeholder="e.g. Phoenix Feather, Dragon Heartstring" />
 				</Field>
 
-				<Field label="Familiar Type">
-					<TextInput placeholder="e.g. Pygmy Owl" />
+				<Field label="Wood Type">
+					<TextInput placeholder="e.g. Elder, Rowan, Willow" />
 				</Field>
 
 				<Button variant="accent" style="width: 100%;" onclick={handleRegisterSubmit}>
@@ -144,10 +144,10 @@
 				</div>
 				<div>
 					<div style="font-size: var(--akui-font-size-xl, 1.5rem); font-weight: 700; color: var(--akui-fg);">
-						Portal Accessed!
+						Credentials Confirmed!
 					</div>
 					<div style="font-size: var(--akui-font-size-s, 0.875rem); color: var(--akui-fg-secondary); margin-top: 8px; line-height: 1.5;">
-						Your wand credentials have been verified by the Toadstool Council. Happy casting!
+						Spellcasting credentials confirmed, you continue through the wand licensing portal.
 					</div>
 				</div>
 				<Button variant="regular" style="width: 100%; margin-top: 8px;" onclick={resetFlow}>
