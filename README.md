@@ -59,7 +59,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
 - **`Sidebar`**: A side navigation drawer component. It supports permanent, modal, and dismissible layout modes. Features a scrollable top section using the `content` snippet and a fixed bottom section using the `footer` snippet. Supports `title` and `icon` (SVG name or image URL) properties to render an optional app branding header at the top of the drawer. In dismissible mode, it transitions width smoothly without squashing child elements. In modal mode, it displays as an overlay with a clickable backdrop and includes a visually hidden, accessible close button at the top of the drawer by default to support screen reader navigation.
 - **`Header`**: A Top App Bar component. It provides three layout zones using the `navigation`, `title`, and `actions` snippets. Supports a `pinned` prop to set whether the bar remains sticky at the top of the viewport or scrolls away with the page.
-- **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box.
+- **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box. Also supports stories without headings or tags (e.g., Mastodon RSS feeds), starting the excerpt text inline with the date and icon.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`FeedItemGroup`**: A container for displaying `FeedItemRow` components in a column or grid layout. Supports built-in dividers for columns and group-level snippet overrides for icons and images.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
@@ -68,7 +68,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 ### Media & Lists
 
 - **`FeedItemRow`**: A flexible grid-based item for list views.
-  - Supports `title` (2-line truncation) and `excerpt` (2-line truncation).
+  - Supports optional `title` (2-line truncation) and `excerpt` (2-line truncation).
+  - Supports content-only stories without headings or tags (e.g., Mastodon RSS feeds), aligning the excerpt inline with the date and icon.
   - Optional `icon` (left) and `image` (right).
   - Metadata row (`tag` and `time`) with custom alignment.
   - Semantic `<a>` tag wrapper with `active` and `focus` states.

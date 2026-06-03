@@ -191,3 +191,13 @@
 		href="#"
 	/>
 </Story>
+
+<Story name="Content Only">
+	<FeedItemRow
+		excerpt="A cozy dragon was spotted taking a late afternoon nap on the roof of the town hall. The mayor has declared a temporary quiet hour to avoid waking the beast."
+		time="30m ago"
+		icon="wind"
+		href="#"
+	/>
+</Story>
+

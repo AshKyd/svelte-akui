@@ -1,7 +1,7 @@
 import { type Snippet } from 'svelte';
 interface Props {
     /** The main headline of the item */
-    title: string;
+    title?: string;
     /** A short summary or excerpt */
     excerpt?: string;
     /** Metadata label (e.g. feed name or category) */

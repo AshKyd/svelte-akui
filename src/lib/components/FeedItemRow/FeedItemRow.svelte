@@ -5,7 +5,7 @@
 
 	interface Props {
 		/** The main headline of the item */
-		title: string;
+		title?: string;
 		/** A short summary or excerpt */
 		excerpt?: string;
 		/** Metadata label (e.g. feed name or category) */
@@ -189,34 +189,15 @@
 		{/if}
 
 		<div class="akui-feed-item-row-content">
-			<!-- Metadata Row (Tag/Title and Time) -->
-			<div class="akui-feed-item-row-meta">
-				{#if tag}
-					<span class="akui-feed-item-row-tag">{tag}</span>
-				{:else}
-					<h4 class="akui-feed-item-row-title">
-						{#if href}
-							<a
-								{href}
-								class="akui-feed-item-row-link"
-								onclick={handleClick}
-								onauxclick={handleAuxClick}
-								target={isExternal ? '_blank' : undefined}
-								rel={isExternal ? 'noopener noreferrer' : undefined}
-								aria-current={active ? 'true' : undefined}
-							>
-								{title}
-							</a>
-						{:else}
-							<span class="akui-feed-item-row-title-text">{title}</span>
-						{/if}
-					</h4>
-				{/if}
-				<span class="akui-feed-item-row-time">{time || ''}</span>
-			</div>
-
 			{#if tag}
-				<h4 class="akui-feed-item-row-title">
+				<span class="akui-feed-item-row-tag">{tag}</span>
+			{/if}
+
+			{#if title}
+				<h4
+					class="akui-feed-item-row-title"
+					class:row-2={Boolean(tag)}
+				>
 					{#if href}
 						<a
 							{href}
@@ -236,7 +217,33 @@
 			{/if}
 
 			{#if excerpt}
-				<p class="akui-feed-item-row-excerpt">{excerpt}</p>
+				<div
+					class="akui-feed-item-row-excerpt"
+					class:row-1={!tag && !title}
+					class:row-2={Boolean((tag && !title) || (!tag && title))}
+					class:row-3={Boolean(tag && title)}
+					class:is-headline={!title}
+				>
+					{#if !title && href}
+						<a
+							{href}
+							class="akui-feed-item-row-link"
+							onclick={handleClick}
+							onauxclick={handleAuxClick}
+							target={isExternal ? '_blank' : undefined}
+							rel={isExternal ? 'noopener noreferrer' : undefined}
+							aria-current={active ? 'true' : undefined}
+						>
+							{excerpt}
+						</a>
+					{:else}
+						{excerpt}
+					{/if}
+				</div>
+			{/if}
+
+			{#if time}
+				<span class="akui-feed-item-row-time">{time}</span>
 			{/if}
 		</div>
 
@@ -481,21 +488,17 @@
 	.akui-feed-item-row-content {
 		flex: 1;
 		min-width: 0;
-		display: flex;
-		flex-direction: column;
-		gap: var(--akui-space-xs);
-	}
-
-	.akui-feed-item-row-meta {
-		display: flex;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
 		align-items: baseline;
-		font-size: var(--akui-font-size-xs, 0.725rem);
-		color: var(--akui-fg-secondary);
-		gap: var(--akui-space-m);
+		gap: var(--akui-space-xs) var(--akui-space-m);
 	}
 
 	.akui-feed-item-row-tag {
+		grid-column: 1;
+		grid-row: 1;
+		font-size: var(--akui-font-size-xs, 0.725rem);
+		color: var(--akui-fg-secondary);
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
@@ -507,13 +510,20 @@
 	}
 
 	.akui-feed-item-row-time {
+		grid-column: 2;
+		grid-row: 1;
 		white-space: nowrap;
 		flex-shrink: 0;
 		opacity: 0.8;
+		font-size: var(--akui-font-size-xs, 0.725rem);
+		color: var(--akui-fg-secondary);
+		align-self: start;
+		margin-top: 2px;
 	}
 
 	.akui-feed-item-row-title {
-		flex: 1;
+		grid-column: 1;
+		grid-row: 1;
 		margin: 0;
 		font-size: var(--akui-font-size-m, 1rem);
 		font-weight: 600;
@@ -524,6 +534,11 @@
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		transition: color 0.2s ease;
+	}
+
+	.akui-feed-item-row-title.row-2 {
+		grid-column: 1 / -1;
+		grid-row: 2;
 	}
 
 	.akui-feed-item-row.unread .akui-feed-item-row-title {
@@ -539,6 +554,25 @@
 		-webkit-line-clamp: 2;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
+	}
+
+	.akui-feed-item-row-excerpt.row-1 {
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.akui-feed-item-row-excerpt.row-2 {
+		grid-column: 1 / -1;
+		grid-row: 2;
+	}
+
+	.akui-feed-item-row-excerpt.row-3 {
+		grid-column: 1 / -1;
+		grid-row: 3;
+	}
+
+	.akui-feed-item-row.unread .akui-feed-item-row-excerpt.is-headline {
+		color: var(--akui-fg);
 	}
 
 	.akui-feed-item-row-image {
