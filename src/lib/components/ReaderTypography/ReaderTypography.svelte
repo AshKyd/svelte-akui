@@ -117,13 +117,23 @@
 		text-decoration-thickness: 2px;
 	}
 
-	/* Images, videos, iframes, and figures with border radius and akui glow */
+	/* Images, videos, and iframes with border radius and akui glow */
 	.reader-typography :global(img),
 	.reader-typography :global(video),
-	.reader-typography :global(iframe),
+	.reader-typography :global(iframe) {
+		max-width: 100%;
+		border-radius: var(--akui-radius-m, 8px);
+		box-shadow: var(--akui-shadow-shiny, 0 4px 12px rgba(0, 0, 0, 0.08));
+	}
+
+	/* Figures get standard border radius but no glow by default */
 	.reader-typography :global(figure) {
 		max-width: 100%;
 		border-radius: var(--akui-radius-m, 8px);
+	}
+
+	/* Custom Ghost (Koenig) cards keep the glow */
+	.reader-typography :global(figure.kg-card) {
 		box-shadow: var(--akui-shadow-shiny, 0 4px 12px rgba(0, 0, 0, 0.08));
 	}
 
