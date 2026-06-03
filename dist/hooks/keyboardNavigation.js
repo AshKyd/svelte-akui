@@ -47,6 +47,10 @@ export function keyboardNavigation(node, options = {}) {
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
             return;
         }
+        // Skip shortcuts if modifier keys are pressed to avoid interfering with browser/OS shortcuts
+        if (e.metaKey || e.ctrlKey || e.altKey) {
+            return;
+        }
         const items = getSelectableItems();
         if (items.length === 0)
             return;

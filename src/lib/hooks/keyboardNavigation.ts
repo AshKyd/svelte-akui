@@ -65,6 +65,11 @@ export function keyboardNavigation(node: HTMLElement, options: KeyboardNavOption
 			return;
 		}
 
+		// Skip shortcuts if modifier keys are pressed to avoid interfering with browser/OS shortcuts
+		if (e.metaKey || e.ctrlKey || e.altKey) {
+			return;
+		}
+
 		const items = getSelectableItems();
 		if (items.length === 0) return;
 
