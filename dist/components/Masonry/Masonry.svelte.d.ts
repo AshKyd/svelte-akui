@@ -19,6 +19,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
     children?: Snippet;
     /** Bindable function to manually trigger a relayout */
     refreshLayout?: () => Promise<void>;
+    /** Allow the layout to recalculate on resize. Defaults to true. */
+    allowResize?: boolean;
 }
 declare const Masonry: import("svelte").Component<Props, {}, "refreshLayout">;
 type Masonry = ReturnType<typeof Masonry>;

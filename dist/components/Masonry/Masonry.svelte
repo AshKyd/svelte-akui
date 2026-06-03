@@ -30,6 +30,8 @@
 		children?: Snippet;
 		/** Bindable function to manually trigger a relayout */
 		refreshLayout?: () => Promise<void>;
+		/** Allow the layout to recalculate on resize. Defaults to true. */
+		allowResize?: boolean;
 	}
 
 	let {
@@ -38,6 +40,7 @@
 		colWidth = 'minmax(Min(20em, 100%), 1fr)',
 		children,
 		refreshLayout = $bindable(),
+		allowResize = true,
 		...restProps
 	}: Props = $props();
 
@@ -138,6 +141,28 @@
 		}
 	};
 
+	// Re-initialize layout when container reference is set
+	$effect(() => {
+		if (masonryElement) {
+			calcGrid([masonryElement]);
+		}
+	});
+
+	// Reactively trigger layout updates whenever container width changes (e.g. sidebar toggles)
+	// We disable updates during active transitions when allowResize is set to false.
+	$effect(() => {
+		if (containerWidth > 0 && allowResize) {
+			refresh();
+		}
+	});
+
+	// Trigger layout refresh when resizing is re-enabled to snap immediately to final width
+	$effect(() => {
+		if (allowResize) {
+			refresh();
+		}
+	});
+
 	onMount(() => {
 		let mutationObserver: MutationObserver | null = null;
 
@@ -155,20 +180,6 @@
 				mutationObserver.disconnect();
 			}
 		};
-	});
-
-	// Re-initialize layout when container reference is set
-	$effect(() => {
-		if (masonryElement) {
-			calcGrid([masonryElement]);
-		}
-	});
-
-	// Reactively trigger layout updates whenever container width changes (e.g. sidebar toggles)
-	$effect(() => {
-		if (containerWidth > 0) {
-			refresh();
-		}
 	});
 </script>
 
