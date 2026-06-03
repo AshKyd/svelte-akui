@@ -15,7 +15,7 @@
 
 <style>
 	.reader-typography {
-		font-size: 1.15rem;
+		font-size: 1.25rem;
 		line-height: 1.85;
 		word-break: break-word;
 		display: flex;
