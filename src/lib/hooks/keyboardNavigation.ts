@@ -19,6 +19,26 @@ export interface KeyboardNavOptions {
  * @param options - Configurable keyboard shortcuts and selectors.
  */
 export function keyboardNavigation(node: HTMLElement, options: KeyboardNavOptions = {}) {
+	// Track the currently hovered item to allow hotkeys (like bookmark/read state) to target it
+	let hoveredEl: HTMLElement | null = null;
+
+	const handleMouseOver = (e: MouseEvent) => {
+		const target = e.target as HTMLElement;
+		const selectable = target.closest(options.selector || '[data-selectable]') as HTMLElement;
+		if (selectable && node.contains(selectable)) {
+			hoveredEl = selectable;
+		} else {
+			hoveredEl = null;
+		}
+	};
+
+	const handleMouseLeave = () => {
+		hoveredEl = null;
+	};
+
+	node.addEventListener('mouseover', handleMouseOver);
+	node.addEventListener('mouseleave', handleMouseLeave);
+
 	const getSelectableItems = (): HTMLElement[] => {
 		const sel = options.selector || '[data-selectable]';
 		return Array.from(node.querySelectorAll(sel));
@@ -119,8 +139,12 @@ export function keyboardNavigation(node: HTMLElement, options: KeyboardNavOption
 			return;
 		}
 
-		// Custom key mappings
-		const activeEl = current ? current.element : (currentIndex !== -1 ? items[currentIndex] : null);
+		// Custom key mappings are applied to the element in order of preference:
+		// 1. Currently hovered element (enables mouse-hover hotkeys)
+		// 2. Focused element (keyboard focus)
+		// 3. Fallback selected element (via activeId option)
+		const activeEl = hoveredEl || (current ? current.element : (currentIndex !== -1 ? items[currentIndex] : null));
+
 		if (activeEl && options.keyMap) {
 			const id = activeEl.getAttribute('data-id') || '';
 			const key = e.key;
@@ -144,6 +168,8 @@ export function keyboardNavigation(node: HTMLElement, options: KeyboardNavOption
 		},
 		destroy() {
 			window.removeEventListener('keydown', handleKeyDown);
+			node.removeEventListener('mouseover', handleMouseOver);
+			node.removeEventListener('mouseleave', handleMouseLeave);
 		}
 	};
 }

@@ -5,6 +5,23 @@
  * @param options - Configurable keyboard shortcuts and selectors.
  */
 export function keyboardNavigation(node, options = {}) {
+    // Track the currently hovered item to allow hotkeys (like bookmark/read state) to target it
+    let hoveredEl = null;
+    const handleMouseOver = (e) => {
+        const target = e.target;
+        const selectable = target.closest(options.selector || '[data-selectable]');
+        if (selectable && node.contains(selectable)) {
+            hoveredEl = selectable;
+        }
+        else {
+            hoveredEl = null;
+        }
+    };
+    const handleMouseLeave = () => {
+        hoveredEl = null;
+    };
+    node.addEventListener('mouseover', handleMouseOver);
+    node.addEventListener('mouseleave', handleMouseLeave);
     const getSelectableItems = () => {
         const sel = options.selector || '[data-selectable]';
         return Array.from(node.querySelectorAll(sel));
@@ -97,8 +114,11 @@ export function keyboardNavigation(node, options = {}) {
             }
             return;
         }
-        // Custom key mappings
-        const activeEl = current ? current.element : (currentIndex !== -1 ? items[currentIndex] : null);
+        // Custom key mappings are applied to the element in order of preference:
+        // 1. Currently hovered element (enables mouse-hover hotkeys)
+        // 2. Focused element (keyboard focus)
+        // 3. Fallback selected element (via activeId option)
+        const activeEl = hoveredEl || (current ? current.element : (currentIndex !== -1 ? items[currentIndex] : null));
         if (activeEl && options.keyMap) {
             const id = activeEl.getAttribute('data-id') || '';
             const key = e.key;
@@ -120,6 +140,8 @@ export function keyboardNavigation(node, options = {}) {
         },
         destroy() {
             window.removeEventListener('keydown', handleKeyDown);
+            node.removeEventListener('mouseover', handleMouseOver);
+            node.removeEventListener('mouseleave', handleMouseLeave);
         }
     };
 }
