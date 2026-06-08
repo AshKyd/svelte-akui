@@ -31,7 +31,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 - **`DragHandler`**: A visual drag handler component supporting pointer events to handle dragging interactions. Offers high-quality visual feedback with modern hover and active styles. Used to build resizable interfaces such as sidebars or split pane views.
 - **`NavigationBar`**: Bottom navigation container for mobile screen dimensions. Evenly spaces up to 5 `NavigationBarItem` components.
 - **`NavigationBarItem`**: Destination button inside the NavigationBar. Supports `label`, `icon`, `active` states, and `href`.
-- **`AuthShell`**: A responsive layout wrapper for login, signup, and multi-step wizard screens. On desktop, content is centered inside a panel with elevated corners, shadows, and custom background images. On mobile, the panel anchors to the bottom with configurable top spacing to preserve background visibility. Supports built-in slide transitions (left, right, up, down), loading overlays (slides form left and displays a spinner), and customizable timing.
+- **`AuthShell`**: A responsive layout wrapper for authentication and wizard screens. On desktop viewports, it displays a centered card with a customizable background image, while on mobile devices, the card anchors to the bottom with configurable top spacing. It includes slide transitions for multi-step flows, loading overlays with a spinner, and supports custom background image configurations for light and dark modes.
 
 ### Input System
 
