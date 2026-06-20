@@ -9,7 +9,7 @@
 	 */
 
 	import { onMount, tick, type Snippet } from 'svelte';
-	import { type HTMLAttributes } from 'svelte/elements';
+	import type { HTMLAttributes } from 'svelte/elements';
 
 	interface GridInfo {
 		_el: HTMLElement;

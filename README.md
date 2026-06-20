@@ -42,6 +42,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`ClearableInput`**: A text field with a one-click "X" button to reset the value. Ideal for search and filter fields.
 - **`FilePicker`**: A button-styled file selector. Wraps a hidden native file input and opens a file selection dialog on click. Supports `accept`, `multiple`, and `onchange`, and matches standard `Button` variants, sizes, and icon positions.
 - **`TextArea`**: Multi-line field. Supports `small`, `medium`, and `large` sizes and vertical resizing.
+- **`Wysiwyg`**: A rich-text WYSIWYG editor component powered by `@milkdown/crepe`. Loads its JavaScript bundle dynamically on-demand with a placeholder spinner during loading to enable code splitting. Fully integrated with light and dark mode.
 - **`Select`**: Drop-down menu for picking from `options`.
 - **`Typeahead`**: An input field that supports suggestions and multi-selection via badges. Can be configured for "tagging" mode using `allowFreetext`, where commas or Enter create new items. Expands downward as content grows.
 - **`PasswordInput`**: A text field with a toggle button to show or hide the password characters.
@@ -148,13 +149,13 @@ Components should be composed: wrap any input in a `Field` to add a label.
   ```svelte
   <script>
   	import { keyboardNavigation } from 'svelte-akui';
-  	
+
   	function handleBookmark(id) {
   		// Custom logic
   	}
   </script>
 
-  <div 
+  <div
   	use:keyboardNavigation={{
   		keyMap: {
   			b: (id) => handleBookmark(id)
@@ -177,9 +178,10 @@ To build a responsive application shell, position the `Sidebar` alongside the ma
 - **Coordinate Sidebar Visibility**: Automatically close the sidebar when entering mobile view, and open it when returning to desktop view.
 - **Show Hamburger Trigger**: In page headers, check the layout context and render a hamburger `Button` in the navigation snippet on mobile to open the sidebar.
 - **Optional Split Views**: Wrap any layout blocks in `AdaptivePane` to present them side-by-side on desktop and stacked on mobile. This component is optional and accommodates any content layout.
-  - *Tip: Bind `currentRouteId` reactively to SvelteKit optional routing parameters (e.g. `[[articleId]]`) to support deep linking and browser history navigation.*
+  - _Tip: Bind `currentRouteId` reactively to SvelteKit optional routing parameters (e.g. `[[articleId]]`) to support deep linking and browser history navigation._
 
 For complete implementation templates, see the Storybook stories:
+
 - [AdaptivePane Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Layout/AdaptivePane.stories.svelte)
 - [Sidebar Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Sidebar/Sidebar.stories.svelte)
 - [Header Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Header/Header.stories.svelte)
@@ -209,6 +211,7 @@ For the best experience in a new project:
 ### 5. Skeuomorphic Depth & Affordance
 
 Maintain a consistent visual language of depth to communicate interactivity:
+
 - **Elevated (Convex)**: Use light top and dark bottom inner shadows for buttons and actionable triggers to make them appear raised.
 - **Recessed (Concave)**: Use dark top and light bottom inner shadows for `TextInput`, `TextArea`, and `Typeahead` to signify they are "hollow" containers for data.
 - **Smoothness**: Use the `Glow` component to add soft, neumorphic transitions that enhance these effects without harsh borders.
@@ -252,6 +255,7 @@ To set up standard lists of items, wrap your `ControlItem`, `ControlDivider` or 
 ```
 
 **Accessibility & ARIA Notes**:
+
 - The component supports an `inert` attribute automatically when closed in `modal` or `dismissible` modes to prevent keyboard focus of offscreen elements.
 - When `mode="modal"` and the drawer is open, keyboard navigation traps focus and the Escape key can be used to dismiss the drawer.
 

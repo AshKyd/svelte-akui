@@ -67,6 +67,7 @@
 		"svelte"
 	],
 	"dependencies": {
+		"@milkdown/crepe": "^7.21.2",
 		"msrand": "^2.0.0",
 		"svelte-bootstrap-icons": "^3.3.0"
 	}
