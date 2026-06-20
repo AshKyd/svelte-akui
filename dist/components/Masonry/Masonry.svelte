@@ -9,7 +9,7 @@
 	 */
 
 	import { onMount, tick, type Snippet } from 'svelte';
-	import { type HTMLAttributes } from 'svelte/elements';
+	import type { HTMLAttributes } from 'svelte/elements';
 
 	interface GridInfo {
 		_el: HTMLElement;
@@ -32,6 +32,12 @@
 		refreshLayout?: () => Promise<void>;
 		/** Allow the layout to recalculate on resize. Defaults to true. */
 		allowResize?: boolean;
+		/** Enable smooth slide transitions when items change position. Defaults to false. */
+		animate?: boolean;
+		/** Duration of the slide transition animation */
+		transitionDuration?: string;
+		/** Easing function of the slide transition animation */
+		transitionEasing?: string;
 	}
 
 	let {
@@ -41,12 +47,16 @@
 		children,
 		refreshLayout = $bindable(),
 		allowResize = true,
+		animate = false,
+		transitionDuration = '0.3s',
+		transitionEasing = 'ease-in-out',
 		...restProps
 	}: Props = $props();
 
 	let grids: GridInfo[] = [];
 	let masonryElement: HTMLElement | undefined = $state();
 	let containerWidth = $state(0);
+	let hasCalculated = $state(false);
 
 	const refresh = async () => {
 		grids.forEach(async (grid) => {
@@ -118,6 +128,9 @@
 			const maxColHeight = Math.max(...colHeights);
 			const containerHeight = Math.max(0, maxColHeight - gap) + paddingTop + paddingBottom;
 			grid._el.style.height = `${containerHeight}px`;
+
+			// Mark as calculated so transitions can run smoothly on subsequent updates
+			hasCalculated = true;
 		});
 	};
 
@@ -193,6 +206,7 @@
       --masonry-grid-gap: ${gridGap}; 
       --masonry-padding: ${padding};
       --masonry-col-width: ${colWidth};
+      ${animate && hasCalculated ? `--masonry-transition: left ${transitionDuration} ${transitionEasing}, top ${transitionDuration} ${transitionEasing}, width ${transitionDuration} ${transitionEasing};` : ''}
      `}
 	{...restProps}
 >
@@ -212,5 +226,6 @@
 	.akui-masonry > :global(*) {
 		position: absolute;
 		box-sizing: border-box;
+		transition: var(--masonry-transition, none);
 	}
 </style>

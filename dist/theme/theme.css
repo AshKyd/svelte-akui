@@ -41,8 +41,8 @@
 	--akui-radius-l: 12px;
 
 	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.4);
-	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+	--akui-glow-top: inset 0 1px 0 rgba(215, 215, 215, 0.4);
+	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.05);
 	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
 	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -121,7 +121,7 @@
 	--akui-radius-l: 12px;
 
 	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.15);
 	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.4);
 	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.3);
@@ -293,6 +293,7 @@ textarea:not(.bespoke) {
 
 select:not(.bespoke) {
 	box-shadow: var(--akui-shadow-shiny);
+	border: none;
 }
 
 input:not(.bespoke):focus,

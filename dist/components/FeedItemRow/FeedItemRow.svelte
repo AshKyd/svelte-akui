@@ -38,6 +38,10 @@
 		bookmarked?: boolean;
 		/** Callback when the bookmark button is clicked */
 		onbookmark?: (e: MouseEvent) => void;
+		/** Line clamp limit for the title. */
+		titleClamp?: number | 'none';
+		/** Line clamp limit for the excerpt/content. */
+		excerptClamp?: number | 'none';
 	}
 
 	let {
@@ -57,7 +61,9 @@
 		class: className = '',
 		bookmarked = false,
 		onclick,
-		onbookmark
+		onbookmark,
+		titleClamp = 2,
+		excerptClamp = 2
 	}: Props = $props();
 
 	const isExternal = $derived(href?.startsWith('http'));
@@ -136,6 +142,8 @@
 	role={!href && onclick ? 'button' : undefined}
 	data-selectable
 	data-id={id || href}
+	style:--title-clamp={titleClamp === 'none' ? 'none' : titleClamp}
+	style:--excerpt-clamp={excerptClamp === 'none' ? 'none' : excerptClamp}
 >
 	<!-- Hero Thumbnail (Top) -->
 	{#if layout === 'hero' && image}
@@ -530,7 +538,7 @@
 		line-height: 1.3;
 		color: var(--akui-fg-secondary);
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: var(--title-clamp, 2);
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		transition: color 0.2s ease;
@@ -551,7 +559,7 @@
 		color: var(--akui-fg-secondary);
 		line-height: 1.4;
 		display: -webkit-box;
-		-webkit-line-clamp: 2;
+		-webkit-line-clamp: var(--excerpt-clamp, 2);
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}

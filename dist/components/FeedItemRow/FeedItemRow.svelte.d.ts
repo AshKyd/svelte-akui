@@ -34,6 +34,10 @@ interface Props {
     bookmarked?: boolean;
     /** Callback when the bookmark button is clicked */
     onbookmark?: (e: MouseEvent) => void;
+    /** Line clamp limit for the title. */
+    titleClamp?: number | 'none';
+    /** Line clamp limit for the excerpt/content. */
+    excerptClamp?: number | 'none';
 }
 declare const FeedItemRow: import("svelte").Component<Props, {}, "">;
 type FeedItemRow = ReturnType<typeof FeedItemRow>;

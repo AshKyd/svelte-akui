@@ -7,7 +7,7 @@
      * inspired by from Ana Tudor via CSS tricks.
      */
 import { type Snippet } from 'svelte';
-import { type HTMLAttributes } from 'svelte/elements';
+import type { HTMLAttributes } from 'svelte/elements';
 interface Props extends HTMLAttributes<HTMLDivElement> {
     /** Spacing between grid items */
     gridGap?: string;
@@ -21,6 +21,12 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
     refreshLayout?: () => Promise<void>;
     /** Allow the layout to recalculate on resize. Defaults to true. */
     allowResize?: boolean;
+    /** Enable smooth slide transitions when items change position. Defaults to false. */
+    animate?: boolean;
+    /** Duration of the slide transition animation */
+    transitionDuration?: string;
+    /** Easing function of the slide transition animation */
+    transitionEasing?: string;
 }
 declare const Masonry: import("svelte").Component<Props, {}, "refreshLayout">;
 type Masonry = ReturnType<typeof Masonry>;

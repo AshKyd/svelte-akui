@@ -110,12 +110,44 @@
 
 <script lang="ts">
 	let refreshLayout: () => Promise<void>;
+	let showEvenOnly = $state(false);
+
+	const filteredItems = $derived(
+		showEvenOnly ? mockItems.filter((_, i) => i % 2 === 0) : mockItems
+	);
 </script>
 
 <Story name="Standard Grid">
 	<div style="width: 100%; max-width: 1000px; background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px;">
 		<Masonry bind:refreshLayout={refreshLayout}>
-			{#each mockItems as item}
+			{#each mockItems as item (item.id)}
+				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);">
+					<FeedItemRow
+						{...item}
+						layout="hero"
+						fit="cover"
+						ratio="16 / 9"
+					/>
+				</div>
+			{/each}
+		</Masonry>
+	</div>
+</Story>
+
+<Story name="Animated Grid">
+	<div style="width: 100%; max-width: 1000px; background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;">
+		<div>
+			<button 
+				style="padding: 8px 16px; background: var(--akui-accent, #5046e5); color: white; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem;"
+				onclick={() => {
+					showEvenOnly = !showEvenOnly;
+				}}
+			>
+				{showEvenOnly ? "Show All Items" : "Filter Even Items"}
+			</button>
+		</div>
+		<Masonry animate={true} bind:refreshLayout={refreshLayout}>
+			{#each filteredItems as item (item.id)}
 				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);">
 					<FeedItemRow
 						{...item}

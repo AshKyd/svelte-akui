@@ -31,7 +31,9 @@
 	const currentTheme = $derived.by(() => mode ?? systemMode);
 
 	setContext('akui-theme', {
-		get current() { return currentTheme; }
+		get current() {
+			return currentTheme;
+		}
 	});
 </script>
 
@@ -42,9 +44,6 @@
 <style>
 	.akui-root {
 		isolation: isolate;
-	}
-
-	:global(body) {
 		background-color: var(--akui-bg);
 		color: var(--akui-fg);
 		transition: var(--akui-transition-theme);
