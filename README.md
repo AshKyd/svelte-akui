@@ -69,7 +69,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 ### Media & Lists
 
 - **`FeedItemRow`**: A flexible grid-based item for list views.
-  - Supports optional `title` (2-line truncation) and `excerpt` (2-line truncation).
+  - Supports optional `title` and `excerpt` with customizable line clamping via `titleClamp` and `excerptClamp` (both default to 2; set to `'none'` to disable).
   - Supports content-only stories without headings or tags (e.g., Mastodon RSS feeds), aligning the excerpt inline with the date and icon.
   - Optional `icon` (left) and `image` (right).
   - Metadata row (`tag` and `time`) with custom alignment.

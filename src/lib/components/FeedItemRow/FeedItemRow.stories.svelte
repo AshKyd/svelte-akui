@@ -201,3 +201,27 @@
 	/>
 </Story>
 
+<Story name="Custom Line Clamp">
+	<FeedItemRow
+		title="Weekly Gnome Council Meeting: Discussion on proper mushroom-cap cleaning procedures, safety nets for runaway acorns, and a reminder that pixie dust is not a substitute for sugar in municipal tea pots."
+		excerpt="The gnome council elder opened the meeting by emphasizing that municipal tea pots are sacred. Following a brief scuffle regarding the color of the new toadstool warning signs, the committee resolved to implement a mandatory acorn-polishing seminar. Residents are encouraged to bring their own polishing rags and elderberry cordial. Additionally, any pixie dust found in the kitchen will be confiscated immediately and returned to the nearest flowerbed."
+		titleClamp={1}
+		excerptClamp={4}
+		time="10m ago"
+		tag="Council"
+		href="#"
+	/>
+</Story>
+
+<Story name="No Line Clamp">
+	<FeedItemRow
+		title="The Grand Mushroom-Cap Championship of the Whispering Glades: A Detailed Retrospective of the Historical Rivalry Between the Moss-Hill Gnomes and the Clover-Valley Witches"
+		excerpt="This year's contest saw unprecedented heights in spore-throwing accuracy and mushroom-stacking heights. The final round concluded under a beautiful triple moonbow, with both sides sharing a giant pot of herbal dandelion tea. While the Moss-Hill Gnomes claimed the silver tea-cozy, the Clover-Valley Witches were awarded the prize for best sportsmanship and most creative use of spell-assisted yeast. Everyone agreed the stakes were low, the tea was warm, and the gossip was exceptionally delightful."
+		titleClamp="none"
+		excerptClamp="none"
+		time="2h ago"
+		tag="Sports & Gossip"
+		href="#"
+	/>
+</Story>
+
