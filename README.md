@@ -68,6 +68,13 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 ### Media & Lists
 
+- **`ImageMosaic`**: A flexible grid layout component for displaying images in visually pleasing, aspect-ratio-balanced rows.
+  - Automatically calculates item widths based on their aspect ratio to ensure uniform row heights.
+  - Groups items intelligently using a `minWidth` threshold (default 200px) when auto-balancing.
+  - Supports overriding the auto-balancing algorithm by providing explicit `rows` arrays (e.g. `[2, 3, 1]`).
+  - Implemented using flexbox without strict column wrappers for optimal semantic structure.
+  - Allows custom rendering of each item via a `children` snippet override.
+
 - **`MarkdownContent`**: Renders a markdown string as HTML.
 
 - **`FeedItemRow`**: A flexible grid-based item for list views.
