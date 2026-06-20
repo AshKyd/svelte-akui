@@ -19,12 +19,7 @@
 		class?: string;
 	}
 
-	let {
-		value = $bindable(''),
-		onchange,
-		loader,
-		class: className = ''
-	}: Props = $props();
+	let { value = $bindable(''), onchange, loader, class: className = '' }: Props = $props();
 
 	// Instantiate the controller to manage the editor state and lifecycle
 	const editor = new WysiwygEditorController(value, (markdown) => {
@@ -38,7 +33,7 @@
 	});
 </script>
 
-<div class="akui-wysiwyg-container {className}">
+<div class="akui-wysiwyg-container bespoke {className}">
 	{#if editor.loading}
 		<div class="akui-wysiwyg-loader" role="status" aria-busy="true">
 			{#if loader}
@@ -56,7 +51,6 @@
 
 	<div use:editor.init class="akui-wysiwyg-editor" class:akui-hidden={editor.loadError}></div>
 </div>
-
 
 <style>
 	.akui-wysiwyg-container {
@@ -140,10 +134,10 @@
 		padding-left: 0 !important;
 	}
 
-	/* Make the ProseMirror editor expand to fill the container height */
 	.akui-wysiwyg-container :global(.milkdown .editor),
 	.akui-wysiwyg-container :global(.milkdown .editor-container),
-	.akui-wysiwyg-container :global(.milkdown .prose) {
+	.akui-wysiwyg-container :global(.milkdown .prose),
+	.akui-wysiwyg-container :global(.milkdown .prose *) {
 		outline: none;
 		min-height: 200px;
 		flex: 1;
@@ -174,7 +168,7 @@
 		border-radius: var(--akui-radius-m) !important;
 		background-color: var(--akui-bg) !important;
 		color: var(--akui-fg) !important;
-		box-shadow: 
+		box-shadow:
 			var(--akui-shadow-shiny),
 			0 4px 12px rgba(0, 0, 0, 0.15) !important;
 		transition: var(--akui-transition-theme);

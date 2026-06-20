@@ -70,6 +70,11 @@ export class WysiwygEditorController {
 				defaultValue: this.#value,
 				features: {
 					[Crepe.Feature.BlockEdit]: false
+				},
+				featureConfigs: {
+					[Crepe.Feature.Cursor]: {
+						virtual: false
+					}
 				}
 			});
 
