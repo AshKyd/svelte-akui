@@ -2,6 +2,8 @@
 	import type { Snippet } from 'svelte';
 	import { DynamicImage } from '../DynamicImage/index.js';
 
+	import { groupItemsIntoRows, calculateLayoutItems } from './utils.js';
+
 	interface Props {
 		/** Array of items to display in the mosaic */
 		items: T[];
@@ -34,71 +36,12 @@
 	/**
 	 * Determines the row groupings based on explicit sizes or auto-balancing
 	 */
-	const layoutRows = $derived.by(() => {
-		if (items.length === 0) return [];
-		const width = containerWidth || 1000; // Fallback for SSR and tests
-
-		if (rows && rows.length > 0) {
-			const result = [];
-			let index = 0;
-			let rowPatternIndex = 0;
-
-			while (index < items.length) {
-				const rowCount = rows[rowPatternIndex % rows.length];
-				result.push(items.slice(index, index + rowCount));
-				index += rowCount;
-				rowPatternIndex++;
-			}
-			return result;
-		}
-
-		// Auto-balance logic based on aspect ratio
-		const sortedItems = [...items].sort((a, b) => a.width / a.height - b.width / b.height);
-		return sortedItems.reduce<T[][]>((acc, item) => {
-			if (acc.length === 0) return [[item]];
-
-			const currentRow = acc[acc.length - 1];
-			currentRow.push(item);
-
-			const totalAspect = currentRow.reduce((sum, i) => sum + i.width / i.height, 0);
-			const availableWidth = width - gap * (currentRow.length - 1);
-
-			const minItemWidth = currentRow.reduce((min, i) => {
-				const itemWidth = availableWidth * (i.width / i.height / totalAspect);
-				return Math.min(min, itemWidth);
-			}, Infinity);
-
-			if (minItemWidth < minWidth && currentRow.length > 1) {
-				currentRow.pop();
-				acc.push([item]);
-			}
-
-			return acc;
-		}, []);
-	});
+	const layoutRows = $derived(groupItemsIntoRows(items, containerWidth, minWidth, gap, rows));
 
 	/**
-	 * Flattens rows and calculates fractional widths for the CSS grid/flex layout
+	 * Flattens rows and calculates fractional widths for the CSS layout
 	 */
-	const layoutItems = $derived.by(() =>
-		layoutRows.flatMap((row) => {
-			const totalAspect = row.reduce((sum, item) => sum + item.width / item.height, 0);
-
-			return row.map((item) => {
-				const aspect = item.width / item.height;
-				const fraction = aspect / totalAspect;
-				// Total gap space in the row is gap * (row.length - 1)
-				// Each item needs to subtract a proportional share of that gap from its percentage width
-				const gapPx = fraction * gap * (row.length - 1);
-
-				return {
-					item,
-					widthCalc: `calc(${fraction * 100}% - ${gapPx}px)`,
-					aspectRatio: aspect
-				};
-			});
-		})
-	);
+	const layoutItems = $derived(calculateLayoutItems(layoutRows, gap));
 </script>
 
 <div
