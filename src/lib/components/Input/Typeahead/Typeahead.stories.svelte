@@ -59,3 +59,21 @@
 		/>
 	</div>
 </Story>
+
+<Story name="Ghost">
+	{@const values = [
+		{ value: 'potion', label: 'Potion Making' },
+		{ value: 'herbology', label: 'Herbology' },
+		{ value: 'scrolls', label: 'Scroll Cataloguing' }
+	]}
+	<div style="max-width: 400px; padding: 1rem; background-color: var(--akui-bg-secondary); border-radius: var(--akui-radius-m);">
+		<p style="margin-top: 0; font-size: 0.9rem; color: var(--akui-fg-secondary);">Ghost variant (completely borderless and transparent):</p>
+		<Typeahead 
+			variant="ghost"
+			allowFreetext
+			{values}
+			value={['herbology']}
+			placeholder="Type a chore..."
+		/>
+	</div>
+</Story>

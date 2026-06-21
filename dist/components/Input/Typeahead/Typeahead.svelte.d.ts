@@ -15,6 +15,8 @@ interface Props {
     disabled?: boolean;
     /** Size of the field. */
     size?: 'small' | 'medium' | 'large';
+    /** Variant of the field. */
+    variant?: 'regular' | 'ghost';
     /** Label text (used for aria-labelledby). */
     label?: string;
     /** Callback when values change. */

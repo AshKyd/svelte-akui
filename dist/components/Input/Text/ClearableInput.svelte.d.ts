@@ -5,6 +5,8 @@ interface Props {
     placeholder?: string;
     /** Optional size override. */
     size?: 'small' | 'medium' | 'large';
+    /** Variant of the field. */
+    variant?: 'regular' | 'ghost';
     /** Whether the input is disabled. */
     disabled?: boolean;
     /** Additional CSS classes for the input. */

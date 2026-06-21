@@ -11,6 +11,8 @@
 		colour?: string;
 		/** Accessible label for the spinner. */
 		label?: string;
+		/** Delay in milliseconds before the loader becomes visible. */
+		delay?: number;
 		/** Additional CSS classes */
 		class?: string;
 		/** Spread remaining attributes to the container */
@@ -21,21 +23,39 @@
 		size = '1em',
 		colour = 'currentColor',
 		label = 'Loading...',
+		delay = 0,
 		class: className = '',
 		...rest
 	}: Props = $props();
 
 	// Normalize size to include units if it's a number
 	let computedSize = $derived.by(() => (typeof size === 'number' ? `${size}px` : size));
+
+	let visible = $state(false);
+
+	$effect(() => {
+		if (delay <= 0) {
+			visible = true;
+			return;
+		}
+
+		const timer = setTimeout(() => {
+			visible = true;
+		}, delay);
+
+		return () => clearTimeout(timer);
+	});
 </script>
 
-<span
-	class="akui-loader {className}"
-	role="progressbar"
-	aria-label={label}
-	style="font-size: {computedSize}; color: {colour};"
-	{...rest}
-></span>
+{#if visible}
+	<span
+		class="akui-loader {className}"
+		role="progressbar"
+		aria-label={label}
+		style="font-size: {computedSize}; color: {colour};"
+		{...rest}
+	></span>
+{/if}
 
 <style>
 	.akui-loader {

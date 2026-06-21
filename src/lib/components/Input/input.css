@@ -117,3 +117,19 @@ textarea.akui-input-base.large {
 	white-space: nowrap;
 	border-width: 0;
 }
+
+/* Ghost variant */
+.akui-input-base.ghost {
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+.akui-input-base.ghost:hover,
+.akui-input-base.ghost:focus,
+.akui-input-base.ghost:focus-within {
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	outline: none;
+}

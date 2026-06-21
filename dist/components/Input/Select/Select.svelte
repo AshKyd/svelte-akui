@@ -14,6 +14,8 @@
 		placeholder?: string;
 		/** Optional size override. Falls back to group context. */
 		size?: 'small' | 'medium' | 'large';
+		/** Variant of the field. */
+		variant?: 'regular' | 'ghost';
 		/** Whether the field is disabled. */
 		disabled?: boolean;
 		/** Additional CSS classes for the select. */
@@ -27,6 +29,7 @@
 		options = [],
 		placeholder,
 		size,
+		variant = 'regular',
 		disabled = false,
 		class: className = '',
 		...rest
@@ -44,7 +47,7 @@
 </script>
 
 <div class="akui-select-container">
-	<select class="akui-input-base {effectiveSize} {className}" bind:value {disabled} {...rest}>
+	<select class="akui-input-base {effectiveSize} {variant} {className}" bind:value {disabled} {...rest}>
 		{#if placeholder}
 			<option value="" disabled selected>{placeholder}</option>
 		{/if}

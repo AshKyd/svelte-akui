@@ -31,6 +31,7 @@
 	$effect(() => {
 		editor.updateValue(value);
 	});
+
 </script>
 
 <div class="akui-wysiwyg-container bespoke {className}">
@@ -39,7 +40,7 @@
 			{#if loader}
 				{@render loader()}
 			{:else}
-				<Loader size="2rem" label="Loading editor..." />
+				<Loader size="2rem" label="Loading editor..." delay={200} />
 			{/if}
 		</div>
 	{:else if editor.loadError}

@@ -16,6 +16,8 @@
 		disabled?: boolean;
 		/** Size of the field. */
 		size?: 'small' | 'medium' | 'large';
+		/** Variant of the field. */
+		variant?: 'regular' | 'ghost';
 		/** Label text (used for aria-labelledby). */
 		label?: string;
 		/** Callback when values change. */
@@ -33,6 +35,7 @@
 		placeholder = '',
 		disabled = false,
 		size = 'medium',
+		variant = 'regular',
 		label,
 		onChange,
 		class: className = '',
@@ -114,7 +117,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="akui-input-base akui-typeahead-container {size} {className}"
+	class="akui-input-base akui-typeahead-container {size} {variant} {className}"
 	class:disabled
 	onclick={() => inputRef?.focus()}
 	role="group"

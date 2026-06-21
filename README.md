@@ -44,7 +44,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`TextArea`**: Multi-line field. Supports `small`, `medium`, and `large` sizes and vertical resizing.
 - **`Wysiwyg`**: A rich-text WYSIWYG editor component powered by `@milkdown/crepe`. Loads its JavaScript bundle dynamically on-demand with a placeholder spinner during loading to enable code splitting. Fully integrated with light and dark mode.
 - **`Select`**: Drop-down menu for picking from `options`.
-- **`Typeahead`**: An input field that supports suggestions and multi-selection via badges. Can be configured for "tagging" mode using `allowFreetext`, where commas or Enter create new items. Expands downward as content grows.
+- **`Typeahead`**: An input field that supports suggestions and multi-selection via badges. Can be configured for "tagging" mode using `allowFreetext`, where commas or Enter create new items. Supports `regular` and `ghost` variants (where `ghost` has transparent borders/background by default and reveals them on hover/focus). Expands downward as content grows.
 - **`PasswordInput`**: A text field with a toggle button to show or hide the password characters.
 - **`InputWithIcon`**: A layout utility that wraps an input and handles the positioning and spacing for left or right icons/actions.
 - **`ColourInput`**: A field with a manual hex code input and a clickable color swatch trigger.

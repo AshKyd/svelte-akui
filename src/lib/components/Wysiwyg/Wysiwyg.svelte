@@ -31,6 +31,7 @@
 	$effect(() => {
 		editor.updateValue(value);
 	});
+
 </script>
 
 <div class="akui-wysiwyg-container bespoke {className}">

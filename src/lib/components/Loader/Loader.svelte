@@ -31,15 +31,19 @@
 	// Normalize size to include units if it's a number
 	let computedSize = $derived.by(() => (typeof size === 'number' ? `${size}px` : size));
 
-	let visible = $state(delay <= 0);
+	let visible = $state(false);
 
 	$effect(() => {
-		if (delay > 0) {
-			const timer = setTimeout(() => {
-				visible = true;
-			}, delay);
-			return () => clearTimeout(timer);
+		if (delay <= 0) {
+			visible = true;
+			return;
 		}
+
+		const timer = setTimeout(() => {
+			visible = true;
+		}, delay);
+
+		return () => clearTimeout(timer);
 	});
 </script>
 

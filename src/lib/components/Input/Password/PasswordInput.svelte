@@ -13,6 +13,8 @@
 		placeholder?: string;
 		/** Optional size override. */
 		size?: 'small' | 'medium' | 'large';
+		/** Variant of the field. */
+		variant?: 'regular' | 'ghost';
 		/** Whether the field is required. */
 		required?: boolean;
 		/** Whether to show the visibility toggle. Defaults to true. */
@@ -29,6 +31,7 @@
 		value = $bindable(),
 		placeholder,
 		size,
+		variant = 'regular',
 		required = false,
 		toggleable = true,
 		disabled = false,
@@ -58,6 +61,7 @@
 		bind:value
 		{placeholder}
 		{size}
+		{variant}
 		{required}
 		{disabled}
 		class="akui-password-input"

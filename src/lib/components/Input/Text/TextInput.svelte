@@ -12,6 +12,8 @@
 		placeholder?: string;
 		/** Optional size override. Falls back to group context. */
 		size?: 'small' | 'medium' | 'large';
+		/** Variant of the field. */
+		variant?: 'regular' | 'ghost';
 		/** Whether the field is required. */
 		required?: boolean;
 		/** Whether the field is readonly. */
@@ -29,6 +31,7 @@
 		value = $bindable(),
 		placeholder,
 		size,
+		variant = 'regular',
 		required = false,
 		disabled = false,
 		readonly = false,
@@ -52,7 +55,7 @@
 <input
 	bind:this={inputEl}
 	{type}
-	class="akui-input-base {effectiveSize} {className}"
+	class="akui-input-base {effectiveSize} {variant} {className}"
 	{placeholder}
 	bind:value
 	{required}

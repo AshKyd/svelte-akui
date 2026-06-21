@@ -6,6 +6,8 @@ export interface Props {
     placeholder?: string;
     /** Optional size override. */
     size?: 'small' | 'medium' | 'large';
+    /** Variant of the field. */
+    variant?: 'regular' | 'ghost';
     /** Whether the field is required. */
     required?: boolean;
     /** Whether to show the visibility toggle. Defaults to true. */

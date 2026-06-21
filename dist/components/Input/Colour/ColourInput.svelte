@@ -11,6 +11,8 @@
 		placeholder?: string;
 		/** Optional size override. Falls back to group context. */
 		size?: 'small' | 'medium' | 'large';
+		/** Variant of the field. */
+		variant?: 'regular' | 'ghost';
 		/** Whether the field is required. */
 		required?: boolean;
 		/** Whether the field is disabled. */
@@ -27,6 +29,7 @@
 		value = $bindable(),
 		placeholder = '#000000',
 		size,
+		variant = 'regular',
 		required = false,
 		disabled = false,
 		readonly = false,
@@ -96,6 +99,7 @@
 		bind:value={textValue}
 		{placeholder}
 		{size}
+		{variant}
 		{required}
 		{disabled}
 		{readonly}

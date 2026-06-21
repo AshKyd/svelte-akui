@@ -9,6 +9,8 @@ interface Props {
     colour?: string;
     /** Accessible label for the spinner. */
     label?: string;
+    /** Delay in milliseconds before the loader becomes visible. */
+    delay?: number;
     /** Additional CSS classes */
     class?: string;
     /** Spread remaining attributes to the container */
