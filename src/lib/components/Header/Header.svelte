@@ -58,6 +58,7 @@
 		box-sizing: border-box;
 		width: 100%;
 		position: relative;
+		flex-shrink: 0;
 	}
 
 	.akui-header.pinned {
