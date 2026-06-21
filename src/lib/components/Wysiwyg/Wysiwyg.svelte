@@ -39,7 +39,7 @@
 			{#if loader}
 				{@render loader()}
 			{:else}
-				<Loader size="2rem" label="Loading editor..." />
+				<Loader size="2rem" label="Loading editor..." delay={200} />
 			{/if}
 		</div>
 	{:else if editor.loadError}

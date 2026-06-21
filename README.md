@@ -103,7 +103,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
 ### Feedback & Overlays
 
-- **`Loader`**: A spinning animation for background tasks.
+- **`Loader`**: A spinning animation for background tasks. Supports an optional `delay` prop (in milliseconds) to defer visibility for smoother transitions.
 - **`LoaderOverlay`**: Covers the parent container with a semi-transparent layer and a loader to block interaction.
 - **`Modal`**: A centered dialog box for critical actions or information. Supports titles, action bars, custom icons via snippets, and optional fullscreen view on mobile.
 - **`InfoBox`**: A non-intrusive notification or reminder. Supports `variant` (`info`, `warning`, `error`), custom icons or `iconSnippet`, a `title`, and an optional `action` snippet on the right side.
