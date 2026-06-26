@@ -8,14 +8,16 @@
 		role?: string;
 		/** Additional CSS classes. */
 		class?: string;
+		/** Whether to render a panel-like border around the group. Defaults to true. */
+		border?: boolean;
 		/** Spread remaining attributes. */
 		[key: string]: unknown;
 	}
 
-	let { children, role = 'menu', class: className = '', ...rest }: Props = $props();
+	let { children, role = 'menu', class: className = '', border = true, ...rest }: Props = $props();
 </script>
 
-<ul {role} class="akui-control-group {className}" {...rest}>
+<ul {role} class="akui-control-group {className}" class:has-border={border} {...rest}>
 	{@render children()}
 </ul>
 
@@ -27,6 +29,17 @@
 		margin: 0;
 		padding: 0;
 		list-style: none;
+	}
+
+	.akui-control-group.has-border {
+		background-color: var(--akui-bg);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: var(--akui-radius-m);
+		overflow: hidden;
+	}
+
+	:global([data-theme='dark']) .akui-control-group.has-border {
+		border-color: rgba(255, 255, 255, 0.05);
 	}
 
 	/* Automatic dividers between interactive items or content */

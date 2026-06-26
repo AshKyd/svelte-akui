@@ -31,7 +31,6 @@
 		width: 100%;
 		margin: 0 auto;
 		box-sizing: border-box;
-		padding: 0 var(--akui-space-m, 1rem);
 	}
 
 	.akui-layout-content-width.small {

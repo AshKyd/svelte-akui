@@ -6,6 +6,8 @@ interface Props {
     role?: string;
     /** Additional CSS classes. */
     class?: string;
+    /** Whether to render a panel-like border around the group. Defaults to true. */
+    border?: boolean;
     /** Spread remaining attributes. */
     [key: string]: unknown;
 }
