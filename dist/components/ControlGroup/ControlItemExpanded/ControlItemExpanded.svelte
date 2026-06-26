@@ -60,6 +60,16 @@
 	class:interactive={onclick || controlType}
 	onclick={handleContainerClick}
 	onkeydown={(e) => {
+		const target = e.target as HTMLElement;
+		if (
+			target &&
+			(target.tagName === 'INPUT' ||
+				target.tagName === 'TEXTAREA' ||
+				target.tagName === 'SELECT' ||
+				target.isContentEditable)
+		) {
+			return;
+		}
 		if (e.key === ' ' || e.key === 'Enter') {
 			e.preventDefault();
 			checked = !checked;
