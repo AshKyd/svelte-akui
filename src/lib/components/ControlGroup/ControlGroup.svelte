@@ -32,14 +32,9 @@
 	}
 
 	.akui-control-group.has-border {
-		background-color: var(--akui-bg);
-		border: 1px solid rgba(0, 0, 0, 0.1);
+		border: 1px solid var(--akui-border-input, #d1d5db);
 		border-radius: var(--akui-radius-m);
 		overflow: hidden;
-	}
-
-	:global([data-theme='dark']) .akui-control-group.has-border {
-		border-color: rgba(255, 255, 255, 0.05);
 	}
 
 	/* Automatic dividers between interactive items or content */
