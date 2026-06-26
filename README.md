@@ -33,6 +33,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 - **`NavigationBarItem`**: Destination button inside the NavigationBar. Supports `label`, `icon`, `active` states, and `href`.
 - **`LayoutFocusShell`**: A responsive layout wrapper for authentication and wizard screens. On desktop viewports, it displays a centered card with a customizable background image, while on mobile devices, the card anchors to the bottom with configurable top spacing. It includes slide transitions for multi-step flows, loading overlays with a spinner, and supports custom background image configurations for light and dark modes.
 - **`LayoutContentWidth`**: A layout component that constrains the maximum width of its content on desktop viewports and centers it horizontally. Designed specifically to enforce readable line lengths ("measure") for text-heavy content or single-column forms/settings, ensuring they do not stretch awkwardly on wide monitors. It should be used for articles, settings panels, or forms, but avoided for multi-column grids or dashboard layouts like `Masonry` which are meant to scale fluidly with the viewport.
+- **`ControlGroup`**: A container for rendering vertical lists of control items (e.g. `ControlItemText`, `ControlItemExpanded`, or custom content). Automatically draws dividers between children. Supports a `border` prop (default: `true`) to render a panel-like border around the group.
 
 ### Input System
 

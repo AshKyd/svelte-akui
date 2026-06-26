@@ -160,3 +160,15 @@
 		</LayoutContentWidth>
 	{/snippet}
 </Story>
+
+<Story name="Borderless Group">
+	{#snippet children()}
+		<LayoutContentWidth size="small">
+			<ControlGroup border={false}>
+				<ControlItemText icon="journal-bookmark" label="Borderless Gnome Council Dispatches" onclick={() => alert('Opening dispatches...')} />
+				<ControlItemText icon="moon-stars" label="Borderless Dreamweaver Preferences" onclick={() => alert('Dreamweaver settings loaded.')} />
+			</ControlGroup>
+		</LayoutContentWidth>
+	{/snippet}
+</Story>
+

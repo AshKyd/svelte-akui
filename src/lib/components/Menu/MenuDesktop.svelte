@@ -19,7 +19,7 @@
 >
 	<div class="akui-menu-card">
 		<Glow />
-		<ControlGroup role="menu" class="akui-menu-scroll-area">
+		<ControlGroup role="menu" border={false} class="akui-menu-scroll-area">
 			{@render children()}
 		</ControlGroup>
 	</div>
