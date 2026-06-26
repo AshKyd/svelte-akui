@@ -21,17 +21,18 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 ### Layout & Foundation
 
 - **`UIRoot`**: Required parent wrapper. Sets the base font, HSL color tokens, and manages theme state.
-- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics.
+- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics. *Note: Panels should be used sparingly, only for items that specifically require visual elevation and distinction from other content on the page (e.g. they should not wrap entire layout pages).*
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
 - **`ReaderTypography`**: A wrapper for formatted reading content (such as blog posts or articles). Provides styled global overrides inside a `.reader-typography` container, adjusting margins, headings, paragraph heights, link styles with hover transitions, and embedding responsive 16:9 iframes, figures, and media with rounded corners, with subtle shadow glows applied to images, videos, iframes, and Koenig cards.
 - **`Masonry`**: A lightweight grid layout component that arranges items vertically based on their heights. Supports custom columns, grid gaps, and padding. Exposes a bindable `refreshLayout` method to manually trigger layout updates for dynamic content, an optional `allowResize` prop to conditionally enable or disable layout updates during container resizing transitions, and an `animate` prop (with configurable `transitionDuration` and `transitionEasing`) to transition items as they slide into place.
-- **`AdaptivePane`**: A generic component for building Canonical Layouts (List-Detail pattern). Uses `minWidth` and Svelte's `bind:clientWidth` to automatically adapt between a split (multi-pane) view on large screens and a stacked (single-pane) view on smaller screens, driven by the `baseRouteId` vs `currentRouteId`. On desktop, panes are resizable via an integrated visual drag handler. Supports custom width parameters (`mainPaneWidth`, `minMainPaneWidth`, `maxMainPaneWidth`) and an optional `hideNestedWhenEmpty` prop to collapse the detail pane on desktop when no item is selected, expanding it smoothly when navigated.
+- **`LayoutAdaptivePane`**: A generic component for building Canonical Layouts (List-Detail pattern). Uses `minWidth` and Svelte's `bind:clientWidth` to automatically adapt between a split (multi-pane) view on large screens and a stacked (single-pane) view on smaller screens, driven by the `baseRouteId` vs `currentRouteId`. On desktop, panes are resizable via an integrated visual drag handler. Supports custom width parameters (`mainPaneWidth`, `minMainPaneWidth`, `maxMainPaneWidth`) and an optional `hideNestedWhenEmpty` prop to collapse the detail pane on desktop when no item is selected, expanding it smoothly when navigated.
 - **`Table`**: A responsive, sortable tabular data grid. Accepts `data` and `columns` configurations, and provides a custom `cell` snippet for template customization. Features a shiny akui-glow header and a sunken/inverse-glow body for distinct button-group vs form-field styling.
 - **`DragHandler`**: A visual drag handler component supporting pointer events to handle dragging interactions. Offers high-quality visual feedback with modern hover and active styles. Used to build resizable interfaces such as sidebars or split pane views.
 - **`NavigationBar`**: Bottom navigation container for mobile screen dimensions. Evenly spaces up to 5 `NavigationBarItem` components.
 - **`NavigationBarItem`**: Destination button inside the NavigationBar. Supports `label`, `icon`, `active` states, and `href`.
-- **`AuthShell`**: A responsive layout wrapper for authentication and wizard screens. On desktop viewports, it displays a centered card with a customizable background image, while on mobile devices, the card anchors to the bottom with configurable top spacing. It includes slide transitions for multi-step flows, loading overlays with a spinner, and supports custom background image configurations for light and dark modes.
+- **`LayoutFocusShell`**: A responsive layout wrapper for authentication and wizard screens. On desktop viewports, it displays a centered card with a customizable background image, while on mobile devices, the card anchors to the bottom with configurable top spacing. It includes slide transitions for multi-step flows, loading overlays with a spinner, and supports custom background image configurations for light and dark modes.
+- **`LayoutContentWidth`**: A layout component that constrains the maximum width of its content on desktop viewports and centers it horizontally. Designed specifically to enforce readable line lengths ("measure") for text-heavy content or single-column forms/settings, ensuring they do not stretch awkwardly on wide monitors. It should be used for articles, settings panels, or forms, but avoided for multi-column grids or dashboard layouts like `Masonry` which are meant to scale fluidly with the viewport.
 
 ### Input System
 
@@ -181,17 +182,17 @@ Components should be composed: wrap any input in a `Field` to add a label.
 To build a responsive application shell, position the `Sidebar` alongside the main content area in a flex container or grid layout. Coordinate the shell's components by following this checklist:
 
 - **Track Viewport Width**: Bind the window's inner width to track the viewport size.
-- **Determine Mobile State**: Check if the width is less than the `AdaptivePane` `minWidth` threshold (defaults to `768px`).
+- **Determine Mobile State**: Check if the width is less than the `LayoutAdaptivePane` `minWidth` threshold (defaults to `768px`).
 - **Share Layout State**: Expose the mobile state and a sidebar toggle method to child pages using Svelte context.
 - **Configure Sidebar Mode**: Set the `Sidebar` `mode` dynamically to `'modal'` on mobile and `'dismissible'` on desktop.
 - **Coordinate Sidebar Visibility**: Automatically close the sidebar when entering mobile view, and open it when returning to desktop view.
 - **Show Hamburger Trigger**: In page headers, check the layout context and render a hamburger `Button` in the navigation snippet on mobile to open the sidebar.
-- **Optional Split Views**: Wrap any layout blocks in `AdaptivePane` to present them side-by-side on desktop and stacked on mobile. This component is optional and accommodates any content layout.
+- **Optional Split Views**: Wrap any layout blocks in `LayoutAdaptivePane` to present them side-by-side on desktop and stacked on mobile. This component is optional and accommodates any content layout.
   - _Tip: Bind `currentRouteId` reactively to SvelteKit optional routing parameters (e.g. `[[articleId]]`) to support deep linking and browser history navigation._
 
 For complete implementation templates, see the Storybook stories:
 
-- [AdaptivePane Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Layout/AdaptivePane.stories.svelte)
+- [LayoutAdaptivePane Story](file:///Users/ash/Web/svelte-akui/src/lib/components/LayoutAdaptivePane/LayoutAdaptivePane.stories.svelte)
 - [Sidebar Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Sidebar/Sidebar.stories.svelte)
 - [Header Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Header/Header.stories.svelte)
 
@@ -243,15 +244,17 @@ Forms and other interactive elements inside a `Menu` will not close the menu by 
 ### 6. Sidebar Composition & ARIA
 
 The `Sidebar` component provides two primary snippets: `content` and `footer`.
-To set up standard lists of items, wrap your `ControlItem`, `ControlDivider` or custom content elements inside a `ControlGroup` component inside the `content` snippet.
+To set up standard lists of items, wrap your `ControlItemText`, `ControlItemExpanded` or custom content elements inside a `ControlGroup` component inside the `content` snippet.
 
 ```svelte
 <Sidebar title="Cosy Reader" icon="book">
 	{#snippet content()}
 		<ControlGroup>
-			<ControlItem label="Dashboard" icon="house" href="/" />
-			<ControlDivider />
-			<ControlItem label="Profile" icon="person" href="/profile" />
+			<ControlItemText label="Dashboard" icon="house" href="/" />
+			<ControlItemExpanded label="Library Capacity" extra="45%" description="Physical shelves filled.">
+				<progress value="45" max="100" style="width: 100%; margin-top: 0.5rem;"></progress>
+			</ControlItemExpanded>
+			<ControlItemText label="Profile" icon="person" href="/profile" />
 		</ControlGroup>
 	{/snippet}
 

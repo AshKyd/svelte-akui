@@ -41,17 +41,11 @@
 		minNestedPaneWidth = 400
 	}: Props = $props();
 
-	// Initialize container width with window.innerWidth if available to prevent
-	// mobile layout flashing (which occurs if we start at 0 and default to desktop split view).
 	let containerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 0);
 	let prefersReducedMotion = $state(false);
 	let isDragging = $state(false);
-	// We track if layout is ready/painted. We only enable CSS transitions AFTER mounting and initial paint
-	// to prevent sliding transitions on load when hydrating from SSR/0-width to mobile stacked layouts.
 	let isLayoutReady = $state(false);
 
-	// Determine layout mode based on available space. We fallback to window.innerWidth
-	// to ensure correct stacked state on initial browser render before clientWidth binds.
 	let isStacked = $derived(
 		containerWidth > 0
 			? containerWidth < minWidth
@@ -59,11 +53,8 @@
 	);
 	let isBaseRoute = $derived(currentRouteId === baseRouteId);
 
-	// Desktop specific behavior to collapse/expand nested pane
 	let shouldHideNested = $derived(!isStacked && hideNestedWhenEmpty && isBaseRoute);
 
-	// Reactively clamp the main pane width when the container size changes to prevent
-	// the right-hand details column from shrinking below its minimum width.
 	$effect(() => {
 		if (containerWidth > 0 && !isStacked && !shouldHideNested) {
 			const maxAllowedWidth = Math.min(maxMainPaneWidth, containerWidth - minNestedPaneWidth);
@@ -76,7 +67,6 @@
 	});
 
 	onMount(() => {
-		// Delay enabling transitions to let the initial layout state paint silently first.
 		const timer = setTimeout(() => {
 			isLayoutReady = true;
 		}, 20);
@@ -101,27 +91,18 @@
 	}
 
 	function handleDrag(detail: { offsetX: number }) {
-		// Bound the drag sizing dynamically. The main pane cannot exceed maxMainPaneWidth
-		// OR shrink the nested details pane below its minimum specified width.
-		// We calculate width relative to dragStartWidth and accumulated offsetX to ensure
-		// that if a user drags past a boundary, the handler doesn't immediately move back
-		// until the pointer crosses the boundary threshold again.
 		const maxAllowedWidth = Math.min(maxMainPaneWidth, containerWidth - minNestedPaneWidth);
 		mainPaneWidth = Math.max(minMainPaneWidth, Math.min(maxAllowedWidth, dragStartWidth + detail.offsetX));
 	}
 </script>
 
 <div
-	class="akui-adaptive-pane"
+	class="akui-layout-adaptive-pane"
 	bind:clientWidth={containerWidth}
 	class:is-stacked={isStacked}
 	class:hide-nested={shouldHideNested}
 	class:is-ready={isLayoutReady}
 >
-	<!-- 
-		On desktop, we set the pane's width style. When the nested pane is hidden, we expand the main pane 
-		to 100% width. When dragging is active, we disable transitions for fluid resizing.
-	-->
 	<div
 		class="akui-pane-main"
 		class:active={isBaseRoute}
@@ -166,7 +147,7 @@
 </div>
 
 <style>
-	.akui-adaptive-pane {
+	.akui-layout-adaptive-pane {
 		display: flex;
 		width: 100%;
 		height: 100%;
@@ -187,8 +168,7 @@
 		transition: border-right-color 0.3s ease;
 	}
 
-	/* CSS Transitions are scoped to .is-ready so they don't fire during initial mounting paint */
-	.akui-adaptive-pane.is-ready .akui-pane-main {
+	.akui-layout-adaptive-pane.is-ready .akui-pane-main {
 		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-right-color 0.3s ease;
 	}
 
@@ -202,12 +182,11 @@
 		position: relative;
 	}
 
-	.akui-adaptive-pane.is-ready .akui-pane-nested {
+	.akui-layout-adaptive-pane.is-ready .akui-pane-nested {
 		transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
-	/* On desktop, make the nested pane a grid to stack transitioning elements perfectly */
-	.akui-adaptive-pane:not(.is-stacked) .akui-pane-nested {
+	.akui-layout-adaptive-pane:not(.is-stacked) .akui-pane-nested {
 		display: grid;
 		grid-template-columns: 1fr;
 		grid-template-rows: 1fr;
@@ -224,28 +203,26 @@
 		background-color: var(--akui-bg);
 	}
 
-	/* Desktop layout transitions when nested pane is hidden */
-	.akui-adaptive-pane.hide-nested .akui-pane-main {
+	.akui-layout-adaptive-pane.hide-nested .akui-pane-main {
 		max-width: 100%;
 		border-right-color: transparent;
 	}
 
-	.akui-adaptive-pane.hide-nested .akui-pane-nested {
+	.akui-layout-adaptive-pane.hide-nested .akui-pane-nested {
 		flex: 0 0 0%;
 		opacity: 0;
 		pointer-events: none;
 		overflow: hidden;
 	}
 
-	/* When stacked, both panes overlap in a single grid cell and transition smoothly */
-	.akui-adaptive-pane.is-stacked {
+	.akui-layout-adaptive-pane.is-stacked {
 		display: grid;
 		grid-template-columns: 1fr;
 		grid-template-rows: 1fr;
 	}
 
-	.akui-adaptive-pane.is-stacked .akui-pane-main,
-	.akui-adaptive-pane.is-stacked .akui-pane-nested {
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-main,
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
 		grid-column: 1;
 		grid-row: 1;
 		width: 100%;
@@ -256,35 +233,32 @@
 		will-change: transform, opacity;
 	}
 
-	.akui-adaptive-pane.is-ready.is-stacked .akui-pane-main,
-	.akui-adaptive-pane.is-ready.is-stacked .akui-pane-nested {
+	.akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-main,
+	.akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-nested {
 		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 	}
 
-	/* Main Pane stacked states */
-	.akui-adaptive-pane.is-stacked .akui-pane-main {
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-main {
 		transform: translate3d(-100%, 0, 0);
 		opacity: 0;
 	}
-	.akui-adaptive-pane.is-stacked .akui-pane-main.active {
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-main.active {
 		transform: translate3d(0, 0, 0);
 		opacity: 1;
 	}
 
-	/* Nested Pane stacked states */
-	.akui-adaptive-pane.is-stacked .akui-pane-nested {
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
 		transform: translate3d(100%, 0, 0);
 		opacity: 0;
 	}
-	.akui-adaptive-pane.is-stacked .akui-pane-nested.active {
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested.active {
 		transform: translate3d(0, 0, 0);
 		opacity: 1;
 	}
 
-	/* Refined for reduced motion preferences */
 	@media (prefers-reduced-motion: reduce) {
-		.akui-adaptive-pane.is-stacked .akui-pane-main,
-		.akui-adaptive-pane.is-stacked .akui-pane-nested {
+		.akui-layout-adaptive-pane.is-stacked .akui-pane-main,
+		.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
 			transform: none !important;
 			transition: opacity 0.2s ease;
 		}

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
-	import { ControlItem } from '../Control/index.ts';
+	import { ControlItemText } from '../ControlGroup/index.js';
 	import { useMenu } from './index.js';
 
 	interface Props {
@@ -36,9 +36,9 @@
 </script>
 
 {#if customContent}
-	<ControlItem {icon} {label} onclick={handleClick} class={className} {...rest}>
+	<ControlItemText {icon} {label} onclick={handleClick} class={className} {...rest}>
 		{@render customContent()}
-	</ControlItem>
+	</ControlItemText>
 {:else}
-	<ControlItem {icon} {label} onclick={handleClick} class={className} {...rest} />
+	<ControlItemText {icon} {label} onclick={handleClick} class={className} {...rest} />
 {/if}

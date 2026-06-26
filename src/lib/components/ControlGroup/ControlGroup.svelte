@@ -30,8 +30,8 @@
 	}
 
 	/* Automatic dividers between interactive items or content */
-	.akui-control-group :global(.akui-control-item-wrapper:not(:last-child)),
-	.akui-control-group :global(.akui-control-content:not(:last-child)) {
+	.akui-control-group :global(.akui-control-item-text-wrapper:not(:last-child)),
+	.akui-control-group :global(.akui-control-item-expanded-wrapper:not(:last-child)) {
 		border-bottom: 1px solid var(--akui-border-input, #d1d5db);
 	}
 </style>

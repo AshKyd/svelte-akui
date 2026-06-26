@@ -99,13 +99,11 @@
 	$effect(() => {
 		const _ = viewState;
 		if (wrapperEl && oldHeight > 0) {
-			// Lock directly on the element style first (bypassing Svelte state batching)
 			wrapperEl.style.height = `${oldHeight}px`;
 
 			// Force layout reflow
 			void wrapperEl.offsetHeight;
 
-			// Set the target height to transition to
 			const targetHeight = untrack(() => measuredHeight);
 			if (targetHeight) {
 				currentHeight = `${targetHeight}px`;
@@ -115,7 +113,6 @@
 	});
 	let bgLoaded = $state(false);
 
-	// Derive currently active background image URL matching CSS fallback rules
 	const currentBgUrl = $derived.by(() => {
 		if (isMobile) {
 			if (isDark) {
@@ -130,14 +127,12 @@
 		}
 	});
 
-	// Reset loaded state when background URL changes
 	$effect(() => {
 		if (currentBgUrl) {
 			bgLoaded = false;
 		}
 	});
 
-	// Manage media listeners
 	$effect(() => {
 		if (typeof window === 'undefined') return;
 
@@ -153,7 +148,6 @@
 		};
 	});
 
-	// Custom transition function that supports sliding based on physical direction
 	function slideTransition(
 		node: HTMLElement,
 		{ direction = 'up', type = 'in', duration = 300, delay = 0 } = {}
@@ -200,36 +194,36 @@
 </script>
 
 <div
-	class="akui-auth-shell"
+	class="akui-layout-focus-shell"
 	style="--mobile-reserve: {mobileReservePixels}px; --viewport-height: {visualViewportHeight};"
 >
 	{#if currentBgUrl}
 		<img
 			src={currentBgUrl}
 			alt=""
-			class="akui-auth-shell__bg-img"
-			class:akui-auth-shell__bg-img--loaded={bgLoaded}
+			class="akui-layout-focus-shell__bg-img"
+			class:akui-layout-focus-shell__bg-img--loaded={bgLoaded}
 			onload={() => { bgLoaded = true; }}
 		/>
 	{/if}
 
 	{#if backTo}
-		<a href={backTo} class="akui-auth-shell__back-btn" aria-label="Go back">
+		<a href={backTo} class="akui-layout-focus-shell__back-btn" aria-label="Go back">
 			<Icon name="arrow-left" size={20} />
 		</a>
 	{/if}
 
 	{#if viewState && viewState !== 'blank'}
 		<div
-			class="akui-auth-shell__panel"
+			class="akui-layout-focus-shell__panel"
 			transition:fade={{ duration: 250, easing: cubicOut }}
 		>
 			<Glow />
 
-			<div class="akui-auth-shell__form-wrapper">
+			<div class="akui-layout-focus-shell__form-wrapper">
 				<div 
 					bind:this={wrapperEl}
-					class="akui-auth-shell__panel-content-wrapper" 
+					class="akui-layout-focus-shell__panel-content-wrapper" 
 					style="
 						--current-height: {currentHeight};
 						--height-duration: {transitionParams.duration ?? 300}ms;
@@ -237,10 +231,10 @@
 				>
 					{#key viewState}
 						<div
-							class="akui-auth-shell__step-content"
+							class="akui-layout-focus-shell__step-content"
 							bind:clientHeight={measuredHeight}
-							class:akui-auth-shell__step-content--loading={loading}
-							class:akui-auth-shell__step-content--no-transition={isTransitioning}
+							class:akui-layout-focus-shell__step-content--loading={loading}
+							class:akui-layout-focus-shell__step-content--no-transition={isTransitioning}
 							in:slideTransition={{
 								direction: slideDirection,
 								type: 'in',
@@ -273,7 +267,7 @@
 				</div>
 
 				{#if loading}
-					<div class="akui-auth-shell__loading-overlay" transition:fade={{ duration: 200 }}>
+					<div class="akui-layout-focus-shell__loading-overlay" transition:fade={{ duration: 200 }}>
 						<Loader size="2rem" />
 					</div>
 				{/if}
@@ -283,7 +277,7 @@
 </div>
 
 <style>
-	.akui-auth-shell {
+	.akui-layout-focus-shell {
 		position: relative;
 		height: var(--viewport-height, 100dvh);
 		min-height: var(--viewport-height, 100dvh);
@@ -296,7 +290,7 @@
 		overflow: hidden;
 	}
 
-	.akui-auth-shell__bg-img {
+	.akui-layout-focus-shell__bg-img {
 		position: absolute;
 		inset: 0;
 		width: 100%;
@@ -309,23 +303,11 @@
 		pointer-events: none;
 	}
 
-	.akui-auth-shell__bg-img--loaded {
+	.akui-layout-focus-shell__bg-img--loaded {
 		opacity: 1;
 	}
 
-	.akui-auth-shell__content-container {
-		position: relative;
-		display: grid;
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr;
-		align-items: center;
-		justify-items: center;
-		width: 100%;
-		height: 100%;
-		z-index: 1; /* Sit above the background fade-in layer */
-	}
-
-	.akui-auth-shell__panel {
+	.akui-layout-focus-shell__panel {
 		position: relative;
 		overflow: hidden;
 		background-color: var(--akui-bg);
@@ -338,12 +320,12 @@
 		box-sizing: border-box;
 	}
 
-	:global([data-theme='dark']) .akui-auth-shell__panel {
+	:global([data-theme='dark']) .akui-layout-focus-shell__panel {
 		border-color: rgba(255, 255, 255, 0.05);
 		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15);
 	}
 
-	.akui-auth-shell__back-btn {
+	.akui-layout-focus-shell__back-btn {
 		position: fixed;
 		top: 24px;
 		left: 24px;
@@ -365,27 +347,27 @@
 			box-shadow 0.15s ease;
 	}
 
-	:global([data-theme='dark']) .akui-auth-shell__back-btn {
+	:global([data-theme='dark']) .akui-layout-focus-shell__back-btn {
 		border-color: rgba(255, 255, 255, 0.05);
 	}
 
-	.akui-auth-shell__back-btn:hover {
+	.akui-layout-focus-shell__back-btn:hover {
 		background-color: var(--akui-bg-hover);
 		color: var(--akui-fg);
 	}
 
-	.akui-auth-shell__back-btn:focus-visible {
+	.akui-layout-focus-shell__back-btn:focus-visible {
 		outline: 2px solid var(--akui-bg-accent);
 		outline-offset: 2px;
 	}
 
-	.akui-auth-shell__form-wrapper {
+	.akui-layout-focus-shell__form-wrapper {
 		position: relative;
 		width: 100%;
 		height: 100%;
 	}
 
-	.akui-auth-shell__panel-content-wrapper {
+	.akui-layout-focus-shell__panel-content-wrapper {
 		position: relative;
 		width: 100%;
 		height: var(--current-height, auto);
@@ -393,7 +375,7 @@
 		overflow: hidden;
 	}
 
-	.akui-auth-shell__step-content {
+	.akui-layout-focus-shell__step-content {
 		width: 100%;
 		box-sizing: border-box;
 		will-change: transform;
@@ -404,12 +386,11 @@
 		opacity: 1;
 	}
 
-	.akui-auth-shell__step-content--no-transition {
+	.akui-layout-focus-shell__step-content--no-transition {
 		transition: none !important;
 	}
 
-	/* Absolute positioning for the outgoing element during transition */
-	.akui-auth-shell__step-content:not(:last-child) {
+	.akui-layout-focus-shell__step-content:not(:last-child) {
 		position: absolute;
 		top: 0;
 		left: 0;
@@ -417,13 +398,13 @@
 		pointer-events: none;
 	}
 
-	.akui-auth-shell__step-content--loading {
+	.akui-layout-focus-shell__step-content--loading {
 		transform: translateX(-50px);
 		opacity: 0;
 		pointer-events: none;
 	}
 
-	.akui-auth-shell__loading-overlay {
+	.akui-layout-focus-shell__loading-overlay {
 		position: absolute;
 		inset: 0;
 		display: flex;
@@ -433,15 +414,14 @@
 		background-color: transparent;
 	}
 
-	/* Responsive layouts */
 	@media (max-width: 767px) {
-		.akui-auth-shell {
+		.akui-layout-focus-shell {
 			justify-content: flex-end;
 			padding-top: var(--mobile-reserve);
 			overflow-y: auto;
 		}
 
-		.akui-auth-shell__panel {
+		.akui-layout-focus-shell__panel {
 			width: 100%;
 			border-radius: 36px 36px 0 0;
 			border-bottom: none;
@@ -450,19 +430,19 @@
 			padding: 40px 24px 32px 24px;
 		}
 
-		.akui-auth-shell__back-btn {
+		.akui-layout-focus-shell__back-btn {
 			top: 12px;
 			left: 12px;
 		}
 	}
 
 	@media (min-width: 768px) {
-		.akui-auth-shell {
+		.akui-layout-focus-shell {
 			padding: 40px;
 			overflow-y: auto;
 		}
 
-		.akui-auth-shell__panel {
+		.akui-layout-focus-shell__panel {
 			width: 440px;
 			border-radius: 32px;
 			box-shadow: var(--akui-shadow-l, 0 10px 30px rgba(0, 0, 0, 0.15));

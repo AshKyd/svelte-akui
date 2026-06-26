@@ -2,7 +2,7 @@
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
-	import { ControlGroup } from '../Control/index.ts';
+	import { ControlGroup } from '../ControlGroup/index.js';
 	import { Glow } from '../Glow/index.js';
 
 	interface Props {
