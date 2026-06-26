@@ -3,6 +3,7 @@
 	import Fieldset from './Fieldset.svelte';
 	import Button from '../Button/Button.svelte';
 	import { Field, TextInput, Select } from '../Input/index.js';
+	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Fieldset',
@@ -11,7 +12,7 @@
 </script>
 
 <Story name="Basic">
-	<div style="max-width: 500px;">
+	<LayoutContentWidth size="small">
 		<Fieldset legend="Account Settings">
 			<Field label="Username">
 				<TextInput placeholder="johndoe" />
@@ -20,11 +21,11 @@
 				<TextInput type="email" placeholder="john@example.com" />
 			</Field>
 		</Fieldset>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="With Extra Actions">
-	<div style="max-width: 500px;">
+	<LayoutContentWidth size="small">
 		<Fieldset legend="Notifications">
 			{#snippet extra()}
 				<Button size="small" label="Enable All" />
@@ -48,22 +49,22 @@
 				/>
 			</Field>
 		</Fieldset>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="Custom Heading Level">
-	<div style="max-width: 500px; display: flex; flex-direction: column; gap: 2rem;">
+	<LayoutContentWidth size="small" style="display: flex; flex-direction: column; gap: 2rem;">
 		<Fieldset legend="Level 1 Heading" level={1}>
 			<p>Used for primary sections.</p>
 		</Fieldset>
 		<Fieldset legend="Level 3 Heading" level={3}>
 			<p>Used for nested subsections.</p>
 		</Fieldset>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="In Form (ARIA group)">
-	<div style="max-width: 500px;">
+	<LayoutContentWidth size="small">
 		<form onsubmit={(e) => e.preventDefault()}>
 			<Fieldset legend="Personal Details" isInForm>
 				<Field label="First Name">
@@ -74,5 +75,5 @@
 				</Field>
 			</Fieldset>
 		</form>
-	</div>
+	</LayoutContentWidth>
 </Story>

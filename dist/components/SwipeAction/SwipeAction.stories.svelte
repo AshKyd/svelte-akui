@@ -11,6 +11,7 @@
 <script lang="ts">
 	import FeedItemRow from '../FeedItemRow/FeedItemRow.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
 	// Create dynamic state for our interactive demo items
 	let items = $state([
@@ -62,7 +63,7 @@
 </script>
 
 <Story name="Interactive List">
-	<div class="demo-container">
+	<LayoutContentWidth size="medium" class="demo-container">
 		<div class="demo-instructions">
 			<Icon name="info-circle" size={16} />
 			<span>
@@ -128,11 +129,11 @@
 				</SwipeAction>
 			{/each}
 		</div>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="Interactive List (No Icons)">
-	<div class="demo-container">
+	<LayoutContentWidth size="medium" class="demo-container">
 		<div class="demo-instructions">
 			<Icon name="info-circle" size={16} />
 			<span>
@@ -198,17 +199,16 @@
 				</SwipeAction>
 			{/each}
 		</div>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <style>
 	.demo-container {
-		max-width: 600px;
-		margin: 0 auto;
 		display: flex;
 		flex-direction: column;
 		gap: var(--akui-space-m, 1rem);
-		padding: var(--akui-space-m, 1rem);
+		padding-top: var(--akui-space-m, 1rem);
+		padding-bottom: var(--akui-space-m, 1rem);
 	}
 
 	.demo-instructions {

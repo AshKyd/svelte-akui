@@ -4,7 +4,7 @@
 	import Padding from '../Padding/Padding.svelte';
 	import Button from '../Button/Button.svelte';
 	import Small from '../Small/Small.svelte';
-	import { ControlItem } from '../Control/index.js';
+	import { ControlItemText } from '../ControlGroup/index.js';
 	import Tree from '../Tree/Tree.svelte';
 	import type { TreeItemData } from '../Tree/TreeItem.svelte';
 
@@ -47,10 +47,10 @@
 {/snippet}
 
 {#snippet sidebarContent()}
-	<ControlItem icon="house" label="Dashboard" />
-	<ControlItem icon="person" label="Profile" />
-	<ControlItem icon="gear" label="Settings" />
-	<ControlItem icon="box-arrow-right" label="Sign Out" />
+	<ControlItemText icon="house" label="Dashboard" />
+	<ControlItemText icon="person" label="Profile" />
+	<ControlItemText icon="gear" label="Settings" />
+	<ControlItemText icon="box-arrow-right" label="Sign Out" />
 	<Padding size="s" y>
 		<Small tag="h3" style="margin-left: var(--akui-space-m); margin-bottom: var(--akui-space-s); display: block; opacity: 0.6;">
 			Feeds

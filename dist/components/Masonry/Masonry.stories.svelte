@@ -2,6 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Masonry from './Masonry.svelte';
 	import FeedItemRow from '../FeedItemRow/FeedItemRow.svelte';
+	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Masonry',
@@ -118,7 +119,7 @@
 </script>
 
 <Story name="Standard Grid">
-	<div style="width: 100%; max-width: 1000px; background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px;">
+	<LayoutContentWidth size="large" style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px;">
 		<Masonry bind:refreshLayout={refreshLayout}>
 			{#each mockItems as item (item.id)}
 				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);">
@@ -131,11 +132,11 @@
 				</div>
 			{/each}
 		</Masonry>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="Animated Grid">
-	<div style="width: 100%; max-width: 1000px; background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;">
+	<LayoutContentWidth size="large" style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;">
 		<div>
 			<button 
 				style="padding: 8px 16px; background: var(--akui-accent, #5046e5); color: white; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem;"
@@ -158,5 +159,5 @@
 				</div>
 			{/each}
 		</Masonry>
-	</div>
+	</LayoutContentWidth>
 </Story>

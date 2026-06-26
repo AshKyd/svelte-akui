@@ -1,0 +1,14 @@
+import { type Snippet } from 'svelte';
+interface Props {
+    /** The max-width size option. Defaults to 'medium' (680px). */
+    size?: 'small' | 'medium' | 'large';
+    /** Content to render inside the column. */
+    children?: Snippet;
+    /** Additional CSS classes. */
+    class?: string;
+    /** Spread remaining attributes. */
+    [key: string]: unknown;
+}
+declare const LayoutReadableWidthColumn: import("svelte").Component<Props, {}, "">;
+type LayoutReadableWidthColumn = ReturnType<typeof LayoutReadableWidthColumn>;
+export default LayoutReadableWidthColumn;

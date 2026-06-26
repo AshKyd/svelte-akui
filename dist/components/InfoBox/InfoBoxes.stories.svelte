@@ -2,6 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import InfoBoxes from './InfoBoxes.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/InfoBoxes',
@@ -31,9 +32,9 @@
 </script>
 
 <Story name="Default (Stacked)">
-	<div style="width: 400px;">
+	<LayoutContentWidth size="small">
 		<InfoBoxes {items} />
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="With Custom Icons">
@@ -79,13 +80,13 @@
 		}
 	</style>
 
-	<div style="width: 400px;">
+	<LayoutContentWidth size="small">
 		<InfoBoxes {items} icon={customIcon} />
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="Bare (Inline)">
-	<div style="width: 400px;">
+	<LayoutContentWidth size="small">
 		<InfoBoxes {items} />
-	</div>
+	</LayoutContentWidth>
 </Story>

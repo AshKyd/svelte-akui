@@ -3,6 +3,7 @@
 	import Tabs from './Tabs.svelte';
 	import TextInput from '../Input/Text/TextInput.svelte';
 	import Field from '../Input/Field/Field.svelte';
+	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Tabs',
@@ -32,7 +33,7 @@
 {/snippet}
 
 <Story name="Full Featured">
-	<div style="max-width: 600px;">
+	<LayoutContentWidth size="medium">
 		<Tabs
 			items={[
 				{ id: 'file', label: 'File', content: fileContent },
@@ -40,11 +41,11 @@
 				{ id: 'settings', label: 'Settings', content: settingsContent }
 			]}
 		/>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="Navigation Only">
-	<div style="max-width: 600px;">
+	<LayoutContentWidth size="medium">
 		<p style="margin-bottom: 2rem;">Content is managed outside the component.</p>
 		<Tabs
 			items={[
@@ -53,11 +54,11 @@
 				{ id: 'tab3', label: 'Third Tab' }
 			]}
 		/>
-	</div>
+	</LayoutContentWidth>
 </Story>
 
 <Story name="Dynamic Active Tab">
-	<div style="max-width: 600px;">
+	<LayoutContentWidth size="medium">
 		<div style="margin-bottom: 1rem;">
 			Active Tab: <strong>{activeId}</strong>
 		</div>
@@ -68,5 +69,5 @@
 				{ id: 'tab2', label: 'Tab 2', content: viewContent }
 			]}
 		/>
-	</div>
+	</LayoutContentWidth>
 </Story>
