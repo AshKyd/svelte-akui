@@ -66,7 +66,7 @@
 
 		// If it's a known value, use its value, otherwise use the label if allowFreetext
 		const found = values.find((opt) => opt.label === trimmed || opt.value === trimmed);
-		const toAdd = found ? found.value : (allowFreetext ? trimmed : null);
+		const toAdd = found ? found.value : allowFreetext ? trimmed : null;
 
 		if (toAdd && !value.includes(toAdd)) {
 			value = [...value, toAdd];
@@ -100,7 +100,7 @@
 	// Watch for datalist selections
 	$effect(() => {
 		if (!inputValue) return;
-		
+
 		const found = values.find((opt) => opt.label === inputValue);
 		if (found) {
 			untrack(() => {
@@ -115,7 +115,7 @@
 </div>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
-<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	class="akui-input-base akui-typeahead-container {size} {variant} {className}"
 	class:disabled
@@ -124,10 +124,10 @@
 	aria-labelledby={label ? `${id}-label` : undefined}
 >
 	<ul class="akui-typeahead-badges" id="{id}-selected" aria-label="Selected items">
-		{#each selectedLabels as label, i}
+		{#each selectedLabels as label, i (label)}
 			<li class="akui-typeahead-item">
 				<Badge
-					label={label}
+					{label}
 					colour="auto"
 					size={size === 'large' ? 'medium' : 'small'}
 					onClose={() => removeValue(i)}
@@ -156,7 +156,7 @@
 </div>
 
 <datalist id="{id}-list">
-	{#each values as opt}
+	{#each values as opt (opt.label)}
 		<option value={opt.label}></option>
 	{/each}
 </datalist>
