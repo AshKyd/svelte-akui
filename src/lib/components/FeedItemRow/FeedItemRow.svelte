@@ -538,6 +538,7 @@
 		line-height: 1.3;
 		color: var(--akui-fg-secondary);
 		display: -webkit-box;
+		line-clamp: var(--title-clamp, 2);
 		-webkit-line-clamp: var(--title-clamp, 2);
 		-webkit-box-orient: vertical;
 		overflow: hidden;
@@ -559,6 +560,7 @@
 		color: var(--akui-fg-secondary);
 		line-height: 1.4;
 		display: -webkit-box;
+		line-clamp: var(--excerpt-clamp, 2);
 		-webkit-line-clamp: var(--excerpt-clamp, 2);
 		-webkit-box-orient: vertical;
 		overflow: hidden;

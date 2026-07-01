@@ -32,7 +32,9 @@
 		})
 	);
 
-	const tooltip = createTooltip({ position: tooltipPosition });
+	const tooltip = createTooltip({
+		get position() { return tooltipPosition; }
+	});
 </script>
 
 <time

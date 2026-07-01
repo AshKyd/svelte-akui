@@ -11,5 +11,14 @@
 		"strict": true,
 		"module": "ESNext",
 		"moduleResolution": "bundler"
-	}
+	},
+	"exclude": [
+		"./.svelte-kit",
+		"./node_modules",
+		"**/*.stories.svelte",
+		"**/*.stories.ts",
+		"**/*.stories.js",
+		"**/*.stories.tsx",
+		"**/*.stories.jsx"
+	]
 }
