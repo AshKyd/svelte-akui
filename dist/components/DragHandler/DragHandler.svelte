@@ -23,6 +23,8 @@
 		class: className = ''
 	}: Props = $props();
 
+	const id = 'akui-drag-' + Math.random().toString(36).slice(2, 9);
+
 	let isDragging = $state(false);
 	let startX = 0;
 	let startY = 0;
@@ -61,12 +63,44 @@
 		isDragging = false;
 		onDragEnd?.();
 	}
+
+	function handleKeyDown(event: KeyboardEvent) {
+		let deltaX = 0;
+		let deltaY = 0;
+		const step = 10;
+
+		if (orientation === 'vertical') {
+			if (event.key === 'ArrowLeft') {
+				deltaX = -step;
+			} else if (event.key === 'ArrowRight') {
+				deltaX = step;
+			} else {
+				return;
+			}
+		} else {
+			if (event.key === 'ArrowUp') {
+				deltaY = -step;
+			} else if (event.key === 'ArrowDown') {
+				deltaY = step;
+			} else {
+				return;
+			}
+		}
+
+		event.preventDefault();
+		onDragStart?.();
+		onDrag?.({
+			deltaX,
+			deltaY,
+			offsetX: deltaX,
+			offsetY: deltaY
+		});
+		onDragEnd?.();
+	}
 </script>
 
-<div
-	role="separator"
-	aria-valuenow={undefined}
-	tabindex="0"
+<button
+	type="button"
 	class="akui-drag-handler {orientation} {className}"
 	class:active={active || isDragging}
 	class:dragging={isDragging}
@@ -74,7 +108,13 @@
 	onpointermove={handlePointerMove}
 	onpointerup={handlePointerUp}
 	onpointercancel={handlePointerUp}
+	onkeydown={handleKeyDown}
+	aria-label="Resize"
+	aria-describedby="{id}-instructions"
 >
+	<span id="{id}-instructions" class="akui-sr-only">
+		{orientation === 'vertical' ? 'Use Left and Right arrow keys to resize' : 'Use Up and Down arrow keys to resize'}
+	</span>
 	<div class="akui-drag-visual-bar">
 		<div class="akui-drag-knob">
 			<span class="akui-drag-dot"></span>
@@ -82,7 +122,7 @@
 			<span class="akui-drag-dot"></span>
 		</div>
 	</div>
-</div>
+</button>
 
 <style>
 	.akui-drag-handler {
@@ -96,6 +136,14 @@
 		transition: background-color 0.2s ease, opacity 0.2s ease;
 		background-color: transparent;
 		z-index: 10;
+		border: none;
+		padding: 0;
+		outline: none;
+	}
+
+	.akui-drag-handler:focus-visible {
+		outline: 2px solid var(--akui-bg-accent, #2563eb);
+		outline-offset: -2px;
 	}
 
 	/* Layout directions (Increased interactive target size to 16px) */
@@ -220,5 +268,17 @@
 
 	.akui-drag-handler.dragging .akui-drag-dot {
 		background-color: var(--akui-bg-accent, #2563eb);
+	}
+
+	.akui-sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
 	}
 </style>

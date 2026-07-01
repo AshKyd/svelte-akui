@@ -203,13 +203,6 @@
 </Story>
 
 <style>
-	.demo-container {
-		display: flex;
-		flex-direction: column;
-		gap: var(--akui-space-m, 1rem);
-		padding-top: var(--akui-space-m, 1rem);
-		padding-bottom: var(--akui-space-m, 1rem);
-	}
 
 	.demo-instructions {
 		display: flex;

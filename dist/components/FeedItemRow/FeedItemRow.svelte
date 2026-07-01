@@ -593,9 +593,4 @@
 		margin-left: var(--akui-space-m);
 	}
 
-	.akui-feed-item-image img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
 </style>

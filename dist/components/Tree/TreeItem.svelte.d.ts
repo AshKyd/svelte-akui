@@ -1,4 +1,5 @@
 import { type Snippet } from 'svelte';
+import TreeItem from './TreeItem.svelte';
 export interface TreeItemData {
     id: string;
     label: string;

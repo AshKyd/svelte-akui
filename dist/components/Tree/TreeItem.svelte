@@ -2,6 +2,7 @@
 	import { type Snippet, getContext } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import Icon from '../Icon/Icon.svelte';
+	import TreeItem from './TreeItem.svelte';
 
 	export interface TreeItemData {
 		id: string;
@@ -54,7 +55,7 @@
 	function handleKeyDown(e: KeyboardEvent) {
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
-			handleSelect();
+			handleSelect(e);
 		}
 	}
 
@@ -221,8 +222,8 @@
 
 	{#if isFolder && isExpanded && hasChildren}
 		<ul role="group" class="akui-tree-group" transition:slide={{ duration: 200 }}>
-			{#each item.children || [] as child}
-				<svelte:self
+			{#each item.children || [] as child (child.id)}
+				<TreeItem
 					item={child}
 					depth={depth + 1}
 					parentId={item.id}
@@ -311,21 +312,6 @@
 		flex-shrink: 0;
 	}
 
-	.akui-tree-item-favicon {
-		width: 14px;
-		height: 14px;
-		border-radius: 2px;
-		overflow: hidden;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.akui-tree-item-favicon img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-	}
 
 	.akui-tree-chevron {
 		background: none;
