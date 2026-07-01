@@ -28,7 +28,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 - **`Masonry`**: A lightweight grid layout component that arranges items vertically based on their heights. Supports custom columns, grid gaps, and padding. Exposes a bindable `refreshLayout` method to manually trigger layout updates for dynamic content, an optional `allowResize` prop to conditionally enable or disable layout updates during container resizing transitions, and an `animate` prop (with configurable `transitionDuration` and `transitionEasing`) to transition items as they slide into place.
 - **`LayoutAdaptivePane`**: A generic component for building Canonical Layouts (List-Detail pattern). Uses `minWidth` and Svelte's `bind:clientWidth` to automatically adapt between a split (multi-pane) view on large screens and a stacked (single-pane) view on smaller screens, driven by the `baseRouteId` vs `currentRouteId`. On desktop, panes are resizable via an integrated visual drag handler. Supports custom width parameters (`mainPaneWidth`, `minMainPaneWidth`, `maxMainPaneWidth`) and an optional `hideNestedWhenEmpty` prop to collapse the detail pane on desktop when no item is selected, expanding it smoothly when navigated.
 - **`Table`**: A responsive, sortable tabular data grid. Accepts `data` and `columns` configurations, and provides a custom `cell` snippet for template customization. Features a shiny akui-glow header and a sunken/inverse-glow body for distinct button-group vs form-field styling.
-- **`DragHandler`**: A visual drag handler component supporting pointer events to handle dragging interactions. Offers high-quality visual feedback with modern hover and active styles. Used to build resizable interfaces such as sidebars or split pane views.
+- **`DragHandler`**: A visual drag handler component supporting pointer events to handle dragging interactions, along with keyboard navigation (arrow keys) for accessibility. Offers high-quality visual feedback with modern hover, focus, and active styles. Used to build resizable interfaces such as sidebars or split pane views.
 - **`NavigationBar`**: Bottom navigation container for mobile screen dimensions. Evenly spaces up to 5 `NavigationBarItem` components.
 - **`NavigationBarItem`**: Destination button inside the NavigationBar. Supports `label`, `icon`, `active` states, and `href`.
 - **`LayoutFocusShell`**: A responsive layout wrapper for authentication and wizard screens. On desktop viewports, it displays a centered card with a customizable background image, while on mobile devices, the card anchors to the bottom with configurable top spacing. It includes slide transitions for multi-step flows, loading overlays with a spinner, and supports custom background image configurations for light and dark modes.
@@ -296,3 +296,17 @@ When your grid contains dynamic or asynchronous content (such as images that cha
 	<!-- More items -->
 </Masonry>
 ```
+
+### 8. Settings Page Layout
+
+To lay out settings panels or dashboard configurations consistently across application screens, follow this structure:
+
+- **Constraint & Spacing**: Wrap the settings form elements in `<Padding size="l" y>` and `<LayoutContentWidth size="medium">`. This ensures that fields do not stretch awkwardly on wide viewports and remain centered.
+- **Sectioning**: Group related settings into logical groups using the `<ControlSection>` component. Provide a clear `title` and an illustrative `icon`.
+- **Grouping**: Nested within each `<ControlSection>`, wrap your control items inside a `<ControlGroup>` component. The `ControlGroup` automatically handles visual boundaries and draws dividers between items.
+- **Item Presentation**: Use `<ControlItemExpanded>` for individual settings items:
+  - Provide a concise `label` and a clear, plain-English `description`.
+  - For simple binary options, use a checkbox layout by setting `layout="horizontal"` and `controlType="checkbox"`, and binding `checked`.
+  - For complex controls (e.g. dropdowns, buttons, custom inputs, or list pickers), place them inside the default slot (children) of the component.
+- **Navigation**: Place a `<Header>` at the top of the settings viewport with a navigation action (e.g., a "Close" or "Back" arrow button) to allow users to navigate back to the main application context.
+
