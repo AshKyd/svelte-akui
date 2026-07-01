@@ -52,103 +52,98 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
-<li
-	role={onclick || controlType ? 'button' : 'none'}
-	tabindex={onclick || controlType ? 0 : -1}
-	class="akui-control-item-expanded-wrapper {className}"
-	class:interactive={onclick || controlType}
-	onclick={handleContainerClick}
-	onkeydown={(e) => {
-		const target = e.target as HTMLElement;
-		if (
-			target &&
-			(target.tagName === 'INPUT' ||
-				target.tagName === 'TEXTAREA' ||
-				target.tagName === 'SELECT' ||
-				target.isContentEditable)
-		) {
-			return;
-		}
-		if (e.key === ' ' || e.key === 'Enter') {
-			e.preventDefault();
-			checked = !checked;
-			if (onclick) onclick(new MouseEvent('click'));
-		}
-	}}
-	{...rest}
->
-	<Padding size="m" class="akui-control-item-expanded-inner">
-		<div
-			class="akui-control-item-expanded-container"
-			class:layout-horizontal={layout === 'horizontal'}
-			class:layout-vertical={layout === 'vertical'}
-		>
-			<div class="akui-control-item-expanded-header">
-				<div class="akui-control-item-expanded-label-group">
-					<span class="akui-control-item-expanded-label">{label}</span>
-					{#if description}
-						<Small class="akui-control-item-expanded-description">{description}</Small>
+<li role="none" class="akui-control-item-expanded-wrapper">
+	<svelte:element
+		this={onclick || controlType ? 'button' : 'div'}
+		type={onclick || controlType ? 'button' : undefined}
+		class="akui-control-item-expanded-content {className}"
+		class:interactive={onclick || controlType}
+		onclick={onclick || controlType ? handleContainerClick : undefined}
+		{...rest}
+	>
+		<Padding size="m" class="akui-control-item-expanded-inner">
+			<div
+				class="akui-control-item-expanded-container"
+				class:layout-horizontal={layout === 'horizontal'}
+				class:layout-vertical={layout === 'vertical'}
+			>
+				<div class="akui-control-item-expanded-header">
+					<div class="akui-control-item-expanded-label-group">
+						<span class="akui-control-item-expanded-label">{label}</span>
+						{#if description}
+							<Small class="akui-control-item-expanded-description">{description}</Small>
+						{/if}
+					</div>
+					{#if extraSnippet}
+						<div class="akui-control-item-expanded-extra">
+							{@render extraSnippet()}
+						</div>
+					{:else if extra}
+						<span class="akui-control-item-expanded-extra">{extra}</span>
 					{/if}
 				</div>
-				{#if extraSnippet}
-					<div class="akui-control-item-expanded-extra">
-						{@render extraSnippet()}
+
+				{#if children || controlType}
+					<div class="akui-control-item-expanded-control">
+						{#if children}
+							{@render children()}
+						{/if}
+						{#if controlType === 'checkbox'}
+							<input
+								type="checkbox"
+								class="akui-control-item-expanded-input"
+								bind:checked
+								onclick={(e) => e.stopPropagation()}
+							/>
+						{:else if controlType === 'radio'}
+							<input
+								type="radio"
+								class="akui-control-item-expanded-input"
+								checked={checked}
+								onclick={(e) => e.stopPropagation()}
+							/>
+						{/if}
 					</div>
-				{:else if extra}
-					<span class="akui-control-item-expanded-extra">{extra}</span>
 				{/if}
 			</div>
-
-			{#if children || controlType}
-				<div class="akui-control-item-expanded-control">
-					{#if children}
-						{@render children()}
-					{/if}
-					{#if controlType === 'checkbox'}
-						<input
-							type="checkbox"
-							class="akui-control-item-expanded-input"
-							bind:checked
-							onclick={(e) => e.stopPropagation()}
-						/>
-					{:else if controlType === 'radio'}
-						<input
-							type="radio"
-							class="akui-control-item-expanded-input"
-							checked={checked}
-							onclick={(e) => e.stopPropagation()}
-						/>
-					{/if}
-				</div>
-			{/if}
-		</div>
-	</Padding>
+		</Padding>
+	</svelte:element>
 </li>
 
 <style>
 	.akui-control-item-expanded-wrapper {
 		display: block;
 		list-style: none;
-		background: transparent;
-		color: var(--akui-fg);
-		outline: none;
 	}
 
-	.akui-control-item-expanded-wrapper.interactive {
+	.akui-control-item-expanded-content {
+		display: block;
+		width: 100%;
+		appearance: none;
+		background: transparent;
+		border: none;
+		padding: 0;
+		margin: 0;
+		color: var(--akui-fg);
+		text-align: left;
+		outline: none;
+		font-family: inherit;
+	}
+
+	.akui-control-item-expanded-content.interactive {
 		cursor: pointer;
 		transition: background-color 0.2s ease;
 	}
 
-	.akui-control-item-expanded-wrapper.interactive:hover {
+	.akui-control-item-expanded-content.interactive:hover {
 		background-color: var(--akui-bg-hover);
 	}
 
-	.akui-control-item-expanded-wrapper.interactive:active {
+	.akui-control-item-expanded-content.interactive:active {
 		background-color: var(--akui-bg-button-hover);
 	}
 
-	.akui-control-item-expanded-wrapper.interactive:focus-visible {
+	.akui-control-item-expanded-content.interactive:focus-visible {
 		background-color: var(--akui-bg-hover);
 		box-shadow: inset 0 0 0 2px var(--akui-bg-accent);
 	}
