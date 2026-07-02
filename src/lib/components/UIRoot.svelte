@@ -69,6 +69,18 @@
 			box-sizing: border-box;
 		}
 
+		/* Disable double-tap-to-zoom to eliminate click delay on mobile */
+		html,
+		body,
+		button,
+		a,
+		[role="button"],
+		input,
+		select,
+		textarea {
+			touch-action: manipulation;
+		}
+
 		/* 2. Remove default margin */
 		*:not(dialog) {
 			margin: 0;
