@@ -32,6 +32,10 @@
 		editor.updateValue(value);
 	});
 
+	/** Focuses the editor element. */
+	export function focus(collapseToStart = true) {
+		return editor.focus(collapseToStart);
+	}
 </script>
 
 <div class="akui-wysiwyg-container bespoke {className}">

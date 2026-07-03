@@ -103,6 +103,27 @@ export class WysiwygEditorController {
 		}
 	}
 
+	/**
+	 * Focuses the editor content editable element.
+	 */
+	focus(collapseToStart = true) {
+		if (!this.#node) return false;
+		const editorEl = this.#node.querySelector('[contenteditable="true"]') as HTMLElement | null;
+		if (editorEl) {
+			editorEl.focus();
+			const range = document.createRange();
+			const selection = window.getSelection();
+			if (selection) {
+				range.selectNodeContents(editorEl);
+				range.collapse(collapseToStart);
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+			return true;
+		}
+		return false;
+	}
+
 	#destroy() {
 		if (this.#crepeInstance) {
 			this.#crepeInstance.destroy();
