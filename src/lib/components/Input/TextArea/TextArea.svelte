@@ -44,11 +44,14 @@
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
 
 	let inputEl = $state<HTMLTextAreaElement>();
+	let clientWidth = $state<number>(0);
 
 	$effect(() => {
 		if (autosize && inputEl) {
-			// Create a reactive dependency on value
+			// Create a reactive dependency on value and clientWidth
 			const _ = value;
+			const __ = clientWidth;
+			
 			inputEl.style.height = 'auto';
 			inputEl.style.height = `${inputEl.scrollHeight}px`;
 		}
@@ -62,6 +65,7 @@
 
 <textarea
 	bind:this={inputEl}
+	bind:clientWidth={clientWidth}
 	class="akui-input-base {effectiveSize} {variant} {className}"
 	{placeholder}
 	bind:value
