@@ -72,6 +72,8 @@
 	{required}
 	{readonly}
 	{disabled}
+	rows={autosize ? 1 : undefined}
 	style:resize={autosize ? 'none' : undefined}
+	style:overflow={autosize ? 'hidden' : undefined}
 	{...rest}
 ></textarea>
