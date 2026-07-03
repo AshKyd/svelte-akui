@@ -18,6 +18,8 @@
 		readonly?: boolean;
 		/** Whether the field is disabled. */
 		disabled?: boolean;
+		/** Whether to automatically resize the height based on content. */
+		autosize?: boolean;
 		/** Additional CSS classes for the textarea. */
 		class?: string;
 		/** Spread remaining attributes to the textarea element. */
@@ -32,6 +34,7 @@
 		required = false,
 		disabled = false,
 		readonly = false,
+		autosize = false,
 		class: className = '',
 		...rest
 	}: Props = $props();
@@ -41,6 +44,15 @@
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
 
 	let inputEl = $state<HTMLTextAreaElement>();
+
+	$effect(() => {
+		if (autosize && inputEl) {
+			// Create a reactive dependency on value
+			const _ = value;
+			inputEl.style.height = 'auto';
+			inputEl.style.height = `${inputEl.scrollHeight}px`;
+		}
+	});
 
 	/** Focuses the textarea element. */
 	export function focus() {
@@ -56,5 +68,6 @@
 	{required}
 	{readonly}
 	{disabled}
+	style:resize={autosize ? 'none' : undefined}
 	{...rest}
 ></textarea>
