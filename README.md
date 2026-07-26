@@ -64,7 +64,6 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Header`**: A Top App Bar component. It provides three layout zones using the `navigation`, `title`, and `actions` snippets. Supports a `pinned` prop to set whether the bar remains sticky at the top of the viewport or scrolls away with the page.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box. Also supports stories without headings or tags (e.g., Mastodon RSS feeds), starting the excerpt text inline with the date and icon.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
-- **`FeedItemGroup`**: A container for displaying `FeedItemRow` components in a column or grid layout. Supports built-in dividers for columns and group-level snippet overrides for icons and images.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
 - **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), HTML5 drag-and-drop moves with built-in validation, and size options ('small', 'large') to match control styles.
 
@@ -86,11 +85,6 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Metadata row (`tag` and `time`) with custom alignment.
   - Semantic `<a>` tag wrapper with `active` and `focus` states.
   - Supports `layout="hero"` for top-aligned large thumbnails.
-
-- **`FeedItemGroup`**: A container for stacked or grid-based feed items.
-  - Supports `display` prop (`'column'` or `'grid'`).
-  - Manages dividers between items in column mode.
-  - Allows group-level `icon` and `image` snippet overrides for consistent branding (e.g., grayscale favicons).
 
 - **`DynamicImage`**: Smart image handling with smooth transitions.
   - Automatic `object-fit` selection based on container ratio.
