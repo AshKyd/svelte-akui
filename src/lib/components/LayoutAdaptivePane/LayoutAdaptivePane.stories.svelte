@@ -100,6 +100,7 @@
 		<h3>Seed Swap Table</h3>
 		<p style="font-size: 0.875rem; color: var(--akui-fg-secondary); margin-bottom: 1rem;">
 			Everything left on the trestle table after the village meeting. Take what you'll actually plant.
+			Click any seed to read its card, then click away from the card to put it back down.
 		</p>
 		<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem;">
 			{#each seedVarieties as seed (seed.id)}
@@ -163,6 +164,7 @@
 				baseRouteId="/seeds"
 				currentRouteId={seedRouteId}
 				{paneMode}
+				onDismiss={() => (seedRouteId = '/seeds')}
 				hideNestedWhenEmpty={true}
 				minWidth={600}
 				minMainPaneWidth={280}

@@ -16,6 +16,8 @@
 		hideNestedWhenEmpty?: boolean;
 		/** How the nested pane occupies space on desktop: 'resize' shrinks the main pane to make room, 'over' draws the nested pane on top of it. Defaults to 'resize'. */
 		paneMode?: 'resize' | 'over';
+		/** Called when a click lands outside the overlaid nested pane, in 'over' mode only. */
+		onDismiss?: () => void;
 		/** Snippet for the main pane (e.g. List). Passes transition state details. */
 		mainPane?: Snippet<[{ isStacked: boolean }]>;
 		/** Snippet for the nested pane (e.g. Detail/Reader). Passes transition state details. */
@@ -36,6 +38,7 @@
 		currentRouteId,
 		hideNestedWhenEmpty = false,
 		paneMode = 'resize',
+		onDismiss,
 		mainPane,
 		nestedPane,
 		mainPaneWidth = $bindable(400),
@@ -52,7 +55,9 @@
 	let isStacked = $derived(
 		containerWidth > 0
 			? containerWidth < minWidth
-			: (typeof window !== 'undefined' ? window.innerWidth < minWidth : false)
+			: typeof window !== 'undefined'
+				? window.innerWidth < minWidth
+				: false
 	);
 	let isBaseRoute = $derived(currentRouteId === baseRouteId);
 
@@ -106,6 +111,40 @@
 		};
 	});
 
+	let nestedEl = $state<HTMLElement | null>(null);
+	let dividerEl = $state<HTMLElement | null>(null);
+
+	/**
+	 * Whether the click currently in flight should dismiss the overlay.
+	 *
+	 * Decided on pointerdown, in the capture phase, because both things it depends on have already
+	 * changed by the time a bubbled click arrives. The list item that opens the pane has run its own
+	 * handler, so the pane reads as open and the very click that opened it would close it again; and
+	 * a drag that selects text inside the pane but releases outside reports the outside element as
+	 * the click target.
+	 */
+	let gestureCanDismiss = false;
+
+	function handleWindowPointerDownCapture(event: PointerEvent) {
+		// composedPath is only meaningful during dispatch, and unlike contains() it still resolves
+		// for nodes this gesture goes on to remove from the DOM.
+		const path = event.composedPath();
+		gestureCanDismiss =
+			isOverlay &&
+			!isBaseRoute &&
+			!shouldHideNested &&
+			!(nestedEl && path.includes(nestedEl)) &&
+			!(dividerEl && path.includes(dividerEl));
+	}
+
+	function handleWindowClick() {
+		const shouldDismiss = gestureCanDismiss;
+		// Keyboard-activated clicks arrive with no pointerdown before them, so clear the flag on every
+		// click or a stale gesture would dismiss on the next one.
+		gestureCanDismiss = false;
+		if (shouldDismiss) onDismiss?.();
+	}
+
 	let dragStartWidth = 0;
 
 	function handleDragStart() {
@@ -115,9 +154,17 @@
 
 	function handleDrag(detail: { offsetX: number }) {
 		const maxAllowedWidth = Math.min(maxMainPaneWidth, containerWidth - minNestedPaneWidth);
-		mainPaneWidth = Math.max(minMainPaneWidth, Math.min(maxAllowedWidth, dragStartWidth + detail.offsetX));
+		mainPaneWidth = Math.max(
+			minMainPaneWidth,
+			Math.min(maxAllowedWidth, dragStartWidth + detail.offsetX)
+		);
 	}
 </script>
+
+<svelte:window
+	onpointerdowncapture={onDismiss ? handleWindowPointerDownCapture : undefined}
+	onclick={onDismiss ? handleWindowClick : undefined}
+/>
 
 {#snippet divider()}
 	<DragHandler
@@ -150,7 +197,7 @@
 	{#if !isStacked && !shouldHideNested}
 		{#if isOverlay}
 			<!-- Floated out of the flex flow so it can sit on the overlay's leading edge. -->
-			<div class="akui-pane-divider-floating">
+			<div class="akui-pane-divider-floating" bind:this={dividerEl}>
 				{@render divider()}
 			</div>
 		{:else}
@@ -160,6 +207,7 @@
 
 	<div
 		class="akui-pane-nested"
+		bind:this={nestedEl}
 		class:active={!isBaseRoute}
 		inert={(isStacked && isBaseRoute) || shouldHideNested ? true : undefined}
 	>
@@ -167,7 +215,9 @@
 			{#key currentRouteId}
 				<div
 					class="akui-pane-nested-transition-wrapper"
-					in:fly={prefersReducedMotion ? { duration: 0 } : { x: -50, duration: 250, easing: cubicOut }}
+					in:fly={prefersReducedMotion
+						? { duration: 0 }
+						: { x: -50, duration: 250, easing: cubicOut }}
 					out:fade={prefersReducedMotion ? { duration: 0 } : { duration: 150 }}
 				>
 					{@render nestedPane?.({ isStacked })}
@@ -204,7 +254,10 @@
 	}
 
 	.akui-layout-adaptive-pane.is-ready .akui-pane-main {
-		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-right-color 0.3s ease;
+		transition:
+			width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			border-right-color 0.3s ease;
 	}
 
 	.akui-pane-nested {
@@ -218,7 +271,9 @@
 	}
 
 	.akui-layout-adaptive-pane.is-ready .akui-pane-nested {
-		transition: flex 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		transition:
+			flex 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.akui-layout-adaptive-pane:not(.is-stacked) .akui-pane-nested {
@@ -270,7 +325,9 @@
 
 	.akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-main,
 	.akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-nested {
-		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+		transition:
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 0.3s ease;
 	}
 
 	.akui-layout-adaptive-pane.is-stacked .akui-pane-main {
@@ -320,7 +377,10 @@
 	}
 
 	.akui-layout-adaptive-pane.is-ready.is-overlay .akui-pane-nested {
-		transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		transition:
+			left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+			opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	/* Slides away to the right rather than collapsing, so the pane underneath never reflows. */
@@ -361,7 +421,10 @@
 		}
 		.akui-pane-main,
 		.akui-pane-nested {
-			transition: opacity 0.2s ease, max-width 0.2s ease, flex 0.2s ease !important;
+			transition:
+				opacity 0.2s ease,
+				max-width 0.2s ease,
+				flex 0.2s ease !important;
 		}
 		.akui-pane-divider-floating {
 			transition: none !important;
