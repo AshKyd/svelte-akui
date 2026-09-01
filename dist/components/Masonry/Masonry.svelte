@@ -59,79 +59,97 @@
 	let hasCalculated = $state(false);
 
 	const refresh = async () => {
-		grids.forEach(async (grid) => {
-			const style = getComputedStyle(grid._el);
-			const gap = parseFloat(style.gridRowGap || style.gap || '0');
-			const cols = style.gridTemplateColumns.split(' ');
-			const ncol = cols.length;
-			const colWidth = parseFloat(cols[0]);
+		if (masonryElement && getComputedStyle(masonryElement).gridTemplateRows !== 'masonry') {
+			grids = [
+				{
+					_el: masonryElement,
+					gap: parseFloat(getComputedStyle(masonryElement).gridRowGap || '0'),
+					items: Array.from(masonryElement.childNodes).filter(
+						(c): c is HTMLElement =>
+							c.nodeType === 1 && Number(getComputedStyle(c as HTMLElement).gridColumnEnd) !== -1
+					),
+					ncol: 0,
+					mod: 0
+				}
+			];
+		}
 
-			if (!ncol || isNaN(ncol) || grid.items.length === 0) {
-				grid._el.style.removeProperty('height');
-				return;
-			}
+		await Promise.all(
+			grids.map(async (grid) => {
+				const style = getComputedStyle(grid._el);
+				const gap = parseFloat(style.gridRowGap || style.gap || '0');
+				const cols = style.gridTemplateColumns.split(' ');
+				const ncol = cols.length;
+				const colWidth = parseFloat(cols[0]);
 
-			// Calculate widths and offsets relative to the padding boundary
-			const containerWidthVal = grid._el.getBoundingClientRect().width;
-			const paddingLeft = parseFloat(style.paddingLeft || '0');
-			const paddingRight = parseFloat(style.paddingRight || '0');
-			const paddingTop = parseFloat(style.paddingTop || '0');
-			const paddingBottom = parseFloat(style.paddingBottom || '0');
-
-			const contentWidth = containerWidthVal - paddingLeft - paddingRight;
-			const totalGridWidth = ncol * colWidth + (ncol - 1) * gap;
-			const remainingSpace = Math.max(0, contentWidth - totalGridWidth);
-			const justifyContent = style.justifyContent || 'center';
-
-			const leftOffset = justifyContent.includes('center')
-				? remainingSpace / 2
-				: justifyContent.includes('end') || justifyContent.includes('right')
-					? remainingSpace
-					: 0;
-
-			// Set width on all items first so they wrap content at the correct column width
-			grid.items.forEach((item) => {
-				item.style.width = `${colWidth}px`;
-			});
-
-			// Wait for Svelte / browser layout to apply widths before measuring
-			await tick();
-
-			// Layout items in memory by assigning each to the shortest column
-			const colHeights = new Array(ncol).fill(0);
-			const placements = grid.items.map((item) => {
-				let minCol = 0;
-				let minHeight = colHeights[0];
-				for (let col = 1; col < ncol; col++) {
-					if (colHeights[col] < minHeight) {
-						minHeight = colHeights[col];
-						minCol = col;
-					}
+				if (!ncol || isNaN(ncol) || grid.items.length === 0) {
+					grid._el.style.removeProperty('height');
+					return;
 				}
 
-				const height = item.getBoundingClientRect().height;
-				const left = leftOffset + minCol * (colWidth + gap);
-				const top = colHeights[minCol];
+				// Calculate widths and offsets relative to the padding boundary
+				const containerWidthVal = grid._el.getBoundingClientRect().width;
+				const paddingLeft = parseFloat(style.paddingLeft || '0');
+				const paddingRight = parseFloat(style.paddingRight || '0');
+				const paddingTop = parseFloat(style.paddingTop || '0');
+				const paddingBottom = parseFloat(style.paddingBottom || '0');
 
-				colHeights[minCol] = top + height + gap;
+				const contentWidth = containerWidthVal - paddingLeft - paddingRight;
+				const totalGridWidth = ncol * colWidth + (ncol - 1) * gap;
+				const remainingSpace = Math.max(0, contentWidth - totalGridWidth);
+				const justifyContent = style.justifyContent || 'center';
 
-				return { item, left, top };
-			});
+				const leftOffset = justifyContent.includes('center')
+					? remainingSpace / 2
+					: justifyContent.includes('end') || justifyContent.includes('right')
+						? remainingSpace
+						: 0;
 
-			// Write calculated positions to DOM in one batch
-			placements.forEach(({ item, left, top }) => {
-				item.style.left = `${left}px`;
-				item.style.top = `${top}px`;
-			});
+				// Set width on all items first so they wrap content at the correct column width
+				grid.items.forEach((item) => {
+					item.style.width = `${colWidth}px`;
+				});
 
-			// Constrain container height to match the tallest column
-			const maxColHeight = Math.max(...colHeights);
-			const containerHeight = Math.max(0, maxColHeight - gap) + paddingTop + paddingBottom;
-			grid._el.style.height = `${containerHeight}px`;
+				// Wait for Svelte / browser layout to apply widths before measuring
+				await tick();
+				void grid._el.offsetHeight;
 
-			// Mark as calculated so transitions can run smoothly on subsequent updates
-			hasCalculated = true;
-		});
+				// Layout items in memory by assigning each to the shortest column
+				const colHeights = new Array(ncol).fill(0);
+				const placements = grid.items.map((item) => {
+					let minCol = 0;
+					let minHeight = colHeights[0];
+					for (let col = 1; col < ncol; col++) {
+						if (colHeights[col] < minHeight) {
+							minHeight = colHeights[col];
+							minCol = col;
+						}
+					}
+
+					const height = item.getBoundingClientRect().height || item.offsetHeight;
+					const left = leftOffset + minCol * (colWidth + gap);
+					const top = colHeights[minCol];
+
+					colHeights[minCol] = top + height + gap;
+
+					return { item, left, top };
+				});
+
+				// Write calculated positions to DOM in one batch
+				placements.forEach(({ item, left, top }) => {
+					item.style.left = `${left}px`;
+					item.style.top = `${top}px`;
+				});
+
+				// Constrain container height to match the tallest column
+				const maxColHeight = Math.max(...colHeights);
+				const containerHeight = Math.max(0, maxColHeight - gap) + paddingTop + paddingBottom;
+				grid._el.style.height = `${containerHeight}px`;
+
+				// Mark as calculated so transitions can run smoothly on subsequent updates
+				hasCalculated = true;
+			})
+		);
 	};
 
 	// Expose the layout refresh function to parents
