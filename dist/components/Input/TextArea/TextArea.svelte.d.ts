@@ -14,6 +14,8 @@ export interface Props {
     readonly?: boolean;
     /** Whether the field is disabled. */
     disabled?: boolean;
+    /** Whether to automatically resize the height based on content. */
+    autosize?: boolean;
     /** Additional CSS classes for the textarea. */
     class?: string;
     /** Spread remaining attributes to the textarea element. */

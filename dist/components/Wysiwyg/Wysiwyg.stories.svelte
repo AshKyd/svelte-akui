@@ -12,6 +12,14 @@
 	<Wysiwyg value="Hello, Milkdown Crepe!" />
 </Story>
 
+<Story name="Empty (No Placeholder)">
+	<Wysiwyg value="" />
+</Story>
+
+<Story name="Custom Placeholder">
+	<Wysiwyg value="" placeholder="Write your thoughts here..." />
+</Story>
+
 <Story name="Cosy Fantasy Notice Board">
 	<Wysiwyg
 		value={`# The Hearthside Chronicle

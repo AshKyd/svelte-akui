@@ -10,7 +10,8 @@
 	interface Props {
 		/** Bindable current value of the editor. */
 		value?: string;
-
+		/** Optional placeholder text displayed when editor is empty. Defaults to empty string. */
+		placeholder?: string;
 		/** Callback when content changes. */
 		onchange?: (value: string) => void;
 		/** Custom loader snippet. If not provided, falls back to the default Loader. */
@@ -19,10 +20,16 @@
 		class?: string;
 	}
 
-	let { value = $bindable(''), onchange, loader, class: className = '' }: Props = $props();
+	let {
+		value = $bindable(''),
+		placeholder = '',
+		onchange,
+		loader,
+		class: className = ''
+	}: Props = $props();
 
 	// Instantiate the controller to manage the editor state and lifecycle
-	const editor = new WysiwygEditorController(value, (markdown) => {
+	const editor = new WysiwygEditorController(value, placeholder, (markdown) => {
 		value = markdown;
 		onchange?.(markdown);
 	});
@@ -32,6 +39,10 @@
 		editor.updateValue(value);
 	});
 
+	/** Focuses the editor element. */
+	export function focus(collapseToStart = true) {
+		return editor.focus(collapseToStart);
+	}
 </script>
 
 <div class="akui-wysiwyg-container bespoke {className}">
@@ -173,6 +184,12 @@
 			var(--akui-shadow-shiny),
 			0 4px 12px rgba(0, 0, 0, 0.15) !important;
 		transition: var(--akui-transition-theme);
+	}
+
+	/* Style Crepe placeholder to match svelte-akui placeholder design token */
+	.akui-wysiwyg-container :global(.milkdown .crepe-placeholder::before) {
+		color: var(--akui-fg-placeholder) !important;
+		opacity: 1 !important;
 	}
 
 	/* Prevent horizontal scrollbars inside the slash menu list dropdown container */

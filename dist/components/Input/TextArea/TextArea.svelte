@@ -18,6 +18,8 @@
 		readonly?: boolean;
 		/** Whether the field is disabled. */
 		disabled?: boolean;
+		/** Whether to automatically resize the height based on content. */
+		autosize?: boolean;
 		/** Additional CSS classes for the textarea. */
 		class?: string;
 		/** Spread remaining attributes to the textarea element. */
@@ -32,6 +34,7 @@
 		required = false,
 		disabled = false,
 		readonly = false,
+		autosize = false,
 		class: className = '',
 		...rest
 	}: Props = $props();
@@ -41,6 +44,18 @@
 	const effectiveSize = $derived.by(() => size ?? inheritedSize);
 
 	let inputEl = $state<HTMLTextAreaElement>();
+	let clientWidth = $state<number>(0);
+
+	$effect(() => {
+		if (autosize && inputEl) {
+			// Create a reactive dependency on value and clientWidth
+			const _ = value;
+			const __ = clientWidth;
+			
+			inputEl.style.height = 'auto';
+			inputEl.style.height = `${inputEl.scrollHeight}px`;
+		}
+	});
 
 	/** Focuses the textarea element. */
 	export function focus() {
@@ -50,11 +65,15 @@
 
 <textarea
 	bind:this={inputEl}
+	bind:clientWidth={clientWidth}
 	class="akui-input-base {effectiveSize} {variant} {className}"
 	{placeholder}
 	bind:value
 	{required}
 	{readonly}
 	{disabled}
+	rows={autosize ? 1 : undefined}
+	style:resize={autosize ? 'none' : undefined}
+	style:overflow={autosize ? 'hidden' : undefined}
 	{...rest}
 ></textarea>

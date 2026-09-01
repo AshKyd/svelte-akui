@@ -12,10 +12,12 @@ export class WysiwygEditorController {
 	#replaceAllFn: any = null;
 	#onChange: (val: string) => void;
 	#value = '';
+	#placeholder = '';
 	#node = $state<HTMLElement | null>(null);
 
-	constructor(initialValue: string, onChange: (val: string) => void) {
+	constructor(initialValue: string, placeholder: string = '', onChange: (val: string) => void) {
 		this.#value = initialValue;
+		this.#placeholder = placeholder;
 		this.#onChange = onChange;
 	}
 
@@ -69,11 +71,16 @@ export class WysiwygEditorController {
 				root: node,
 				defaultValue: this.#value,
 				features: {
-					[Crepe.Feature.BlockEdit]: false
+					[Crepe.Feature.BlockEdit]: false,
+					[Crepe.Feature.Placeholder]: Boolean(this.#placeholder)
 				},
 				featureConfigs: {
 					[Crepe.Feature.Cursor]: {
 						virtual: false
+					},
+					[Crepe.Feature.Placeholder]: {
+						text: this.#placeholder || '',
+						mode: 'doc'
 					}
 				}
 			});

@@ -9,9 +9,11 @@ export class WysiwygEditorController {
     #replaceAllFn = null;
     #onChange;
     #value = '';
+    #placeholder = '';
     #node = $state(null);
-    constructor(initialValue, onChange) {
+    constructor(initialValue, placeholder = '', onChange) {
         this.#value = initialValue;
+        this.#placeholder = placeholder;
         this.#onChange = onChange;
     }
     /**
@@ -58,11 +60,16 @@ export class WysiwygEditorController {
                 root: node,
                 defaultValue: this.#value,
                 features: {
-                    [Crepe.Feature.BlockEdit]: false
+                    [Crepe.Feature.BlockEdit]: false,
+                    [Crepe.Feature.Placeholder]: Boolean(this.#placeholder)
                 },
                 featureConfigs: {
                     [Crepe.Feature.Cursor]: {
                         virtual: false
+                    },
+                    [Crepe.Feature.Placeholder]: {
+                        text: this.#placeholder || '',
+                        mode: 'doc'
                     }
                 }
             });
@@ -87,6 +94,27 @@ export class WysiwygEditorController {
             this.loadError = true;
             this.loading = false;
         }
+    }
+    /**
+     * Focuses the editor content editable element.
+     */
+    focus(collapseToStart = true) {
+        if (!this.#node)
+            return false;
+        const editorEl = this.#node.querySelector('[contenteditable="true"]');
+        if (editorEl) {
+            editorEl.focus();
+            const range = document.createRange();
+            const selection = window.getSelection();
+            if (selection) {
+                range.selectNodeContents(editorEl);
+                range.collapse(collapseToStart);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+            return true;
+        }
+        return false;
     }
     #destroy() {
         if (this.#crepeInstance) {

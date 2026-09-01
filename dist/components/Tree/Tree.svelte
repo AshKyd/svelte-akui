@@ -56,8 +56,8 @@
 		get hoveredItemId() { return dragContext.hoveredItemId; },
 		set hoveredItemId(val) { dragContext.hoveredItemId = val; },
 		get draggable() { return draggable; },
-		onDragOver,
-		onDrop
+		get onDragOver() { return onDragOver; },
+		get onDrop() { return onDrop; }
 	});
 
 	function handleToggle(id: string) {
@@ -139,7 +139,7 @@
 	class:dragging={dragContext.activeDragId !== null}
 	onkeydown={handleKeyDown}
 >
-	{#each items as item}
+	{#each items as item (item.id)}
 		<TreeItem
 			{item}
 			{expanded}

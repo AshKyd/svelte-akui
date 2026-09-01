@@ -7,7 +7,7 @@ export declare class WysiwygEditorController {
     #private;
     loading: boolean;
     loadError: boolean;
-    constructor(initialValue: string, onChange: (val: string) => void);
+    constructor(initialValue: string, placeholder: string | undefined, onChange: (val: string) => void);
     /**
      * Svelte Action to bind the editor to a DOM element container.
      */
@@ -20,4 +20,8 @@ export declare class WysiwygEditorController {
      * Retries the editor initialization process.
      */
     retry(): void;
+    /**
+     * Focuses the editor content editable element.
+     */
+    focus(collapseToStart?: boolean): boolean;
 }

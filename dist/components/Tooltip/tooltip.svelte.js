@@ -3,12 +3,14 @@
  * Returns reactive state and event handlers to be applied to a trigger element.
  */
 export function createTooltip(options = {}) {
-    const { position: preferredPosition = 'auto', offset = 8, touchOffset = 24 } = options;
     let visible = $state(false);
     let x = $state(0);
     let y = $state(0);
     let currentPosition = $state('top');
     function updatePosition(node, isTouch = false) {
+        const preferredPosition = options.position ?? 'auto';
+        const offset = options.offset ?? 8;
+        const touchOffset = options.touchOffset ?? 24;
         const rect = node.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;

@@ -8,6 +8,10 @@ interface Props {
     currentRouteId: string;
     /** Whether to hide the nested pane on desktop when no item is selected (i.e. at base route). Defaults to false. */
     hideNestedWhenEmpty?: boolean;
+    /** How the nested pane occupies space on desktop: 'resize' shrinks the main pane to make room, 'over' draws the nested pane on top of it. Defaults to 'resize'. */
+    paneMode?: 'resize' | 'over';
+    /** Called when a click lands outside the overlaid nested pane, in 'over' mode only. */
+    onDismiss?: () => void;
     /** Snippet for the main pane (e.g. List). Passes transition state details. */
     mainPane?: Snippet<[{
         isStacked: boolean;
@@ -16,7 +20,7 @@ interface Props {
     nestedPane?: Snippet<[{
         isStacked: boolean;
     }]>;
-    /** Bindable width (in pixels) for the main pane on desktop. Defaults to 400. */
+    /** Bindable position (in pixels) of the divider on desktop. In 'resize' mode this is the main pane's width; in 'over' mode the main pane stays full width and this is where the nested pane's left edge sits. Defaults to 400. */
     mainPaneWidth?: number;
     /** Minimum allowed width for the main pane. Defaults to 400. */
     minMainPaneWidth?: number;
