@@ -39,8 +39,6 @@
 		import: 'default'
 	});
 
-	console.log(`[Akui] Found ${Object.keys(iconModules).length} icons in glob.`);
-
 	let svgContent = $state<string | null>(null);
 
 	$effect(() => {

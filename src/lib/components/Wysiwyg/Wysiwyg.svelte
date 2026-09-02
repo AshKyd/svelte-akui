@@ -121,7 +121,7 @@
 		--crepe-color-primary: var(--akui-bg-accent);
 		--crepe-color-secondary: var(--akui-bg-button);
 		--crepe-color-on-secondary: var(--akui-fg-button);
-		--crepe-color-inline-code: var(--akui-color-orange-fg);
+		--crepe-color-inline-code: var(--akui-fg);
 		--crepe-color-hover: var(--akui-bg-hover);
 		--crepe-color-selected: var(--akui-bg-hover);
 
@@ -138,6 +138,40 @@
 		width: 100%;
 		max-width: 100%;
 		box-sizing: border-box;
+	}
+
+	/* Text selection styling using system Highlight and HighlightText */
+	.akui-wysiwyg-container ::selection,
+	.akui-wysiwyg-container :global(::selection),
+	.akui-wysiwyg-container :global(*::selection) {
+		background-color: Highlight !important;
+		color: HighlightText !important;
+	}
+
+	/* Code styling matching svelte-akui design tokens */
+	.akui-wysiwyg-container :global(.milkdown code) {
+		font-family: monospace;
+		font-size: 0.9em;
+		background-color: var(--akui-bg-secondary);
+		color: var(--akui-fg);
+		border-radius: var(--akui-radius-s);
+		padding: 0.2em 0.4em;
+	}
+
+	.akui-wysiwyg-container :global(.milkdown pre) {
+		background-color: var(--akui-bg-secondary) !important;
+		border: 1px solid var(--akui-border-input) !important;
+		border-radius: var(--akui-radius-m) !important;
+		color: var(--akui-fg) !important;
+		padding: 1rem !important;
+		overflow-x: auto;
+	}
+
+	.akui-wysiwyg-container :global(.milkdown pre code) {
+		background: transparent !important;
+		padding: 0 !important;
+		border-radius: 0 !important;
+		color: inherit !important;
 	}
 
 	/* Reset default block indentation inside the editor content area */
