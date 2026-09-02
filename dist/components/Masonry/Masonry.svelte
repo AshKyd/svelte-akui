@@ -312,7 +312,6 @@
 			originSlotElement.style.height = `${itemHeight}px`;
 			originSlotElement.style.left = `${draggedStartLeft}px`;
 			originSlotElement.style.top = `${draggedStartTop}px`;
-			originSlotElement.style.display = 'block';
 		}
 
 		// Anchor scale transform around the exact pointer grab location
@@ -339,7 +338,10 @@
 			currentDropTargetItem.classList.remove('akui-masonry-drop-target');
 		}
 		if (originSlotElement) {
-			originSlotElement.style.display = 'none';
+			originSlotElement.style.removeProperty('width');
+			originSlotElement.style.removeProperty('height');
+			originSlotElement.style.removeProperty('left');
+			originSlotElement.style.removeProperty('top');
 		}
 		isDragging = false;
 		isSettling = false;
@@ -442,7 +444,10 @@
 				currentDropTargetItem.classList.remove('akui-masonry-drop-target');
 			}
 			if (originSlotElement) {
-				originSlotElement.style.display = 'none';
+				originSlotElement.style.removeProperty('width');
+				originSlotElement.style.removeProperty('height');
+				originSlotElement.style.removeProperty('left');
+				originSlotElement.style.removeProperty('top');
 			}
 
 			// Rearrange all cards into their new layout order ON DROP
@@ -780,7 +785,7 @@
 	<div
 		bind:this={originSlotElement}
 		class="akui-masonry-origin-slot"
-		style={isDragging ? 'display: block;' : 'display: none;'}
+		aria-hidden="true"
 	></div>
 
 	{#if items && itemSnippet}
@@ -826,17 +831,29 @@
 		cursor: grabbing;
 	}
 	.akui-masonry > :global(*.akui-masonry-drop-target) {
-		outline: 2px dashed var(--akui-accent, #5046e5) !important;
-		outline-offset: -2px;
-		opacity: 0.65;
-		transition: outline 120ms ease, opacity 120ms ease;
+		border: 2px dashed var(--akui-border-subtle, rgba(128, 128, 128, 0.4)) !important;
+		background: var(--akui-bg-secondary, rgba(128, 128, 128, 0.08)) !important;
+		border-radius: var(--akui-radius-m, 8px) !important;
+		box-sizing: border-box !important;
+		box-shadow: none !important;
+	}
+	.akui-masonry > :global(*.akui-masonry-drop-target > *) {
+		opacity: 0 !important;
+		visibility: hidden !important;
+		pointer-events: none !important;
 	}
 	.akui-masonry > :global(*.akui-masonry-origin-slot) {
+		display: none;
+		position: absolute;
 		border: 2px dashed var(--akui-border-subtle, rgba(128, 128, 128, 0.4));
 		background: var(--akui-bg-secondary, rgba(128, 128, 128, 0.08));
 		border-radius: var(--akui-radius-m, 8px);
 		box-sizing: border-box;
 		pointer-events: none;
 		z-index: 1;
+		transition: none !important;
+	}
+	.akui-masonry-is-dragging > :global(*.akui-masonry-origin-slot) {
+		display: block;
 	}
 </style>
