@@ -161,3 +161,29 @@
 		</Masonry>
 	</LayoutContentWidth>
 </Story>
+
+<Story name="Reorderable Grid">
+	{@const reorderItems = [...mockItems]}
+	<LayoutContentWidth size="large" style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;">
+		<p style="margin: 0; color: var(--akui-text-subtle); font-size: 0.9rem;">
+			Click and drag any card to hover over another card. The destination card highlights with a dotted outline. Releasing rearranges the grid once on drop.
+		</p>
+		<Masonry
+			animate={true}
+			reorderable={true}
+			items={reorderItems}
+			bind:refreshLayout={refreshLayout}
+		>
+			{#snippet itemSnippet(item)}
+				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s); cursor: grab;">
+					<FeedItemRow
+						{...item}
+						layout="hero"
+						fit="cover"
+						ratio="16 / 9"
+					/>
+				</div>
+			{/snippet}
+		</Masonry>
+	</LayoutContentWidth>
+</Story>
