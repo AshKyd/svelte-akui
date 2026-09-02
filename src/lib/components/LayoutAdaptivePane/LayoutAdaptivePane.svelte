@@ -194,15 +194,8 @@
 		{@render mainPane?.({ isStacked })}
 	</div>
 
-	{#if !isStacked && !shouldHideNested}
-		{#if isOverlay}
-			<!-- Floated out of the flex flow so it can sit on the overlay's leading edge. -->
-			<div class="akui-pane-divider-floating" bind:this={dividerEl}>
-				{@render divider()}
-			</div>
-		{:else}
-			{@render divider()}
-		{/if}
+	{#if !isStacked && !isOverlay && !shouldHideNested}
+		{@render divider()}
 	{/if}
 
 	<div
@@ -211,6 +204,13 @@
 		class:active={!isBaseRoute}
 		inert={(isStacked && isBaseRoute) || shouldHideNested ? true : undefined}
 	>
+		{#if isOverlay && !isStacked}
+			<!-- Floated on the leading edge of the overlay pane so it animates in and out with it. -->
+			<div class="akui-pane-divider-overlay" bind:this={dividerEl}>
+				{@render divider()}
+			</div>
+		{/if}
+
 		{#if !isStacked}
 			{#key currentRouteId}
 				<div
@@ -370,6 +370,7 @@
 		border-left: 1px solid var(--akui-border-input, #e5e7eb);
 		box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
 		transform: translate3d(0, 0, 0);
+		overflow: visible;
 	}
 
 	:global([data-theme='dark']) .akui-layout-adaptive-pane.is-overlay .akui-pane-nested {
@@ -390,26 +391,23 @@
 		pointer-events: none;
 	}
 
-	/* A zero-width strip on the seam: the handle's own -8px side margins straddle
-	   it, exactly as they do when it is a flex child between the two panes. */
-	.akui-pane-divider-floating {
+	/* A zero-width strip on the overlay pane's leading seam: the handle's own -8px
+	   side margins straddle it. By sitting inside the nested pane, it travels with
+	   the slide transition instead of appearing statically at the resting split. */
+	.akui-pane-divider-overlay {
 		position: absolute;
 		top: 0;
 		bottom: 0;
-		left: var(--akui-split);
+		left: 0;
 		width: 0;
 		z-index: 20;
-	}
-
-	.akui-layout-adaptive-pane.is-ready.is-overlay .akui-pane-divider-floating {
-		transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	/* While dragging, the seam has to track the pointer frame for frame — easing
 	   between positions reads as lag. */
 	.akui-layout-adaptive-pane.is-dragging .akui-pane-main,
 	.akui-layout-adaptive-pane.is-dragging .akui-pane-nested,
-	.akui-layout-adaptive-pane.is-dragging .akui-pane-divider-floating {
+	.akui-layout-adaptive-pane.is-dragging .akui-pane-divider-overlay {
 		transition: none;
 	}
 
@@ -426,7 +424,7 @@
 				max-width 0.2s ease,
 				flex 0.2s ease !important;
 		}
-		.akui-pane-divider-floating {
+		.akui-pane-divider-overlay {
 			transition: none !important;
 		}
 	}
