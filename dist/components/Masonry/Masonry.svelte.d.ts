@@ -9,6 +9,7 @@
      */
 import { type Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
+import { type DragPayload } from '../../hooks/dropManager.svelte.js';
 declare function $$render<T = any>(): {
     props: HTMLAttributes<HTMLDivElement> & {
         /** Spacing between grid items */
@@ -43,6 +44,8 @@ declare function $$render<T = any>(): {
         dragHandleSelector?: string;
         /** Touch hold duration in milliseconds before initiating drag on touch devices. Defaults to 350. */
         longPressDelay?: number;
+        /** Optional callback to construct a DragPayload for global drop targets */
+        getDragPayload?: (item: T, index: number) => DragPayload;
         /** Callback invoked when an item is successfully dropped into a new position. */
         onreorder?: (detail: {
             fromIndex: number;

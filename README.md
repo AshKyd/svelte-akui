@@ -66,7 +66,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box. Also supports stories without headings or tags (e.g., Mastodon RSS feeds), starting the excerpt text inline with the date and icon.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
-- **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), HTML5 drag-and-drop moves with built-in validation, and size options ('small', 'large') to match control styles.
+- **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), HTML5 drag-and-drop moves with built-in validation, global drop target integration via `canDropPayload` and `onDropPayload`, and size options ('small', 'large') to match control styles.
+- **`DropTarget`**: A generic drop target container and element attachment (`dropTarget()`) for accepting drag-and-drop payloads anywhere in an application. Coordinates with global drags (including `Masonry` items) via `DropManager`. Exposes `canDrop` to filter payloads, `ondrop` to handle dropped items, and reactive hover states (`isOver`, `canDrop`, `isDragging`). Can be used via `<DropTarget>` or directly on elements with the `{@attach target.attach}` attachment.
 
 ### Media & Lists
 

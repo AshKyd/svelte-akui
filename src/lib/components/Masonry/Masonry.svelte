@@ -12,6 +12,8 @@
 	import { onMount, tick, type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 
+	import { getDropManager, type DragPayload } from '../../hooks/dropManager.svelte.js';
+
 	interface GridInfo {
 		_el: HTMLElement;
 		gap: number;
@@ -53,6 +55,8 @@
 		dragHandleSelector?: string;
 		/** Touch hold duration in milliseconds before initiating drag on touch devices. Defaults to 350. */
 		longPressDelay?: number;
+		/** Optional callback to construct a DragPayload for global drop targets */
+		getDragPayload?: (item: T, index: number) => DragPayload;
 		/** Callback invoked when an item is successfully dropped into a new position. */
 		onreorder?: (detail: { fromIndex: number; toIndex: number; items?: T[] }) => void;
 	}
@@ -74,9 +78,12 @@
 		dragScale = 0.5,
 		dragHandleSelector,
 		longPressDelay = 350,
+		getDragPayload,
 		onreorder,
 		...restProps
 	}: Props = $props();
+
+	const dropManager = getDropManager();
 
 	let grids: GridInfo[] = [];
 	let masonryElement: HTMLElement | undefined = $state();
@@ -321,9 +328,21 @@
 		item.style.transformOrigin = `${grabOffsetX}px ${grabOffsetY}px`;
 		item.style.transform = `translate3d(0px, 0px, 0px) scale(${dragScale})`;
 		item.classList.add('akui-masonry-item-dragging');
+
+		// Notify global drop manager
+		const itemData = items ? items[itemIndex] : undefined;
+		const payload: DragPayload = getDragPayload
+			? getDragPayload(itemData as T, itemIndex)
+			: {
+					type: 'akui-masonry-item',
+					data: itemData ?? item,
+					source: 'masonry'
+				};
+		dropManager.startDrag(payload);
 	}
 
 	function cleanupDragState() {
+		dropManager.endDrag();
 		if (longPressTimer) {
 			clearTimeout(longPressTimer);
 			longPressTimer = null;
@@ -561,6 +580,9 @@
 		// Move dragged card smoothly 1:1 with cursor, applying scale in transform
 		draggedItem.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${dragScale})`;
 
+		// Update global drop target pointer position
+		dropManager.updatePointer(e.clientX, e.clientY);
+
 		// Check if pointer is inside drop zone boundary
 		const rect = masonryElement.getBoundingClientRect();
 		const margin = 24;
@@ -653,7 +675,11 @@
 		}
 
 		if (isDragging && !isSettling) {
-			if (isPointerInsideBounds) {
+			// Check if handled by an external drop target first
+			const handledExternally = dropManager.handleDrop(e);
+			if (handledExternally) {
+				cancelDrag('droppedOnExternalTarget');
+			} else if (isPointerInsideBounds) {
 				commitDrop();
 			} else {
 				cancelDrag('droppedOutsideBounds');

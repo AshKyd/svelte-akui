@@ -21,6 +21,10 @@ interface Props {
     onDrop?: (draggedId: string, targetId: string) => void;
     /** Size of the tree items. Defaults to 'small'. */
     size?: 'small' | 'large';
+    /** Callback to validate if an external DragPayload can be dropped on a target item */
+    canDropPayload?: (payload: any, targetItem: TreeItemData) => boolean;
+    /** Callback when an external DragPayload is dropped onto a target item */
+    onDropPayload?: (payload: any, targetItem: TreeItemData) => void;
 }
 declare const Tree: import("svelte").Component<Props, {}, "expanded">;
 type Tree = ReturnType<typeof Tree>;

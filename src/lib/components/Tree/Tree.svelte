@@ -23,6 +23,10 @@
 		onDrop?: (draggedId: string, targetId: string) => void;
 		/** Size of the tree items. Defaults to 'small'. */
 		size?: 'small' | 'large';
+		/** Callback to validate if an external DragPayload can be dropped on a target item */
+		canDropPayload?: (payload: any, targetItem: TreeItemData) => boolean;
+		/** Callback when an external DragPayload is dropped onto a target item */
+		onDropPayload?: (payload: any, targetItem: TreeItemData) => void;
 	}
 
 	let {
@@ -35,7 +39,9 @@
 		onToggle,
 		onDragOver,
 		onDrop,
-		size = 'small'
+		size = 'small',
+		canDropPayload,
+		onDropPayload
 	}: Props = $props();
 
 	let dragContext = $state<{
@@ -57,7 +63,9 @@
 		set hoveredItemId(val) { dragContext.hoveredItemId = val; },
 		get draggable() { return draggable; },
 		get onDragOver() { return onDragOver; },
-		get onDrop() { return onDrop; }
+		get onDrop() { return onDrop; },
+		get canDropPayload() { return canDropPayload; },
+		get onDropPayload() { return onDropPayload; }
 	});
 
 	function handleToggle(id: string) {

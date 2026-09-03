@@ -39,6 +39,8 @@ export * from './components/Table/index.js';
 export * from './components/LayoutFocusShell/index.js';
 export * from './components/RelativeTime/index.js';
 export * from './components/ImageMosaic/index.js';
+export * from './components/DropTarget/index.js';
 export * from './hooks/keyboardNavigation.js';
 export * from './hooks/theme.svelte.js';
+export * from './hooks/dropManager.svelte.js';
 export * from './constants.js';

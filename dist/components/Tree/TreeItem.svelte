@@ -3,6 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import Icon from '../Icon/Icon.svelte';
 	import TreeItem from './TreeItem.svelte';
+	import { dropTarget } from '../../hooks/dropManager.svelte.js';
 
 	export interface TreeItemData {
 		id: string;
@@ -41,6 +42,17 @@
 	const hasChildren = $derived(item.children && item.children.length > 0);
 	const isFolder = $derived(item.isFolder || hasChildren);
 
+	// Drop target integration for global pointer and payload drops
+	const globalTarget = dropTarget({
+		canDrop: (payload) => {
+			if (!dragCtx?.canDropPayload) return false;
+			return dragCtx.canDropPayload(payload, item);
+		},
+		ondrop: (payload, event) => {
+			dragCtx?.onDropPayload?.(payload, item);
+		}
+	});
+
 	function handleToggle(e: MouseEvent | KeyboardEvent) {
 		e.stopPropagation();
 		if (isFolder) {
@@ -72,7 +84,12 @@
 	const isDragDropSupported = typeof window !== 'undefined' && 'draggable' in document.createElement('span');
 
 	const targetId = $derived(isFolder ? item.id : (parentId || item.id));
-	const isDragOver = $derived(!!(dragCtx && (dragCtx.activeTargetId === item.id || dragCtx.hoveredItemId === item.id)));
+	const isDragOver = $derived(
+		!!(
+			(dragCtx && (dragCtx.activeTargetId === item.id || dragCtx.hoveredItemId === item.id)) ||
+			(globalTarget.isOver && globalTarget.canDrop)
+		)
+	);
 
 	function handleDragStart(e: DragEvent) {
 		if (!dragCtx || !dragCtx.draggable) return;
@@ -171,6 +188,7 @@
 	data-id={item.id}
 >
 	<div
+		{@attach globalTarget.attach}
 		class="akui-tree-item-row"
 		class:large={size === 'large'}
 		class:drag-over={isDragOver}
