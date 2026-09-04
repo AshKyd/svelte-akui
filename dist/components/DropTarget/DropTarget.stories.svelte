@@ -1,6 +1,7 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import DropTarget from './DropTarget.svelte';
+	import Draggable from '../Draggable/Draggable.svelte';
 	import Masonry from '../Masonry/Masonry.svelte';
 	import FeedItemRow from '../FeedItemRow/FeedItemRow.svelte';
 	import Tree from '../Tree/Tree.svelte';
@@ -58,7 +59,9 @@
 	let pouch = $state<PotionIngredient[]>([...initialPouchItems]);
 	let cauldron = $state<PotionIngredient[]>([]);
 	let compost = $state<PotionIngredient[]>([]);
-	let log = $state<string>('Drag ingredients from the apothecary pouch into the cauldron or apothecary ledger.');
+	let log = $state<string>(
+		'Drag ingredients from the apothecary pouch into the cauldron or apothecary ledger.'
+	);
 
 	let treeFolders = $state<TreeItemData[]>([
 		{
@@ -115,7 +118,10 @@
 </script>
 
 <Story name="Cauldron and Tree Ledger">
-	<LayoutContentWidth size="large" style="display: flex; flex-direction: column; gap: 20px; padding: 20px;">
+	<LayoutContentWidth
+		size="large"
+		style="display: flex; flex-direction: column; gap: 20px; padding: 20px;"
+	>
 		<div style="display: flex; justify-content: space-between; align-items: center;">
 			<div>
 				<h3 style="margin: 0; font-size: 1.15rem;">Cloverfield Cottage Apothecary</h3>
@@ -131,14 +137,22 @@
 			</button>
 		</div>
 
-		<div style="padding: 10px 14px; background: var(--akui-bg-secondary); border-radius: 8px; font-weight: 500; font-size: 0.9rem; color: var(--akui-fg-accent);">
+		<div
+			style="padding: 10px 14px; background: var(--akui-bg-secondary); border-radius: 8px; font-weight: 500; font-size: 0.9rem; color: var(--akui-fg-accent);"
+		>
 			{log}
 		</div>
 
-		<div style="display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; align-items: start;">
+		<div
+			style="display: grid; grid-template-columns: 260px 1fr 260px; gap: 20px; align-items: start;"
+		>
 			<!-- Left Column: Tree View Drop Target -->
-			<div style="border: 1px solid var(--akui-border); border-radius: 8px; padding: 14px; background: var(--akui-bg);">
-				<div style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; color: var(--akui-fg-secondary);">
+			<div
+				style="border: 1px solid var(--akui-border); border-radius: 8px; padding: 14px; background: var(--akui-bg);"
+			>
+				<div
+					style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; color: var(--akui-fg-secondary);"
+				>
 					Apothecary Ledger
 				</div>
 				<Tree
@@ -155,8 +169,12 @@
 			</div>
 
 			<!-- Center Column: Draggable Masonry Grid -->
-			<div style="border: 1px solid var(--akui-border); border-radius: 8px; padding: 14px; background: var(--akui-bg-secondary);">
-				<div style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; color: var(--akui-fg-secondary);">
+			<div
+				style="border: 1px solid var(--akui-border); border-radius: 8px; padding: 14px; background: var(--akui-bg-secondary);"
+			>
+				<div
+					style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; color: var(--akui-fg-secondary);"
+				>
 					Ingredients Pouch ({pouch.length})
 				</div>
 				{#if pouch.length === 0}
@@ -164,28 +182,29 @@
 						Pouch is empty! Click "Replenish Shelf" to refill.
 					</div>
 				{:else}
-					<Masonry
-						items={pouch}
-						reorderable={true}
-						animate={true}
-						colWidth="minmax(180px, 1fr)"
-						getDragPayload={(item) => ({
-							type: 'apothecary-ingredient',
-							data: item,
-							source: 'pouch'
-						})}
-					>
+					<Masonry items={pouch} animate={true} colWidth="minmax(180px, 1fr)">
 						{#snippet itemSnippet(item)}
-							<div style="background: var(--akui-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--akui-border); cursor: grab; user-select: none;">
-								<FeedItemRow
-									title={item.name}
-									excerpt={item.potency}
-									tag={item.category}
-									image={item.image}
-									ratio="16 / 9"
-									fit="cover"
-								/>
-							</div>
+							<Draggable
+								dragScale={0.5}
+								getPayload={() => ({
+									type: 'apothecary-ingredient',
+									data: item,
+									source: 'pouch'
+								})}
+							>
+								<div
+									style="background: var(--akui-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--akui-border); cursor: grab; user-select: none;"
+								>
+									<FeedItemRow
+										title={item.name}
+										excerpt={item.potency}
+										tag={item.category}
+										image={item.image}
+										ratio="16 / 9"
+										fit="cover"
+									/>
+								</div>
+							</Draggable>
 						{/snippet}
 					</Masonry>
 				{/if}
@@ -200,7 +219,9 @@
 					<div
 						style="
 							border: 2px dashed {isOver && canDrop ? 'var(--akui-bg-accent, #2563eb)' : 'var(--akui-border)'};
-							background: {isOver && canDrop ? 'var(--akui-bg-accent-subtle, rgba(37, 99, 235, 0.08))' : 'var(--akui-bg)'};
+							background: {isOver && canDrop
+							? 'var(--akui-bg-accent-subtle, rgba(37, 99, 235, 0.08))'
+							: 'var(--akui-bg)'};
 							border-radius: 12px;
 							padding: 20px;
 							display: flex;
@@ -228,7 +249,9 @@
 						</div>
 
 						{#if cauldron.length > 0}
-							<div style="width: 100%; border-top: 1px solid var(--akui-border); margin-top: 8px; padding-top: 8px; font-size: 0.8rem; color: var(--akui-fg-secondary);">
+							<div
+								style="width: 100%; border-top: 1px solid var(--akui-border); margin-top: 8px; padding-top: 8px; font-size: 0.8rem; color: var(--akui-fg-secondary);"
+							>
 								Brew contains {cauldron.length} item{cauldron.length > 1 ? 's' : ''}
 							</div>
 						{/if}

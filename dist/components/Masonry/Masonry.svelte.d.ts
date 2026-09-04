@@ -3,13 +3,11 @@
      * A lightweight, height-balanced masonry grid component for Svelte 5.
      * Packs grid items dynamically by placing each new item into the currently shortest column
      * to maintain a logical reading and tab focus order.
-     * Supports pointer-based drag-and-drop rearrangement where cards remain stationary while dragging,
-     * the hovered destination card displays a dotted outline drop indicator, and all cards rearrange
-     * smoothly on drop.
+     * Layout only — dragging and reordering are a consumer concern: wrap items in `<Draggable>`
+     * and add `<DropTarget>`s (or `dropTarget()` attachments) to build reorder or move behaviour.
      */
 import { type Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
-import { type DragPayload } from '../../hooks/dropManager.svelte.js';
 declare function $$render<T = any>(): {
     props: HTMLAttributes<HTMLDivElement> & {
         /** Spacing between grid items */
@@ -20,7 +18,7 @@ declare function $$render<T = any>(): {
         colWidth?: string;
         /** Svelte snippet containing grid items */
         children?: Snippet;
-        /** Optional data items array for data-driven rendering with automatic reordering */
+        /** Optional data items array for data-driven rendering */
         items?: T[];
         /** Optional custom snippet for rendering each data item when `items` is provided */
         itemSnippet?: Snippet<[T, number]>;
@@ -36,22 +34,6 @@ declare function $$render<T = any>(): {
         transitionDuration?: string;
         /** Easing function of the slide transition animation */
         transitionEasing?: string;
-        /** Enable pointer-based drag-and-drop rearrangement of grid items. Defaults to false. */
-        reorderable?: boolean;
-        /** Scale factor applied to the item while dragging. Defaults to 0.5. */
-        dragScale?: number;
-        /** Optional CSS selector targeting a specific drag handle element within an item. */
-        dragHandleSelector?: string;
-        /** Touch hold duration in milliseconds before initiating drag on touch devices. Defaults to 350. */
-        longPressDelay?: number;
-        /** Optional callback to construct a DragPayload for global drop targets */
-        getDragPayload?: (item: T, index: number) => DragPayload;
-        /** Callback invoked when an item is successfully dropped into a new position. */
-        onreorder?: (detail: {
-            fromIndex: number;
-            toIndex: number;
-            items?: T[];
-        }) => void;
     };
     exports: {};
     bindings: "items" | "refreshLayout";

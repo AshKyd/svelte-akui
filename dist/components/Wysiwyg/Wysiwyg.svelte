@@ -230,4 +230,18 @@
 	.akui-wysiwyg-container :global(.milkdown-slash-menu .menu-groups) {
 		overflow-x: hidden;
 	}
+
+	/* Bullet points and list numbers should match the list text colour */
+	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper) {
+		color: var(--akui-fg);
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper svg) {
+		fill: var(--akui-fg);
+	}
+
+	.akui-wysiwyg-container :global(.milkdown ol li::marker),
+	.akui-wysiwyg-container :global(.milkdown ul li::marker) {
+		color: var(--akui-fg);
+	}
 </style>

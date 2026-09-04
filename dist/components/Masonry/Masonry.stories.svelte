@@ -1,6 +1,8 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Masonry from './Masonry.svelte';
+	import Draggable from '../Draggable/Draggable.svelte';
+	import DropTarget from '../DropTarget/DropTarget.svelte';
 	import FeedItemRow from '../FeedItemRow/FeedItemRow.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
@@ -116,19 +118,33 @@
 	const filteredItems = $derived(
 		showEvenOnly ? mockItems.filter((_, i) => i % 2 === 0) : mockItems
 	);
+
+	// Reorder is a consumer concern now: the story owns the order and swaps entries when a
+	// card is dropped onto another card's DropTarget.
+	let reorderItems = $state(mockItems.map((item) => ({ ...item })));
+
+	function moveCard(draggedId: number, targetId: number) {
+		const from = reorderItems.findIndex((i) => i.id === draggedId);
+		const to = reorderItems.findIndex((i) => i.id === targetId);
+		if (from < 0 || to < 0 || from === to) return;
+		const next = [...reorderItems];
+		const [moved] = next.splice(from, 1);
+		next.splice(to, 0, moved);
+		reorderItems = next;
+	}
 </script>
 
 <Story name="Standard Grid">
-	<LayoutContentWidth size="large" style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px;">
-		<Masonry bind:refreshLayout={refreshLayout}>
+	<LayoutContentWidth
+		size="large"
+		style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px;"
+	>
+		<Masonry bind:refreshLayout>
 			{#each mockItems as item (item.id)}
-				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);">
-					<FeedItemRow
-						{...item}
-						layout="hero"
-						fit="cover"
-						ratio="16 / 9"
-					/>
+				<div
+					style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);"
+				>
+					<FeedItemRow {...item} layout="hero" fit="cover" ratio="16 / 9" />
 				</div>
 			{/each}
 		</Masonry>
@@ -136,53 +152,69 @@
 </Story>
 
 <Story name="Animated Grid">
-	<LayoutContentWidth size="large" style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;">
+	<LayoutContentWidth
+		size="large"
+		style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;"
+	>
 		<div>
-			<button 
+			<button
 				style="padding: 8px 16px; background: var(--akui-accent, #5046e5); color: white; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.9rem;"
 				onclick={() => {
 					showEvenOnly = !showEvenOnly;
 				}}
 			>
-				{showEvenOnly ? "Show All Items" : "Filter Even Items"}
+				{showEvenOnly ? 'Show All Items' : 'Filter Even Items'}
 			</button>
 		</div>
-		<Masonry animate={true} bind:refreshLayout={refreshLayout}>
+		<Masonry animate={true} bind:refreshLayout>
 			{#each filteredItems as item (item.id)}
-				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);">
-					<FeedItemRow
-						{...item}
-						layout="hero"
-						fit="cover"
-						ratio="16 / 9"
-					/>
+				<div
+					style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s);"
+				>
+					<FeedItemRow {...item} layout="hero" fit="cover" ratio="16 / 9" />
 				</div>
 			{/each}
 		</Masonry>
 	</LayoutContentWidth>
 </Story>
 
-<Story name="Reorderable Grid">
-	{@const reorderItems = [...mockItems]}
-	<LayoutContentWidth size="large" style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;">
+<Story name="Reorder via Draggable">
+	<LayoutContentWidth
+		size="large"
+		style="background: var(--akui-bg-secondary); padding: 16px; border-radius: 8px; display: flex; flex-direction: column; gap: 16px;"
+	>
 		<p style="margin: 0; color: var(--akui-text-subtle); font-size: 0.9rem;">
-			Click and drag any card to hover over another card. The destination card highlights with a dotted outline. Releasing rearranges the grid once on drop.
+			Masonry is layout only. Each card is wrapped in <code>&lt;Draggable&gt;</code> and a per-card
+			<code>&lt;DropTarget&gt;</code>; dropping one card onto another swaps their order and Masonry
+			animates every card to its new place.
 		</p>
-		<Masonry
-			animate={true}
-			reorderable={true}
-			items={reorderItems}
-			bind:refreshLayout={refreshLayout}
-		>
+		<Masonry animate={true} items={reorderItems} bind:refreshLayout>
 			{#snippet itemSnippet(item)}
-				<div style="background: var(--akui-bg); border-radius: 6px; overflow: hidden; box-shadow: var(--akui-shadow-s); cursor: grab;">
-					<FeedItemRow
-						{...item}
-						layout="hero"
-						fit="cover"
-						ratio="16 / 9"
-					/>
-				</div>
+				<Draggable dragScale={0.5} getPayload={() => ({ type: 'masonry-demo-card', data: item })}>
+					<DropTarget
+						canDrop={(payload) =>
+							payload.type === 'masonry-demo-card' && payload.data.id !== item.id}
+						ondrop={(payload) => moveCard(payload.data.id, item.id)}
+					>
+						{#snippet children({ isOver, canDrop })}
+							<div
+								style="
+									background: var(--akui-bg);
+									border-radius: 6px;
+									overflow: hidden;
+									box-shadow: var(--akui-shadow-s);
+									cursor: grab;
+									outline: {isOver && canDrop
+									? '2px dashed var(--akui-border-strong, #888)'
+									: '2px dashed transparent'};
+									outline-offset: -2px;
+								"
+							>
+								<FeedItemRow {...item} layout="hero" fit="cover" ratio="16 / 9" />
+							</div>
+						{/snippet}
+					</DropTarget>
+				</Draggable>
 			{/snippet}
 		</Masonry>
 	</LayoutContentWidth>
