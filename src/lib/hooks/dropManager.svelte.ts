@@ -438,12 +438,17 @@ export class DragSourceInstance<T = unknown> {
 		element.addEventListener('dragstart', this.#onNativeDragStart);
 		element.addEventListener('contextmenu', this.#onContextMenu);
 		element.addEventListener('click', this.#onClickCapture, true);
+		// Non-passive so preventDefault() can stop the page scrolling under an active
+		// drag. The element's `touch-action` is `pan-y` (see Draggable.svelte) so a
+		// plain swipe scrolls; this guard only bites once `#isDragging` is true.
+		element.addEventListener('touchmove', this.#onTouchMove, { passive: false });
 
 		return () => {
 			element.removeEventListener('pointerdown', this.#onPointerDown);
 			element.removeEventListener('dragstart', this.#onNativeDragStart);
 			element.removeEventListener('contextmenu', this.#onContextMenu);
 			element.removeEventListener('click', this.#onClickCapture, true);
+			element.removeEventListener('touchmove', this.#onTouchMove);
 			if (this.#isDragging) {
 				this.#manager.cancelDrag();
 				this.#teardownGesture();
@@ -541,6 +546,14 @@ export class DragSourceInstance<T = unknown> {
 	#onPointerCancel = (e: PointerEvent) => {
 		if (this.#activePointerId !== null && e.pointerId !== this.#activePointerId) return;
 		this.#cancel('pointercancel');
+	};
+
+	// While a drag is live the page must not scroll under it. `touch-action` alone
+	// can't do this: a drag moves on both axes, and the element's touch-action is
+	// fixed at pointerdown time (before the long-press promotes the gesture to a
+	// drag), so a non-passive touchmove guard is required.
+	#onTouchMove = (e: TouchEvent) => {
+		if (this.#isDragging) e.preventDefault();
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
