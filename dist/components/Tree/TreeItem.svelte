@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { type Snippet, getContext } from 'svelte';
+	import { type Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { slide } from 'svelte/transition';
 	import Icon from '../Icon/Icon.svelte';
 	import TreeItem from './TreeItem.svelte';
-	import { dropTarget } from '../../hooks/dropManager.svelte.js';
 
 	export interface TreeItemData {
 		id: string;
@@ -25,6 +25,8 @@
 		onSelect?: (item: TreeItemData) => void;
 		/** Optional snippet to override icon rendering */
 		iconSnippet?: Snippet<[TreeItemData]>;
+		/** Extra attributes spread onto the row element. See `Tree`. */
+		itemAttributes?: (item: TreeItemData) => HTMLAttributes<HTMLDivElement> | undefined;
 	}
 
 	let {
@@ -35,23 +37,14 @@
 		size = 'small',
 		onToggle,
 		onSelect,
-		iconSnippet
+		iconSnippet,
+		itemAttributes
 	}: Props = $props();
 
 	const isExpanded = $derived(expanded.has(item.id));
 	const hasChildren = $derived(item.children && item.children.length > 0);
 	const isFolder = $derived(item.isFolder || hasChildren);
-
-	// Drop target integration for global pointer and payload drops
-	const globalTarget = dropTarget({
-		canDrop: (payload) => {
-			if (!dragCtx?.canDropPayload) return false;
-			return dragCtx.canDropPayload(payload, item);
-		},
-		ondrop: (payload, event) => {
-			dragCtx?.onDropPayload?.(payload, item);
-		}
-	});
+	const extra = $derived(itemAttributes?.(item));
 
 	function handleToggle(e: MouseEvent | KeyboardEvent) {
 		e.stopPropagation();
@@ -64,6 +57,7 @@
 		e.stopPropagation();
 		onSelect?.(item);
 	}
+
 	function handleKeyDown(e: KeyboardEvent) {
 		if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
@@ -78,106 +72,6 @@
 			handleToggle(e as unknown as MouseEvent);
 		}
 	}
-
-	// Drag and Drop implementation
-	const dragCtx = getContext<any>('akui-tree-drag');
-	const isDragDropSupported = typeof window !== 'undefined' && 'draggable' in document.createElement('span');
-
-	const targetId = $derived(isFolder ? item.id : (parentId || item.id));
-	const isDragOver = $derived(
-		!!(
-			(dragCtx && (dragCtx.activeTargetId === item.id || dragCtx.hoveredItemId === item.id)) ||
-			(globalTarget.isOver && globalTarget.canDrop)
-		)
-	);
-
-	function handleDragStart(e: DragEvent) {
-		if (!dragCtx || !dragCtx.draggable) return;
-		dragCtx.activeDragId = item.id;
-		dragCtx.activeTargetId = null;
-		dragCtx.hoveredItemId = null;
-		e.dataTransfer?.setData('text/plain', item.id);
-		if (e.dataTransfer) {
-			e.dataTransfer.effectAllowed = 'move';
-		}
-	}
-
-	function handleDragEnd() {
-		if (!dragCtx) return;
-		dragCtx.activeDragId = null;
-		dragCtx.activeTargetId = null;
-		dragCtx.hoveredItemId = null;
-	}
-
-	function handleDragOver(e: DragEvent) {
-		if (!dragCtx || !dragCtx.draggable) return;
-		const draggedId = dragCtx.activeDragId;
-		if (!draggedId || draggedId === targetId) return;
-
-		let allowed = true;
-		if (dragCtx.onDragOver) {
-			allowed = dragCtx.onDragOver(draggedId, targetId);
-		}
-
-		if (allowed) {
-			e.preventDefault();
-			if (e.dataTransfer) {
-				e.dataTransfer.dropEffect = 'move';
-			}
-			
-			// Keep active target and hovered item updated on dragover to prevent DOM bubbling flicker
-			if (dragCtx.activeTargetId !== targetId) {
-				dragCtx.activeTargetId = targetId;
-			}
-			if (dragCtx.hoveredItemId !== item.id) {
-				dragCtx.hoveredItemId = item.id;
-			}
-		}
-	}
-
-	function handleDragEnter(e: DragEvent) {
-		if (!dragCtx || !dragCtx.draggable) return;
-		const draggedId = dragCtx.activeDragId;
-		if (!draggedId || draggedId === targetId) return;
-
-		let allowed = true;
-		if (dragCtx.onDragOver) {
-			allowed = dragCtx.onDragOver(draggedId, targetId);
-		}
-
-		if (allowed) {
-			dragCtx.activeTargetId = targetId;
-			dragCtx.hoveredItemId = item.id;
-		}
-	}
-
-	function handleDragLeave() {
-		if (dragCtx) {
-			if (dragCtx.activeTargetId === targetId) {
-				dragCtx.activeTargetId = null;
-			}
-			if (dragCtx.hoveredItemId === item.id) {
-				dragCtx.hoveredItemId = null;
-			}
-		}
-	}
-
-	function handleDrop(e: DragEvent) {
-		if (!dragCtx || !dragCtx.draggable) return;
-		e.preventDefault();
-		if (dragCtx.activeTargetId === targetId) {
-			dragCtx.activeTargetId = null;
-		}
-		if (dragCtx.hoveredItemId === item.id) {
-			dragCtx.hoveredItemId = null;
-		}
-
-		const draggedId = dragCtx.activeDragId || e.dataTransfer?.getData('text/plain');
-		if (draggedId && draggedId !== targetId) {
-			dragCtx.onDrop?.(draggedId, targetId);
-		}
-		dragCtx.activeDragId = null;
-	}
 </script>
 
 <li
@@ -188,29 +82,20 @@
 	data-id={item.id}
 >
 	<div
-		{@attach globalTarget.attach}
-		class="akui-tree-item-row"
-		class:large={size === 'large'}
-		class:drag-over={isDragOver}
+		{...extra}
+		class={['akui-tree-item-row', size === 'large' && 'large', extra?.class]}
 		style="--depth: {depth}"
 		onclick={handleSelect}
 		onkeydown={handleKeyDown}
 		role="button"
 		tabindex="0"
-		draggable={dragCtx?.draggable && isDragDropSupported}
-		ondragstart={handleDragStart}
-		ondragend={handleDragEnd}
-		ondragover={handleDragOver}
-		ondragenter={handleDragEnter}
-		ondragleave={handleDragLeave}
-		ondrop={handleDrop}
 	>
 		<!-- Icon Column / Chevron -->
 		<div class="akui-tree-item-icon">
 			{#if isFolder}
-				<button 
+				<button
 					type="button"
-					class="akui-tree-chevron" 
+					class="akui-tree-chevron"
 					class:expanded={isExpanded}
 					onclick={handleToggle}
 					onkeydown={handleChevronKeyDown}
@@ -250,6 +135,7 @@
 					{onToggle}
 					{onSelect}
 					{iconSnippet}
+					{itemAttributes}
 				/>
 			{/each}
 		</ul>
@@ -311,14 +197,15 @@
 		background-color: var(--akui-bg-hover);
 	}
 
-	.akui-tree-item-row.drag-over {
+	/*
+	 * Public opt-in class: consumers add it through `itemAttributes` to mark a row as the
+	 * current target of whatever they are doing (a drop, a move, a search hit). `:global`
+	 * because the class never appears in this template, only in consumer-supplied props.
+	 */
+	.akui-tree-item-row:global(.akui-tree-item-row-highlight) {
 		background-color: var(--akui-bg-hover);
 		outline: 2px dashed var(--akui-bg-accent, #2563eb);
 		outline-offset: -2px;
-	}
-
-	:global(.akui-tree.dragging) .akui-tree-item-row * {
-		pointer-events: none;
 	}
 
 	.akui-tree-item-icon {
@@ -329,7 +216,6 @@
 		justify-content: center;
 		flex-shrink: 0;
 	}
-
 
 	.akui-tree-chevron {
 		background: none;

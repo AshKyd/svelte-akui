@@ -333,9 +333,15 @@ export function getDropManager(): DropManager {
  *   Drop here
  * </div>
  * ```
+ *
+ * The manager is read from context, so call this during component initialisation. To build
+ * targets later (lazily, per list item), grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument.
  */
-export function dropTarget<T = unknown>(options: DropTargetOptions<T> = {}): DropTargetInstance {
-	const manager = getDropManager();
+export function dropTarget<T = unknown>(
+	options: DropTargetOptions<T> = {},
+	manager: DropManager = getDropManager()
+): DropTargetInstance {
 	return new DropTargetInstance(manager, options);
 }
 
@@ -671,8 +677,14 @@ export class DragSourceInstance<T = unknown> {
  *   Drag me
  * </div>
  * ```
+ *
+ * The manager is read from context, so call this during component initialisation. To build
+ * sources later (lazily, per list item), grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument.
  */
-export function dragSource<T = unknown>(options: DragSourceOptions<T>): DragSourceInstance<T> {
-	const manager = getDropManager();
+export function dragSource<T = unknown>(
+	options: DragSourceOptions<T>,
+	manager: DropManager = getDropManager()
+): DragSourceInstance<T> {
 	return new DragSourceInstance(manager, options);
 }

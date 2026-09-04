@@ -56,6 +56,9 @@
 </script>
 
 <script lang="ts">
+	import { createAttachmentKey } from 'svelte/attachments';
+	import { dropTarget, getDropManager } from '../../hooks/dropManager.svelte.js';
+
 	let pouch = $state<PotionIngredient[]>([...initialPouchItems]);
 	let cauldron = $state<PotionIngredient[]>([]);
 	let compost = $state<PotionIngredient[]>([]);
@@ -104,6 +107,44 @@
 			pouch = pouch.filter((i) => i.id !== ingredient.id);
 			log = `📜 Filed ${ingredient.name} under ${targetItem.label}`;
 		}
+	}
+
+	// Tree has no drop support of its own: build a target per ledger row and pass it in
+	// through `itemAttributes`.
+	const manager = getDropManager();
+	const ledgerRows = new Map<string, ReturnType<typeof buildLedgerRow>>();
+
+	function buildLedgerRow(item: TreeItemData) {
+		const target = dropTarget(
+			{
+				canDrop: (payload: DragPayload) => {
+					const ingredient = payload.data as PotionIngredient;
+					if (item.id === 'folder-herbs') return ingredient.category === 'herb';
+					if (item.id === 'folder-minerals') return ingredient.category === 'mineral';
+					return false;
+				},
+				ondrop: (payload: DragPayload) => handleTreeDrop(payload, item)
+			},
+			manager
+		);
+		return {
+			target,
+			attrs: {
+				[createAttachmentKey()]: target.attach,
+				get class() {
+					return target.isOver && target.canDrop ? 'akui-tree-item-row-highlight' : undefined;
+				}
+			}
+		};
+	}
+
+	function ledgerAttributes(item: TreeItemData) {
+		let row = ledgerRows.get(item.id);
+		if (!row) {
+			row = buildLedgerRow(item);
+			ledgerRows.set(item.id, row);
+		}
+		return row.attrs;
 	}
 
 	function handleReset() {
@@ -158,13 +199,7 @@
 				<Tree
 					items={treeFolders}
 					expanded={new Set(['folder-herbs', 'folder-minerals'])}
-					canDropPayload={(payload, targetItem) => {
-						const item = payload.data as PotionIngredient;
-						if (targetItem.id === 'folder-herbs') return item.category === 'herb';
-						if (targetItem.id === 'folder-minerals') return item.category === 'mineral';
-						return false;
-					}}
-					onDropPayload={handleTreeDrop}
+					itemAttributes={ledgerAttributes}
 				/>
 			</div>
 

@@ -171,7 +171,10 @@
 		box-sizing: border-box;
 	}
 	.akui-draggable-enabled {
-		touch-action: none;
+		/* pan-y (not none) so a plain vertical swipe still scrolls the page; the drag
+		   itself is a long-press gesture and blocks scrolling via a non-passive
+		   touchmove guard in dragSource() once it is actually running. */
+		touch-action: pan-y;
 		user-select: none;
 		-webkit-user-select: none;
 		-webkit-touch-callout: none;

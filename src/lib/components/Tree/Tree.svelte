@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { type Snippet, setContext } from 'svelte';
+	import { type Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import TreeItem, { type TreeItemData } from './TreeItem.svelte';
 
 	interface Props {
@@ -15,18 +16,15 @@
 		onSelect?: (item: TreeItemData) => void;
 		/** Callback when a folder is toggled */
 		onToggle?: (id: string) => void;
-		/** Whether item drag & drop is enabled */
-		draggable?: boolean;
-		/** Callback to validate if dropping draggedId on targetId is allowed */
-		onDragOver?: (draggedId: string, targetId: string) => boolean;
-		/** Callback when an item is dropped onto a target */
-		onDrop?: (draggedId: string, targetId: string) => void;
 		/** Size of the tree items. Defaults to 'small'. */
 		size?: 'small' | 'large';
-		/** Callback to validate if an external DragPayload can be dropped on a target item */
-		canDropPayload?: (payload: any, targetItem: TreeItemData) => boolean;
-		/** Callback when an external DragPayload is dropped onto a target item */
-		onDropPayload?: (payload: any, targetItem: TreeItemData) => void;
+		/**
+		 * Extra attributes spread onto each item's row element. Use it to add behaviour the
+		 * tree knows nothing about — a drop target attachment, a tooltip, a data id. Pass
+		 * `class: 'akui-tree-item-row-highlight'` to light a row up. Return a stable object
+		 * per item: a new attachment on every render is torn down and recreated.
+		 */
+		itemAttributes?: (item: TreeItemData) => HTMLAttributes<HTMLDivElement> | undefined;
 	}
 
 	let {
@@ -34,39 +32,11 @@
 		expanded = $bindable(new Set()),
 		icon,
 		class: className = '',
-		draggable = false,
 		onSelect,
 		onToggle,
-		onDragOver,
-		onDrop,
 		size = 'small',
-		canDropPayload,
-		onDropPayload
+		itemAttributes
 	}: Props = $props();
-
-	let dragContext = $state<{
-		activeDragId: string | null;
-		activeTargetId: string | null;
-		hoveredItemId: string | null;
-	}>({
-		activeDragId: null,
-		activeTargetId: null,
-		hoveredItemId: null
-	});
-
-	setContext('akui-tree-drag', {
-		get activeDragId() { return dragContext.activeDragId; },
-		set activeDragId(val) { dragContext.activeDragId = val; },
-		get activeTargetId() { return dragContext.activeTargetId; },
-		set activeTargetId(val) { dragContext.activeTargetId = val; },
-		get hoveredItemId() { return dragContext.hoveredItemId; },
-		set hoveredItemId(val) { dragContext.hoveredItemId = val; },
-		get draggable() { return draggable; },
-		get onDragOver() { return onDragOver; },
-		get onDrop() { return onDrop; },
-		get canDropPayload() { return canDropPayload; },
-		get onDropPayload() { return onDropPayload; }
-	});
 
 	function handleToggle(id: string) {
 		if (expanded.has(id)) {
@@ -141,20 +111,16 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-<ul
-	role="tree"
-	class="akui-tree {className}"
-	class:dragging={dragContext.activeDragId !== null}
-	onkeydown={handleKeyDown}
->
+<ul role="tree" class="akui-tree {className}" onkeydown={handleKeyDown}>
 	{#each items as item (item.id)}
 		<TreeItem
 			{item}
 			{expanded}
 			{size}
 			onToggle={handleToggle}
-			onSelect={onSelect}
+			{onSelect}
 			iconSnippet={icon}
+			{itemAttributes}
 		/>
 	{/each}
 </ul>

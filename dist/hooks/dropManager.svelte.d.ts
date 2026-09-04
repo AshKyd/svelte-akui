@@ -107,8 +107,12 @@ export declare function getDropManager(): DropManager;
  *   Drop here
  * </div>
  * ```
+ *
+ * The manager is read from context, so call this during component initialisation. To build
+ * targets later (lazily, per list item), grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument.
  */
-export declare function dropTarget<T = unknown>(options?: DropTargetOptions<T>): DropTargetInstance;
+export declare function dropTarget<T = unknown>(options?: DropTargetOptions<T>, manager?: DropManager): DropTargetInstance;
 export interface DragMoveDetail {
     /** Pointer client X */
     x: number;
@@ -191,5 +195,9 @@ export declare class DragSourceInstance<T = unknown> {
  *   Drag me
  * </div>
  * ```
+ *
+ * The manager is read from context, so call this during component initialisation. To build
+ * sources later (lazily, per list item), grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument.
  */
-export declare function dragSource<T = unknown>(options: DragSourceOptions<T>): DragSourceInstance<T>;
+export declare function dragSource<T = unknown>(options: DragSourceOptions<T>, manager?: DropManager): DragSourceInstance<T>;

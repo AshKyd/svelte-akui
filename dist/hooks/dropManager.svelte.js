@@ -268,9 +268,12 @@ export function getDropManager() {
  *   Drop here
  * </div>
  * ```
+ *
+ * The manager is read from context, so call this during component initialisation. To build
+ * targets later (lazily, per list item), grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument.
  */
-export function dropTarget(options = {}) {
-    const manager = getDropManager();
+export function dropTarget(options = {}, manager = getDropManager()) {
     return new DropTargetInstance(manager, options);
 }
 /** Distance in pixels a touch pointer may drift before the long-press is treated as a scroll. */
@@ -324,11 +327,16 @@ export class DragSourceInstance {
         element.addEventListener('dragstart', this.#onNativeDragStart);
         element.addEventListener('contextmenu', this.#onContextMenu);
         element.addEventListener('click', this.#onClickCapture, true);
+        // Non-passive so preventDefault() can stop the page scrolling under an active
+        // drag. The element's `touch-action` is `pan-y` (see Draggable.svelte) so a
+        // plain swipe scrolls; this guard only bites once `#isDragging` is true.
+        element.addEventListener('touchmove', this.#onTouchMove, { passive: false });
         return () => {
             element.removeEventListener('pointerdown', this.#onPointerDown);
             element.removeEventListener('dragstart', this.#onNativeDragStart);
             element.removeEventListener('contextmenu', this.#onContextMenu);
             element.removeEventListener('click', this.#onClickCapture, true);
+            element.removeEventListener('touchmove', this.#onTouchMove);
             if (this.#isDragging) {
                 this.#manager.cancelDrag();
                 this.#teardownGesture();
@@ -419,6 +427,14 @@ export class DragSourceInstance {
         if (this.#activePointerId !== null && e.pointerId !== this.#activePointerId)
             return;
         this.#cancel('pointercancel');
+    };
+    // While a drag is live the page must not scroll under it. `touch-action` alone
+    // can't do this: a drag moves on both axes, and the element's touch-action is
+    // fixed at pointerdown time (before the long-press promotes the gesture to a
+    // drag), so a non-passive touchmove guard is required.
+    #onTouchMove = (e) => {
+        if (this.#isDragging)
+            e.preventDefault();
     };
     #onKeyDown = (e) => {
         if (e.key !== 'Escape' || !this.#isDragging)
@@ -527,8 +543,11 @@ export class DragSourceInstance {
  *   Drag me
  * </div>
  * ```
+ *
+ * The manager is read from context, so call this during component initialisation. To build
+ * sources later (lazily, per list item), grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument.
  */
-export function dragSource(options) {
-    const manager = getDropManager();
+export function dragSource(options, manager = getDropManager()) {
     return new DragSourceInstance(manager, options);
 }
