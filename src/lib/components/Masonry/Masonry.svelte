@@ -172,6 +172,38 @@
 				await applyLayoutToItems(grid, grid.items);
 			})
 		);
+
+		// Heights are measured once per pass. Anything that grows an item *after* that —
+		// async image decode, web-font swap, late-arriving content — has to trigger another
+		// pass or the columns keep the stale heights and overlap.
+		observeItemSizes();
+	};
+
+	/**
+	 * Watches each grid item's rendered box and re-packs when one changes size after layout.
+	 * The most common cause is multiple images in a card finishing decode at different times.
+	 */
+	let itemResizeObserver: ResizeObserver | undefined;
+	let pendingItemResizeRefresh: ReturnType<typeof setTimeout> | undefined;
+	const observedItems = new WeakSet<HTMLElement>();
+
+	const observeItemSizes = () => {
+		if (typeof ResizeObserver === 'undefined') return;
+
+		// Debounced so a burst of image loads collapses into a single re-pack.
+		itemResizeObserver ??= new ResizeObserver(() => {
+			clearTimeout(pendingItemResizeRefresh);
+			pendingItemResizeRefresh = setTimeout(refresh, 60);
+		});
+
+		// Observe only items not already tracked: re-observing would re-fire the initial
+		// callback for every item on every pass and never settle.
+		getDirectGridItems()
+			.filter((item) => !observedItems.has(item))
+			.forEach((item) => {
+				observedItems.add(item);
+				itemResizeObserver!.observe(item);
+			});
 	};
 
 	// Expose the layout refresh function to parents
@@ -228,6 +260,8 @@
 			if (mutationObserver) {
 				mutationObserver.disconnect();
 			}
+			itemResizeObserver?.disconnect();
+			clearTimeout(pendingItemResizeRefresh);
 		};
 	});
 </script>
