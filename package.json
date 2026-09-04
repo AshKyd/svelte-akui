@@ -68,7 +68,6 @@
 		"@milkdown/crepe": "^7.21.2",
 		"marked": "^18.0.5",
 		"msrand": "^2.1.0",
-		"svelte-akui": "github:ashkyd/svelte-akui",
 		"svelte-bootstrap-icons": "^3.3.0"
 	}
 }
