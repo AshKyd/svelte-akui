@@ -559,7 +559,23 @@ export class DragSourceInstance<T = unknown> {
 	// fixed at pointerdown time (before the long-press promotes the gesture to a
 	// drag), so a non-passive touchmove guard is required.
 	#onTouchMove = (e: TouchEvent) => {
-		if (this.#isDragging) e.preventDefault();
+		if (this.#isDragging) {
+			e.preventDefault();
+			return;
+		}
+
+		// Once the browser starts scrolling it owns the touch, and it may send neither
+		// pointermove nor pointercancel — leaving the long-press timer to fire mid-scroll
+		// and yank the card out from under the finger. touchmove always arrives, so the
+		// "finger moved, this is a scroll" check has to live here as well.
+		if (!this.#longPressTimer) return;
+		const touch = e.touches[0];
+		if (!touch) return;
+		const moved = Math.hypot(touch.clientX - this.#startX, touch.clientY - this.#startY);
+		if (moved > TOUCH_LONG_PRESS_SLOP) {
+			clearTimeout(this.#longPressTimer);
+			this.#longPressTimer = null;
+		}
 	};
 
 	#onKeyDown = (e: KeyboardEvent) => {
