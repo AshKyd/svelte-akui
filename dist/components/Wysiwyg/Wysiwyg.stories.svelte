@@ -39,7 +39,11 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 	<Wysiwyg value="" placeholder="Write your thoughts here..." />
 </Story>
 
+<!-- A short editor for quick-entry panels, where the default 250px would dominate the page. -->
+<Story name="Compact">
+	<Wysiwyg value="" placeholder="Take a note…" minHeight="80px" />
+</Story>
+
 <Story name="Cosy Fantasy Notice Board">
 	<Wysiwyg value={fantasyNoticeBoard} />
 </Story>
-

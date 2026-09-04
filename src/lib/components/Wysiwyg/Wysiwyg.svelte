@@ -16,6 +16,8 @@
 		onchange?: (value: string) => void;
 		/** Custom loader snippet. If not provided, falls back to the default Loader. */
 		loader?: import('svelte').Snippet;
+		/** Minimum height reserved for the editor area. Any CSS length. Defaults to '250px'. */
+		minHeight?: string;
 		/** Additional CSS classes for the editor container. */
 		class?: string;
 	}
@@ -25,6 +27,7 @@
 		placeholder = '',
 		onchange,
 		loader,
+		minHeight = '250px',
 		class: className = ''
 	}: Props = $props();
 
@@ -45,7 +48,10 @@
 	}
 </script>
 
-<div class="akui-wysiwyg-container bespoke {className}">
+<div
+	class="akui-wysiwyg-container bespoke {className}"
+	style="--akui-wysiwyg-min-height: {minHeight};"
+>
 	{#if editor.loading}
 		<div class="akui-wysiwyg-loader" role="status" aria-busy="true">
 			{#if loader}
@@ -71,7 +77,7 @@
 		border: none;
 		background-color: transparent;
 		color: var(--akui-fg);
-		min-height: 250px;
+		min-height: var(--akui-wysiwyg-min-height, 250px);
 		display: flex;
 		flex-direction: column;
 		transition: var(--akui-transition-theme);
@@ -185,12 +191,21 @@
 	.akui-wysiwyg-container :global(.milkdown .prose),
 	.akui-wysiwyg-container :global(.milkdown .prose *) {
 		outline: none;
-		min-height: 200px;
 		flex: 1;
 		box-sizing: border-box;
 		max-width: 100% !important;
 		margin: 0 !important;
 		padding: 0 !important;
+	}
+
+	/*
+	 * The typing area fills the height the container reserves, so the whole panel stays
+	 * clickable rather than only the first line of text. Kept off `.prose *` — every
+	 * descendant inheriting a min-height would stretch individual paragraphs.
+	 */
+	.akui-wysiwyg-container :global(.milkdown .editor),
+	.akui-wysiwyg-container :global(.milkdown .editor-container) {
+		min-height: var(--akui-wysiwyg-min-height, 250px);
 	}
 
 	/* Ensure Milkdown dropdowns, popups, and floating menus sit above surrounding UI */

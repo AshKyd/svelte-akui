@@ -9,6 +9,8 @@ interface Props {
     onchange?: (value: string) => void;
     /** Custom loader snippet. If not provided, falls back to the default Loader. */
     loader?: import('svelte').Snippet;
+    /** Minimum height reserved for the editor area. Any CSS length. Defaults to '250px'. */
+    minHeight?: string;
     /** Additional CSS classes for the editor container. */
     class?: string;
 }
