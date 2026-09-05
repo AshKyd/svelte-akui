@@ -146,12 +146,13 @@
 		box-sizing: border-box;
 	}
 
-	/* Text selection styling using system Highlight and HighlightText */
+	/* Text selection styling using akui theme tokens */
 	.akui-wysiwyg-container ::selection,
 	.akui-wysiwyg-container :global(::selection),
 	.akui-wysiwyg-container :global(*::selection) {
-		background-color: Highlight !important;
-		color: HighlightText !important;
+		background-color: var(--akui-bg-accent, #2563eb) !important;
+		color: var(--akui-fg-accent, #ffffff) !important;
+		-webkit-text-fill-color: var(--akui-fg-accent, #ffffff) !important;
 	}
 
 	/* Code styling matching svelte-akui design tokens */
