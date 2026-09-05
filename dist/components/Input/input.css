@@ -22,10 +22,12 @@
 
 .akui-input-base:focus {
 	border-color: var(--akui-bg-accent);
-	box-shadow:
-		0 0 0 2px rgba(var(--akui-bg-accent-rgb), 0.2),
-		var(--akui-glow-inset-top),
-		var(--akui-glow-inset-bottom);
+}
+
+.akui-input-base:focus-visible {
+	border-color: var(--akui-bg-accent);
+	outline: 3px solid var(--akui-bg-accent);
+	outline-offset: 2px;
 }
 
 .akui-input-base:disabled {
@@ -85,6 +87,12 @@ textarea.akui-input-base.large {
 .akui-select-container > select.akui-input-base {
 	grid-area: 1 / 1;
 	padding-right: 2.5rem;
+}
+
+.akui-select-container > select.akui-input-base:focus-visible {
+	border-color: var(--akui-bg-accent);
+	outline: 3px solid var(--akui-bg-accent);
+	outline-offset: 2px;
 }
 
 .akui-select-container > .akui-select-arrow {

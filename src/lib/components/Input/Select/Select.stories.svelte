@@ -8,15 +8,16 @@
 	});
 
 	const options = [
-		{ value: 'dev', label: 'Developer' },
-		{ value: 'des', label: 'Designer' },
-		{ value: 'ops', label: 'Operations' }
+		{ value: 'potion-brewer', label: 'Apprentice Potion Brewer' },
+		{ value: 'toadstool-forager', label: 'Senior Toadstool Forager' },
+		{ value: 'parish-diviner', label: 'Parish Diviner & Cloud Whisperer' },
+		{ value: 'hedge-witch', label: 'Registered Hedge Witch' }
 	];
 </script>
 
 <Story name="Basic Usage">
 	<div style="max-width: 400px;">
-		<Select placeholder="Select a role" {options} />
+		<Select placeholder="Choose your guild occupation…" {options} />
 	</div>
 </Story>
 

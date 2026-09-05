@@ -185,6 +185,12 @@
 	box-sizing: border-box;
 }
 
+.akui-btn:focus-visible,
+button:not(.bespoke):not(.bespoke *):focus-visible {
+	outline: 3px solid var(--akui-bg-accent);
+	outline-offset: 2px;
+}
+
 .akui-btn:active {
 	transform: translateY(1px);
 }
@@ -302,7 +308,14 @@ input:not(.bespoke):not(.bespoke *):focus,
 select:not(.bespoke):not(.bespoke *):focus,
 textarea:not(.bespoke):not(.bespoke *):focus {
 	border-color: var(--akui-bg-accent);
-	box-shadow: 0 0 0 2px rgba(var(--akui-bg-accent-rgb), 0.2);
+}
+
+input:not(.bespoke):not(.bespoke *):focus-visible,
+select:not(.bespoke):not(.bespoke *):focus-visible,
+textarea:not(.bespoke):not(.bespoke *):focus-visible {
+	border-color: var(--akui-bg-accent);
+	outline: 3px solid var(--akui-bg-accent);
+	outline-offset: 2px;
 }
 
 select:not(.bespoke):not(.bespoke *) {
@@ -334,6 +347,12 @@ input:not(.bespoke):not(.bespoke *)[type='radio'] {
 	transition: var(--akui-transition-theme);
 	vertical-align: middle;
 	flex-shrink: 0;
+}
+
+input:not(.bespoke):not(.bespoke *)[type='checkbox']:focus-visible,
+input:not(.bespoke):not(.bespoke *)[type='radio']:focus-visible {
+	outline: 3px solid var(--akui-bg-accent);
+	outline-offset: 2px;
 }
 
 input:not(.bespoke):not(.bespoke *)[type='checkbox'] {

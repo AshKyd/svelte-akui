@@ -221,9 +221,10 @@
 			<Glow />
 
 			<div class="akui-layout-focus-shell__form-wrapper">
-				<div 
+				<div
 					bind:this={wrapperEl}
-					class="akui-layout-focus-shell__panel-content-wrapper" 
+					class="akui-layout-focus-shell__panel-content-wrapper"
+					class:akui-layout-focus-shell__panel-content-wrapper--animating={isTransitioning}
 					style="
 						--current-height: {currentHeight};
 						--height-duration: {transitionParams.duration ?? 300}ms;
@@ -309,7 +310,12 @@
 
 	.akui-layout-focus-shell__panel {
 		position: relative;
-		overflow: hidden;
+		/* auto (not hidden) so a panel taller than the shell scrolls internally instead of
+		   being clipped - overflow != visible also keeps the flex item's automatic min-height
+		   at 0, letting it shrink to fit the shell rather than pushing past it uncontrolled. */
+		overflow-y: auto;
+		overflow-x: hidden;
+		-webkit-overflow-scrolling: touch;
 		background-color: var(--akui-bg);
 		border: 1px solid rgba(0, 0, 0, 0.08);
 		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -372,6 +378,13 @@
 		width: 100%;
 		height: var(--current-height, auto);
 		transition: height var(--height-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1);
+		/* Visible at rest so focus rings on content near the edges aren't clipped; only
+		   hidden while a step transition is actually animating (height change + slide),
+		   which needs the clip to mask the outgoing/incoming content. */
+		overflow: visible;
+	}
+
+	.akui-layout-focus-shell__panel-content-wrapper--animating {
 		overflow: hidden;
 	}
 
