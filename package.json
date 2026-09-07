@@ -4,7 +4,8 @@
 	"scripts": {
 		"dev": "npm run storybook",
 		"dev:watch": "svelte-package --watch",
-		"build": "storybook build",
+		"build": "svelte-kit sync && svelte-package",
+		"build:storybook": "storybook build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"prepack": "svelte-kit sync && svelte-package && publint",

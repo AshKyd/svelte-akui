@@ -25,6 +25,7 @@ export * from './components/DragHandler/index.js';
 export * from './components/Glow/index.js';
 export * from './components/LayoutContentWidth/index.js';
 export * from './components/InfoBox/index.js';
+export * from './components/NotificationArea/index.js';
 export * from './components/Tree/index.js';
 export * from './components/FeedItemRow/index.js';
 export * from './components/DynamicImage/index.js';

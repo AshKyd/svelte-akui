@@ -56,7 +56,7 @@ export class DropTargetInstance {
 }
 /**
  * Creates a drop target instance that provides an attachment and reactive hover state.
- * This is the primitive layer — no styling. `<DropTarget>` wraps it with the default look.
+ * `<DropTarget>` wraps this with default styling.
  *
  * @example
  * ```svelte
@@ -73,11 +73,8 @@ export class DropTargetInstance {
  * </div>
  * ```
  *
- * No `<UIRoot>` needed: with no drag-scope context above it, `getDropManager()` returns a
- * shared browser-wide manager, so a bare `dragSource()` elsewhere still sees this target.
- * Only when you *do* provide a scoped context (`<UIRoot>` / `setDropManagerContext`) and
- * build targets lazily from render scope must you grab the manager once at init with
- * `getDropManager()` and pass it as the second argument — the context is not reachable later.
+ * Automatically connects to the shared `DropManager`. Pass an explicit `DropManager`
+ * instance as the second argument when using an isolated drag scope.
  */
 export function dropTarget(options = {}, manager = getDropManager()) {
     return new DropTargetInstance(manager, options);

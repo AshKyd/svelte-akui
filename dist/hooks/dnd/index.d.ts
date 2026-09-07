@@ -7,8 +7,8 @@
  * - `<Draggable>` / `<DropTarget>` (in `../../components/`) — styled wrappers over
  *   those primitives.
  * - `DropManager` — the shared coordinator. Works with no setup (a browser-wide
- *   fallback backs `getDropManager()`); `<UIRoot>` or `setDropManagerContext`
- *   only need to provide one when you want an isolated drag scope.
+ *   fallback backs `getDropManager()`); `setDropManagerContext` only needs to
+ *   provide one when you want an isolated drag scope.
  */
 export * from './types.js';
 export * from './manager.svelte.js';

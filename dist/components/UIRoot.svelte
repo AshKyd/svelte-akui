@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { type Snippet, setContext } from 'svelte';
-	import { DropManager, setDropManagerContext } from '../hooks/dnd/index.js';
 	import '../theme/theme.css';
 
 	interface Props {
@@ -40,9 +39,6 @@
 	$effect(() => {
 		resolvedMode = currentTheme;
 	});
-
-	const dropManager = new DropManager();
-	setDropManagerContext(dropManager);
 
 	setContext('akui-theme', {
 		get current() {

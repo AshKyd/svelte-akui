@@ -56,9 +56,8 @@
 		tray = next;
 	}
 
-	// "Primitives only" — the attachment layer with no <Draggable>/<DropTarget> component
-	// and no <UIRoot>. dragSource() and dropTarget() fall back to the shared browser-wide
-	// manager, so they find each other with no wiring.
+	// "Primitives only" — using the attachment layer directly with plain DOM elements.
+	// dragSource() and dropTarget() use the shared coordinator, so they connect automatically.
 	let plate = $state<string[]>([]);
 	const rawSource = dragSource({
 		getPayload: () => ({ type: 'raw-bake', data: { name: 'Hazelnut twist' } })

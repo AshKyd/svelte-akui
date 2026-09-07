@@ -270,7 +270,7 @@ export class DragSourceInstance {
 }
 /**
  * Creates a drag source instance that provides an attachment and reactive drag state.
- * This is the primitive layer — no styling. `<Draggable>` wraps it with the default visuals.
+ * `<Draggable>` wraps this with default cursor-follow and settle visuals.
  *
  * @example
  * ```svelte
@@ -286,11 +286,8 @@ export class DragSourceInstance {
  * </div>
  * ```
  *
- * No `<UIRoot>` needed: with no drag-scope context above it, `getDropManager()` returns a
- * shared browser-wide manager, so a bare `dropTarget()` elsewhere still sees this source.
- * Only when you *do* provide a scoped context (`<UIRoot>` / `setDropManagerContext`) and
- * build sources lazily from render scope must you grab the manager once at init with
- * `getDropManager()` and pass it as the second argument — the context is not reachable later.
+ * Automatically connects to the shared `DropManager`. Pass an explicit `DropManager`
+ * instance as the second argument when using an isolated drag scope.
  */
 export function dragSource(options, manager = getDropManager()) {
     return new DragSourceInstance(manager, options);
