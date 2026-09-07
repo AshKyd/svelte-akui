@@ -4,12 +4,7 @@
 	import DropTarget from '../DropTarget/DropTarget.svelte';
 	import Masonry from '../Masonry/Masonry.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
-	import {
-		dragSource,
-		dropTarget,
-		getDropManager,
-		type DragPayload
-	} from '../../hooks/dnd/index.js';
+	import { dragSource, dropTarget, type DragPayload } from '../../hooks/dnd/index.js';
 
 	const { Story } = defineMeta({
 		title: 'Components/Draggable',
@@ -61,24 +56,17 @@
 		tray = next;
 	}
 
-	// "Attachment only" — the primitive layer with no <Draggable>/<DropTarget> component.
-	// One manager, captured once, is passed to every dragSource()/dropTarget(): outside a
-	// <UIRoot> each getDropManager() call would otherwise hand back a separate manager and
-	// the source and target would never see each other.
-	const primitiveManager = getDropManager();
-
+	// "Primitives only" — the attachment layer with no <Draggable>/<DropTarget> component
+	// and no <UIRoot>. dragSource() and dropTarget() fall back to the shared browser-wide
+	// manager, so they find each other with no wiring.
 	let plate = $state<string[]>([]);
-	const rawSource = dragSource(
-		{ getPayload: () => ({ type: 'raw-bake', data: { name: 'Hazelnut twist' } }) },
-		primitiveManager
-	);
-	const rawTarget = dropTarget(
-		{
-			canDrop: (payload) => payload.type === 'raw-bake',
-			ondrop: (payload) => (plate = [...plate, (payload.data as { name: string }).name])
-		},
-		primitiveManager
-	);
+	const rawSource = dragSource({
+		getPayload: () => ({ type: 'raw-bake', data: { name: 'Hazelnut twist' } })
+	});
+	const rawTarget = dropTarget({
+		canDrop: (payload) => payload.type === 'raw-bake',
+		ondrop: (payload) => (plate = [...plate, (payload.data as { name: string }).name])
+	});
 </script>
 
 {#snippet doorstepBox(title: string, contents: string[], accepts: boolean)}
@@ -89,12 +77,14 @@
 		{#snippet children({ isOver, canDrop })}
 			<div
 				style="
-					border: 2px dashed {isOver && canDrop ? 'var(--akui-fg-accent, #2563eb)' : 'var(--akui-border)'};
+					border: 2px dashed {isOver && canDrop
+					? 'var(--akui-bg-accent, #2563eb)'
+					: 'var(--akui-border-input)'};
 					background: {isOver && canDrop ? 'var(--akui-bg-secondary)' : 'var(--akui-bg)'};
 					border-radius: 12px;
 					padding: 16px;
 					min-height: 160px;
-					transition: all 0.15s ease;
+					transition: background-color 0.15s ease;
 				"
 			>
 				<div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;">{title}</div>
@@ -114,15 +104,19 @@
 	</DropTarget>
 {/snippet}
 
-{#snippet bakeCard(bake: Bake, wobble: boolean, delta: { x: number; y: number })}
+<!--
+	No transform here: <Draggable> owns the drag transform on its wrapper (translate + scale),
+	and the wrapper also carries the drop shadow. A transform on this inner element would rotate
+	the card but not the shadow, so they visibly come apart. The drag cue is a colour change.
+-->
+{#snippet bakeCard(bake: Bake, dragging: boolean)}
 	<div
 		style="
-			background: var(--akui-bg);
-			border: 1px solid var(--akui-border);
+			background: {dragging ? 'var(--akui-bg-secondary)' : 'var(--akui-bg)'};
+			border: 1px solid {dragging ? 'var(--akui-bg-accent)' : 'var(--akui-border-input)'};
 			border-radius: 8px;
 			padding: 12px 14px;
 			cursor: grab;
-			transform: rotate({wobble ? Math.max(-6, Math.min(6, delta.x / 12)) : 0}deg);
 		"
 	>
 		<div style="font-weight: 600; font-size: 0.9rem;">{bake.name}</div>
@@ -130,18 +124,18 @@
 	</div>
 {/snippet}
 
-<Story name="Deliver the bakes">
+<Story name="Drag onto drop targets">
 	<LayoutContentWidth
 		size="large"
 		style="display: flex; flex-direction: column; gap: 16px; padding: 20px;"
 	>
 		<div style="display: flex; justify-content: space-between; align-items: center;">
 			<p style="margin: 0; color: var(--akui-fg-secondary); font-size: 0.9rem;">
-				Drag a bake from the cooling rack onto a doorstep. The card follows the cursor and wobbles
-				with <code>delta</code>; releasing over nothing snaps it back.
+				Drag a bake from the cooling rack onto a doorstep. The card follows the cursor and the
+				<code>isDragging</code> snippet state tints it while held; releasing over nothing snaps it back.
 			</p>
 			<button
-				style="padding: 6px 14px; border-radius: 6px; border: 1px solid var(--akui-border); background: var(--akui-bg); cursor: pointer;"
+				style="padding: 6px 14px; border-radius: 6px; border: 1px solid var(--akui-border-input); background: var(--akui-bg); cursor: pointer;"
 				onclick={resetRound}
 			>
 				New round
@@ -158,8 +152,8 @@
 				</div>
 				{#each pending as bake (bake.id)}
 					<Draggable getPayload={() => ({ type: 'bake', data: bake })}>
-						{#snippet children({ isDragging, delta })}
-							{@render bakeCard(bake, isDragging, delta)}
+						{#snippet children({ isDragging })}
+							{@render bakeCard(bake, isDragging)}
 						{/snippet}
 					</Draggable>
 				{/each}
@@ -170,7 +164,7 @@
 	</LayoutContentWidth>
 </Story>
 
-<Story name="Handle only">
+<Story name="Drag handle (handleSelector)">
 	<LayoutContentWidth
 		size="large"
 		style="display: flex; flex-direction: column; gap: 16px; padding: 20px; max-width: 420px;"
@@ -182,7 +176,7 @@
 		{#each rack as bake (bake.id)}
 			<Draggable handleSelector=".loaf-tie" getPayload={() => ({ type: 'bake', data: bake })}>
 				<div
-					style="display: flex; align-items: center; gap: 12px; background: var(--akui-bg); border: 1px solid var(--akui-border); border-radius: 8px; padding: 12px 14px;"
+					style="display: flex; align-items: center; gap: 12px; background: var(--akui-bg); border: 1px solid var(--akui-border-input); border-radius: 8px; padding: 12px 14px;"
 				>
 					<span
 						class="loaf-tie"
@@ -192,7 +186,7 @@
 					<div>
 						<div style="font-weight: 600; font-size: 0.9rem;">{bake.name}</div>
 						<button
-							style="margin-top: 4px; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--akui-border); background: var(--akui-bg); cursor: pointer;"
+							style="margin-top: 4px; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--akui-border-input); background: var(--akui-bg); cursor: pointer;"
 							onclick={() => alert(`Tasting note: ${bake.note}`)}
 						>
 							Taste
@@ -204,7 +198,7 @@
 	</LayoutContentWidth>
 </Story>
 
-<Story name="Ovens still cooling">
+<Story name="Disabled draggables (disabled)">
 	<LayoutContentWidth
 		size="large"
 		style="display: flex; flex-direction: column; gap: 16px; padding: 20px; max-width: 420px;"
@@ -218,7 +212,7 @@
 				<div
 					style="
 						background: var(--akui-bg);
-						border: 1px solid var(--akui-border);
+						border: 1px solid var(--akui-border-input);
 						border-radius: 8px;
 						padding: 12px 14px;
 						opacity: {i < 2 ? 0.55 : 1};
@@ -235,7 +229,7 @@
 	</LayoutContentWidth>
 </Story>
 
-<Story name="Reorder the tray">
+<Story name="List reordering (Draggable + DropTarget)">
 	<LayoutContentWidth
 		size="large"
 		style="display: flex; flex-direction: column; gap: 16px; padding: 20px;"
@@ -257,12 +251,12 @@
 							<div
 								style="
 									background: var(--akui-bg);
-									border: 1px solid var(--akui-border);
+									border: 1px solid var(--akui-border-input);
 									border-radius: 8px;
 									padding: 16px;
 									cursor: grab;
 									outline: {isOver && canDrop
-									? '2px dashed var(--akui-fg-accent, #2563eb)'
+									? '2px dashed var(--akui-bg-accent, #2563eb)'
 									: '2px dashed transparent'};
 									outline-offset: -2px;
 								"
@@ -278,7 +272,7 @@
 	</LayoutContentWidth>
 </Story>
 
-<Story name="Attachment only (no component)">
+<Story name="Primitives only (dragSource + dropTarget)">
 	<LayoutContentWidth
 		size="large"
 		style="display: flex; flex-direction: column; gap: 16px; padding: 20px; max-width: 460px;"
@@ -294,7 +288,7 @@
 			style="
 				align-self: start;
 				background: var(--akui-bg);
-				border: 1px solid var(--akui-border);
+				border: 1px solid var(--akui-border-input);
 				border-radius: 8px;
 				padding: 12px 14px;
 				cursor: grab;
@@ -311,13 +305,13 @@
 			{@attach rawTarget.attach}
 			style="
 				border: 2px dashed {rawTarget.isOver && rawTarget.canDrop
-				? 'var(--akui-fg-accent, #2563eb)'
-				: 'var(--akui-border)'};
+				? 'var(--akui-bg-accent, #2563eb)'
+				: 'var(--akui-border-input)'};
 				background: {rawTarget.isOver && rawTarget.canDrop ? 'var(--akui-bg-secondary)' : 'var(--akui-bg)'};
 				border-radius: 12px;
 				padding: 16px;
 				min-height: 120px;
-				transition: all 0.15s ease;
+				transition: background-color 0.15s ease;
 			"
 		>
 			<div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;">The plate</div>

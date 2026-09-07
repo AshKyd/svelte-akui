@@ -11,21 +11,9 @@ The system is split into two layers:
 
 ## Getting Started
 
-### 1. Ensure `UIRoot` is Configured
+Drag and drop works out of the box with no providers, wrappers, or root components. `svelte-akui` uses a shared browser-wide `DropManager` coordinator so `<Draggable>` / `dragSource()` and `<DropTarget>` / `dropTarget()` elements automatically discover each other anywhere on the page.
 
-`UIRoot` instantiates and provides the coordinator instance (`DropManager`) via context to all descendant components and attachment primitives.
-
-```svelte
-<script>
-	import { UIRoot } from 'svelte-akui';
-</script>
-
-<UIRoot>
-	<!-- Draggable and DropTarget components work anywhere inside UIRoot -->
-</UIRoot>
-```
-
-### 2. Basic Drag and Drop Example
+### Basic Drag and Drop Example
 
 Wrap your draggable element with `<Draggable>` and define a receiving zone with `<DropTarget>`.
 
@@ -174,10 +162,10 @@ Attachments connect to DOM elements using Svelte 5's `{@attach ...}` syntax:
 <div {@attach source.attach}>...</div>
 ```
 
-Both `dragSource()` and `dropTarget()` read the `DropManager` from context by default.
+Both `dragSource()` and `dropTarget()` automatically connect to the shared `DropManager`.
 
-> [!NOTE]
-> When creating attachments lazily in functions or loops (outside component initialisation), obtain the manager instance once with `const manager = getDropManager();` during component setup and pass it as the second parameter: `dragSource(options, manager)`.
+> [!TIP]
+> To create an isolated drag session (such as in automated unit tests or an isolated modal sandbox), call `setDropManagerContext(new DropManager())` during component initialisation or call `resetDropManager()` between tests.
 
 ### Unstyled Drag Source Example
 
@@ -420,4 +408,12 @@ Creates a reactive drop target instance.
 
 #### `getDropManager(): DropManager`
 
-Retrieves the `DropManager` coordinator from the nearest context, or returns a standalone coordinator instance.
+Returns the active `DropManager` coordinator from Svelte context if one was set, or the shared browser-wide coordinator by default.
+
+#### `setDropManagerContext(manager: DropManager): void`
+
+Sets a scoped `DropManager` in Svelte context for the current component and its children. Useful when creating isolated drag sandboxes or nested test environments.
+
+#### `resetDropManager(): void`
+
+Resets the browser-wide fallback `DropManager` instance, ensuring subsequent calls to `getDropManager()` instantiate a fresh coordinator (useful between unit tests).

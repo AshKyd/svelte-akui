@@ -4,7 +4,8 @@
  * tracking and hit-testing for registered drop targets. `dragSource()` (in
  * `dragSource.svelte.ts`) makes an element emit a payload; `dropTarget()` (in
  * `dropTarget.svelte.ts`) makes an element accept one. Both are pointer-based
- * and share one `DropManager`, provided per `UIRoot` via context.
+ * and share one `DropManager`: a browser-wide fallback by default, or a scoped
+ * instance when `<UIRoot>` / `setDropManagerContext` provides one via context.
  */
 import type { DragPayload, DropTargetOptions } from './types.js';
 import type { DropTargetInstance } from './dropTarget.svelte.js';
@@ -48,10 +49,23 @@ export declare class DropManager {
     endDrag(): void;
 }
 /**
- * Type-safe context for DropManager in Svelte 5.
+ * Type-safe context for DropManager in Svelte 5. `<UIRoot>` sets this, and so can
+ * a consumer that wants an isolated drag scope (a portalled overlay, a test) by
+ * calling `setDropManagerContext(new DropManager())` during component init.
  */
 export declare const getDropManagerContext: () => DropManager, setDropManagerContext: (context: DropManager) => DropManager;
 /**
- * Returns the DropManager from context or creates a fallback if rendered outside UIRoot.
+ * Returns the DropManager for the current component: the one from context if a
+ * provider (`<UIRoot>` or `setDropManagerContext`) is above it, otherwise the
+ * shared browser-wide fallback. So a bare `dragSource()` and `dropTarget()`
+ * elsewhere on the page still see each other with zero setup.
+ *
+ * On the server there is no context and no shared state to keep, so each call
+ * gets a throwaway instance — nothing registers targets or drags during SSR.
  */
 export declare function getDropManager(): DropManager;
+/**
+ * Drops the shared fallback manager so the next `getDropManager()` (outside any
+ * context) builds a fresh one. For tests that need isolation between cases.
+ */
+export declare function resetDropManager(): void;

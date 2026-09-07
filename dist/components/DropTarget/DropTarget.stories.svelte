@@ -158,7 +158,7 @@
 	}
 </script>
 
-<Story name="Cauldron and Tree Ledger">
+<Story name="Drop zone and Tree-row targets (canDrop)">
 	<LayoutContentWidth
 		size="large"
 		style="display: flex; flex-direction: column; gap: 20px; padding: 20px;"
@@ -171,7 +171,7 @@
 				</p>
 			</div>
 			<button
-				style="padding: 6px 14px; border-radius: 6px; border: 1px solid var(--akui-border); background: var(--akui-bg); cursor: pointer;"
+				style="padding: 6px 14px; border-radius: 6px; border: 1px solid var(--akui-border-input); background: var(--akui-bg); cursor: pointer;"
 				onclick={handleReset}
 			>
 				Replenish Shelf
@@ -179,7 +179,7 @@
 		</div>
 
 		<div
-			style="padding: 10px 14px; background: var(--akui-bg-secondary); border-radius: 8px; font-weight: 500; font-size: 0.9rem; color: var(--akui-fg-accent);"
+			style="padding: 10px 14px; background: var(--akui-bg-secondary); border-radius: 8px; font-weight: 500; font-size: 0.9rem; color: var(--akui-bg-accent);"
 		>
 			{log}
 		</div>
@@ -189,7 +189,7 @@
 		>
 			<!-- Left Column: Tree View Drop Target -->
 			<div
-				style="border: 1px solid var(--akui-border); border-radius: 8px; padding: 14px; background: var(--akui-bg);"
+				style="border: 1px solid var(--akui-border-input); border-radius: 8px; padding: 14px; background: var(--akui-bg);"
 			>
 				<div
 					style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; color: var(--akui-fg-secondary);"
@@ -205,7 +205,7 @@
 
 			<!-- Center Column: Draggable Masonry Grid -->
 			<div
-				style="border: 1px solid var(--akui-border); border-radius: 8px; padding: 14px; background: var(--akui-bg-secondary);"
+				style="border: 1px solid var(--akui-border-input); border-radius: 8px; padding: 14px; background: var(--akui-bg-secondary);"
 			>
 				<div
 					style="font-weight: 600; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 12px; color: var(--akui-fg-secondary);"
@@ -228,7 +228,7 @@
 								})}
 							>
 								<div
-									style="background: var(--akui-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--akui-border); cursor: grab; user-select: none;"
+									style="background: var(--akui-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--akui-border-input); cursor: grab; user-select: none;"
 								>
 									<FeedItemRow
 										title={item.name}
@@ -253,7 +253,9 @@
 				{#snippet children({ isOver, canDrop, isDragging })}
 					<div
 						style="
-							border: 2px dashed {isOver && canDrop ? 'var(--akui-bg-accent, #2563eb)' : 'var(--akui-border)'};
+							border: 2px dashed {isOver && canDrop
+							? 'var(--akui-bg-accent, #2563eb)'
+							: 'var(--akui-border-input)'};
 							background: {isOver && canDrop
 							? 'var(--akui-bg-accent-subtle, rgba(37, 99, 235, 0.08))'
 							: 'var(--akui-bg)'};
@@ -266,7 +268,7 @@
 							min-height: 220px;
 							justify-content: center;
 							text-align: center;
-							transition: all 0.2s ease;
+							transition: background-color 0.2s ease;
 						"
 					>
 						<Icon name="cup-hot" size={36} />
@@ -285,7 +287,7 @@
 
 						{#if cauldron.length > 0}
 							<div
-								style="width: 100%; border-top: 1px solid var(--akui-border); margin-top: 8px; padding-top: 8px; font-size: 0.8rem; color: var(--akui-fg-secondary);"
+								style="width: 100%; border-top: 1px solid var(--akui-border-input); margin-top: 8px; padding-top: 8px; font-size: 0.8rem; color: var(--akui-fg-secondary);"
 							>
 								Brew contains {cauldron.length} item{cauldron.length > 1 ? 's' : ''}
 							</div>

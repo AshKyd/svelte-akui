@@ -4,12 +4,7 @@
 	import DropTarget from '../DropTarget/DropTarget.svelte';
 	import Masonry from '../Masonry/Masonry.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
-	import {
-		dragSource,
-		dropTarget,
-		getDropManager,
-		type DragPayload
-	} from '../../hooks/dnd/index.js';
+	import { dragSource, dropTarget, type DragPayload } from '../../hooks/dnd/index.js';
 
 	const { Story } = defineMeta({
 		title: 'Components/Draggable',
@@ -61,24 +56,16 @@
 		tray = next;
 	}
 
-	// "Attachment only" — the primitive layer with no <Draggable>/<DropTarget> component.
-	// One manager, captured once, is passed to every dragSource()/dropTarget(): outside a
-	// <UIRoot> each getDropManager() call would otherwise hand back a separate manager and
-	// the source and target would never see each other.
-	const primitiveManager = getDropManager();
-
+	// "Primitives only" — using the attachment layer directly with plain DOM elements.
+	// dragSource() and dropTarget() use the shared coordinator, so they connect automatically.
 	let plate = $state<string[]>([]);
-	const rawSource = dragSource(
-		{ getPayload: () => ({ type: 'raw-bake', data: { name: 'Hazelnut twist' } }) },
-		primitiveManager
-	);
-	const rawTarget = dropTarget(
-		{
-			canDrop: (payload) => payload.type === 'raw-bake',
-			ondrop: (payload) => (plate = [...plate, (payload.data as { name: string }).name])
-		},
-		primitiveManager
-	);
+	const rawSource = dragSource({
+		getPayload: () => ({ type: 'raw-bake', data: { name: 'Hazelnut twist' } })
+	});
+	const rawTarget = dropTarget({
+		canDrop: (payload) => payload.type === 'raw-bake',
+		ondrop: (payload) => (plate = [...plate, (payload.data as { name: string }).name])
+	});
 </script>
 
 {#snippet doorstepBox(title: string, contents: string[], accepts: boolean)}

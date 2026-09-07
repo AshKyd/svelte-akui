@@ -4,7 +4,7 @@ A modular UI library built for **Svelte 5** designed for building web apps. This
 
 ## Getting Started
 
-Wrap your application in the `UIRoot` component to set up the design system's CSS variables and global styles.
+You can optionally wrap your application in the `UIRoot` component to configure theme preferences (`mode`, `resolvedMode`), base fonts, and design system CSS variables. Individual components and drag-and-drop features work independently with zero setup.
 
 ```svelte
 <script>
@@ -20,7 +20,7 @@ Wrap your application in the `UIRoot` component to set up the design system's CS
 
 ### Layout & Foundation
 
-- **`UIRoot`**: Required parent wrapper. Sets the base font, HSL color tokens, and manages theme state. Supports bindable `mode` (the configured theme preference: `'light'`, `'dark'`, or `undefined` for system preference) and bindable `resolvedMode` (the currently active resolved theme: `'light'` or `'dark'`, which takes system settings into account when `mode` is `undefined`).
+- **`UIRoot`**: Optional parent wrapper for global styling and theme management. Sets the base font, HSL colour tokens, and manages theme state. Supports bindable `mode` (the configured theme preference: `'light'`, `'dark'`, or `undefined` for system preference) and bindable `resolvedMode` (the currently active resolved theme: `'light'` or `'dark'`, which takes system settings into account when `mode` is `undefined`).
 - **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics. *Note: Panels should be used sparingly, only for items that specifically require visual elevation and distinction from other content on the page (e.g. they should not wrap entire layout pages).*
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.

@@ -73,9 +73,11 @@ export class DropTargetInstance {
  * </div>
  * ```
  *
- * The manager is read from context, so call this during component initialisation. To build
- * targets later (lazily, per list item), grab the manager once at init with
- * `getDropManager()` and pass it as the second argument.
+ * No `<UIRoot>` needed: with no drag-scope context above it, `getDropManager()` returns a
+ * shared browser-wide manager, so a bare `dragSource()` elsewhere still sees this target.
+ * Only when you *do* provide a scoped context (`<UIRoot>` / `setDropManagerContext`) and
+ * build targets lazily from render scope must you grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument — the context is not reachable later.
  */
 export function dropTarget(options = {}, manager = getDropManager()) {
     return new DropTargetInstance(manager, options);

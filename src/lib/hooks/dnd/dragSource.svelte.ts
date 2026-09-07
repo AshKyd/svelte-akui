@@ -300,7 +300,7 @@ export class DragSourceInstance<T = unknown> {
 
 /**
  * Creates a drag source instance that provides an attachment and reactive drag state.
- * This is the primitive layer — no styling. `<Draggable>` wraps it with the default visuals.
+ * `<Draggable>` wraps this with default cursor-follow and settle visuals.
  *
  * @example
  * ```svelte
@@ -316,9 +316,8 @@ export class DragSourceInstance<T = unknown> {
  * </div>
  * ```
  *
- * The manager is read from context, so call this during component initialisation. To build
- * sources later (lazily, per list item), grab the manager once at init with
- * `getDropManager()` and pass it as the second argument.
+ * Automatically connects to the shared `DropManager`. Pass an explicit `DropManager`
+ * instance as the second argument when using an isolated drag scope.
  */
 export function dragSource<T = unknown>(
 	options: DragSourceOptions<T>,

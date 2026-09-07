@@ -71,7 +71,7 @@ export class DropTargetInstance {
 
 /**
  * Creates a drop target instance that provides an attachment and reactive hover state.
- * This is the primitive layer — no styling. `<DropTarget>` wraps it with the default look.
+ * `<DropTarget>` wraps this with default styling.
  *
  * @example
  * ```svelte
@@ -88,9 +88,8 @@ export class DropTargetInstance {
  * </div>
  * ```
  *
- * The manager is read from context, so call this during component initialisation. To build
- * targets later (lazily, per list item), grab the manager once at init with
- * `getDropManager()` and pass it as the second argument.
+ * Automatically connects to the shared `DropManager`. Pass an explicit `DropManager`
+ * instance as the second argument when using an isolated drag scope.
  */
 export function dropTarget<T = unknown>(
 	options: DropTargetOptions<T> = {},

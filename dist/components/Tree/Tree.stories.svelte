@@ -205,7 +205,7 @@
 		</div>
 
 		<div
-			style="font-size: 0.875rem; font-weight: 600; color: var(--akui-fg-accent, #2563eb); min-height: 1.5rem;"
+			style="font-size: 0.875rem; font-weight: 600; color: var(--akui-bg-accent, #2563eb); min-height: 1.5rem;"
 		>
 			{log}
 		</div>

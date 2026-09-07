@@ -53,8 +53,10 @@ export declare class DragSourceInstance<T = unknown> {
  * </div>
  * ```
  *
- * The manager is read from context, so call this during component initialisation. To build
- * sources later (lazily, per list item), grab the manager once at init with
- * `getDropManager()` and pass it as the second argument.
+ * No `<UIRoot>` needed: with no drag-scope context above it, `getDropManager()` returns a
+ * shared browser-wide manager, so a bare `dropTarget()` elsewhere still sees this source.
+ * Only when you *do* provide a scoped context (`<UIRoot>` / `setDropManagerContext`) and
+ * build sources lazily from render scope must you grab the manager once at init with
+ * `getDropManager()` and pass it as the second argument — the context is not reachable later.
  */
 export declare function dragSource<T = unknown>(options: DragSourceOptions<T>, manager?: DropManager): DragSourceInstance<T>;

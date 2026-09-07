@@ -4,7 +4,8 @@
  * tracking and hit-testing for registered drop targets. `dragSource()` (in
  * `dragSource.svelte.ts`) makes an element emit a payload; `dropTarget()` (in
  * `dropTarget.svelte.ts`) makes an element accept one. Both are pointer-based
- * and share one `DropManager`, provided per `UIRoot` via context.
+ * and share one `DropManager`: a shared browser-wide coordinator by default, or an
+ * isolated instance when `setDropManagerContext` provides one via context.
  */
 
 import { createContext } from 'svelte';
@@ -161,18 +162,41 @@ export class DropManager {
 }
 
 /**
- * Type-safe context for DropManager in Svelte 5.
+ * Type-safe context for DropManager in Svelte 5. Consumers that want an isolated
+ * drag scope (a portalled overlay, a test) can call `setDropManagerContext(new DropManager())`
+ * during component init.
  */
 export const [getDropManagerContext, setDropManagerContext] = createContext<DropManager>();
 
 /**
- * Returns the DropManager from context or creates a fallback if rendered outside UIRoot.
+ * Browser-wide manager. Lazily created so drag and drop works with no setup and no
+ * context at all — the standard case. A context set by `setDropManagerContext`
+ * wins over this.
+ */
+let fallbackManager: DropManager | undefined;
+
+/**
+ * Returns the DropManager for the current component: the one from context if
+ * `setDropManagerContext` is above it, otherwise the shared browser-wide manager.
+ * So bare `dragSource()` and `dropTarget()` elements anywhere on the page see each
+ * other with zero setup.
+ *
+ * On the server there is no context and no shared state to keep, so each call
+ * gets a throwaway instance — nothing registers targets or drags during SSR.
  */
 export function getDropManager(): DropManager {
 	try {
 		return getDropManagerContext();
 	} catch {
-		// Fallback for isolated components/tests
-		return new DropManager();
+		if (typeof window === 'undefined') return new DropManager();
+		return (fallbackManager ??= new DropManager());
 	}
+}
+
+/**
+ * Drops the shared fallback manager so the next `getDropManager()` (outside any
+ * context) builds a fresh one. For tests that need isolation between cases.
+ */
+export function resetDropManager(): void {
+	fallbackManager = undefined;
 }

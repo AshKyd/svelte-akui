@@ -6,7 +6,9 @@
  *   directly (`{@attach source.attach}`) for unstyled drag and drop.
  * - `<Draggable>` / `<DropTarget>` (in `../../components/`) — styled wrappers over
  *   those primitives.
- * - `DropManager` + context — the shared coordinator, set up once by `<UIRoot>`.
+ * - `DropManager` — the shared coordinator. Works with no setup (a browser-wide
+ *   fallback backs `getDropManager()`); `setDropManagerContext` only needs to
+ *   provide one when you want an isolated drag scope.
  */
 
 export * from './types.js';
