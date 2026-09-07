@@ -8,10 +8,10 @@ not reach `aknotes` until they are pushed and reinstalled.
 
 ## Commands
 
-- `npm run dev` — Vite dev server for the demo routes
+- `npm run dev` / `npm run storybook` — port 6006, `--ci` so it doesn't open a browser
 - `npm run dev:watch` — `svelte-package --watch`, for editing against a linked consumer
-- `npm run storybook` — port 6006, `--ci` so it doesn't open a browser
-- `npm run build` — Vite build then `prepack` (svelte-package + publint)
+- `npm run build` — Storybook build (`storybook build`)
+- `npm run prepack` — `svelte-kit sync && svelte-package && publint`
 - `npm run check` / `check:watch` — svelte-check
 - `npm run lint` — prettier --check + eslint; `npm run format` to fix
 

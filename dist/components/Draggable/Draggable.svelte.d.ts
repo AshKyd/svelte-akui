@@ -7,7 +7,7 @@
      */
 import { type Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
-import { type DragCancelReason, type DragMoveDetail, type DragPayload } from '../../hooks/dropManager.svelte.js';
+import { type DragCancelReason, type DragMoveDetail, type DragPayload } from '../../hooks/dnd/index.js';
 interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'ondragstart' | 'ondragend' | 'ondrop' | 'oncancel'> {
     /** Builds the payload dispatched to the global DropManager when this element starts dragging */
     getPayload: (ctx: {

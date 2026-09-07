@@ -44,9 +44,9 @@
 		dragSource,
 		dropTarget,
 		getDropManager,
-		type DragPayload,
-		type TreeItemData
-	} from '../../hooks/dropManager.svelte.js';
+		type DragPayload
+	} from '../../hooks/dnd/index.js';
+	import type { TreeItemData } from './TreeItem.svelte';
 
 	// Stateful tree nodes so the "Compose drag and drop" story can move things around.
 	let treeItems = $state<TreeItemData[]>([

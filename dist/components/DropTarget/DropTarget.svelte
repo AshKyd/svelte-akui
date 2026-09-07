@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import { dropTarget, type DragPayload, type DropTargetOptions } from '../../hooks/dropManager.svelte.js';
+	import { dropTarget, type DragPayload } from '../../hooks/dnd/index.js';
 
 	interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'ondrop' | 'ondragenter' | 'ondragleave'> {
 		/** Function validating if the active drag payload can be dropped */

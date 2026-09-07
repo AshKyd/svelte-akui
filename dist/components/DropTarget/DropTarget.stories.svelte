@@ -8,7 +8,7 @@
 	import type { TreeItemData } from '../Tree/TreeItem.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
-	import type { DragPayload } from '../../hooks/dropManager.svelte.js';
+	import type { DragPayload } from '../../hooks/dnd/index.js';
 
 	const { Story } = defineMeta({
 		title: 'Components/DropTarget',
@@ -57,7 +57,7 @@
 
 <script lang="ts">
 	import { createAttachmentKey } from 'svelte/attachments';
-	import { dropTarget, getDropManager } from '../../hooks/dropManager.svelte.js';
+	import { dropTarget, getDropManager } from '../../hooks/dnd/index.js';
 
 	let pouch = $state<PotionIngredient[]>([...initialPouchItems]);
 	let cauldron = $state<PotionIngredient[]>([]);

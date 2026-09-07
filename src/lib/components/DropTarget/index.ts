@@ -1,2 +1,2 @@
 export { default as DropTarget } from './DropTarget.svelte';
-export * from '../../hooks/dropManager.svelte.js';
+export * from '../../hooks/dnd/index.js';

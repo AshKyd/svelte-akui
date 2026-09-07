@@ -4,7 +4,12 @@
 	import DropTarget from '../DropTarget/DropTarget.svelte';
 	import Masonry from '../Masonry/Masonry.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
-	import type { DragPayload } from '../../hooks/dropManager.svelte.js';
+	import {
+		dragSource,
+		dropTarget,
+		getDropManager,
+		type DragPayload
+	} from '../../hooks/dnd/index.js';
 
 	const { Story } = defineMeta({
 		title: 'Components/Draggable',
@@ -55,6 +60,25 @@
 		next.splice(to, 0, moved);
 		tray = next;
 	}
+
+	// "Attachment only" — the primitive layer with no <Draggable>/<DropTarget> component.
+	// One manager, captured once, is passed to every dragSource()/dropTarget(): outside a
+	// <UIRoot> each getDropManager() call would otherwise hand back a separate manager and
+	// the source and target would never see each other.
+	const primitiveManager = getDropManager();
+
+	let plate = $state<string[]>([]);
+	const rawSource = dragSource(
+		{ getPayload: () => ({ type: 'raw-bake', data: { name: 'Hazelnut twist' } }) },
+		primitiveManager
+	);
+	const rawTarget = dropTarget(
+		{
+			canDrop: (payload) => payload.type === 'raw-bake',
+			ondrop: (payload) => (plate = [...plate, (payload.data as { name: string }).name])
+		},
+		primitiveManager
+	);
 </script>
 
 {#snippet doorstepBox(title: string, contents: string[], accepts: boolean)}
@@ -251,5 +275,61 @@
 				</Draggable>
 			{/snippet}
 		</Masonry>
+	</LayoutContentWidth>
+</Story>
+
+<Story name="Attachment only (no component)">
+	<LayoutContentWidth
+		size="large"
+		style="display: flex; flex-direction: column; gap: 16px; padding: 20px; max-width: 460px;"
+	>
+		<p style="margin: 0; color: var(--akui-fg-secondary); font-size: 0.9rem;">
+			No component — just <code>dragSource()</code> and <code>dropTarget()</code> spread onto plain
+			elements with <code>{'{@attach ...}'}</code>. The instances also carry the reactive drag state
+			used for the styling here. You bring your own visuals; the primitive only runs the gesture.
+		</p>
+
+		<div
+			{@attach rawSource.attach}
+			style="
+				align-self: start;
+				background: var(--akui-bg);
+				border: 1px solid var(--akui-border);
+				border-radius: 8px;
+				padding: 12px 14px;
+				cursor: grab;
+				user-select: none;
+				transform: translate3d({rawSource.delta.x}px, {rawSource.delta.y}px, 0);
+				opacity: {rawSource.isDragging ? 0.6 : 1};
+			"
+		>
+			<div style="font-weight: 600; font-size: 0.9rem;">Hazelnut twist</div>
+			<div style="font-size: 0.8rem; color: var(--akui-fg-secondary);">drag me onto the plate</div>
+		</div>
+
+		<div
+			{@attach rawTarget.attach}
+			style="
+				border: 2px dashed {rawTarget.isOver && rawTarget.canDrop
+				? 'var(--akui-fg-accent, #2563eb)'
+				: 'var(--akui-border)'};
+				background: {rawTarget.isOver && rawTarget.canDrop ? 'var(--akui-bg-secondary)' : 'var(--akui-bg)'};
+				border-radius: 12px;
+				padding: 16px;
+				min-height: 120px;
+				transition: all 0.15s ease;
+			"
+		>
+			<div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;">The plate</div>
+			{#if plate.length === 0}
+				<div style="font-size: 0.8rem; color: var(--akui-fg-secondary);">Empty</div>
+			{:else}
+				<ul style="margin: 0; padding-left: 18px; font-size: 0.85rem;">
+					{#each plate as name, i (i)}
+						<li>{name}</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
 	</LayoutContentWidth>
 </Story>

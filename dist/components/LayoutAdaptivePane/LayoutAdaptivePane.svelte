@@ -159,6 +159,27 @@
 			Math.min(maxAllowedWidth, dragStartWidth + detail.offsetX)
 		);
 	}
+
+	/**
+	 * Entrance/exit for the stacked (mobile) nested pane: a fade combined with a slight
+	 * upward slide and scale-up anchored to the bottom edge. Applied with `transition:`
+	 * so it plays in reverse on the way out. Driving this in JS rather than toggling a
+	 * CSS class is deliberate — the outgoing route's content stays frozen on screen
+	 * while it animates away, instead of snapping back to the empty base-route state.
+	 */
+	function stackedNestedFade(
+		_node: Element,
+		{ reducedMotion = false }: { reducedMotion?: boolean }
+	) {
+		return {
+			duration: reducedMotion ? 120 : 250,
+			easing: cubicOut,
+			css: (t: number) =>
+				reducedMotion
+					? `opacity: ${t};`
+					: `opacity: ${t}; transform: translate3d(0, ${(1 - t) * 8}px, 0) scale(${0.98 + t * 0.02});`
+		};
+	}
 </script>
 
 <svelte:window
@@ -223,10 +244,20 @@
 					{@render nestedPane?.({ isStacked })}
 				</div>
 			{/key}
-		{:else}
-			<div class="akui-pane-nested-transition-wrapper">
-				{@render nestedPane?.({ isStacked })}
-			</div>
+		{:else if !isBaseRoute}
+			<!-- Mounted only while a non-base route is active. The key keeps each route's
+			     content on screen through its own out transition, so nothing snaps back
+			     to the empty base-route view mid-animation. The transition is `|global`
+			     so it still runs when this branch is toggled by the outer conditional,
+			     not only when the keyed block swaps between two non-base routes. -->
+			{#key currentRouteId}
+				<div
+					class="akui-pane-nested-transition-wrapper"
+					transition:stackedNestedFade|global={{ reducedMotion: prefersReducedMotion }}
+				>
+					{@render nestedPane?.({ isStacked })}
+				</div>
+			{/key}
 		{/if}
 	</div>
 </div>
@@ -330,22 +361,28 @@
 			opacity 0.3s ease;
 	}
 
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-main {
-		transform: translate3d(-100%, 0, 0);
-		opacity: 0;
-	}
+	/* Stacked (mobile) has no drag handle to reposition the panes. The nested pane's
+	   content is mounted only while a non-base route is active (see template) and the
+	   `stackedNestedFade` transition fades it in over a stationary main pane with a
+	   slight upward slide and scale from the bottom edge, reversing on the way out.
+	   The main pane keeps its place and does not move — the content underneath must
+	   not shift while the nested pane comes and goes. */
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-main,
 	.akui-layout-adaptive-pane.is-stacked .akui-pane-main.active {
-		transform: translate3d(0, 0, 0);
+		transform: none;
 		opacity: 1;
 	}
 
+	/* Transparent, non-scrolling shell: the stationary main pane shows through
+	   whenever the nested content is unmounted, and the transition wrapper inside
+	   carries its own opaque background and handles scrolling. */
 	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
-		transform: translate3d(100%, 0, 0);
-		opacity: 0;
+		background: transparent;
+		overflow: hidden;
 	}
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested.active {
-		transform: translate3d(0, 0, 0);
-		opacity: 1;
+
+	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested-transition-wrapper {
+		transform-origin: bottom center;
 	}
 
 	/* --- Overlay mode --------------------------------------------------------

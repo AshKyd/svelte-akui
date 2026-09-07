@@ -13,7 +13,7 @@
 		type DragCancelReason,
 		type DragMoveDetail,
 		type DragPayload
-	} from '../../hooks/dropManager.svelte.js';
+	} from '../../hooks/dnd/index.js';
 
 	interface Props extends Omit<
 		HTMLAttributes<HTMLDivElement>,
@@ -64,12 +64,6 @@
 		...restProps
 	}: Props = $props();
 
-	// TEMP: lifecycle tracing while debugging drag/drop. Remove once the flow is confirmed.
-	const DEBUG = true;
-	const trace = (event: string, extra: Record<string, unknown> = {}) => {
-		if (DEBUG) console.log('[Draggable]', JSON.stringify({ event, ...extra }));
-	};
-
 	// After a drag ends the element transitions back to its resting transform, then the
 	// inline transform is dropped so the layout parent controls position again.
 	let settling = $state(false);
@@ -84,7 +78,6 @@
 		settleTimer = setTimeout(() => {
 			settling = false;
 			settleTimer = null;
-			trace('settleEnd');
 		}, 150);
 	}
 
@@ -110,22 +103,18 @@
 		},
 		ondragstart: () => {
 			settleOrigin = { ...source.grabOffset };
-			trace('dragstart', { grabOffset: source.grabOffset });
 			ondragstart?.();
 		},
 		get ondragmove() {
 			return ondragmove;
 		},
 		ondrop: (detail) => {
-			trace('drop', { handledExternally: detail.handledExternally });
 			ondrop?.(detail);
 		},
 		oncancel: (reason) => {
-			trace('cancel', { reason });
 			oncancel?.(reason);
 		},
 		ondragend: () => {
-			trace('dragend -> settle');
 			beginSettle();
 			ondragend?.();
 		}
@@ -147,10 +136,6 @@
 	const transitionValue = $derived(
 		settling ? 'transform 150ms cubic-bezier(0.2, 0, 0, 1)' : undefined
 	);
-
-	$effect(() => {
-		trace('isDragging', { isDragging: source.isDragging });
-	});
 </script>
 
 <div

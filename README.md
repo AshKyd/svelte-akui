@@ -67,8 +67,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
 - **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), and size options ('small', 'large') to match control styles. It has no drag-and-drop of its own: pass `itemAttributes` to spread your own attributes and attachments onto each row — a `dragSource()` to make rows draggable, a `dropTarget()` to make them accept payloads, or anything else. Return `class: 'akui-tree-item-row-highlight'` from `itemAttributes` to light a row up while it is the active target.
-- **`DropTarget`**: A generic drop target container and element attachment (`dropTarget()`) for accepting drag-and-drop payloads anywhere in an application. Coordinates with global drags via `DropManager`. Exposes `canDrop` to filter payloads, `ondrop` to handle dropped items, and reactive hover states (`isOver`, `canDrop`, `isDragging`). Can be used via `<DropTarget>` or directly on elements with the `{@attach target.attach}` attachment.
-- **`Draggable`**: The drag-source mirror of `DropTarget`, backed by `dragSource()`. Wrap any element to make it draggable into global `DropTarget`s via `DropManager`. Takes `getPayload` to build the drag payload, plus `handleSelector`, `disabled`, `longPressDelay`, `mouseThreshold`, `dragScale`, and `ondragstart`/`ondragmove`/`ondrop`/`oncancel`/`ondragend` callbacks. Exposes reactive `isDragging` and `delta` (to its `children` snippet). Owns its own start gate (mouse travel threshold / touch long-press), pointer capture, Escape-to-cancel, trailing-click suppression, and a snap-back settle when the drag ends. Use via `<Draggable>` or directly with the `{@attach source.attach}` attachment.
+- **`DropTarget`**: A generic drop target container and element attachment (`dropTarget()`) for accepting drag-and-drop payloads anywhere in an application. Coordinates with global drags via `DropManager`. Exposes `canDrop` to filter payloads, `ondrop` to handle dropped items, and reactive hover states (`isOver`, `canDrop`, `isDragging`). Can be used via `<DropTarget>` or directly on elements with the `{@attach target.attach}` attachment. See the [Drag and Drop guide](docs/drag-and-drop.md).
+- **`Draggable`**: The drag-source mirror of `DropTarget`, backed by `dragSource()`. Wrap any element to make it draggable into global `DropTarget`s via `DropManager`. Takes `getPayload` to build the drag payload, plus `handleSelector`, `disabled`, `longPressDelay`, `mouseThreshold`, `dragScale`, and `ondragstart`/`ondragmove`/`ondrop`/`oncancel`/`ondragend` callbacks. Exposes reactive `isDragging` and `delta` (to its `children` snippet). Owns its own start gate (mouse travel threshold / touch long-press), pointer capture, Escape-to-cancel, trailing-click suppression, and a snap-back settle when the drag ends. Use via `<Draggable>` or directly with the `{@attach source.attach}` attachment. See the [Drag and Drop guide](docs/drag-and-drop.md).
 
 ### Media & Lists
 
@@ -97,7 +97,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Tree`**: Collapsible tree navigation.
   - Recursively renders hierarchical nodes.
   - Supports keyboard navigation (arrows to traverse, Space to toggle, Enter to select).
-  - Supports `draggable` prop with `onDragOver` (drop validation) and `onDrop` callbacks for custom move/reorder logic.
+  - Drag and drop is composed via `itemAttributes`: attach `dragSource()` / `dropTarget()` attachments to customize per-row drag or drop behavior without built-in assumptions.
   - Supports `size` prop (`'small'` or `'large'`) to control padding and typography (e.g. `'large'` matches standard `ControlItem` styles).
 
 ### Feedback & Overlays
@@ -190,9 +190,11 @@ To build a responsive application shell, position the `Sidebar` alongside the ma
 
 For complete implementation templates, see the Storybook stories:
 
-- [LayoutAdaptivePane Story](file:///Users/ash/Web/svelte-akui/src/lib/components/LayoutAdaptivePane/LayoutAdaptivePane.stories.svelte)
-- [Sidebar Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Sidebar/Sidebar.stories.svelte)
-- [Header Story](file:///Users/ash/Web/svelte-akui/src/lib/components/Header/Header.stories.svelte)
+- [LayoutAdaptivePane Story](src/lib/components/LayoutAdaptivePane/LayoutAdaptivePane.stories.svelte)
+- [Sidebar Story](src/lib/components/Sidebar/Sidebar.stories.svelte)
+- [Header Story](src/lib/components/Header/Header.stories.svelte)
+- [Draggable Story](src/lib/components/Draggable/Draggable.stories.svelte)
+- [DropTarget Story](src/lib/components/DropTarget/DropTarget.stories.svelte)
 
 ## Implementation Guidelines
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { type Snippet, setContext } from 'svelte';
-	import { DropManager, setDropManagerContext } from '../hooks/dropManager.svelte.js';
+	import { DropManager, setDropManagerContext } from '../hooks/dnd/index.js';
 	import '../theme/theme.css';
 
 	interface Props {
