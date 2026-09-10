@@ -1,5 +1,15 @@
 import type { Action } from 'svelte/action';
 
+export interface WysiwygEditorOptions {
+	placeholder?: string;
+	/** Optional hook to transform or sanitize pasted HTML before insertion. */
+	transformPastedHTML?: (html: string) => string;
+	/** Optional hook to transform or sanitize pasted plain text or markdown before insertion. */
+	transformPastedText?: (text: string, plain: boolean) => string;
+	/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
+	handlePaste?: (event: ClipboardEvent) => boolean | void;
+}
+
 /**
  * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.
  * Uses Svelte 5 runes for reactive state tracking.
@@ -12,13 +22,24 @@ export class WysiwygEditorController {
 	#replaceAllFn: any = null;
 	#onChange: (val: string) => void;
 	#value = '';
-	#placeholder = '';
+	#options: WysiwygEditorOptions = {};
 	#node = $state<HTMLElement | null>(null);
 
-	constructor(initialValue: string, placeholder: string = '', onChange: (val: string) => void) {
+	constructor(
+		initialValue: string,
+		options: WysiwygEditorOptions = {},
+		onChange: (val: string) => void
+	) {
 		this.#value = initialValue;
-		this.#placeholder = placeholder;
+		this.#options = options;
 		this.#onChange = onChange;
+	}
+
+	/**
+	 * Update active options dynamically without re-initializing the editor.
+	 */
+	setOptions(options: WysiwygEditorOptions) {
+		this.#options = options;
 	}
 
 	/**
@@ -63,6 +84,7 @@ export class WysiwygEditorController {
 			// Code-splitting Crepe and Milkdown modules so they load on-demand
 			const { Crepe } = await import('@milkdown/crepe');
 			const { replaceAll } = await import('@milkdown/kit/utils');
+			const { editorViewOptionsCtx } = await import('@milkdown/kit/core');
 			this.#replaceAllFn = replaceAll;
 
 			if (this.#node !== node) return; // Guard against rapid re-initialization
@@ -72,17 +94,39 @@ export class WysiwygEditorController {
 				defaultValue: this.#value,
 				features: {
 					[Crepe.Feature.BlockEdit]: false,
-					[Crepe.Feature.Placeholder]: Boolean(this.#placeholder)
+					[Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
 				},
 				featureConfigs: {
 					[Crepe.Feature.Cursor]: {
 						virtual: false
 					},
 					[Crepe.Feature.Placeholder]: {
-						text: this.#placeholder || '',
+						text: this.#options.placeholder || '',
 						mode: 'doc'
 					}
 				}
+			});
+
+			this.#crepeInstance.editor.config((ctx: any) => {
+				ctx.update(editorViewOptionsCtx, (prev: any) => ({
+					...prev,
+					transformPastedHTML: (html: string) => {
+						const fn = this.#options.transformPastedHTML;
+						return fn ? fn(html) : html;
+					},
+					transformPastedText: (text: string, plain: boolean) => {
+						const fn = this.#options.transformPastedText;
+						return fn ? fn(text, plain) : text;
+					},
+					handlePaste: (_view: any, event: ClipboardEvent) => {
+						const fn = this.#options.handlePaste;
+						if (fn) {
+							const handled = fn(event);
+							if (handled) return true;
+						}
+						return false;
+					}
+				}));
 			});
 
 			await this.#crepeInstance.create();
