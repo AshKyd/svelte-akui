@@ -9,12 +9,18 @@ export class WysiwygEditorController {
     #replaceAllFn = null;
     #onChange;
     #value = '';
-    #placeholder = '';
+    #options = {};
     #node = $state(null);
-    constructor(initialValue, placeholder = '', onChange) {
+    constructor(initialValue, options = {}, onChange) {
         this.#value = initialValue;
-        this.#placeholder = placeholder;
+        this.#options = options;
         this.#onChange = onChange;
+    }
+    /**
+     * Update active options dynamically without re-initializing the editor.
+     */
+    setOptions(options) {
+        this.#options = options;
     }
     /**
      * Svelte Action to bind the editor to a DOM element container.
@@ -53,6 +59,7 @@ export class WysiwygEditorController {
             // Code-splitting Crepe and Milkdown modules so they load on-demand
             const { Crepe } = await import('@milkdown/crepe');
             const { replaceAll } = await import('@milkdown/kit/utils');
+            const { editorViewOptionsCtx } = await import('@milkdown/kit/core');
             this.#replaceAllFn = replaceAll;
             if (this.#node !== node)
                 return; // Guard against rapid re-initialization
@@ -61,17 +68,39 @@ export class WysiwygEditorController {
                 defaultValue: this.#value,
                 features: {
                     [Crepe.Feature.BlockEdit]: false,
-                    [Crepe.Feature.Placeholder]: Boolean(this.#placeholder)
+                    [Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
                 },
                 featureConfigs: {
                     [Crepe.Feature.Cursor]: {
                         virtual: false
                     },
                     [Crepe.Feature.Placeholder]: {
-                        text: this.#placeholder || '',
+                        text: this.#options.placeholder || '',
                         mode: 'doc'
                     }
                 }
+            });
+            this.#crepeInstance.editor.config((ctx) => {
+                ctx.update(editorViewOptionsCtx, (prev) => ({
+                    ...prev,
+                    transformPastedHTML: (html) => {
+                        const fn = this.#options.transformPastedHTML;
+                        return fn ? fn(html) : html;
+                    },
+                    transformPastedText: (text, plain) => {
+                        const fn = this.#options.transformPastedText;
+                        return fn ? fn(text, plain) : text;
+                    },
+                    handlePaste: (_view, event) => {
+                        const fn = this.#options.handlePaste;
+                        if (fn) {
+                            const handled = fn(event);
+                            if (handled)
+                                return true;
+                        }
+                        return false;
+                    }
+                }));
             });
             await this.#crepeInstance.create();
             if (this.#node !== node) {

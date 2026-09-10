@@ -6,6 +6,7 @@
 	// Static imports of style files so the CSS is bundled by the application builder
 	import '@milkdown/crepe/theme/common/style.css';
 	import '@milkdown/crepe/theme/frame.css';
+	import { untrack } from 'svelte';
 
 	interface Props {
 		/** Bindable current value of the editor. */
@@ -20,6 +21,12 @@
 		minHeight?: string;
 		/** Additional CSS classes for the editor container. */
 		class?: string;
+		/** Optional hook to transform or sanitize pasted HTML before insertion. */
+		transformPastedHTML?: (html: string) => string;
+		/** Optional hook to transform or sanitize pasted plain text or markdown before insertion. */
+		transformPastedText?: (text: string, plain: boolean) => string;
+		/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
+		handlePaste?: (event: ClipboardEvent) => boolean | void;
 	}
 
 	let {
@@ -28,13 +35,35 @@
 		onchange,
 		loader,
 		minHeight = '250px',
-		class: className = ''
+		class: className = '',
+		transformPastedHTML,
+		transformPastedText,
+		handlePaste
 	}: Props = $props();
 
 	// Instantiate the controller to manage the editor state and lifecycle
-	const editor = new WysiwygEditorController(value, placeholder, (markdown) => {
-		value = markdown;
-		onchange?.(markdown);
+	const editor = new WysiwygEditorController(
+		value,
+		untrack(() => ({
+			placeholder,
+			transformPastedHTML,
+			transformPastedText,
+			handlePaste
+		})),
+		(markdown) => {
+			value = markdown;
+			onchange?.(markdown);
+		}
+	);
+
+	// Synchronise options changes to the controller
+	$effect(() => {
+		editor.setOptions({
+			placeholder,
+			transformPastedHTML,
+			transformPastedText,
+			handlePaste
+		});
 	});
 
 	// Synchronise external value changes back to the editor, avoiding loop feedback.
