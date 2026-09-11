@@ -44,5 +44,6 @@ export * from './components/DropTarget/index.js';
 export * from './components/Draggable/index.js';
 export * from './hooks/keyboardNavigation.js';
 export * from './hooks/theme.svelte.js';
+export * from './hooks/reducedMotion.svelte.js';
 export * from './hooks/dnd/index.js';
 export * from './constants.js';

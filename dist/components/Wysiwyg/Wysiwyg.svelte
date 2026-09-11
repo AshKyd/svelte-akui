@@ -210,6 +210,33 @@
 		color: inherit !important;
 	}
 
+	/* Crepe's code-block copy button ships with no hover/focus/active states of its own — style it
+	   to match akui's ghost icon-only Button (see .akui-btn.ghost / .icon-only in theme.css). */
+	.akui-wysiwyg-container :global(.milkdown .copy-button) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: none;
+		border-radius: var(--akui-radius-s);
+		background-color: transparent;
+		color: var(--akui-fg-secondary);
+		cursor: pointer;
+		transition: var(--akui-transition-theme);
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .copy-button:hover) {
+		background-color: var(--akui-bg-hover);
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .copy-button:focus-visible) {
+		outline: 3px solid var(--akui-bg-accent);
+		outline-offset: 2px;
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .copy-button:active) {
+		transform: translateY(1px);
+	}
+
 	/* Reset default block indentation inside the editor content area */
 	.akui-wysiwyg-container :global(.milkdown .editor > *) {
 		margin-left: 0 !important;

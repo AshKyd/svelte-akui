@@ -29,6 +29,7 @@ export class DragSourceInstance {
     #pointerType = '';
     #longPressTimer = null;
     #gestureListenersAttached = false;
+    #dragTouchMoveAttached = false;
     #keyListenerAttached = false;
     #suppressNextClick = false;
     constructor(manager, options) {
@@ -57,9 +58,7 @@ export class DragSourceInstance {
         element.addEventListener('dragstart', this.#onNativeDragStart);
         element.addEventListener('contextmenu', this.#onContextMenu);
         element.addEventListener('click', this.#onClickCapture, true);
-        // Non-passive so preventDefault() can stop the page scrolling under an active
-        // drag. The element's `touch-action` is `pan-y` (see Draggable.svelte) so a
-        // plain swipe scrolls; this guard only bites once `#isDragging` is true.
+        // Non-passive pre-drag listener to detect touch drift before long-press fires.
         element.addEventListener('touchmove', this.#onTouchMove, { passive: false });
         return () => {
             element.removeEventListener('pointerdown', this.#onPointerDown);
@@ -119,8 +118,9 @@ export class DragSourceInstance {
         const dx = e.clientX - this.#startX;
         const dy = e.clientY - this.#startY;
         const distance = Math.hypot(dx, dy);
-        // A moving finger before the hold completes means the user is scrolling, not dragging.
-        if (this.#longPressTimer && distance > TOUCH_LONG_PRESS_SLOP) {
+        // If still waiting for the long-press threshold, check for scroll drift.
+        // Once dragging has begun, scrolling is suppressed and we do not cancel.
+        if (!this.#isDragging && this.#longPressTimer && distance > TOUCH_LONG_PRESS_SLOP) {
             clearTimeout(this.#longPressTimer);
             this.#longPressTimer = null;
         }
@@ -210,6 +210,12 @@ export class DragSourceInstance {
         this.#isDragging = true;
         this.#suppressNextClick = true;
         this.#delta = { x: 0, y: 0 };
+        // Attach window-level non-passive touchmove listener to prevent viewport scrolling
+        // even if pointer-events: none is applied or the touch moves off the source element.
+        if (!this.#dragTouchMoveAttached && typeof window !== 'undefined') {
+            window.addEventListener('touchmove', this.#onTouchMove, { passive: false });
+            this.#dragTouchMoveAttached = true;
+        }
         const payload = this.#options.getPayload({ element: this.#element });
         this.#manager.startDrag(payload);
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
@@ -254,6 +260,10 @@ export class DragSourceInstance {
             window.removeEventListener('pointermove', this.#onPointerMove);
             window.removeEventListener('pointerup', this.#onPointerUp);
             window.removeEventListener('pointercancel', this.#onPointerCancel);
+        }
+        if (this.#dragTouchMoveAttached && typeof window !== 'undefined') {
+            window.removeEventListener('touchmove', this.#onTouchMove);
+            this.#dragTouchMoveAttached = false;
         }
         if (this.#keyListenerAttached && typeof window !== 'undefined') {
             window.removeEventListener('keydown', this.#onKeyDown);

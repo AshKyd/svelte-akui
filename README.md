@@ -20,7 +20,7 @@ You can optionally wrap your application in the `UIRoot` component to configure 
 
 ### Layout & Foundation
 
-- **`UIRoot`**: Optional parent wrapper for global styling and theme management. Sets the base font, HSL colour tokens, and manages theme state. Supports bindable `mode` (the configured theme preference: `'light'`, `'dark'`, or `undefined` for system preference) and bindable `resolvedMode` (the currently active resolved theme: `'light'` or `'dark'`, which takes system settings into account when `mode` is `undefined`).
+- **`UIRoot`**: Optional parent wrapper for global styling and theme management. Sets the base font, HSL colour tokens, and manages theme state. Supports bindable `mode` (the configured theme preference: `'light'`, `'dark'`, or `undefined` for system preference) and bindable `resolvedMode` (the currently active resolved theme: `'light'` or `'dark'`, which takes system settings into account when `mode` is `undefined`). Automatically initialises the `reducedMotion` store.
 - **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics. *Note: Panels should be used sparingly, only for items that specifically require visual elevation and distinction from other content on the page (e.g. they should not wrap entire layout pages).*
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
@@ -145,6 +145,29 @@ Components should be composed: wrap any input in a `Field` to add a label.
   	<span class="sr-only">Close dialog</span>
   </button>
   ```
+
+- **`reducedMotion`**: Reactive store tracking `prefers-reduced-motion`. Defaults to the system OS preference, with optional user overrides persisted to `localStorage` (`akui-reduced-motion`). Initialised automatically when using `UIRoot`, or manually via `reducedMotion.init()`.
+  - `reducedMotion.value`: Boolean indicating whether reduced motion is active (returns the override if set, otherwise the system preference).
+  - `reducedMotion.systemPrefers`: Live OS-level `prefers-reduced-motion` value.
+  - `reducedMotion.override`: User override (`true`, `false`, or `null` when following system settings).
+  - `reducedMotion.isOverridden`: Boolean indicating whether an explicit override is stored.
+  - `reducedMotion.set(next: boolean)`: Explicitly sets or clears the override (clears override if matching system preference).
+  - `reducedMotion.toggle()`: Toggles the effective preference.
+
+  ```svelte
+  <script>
+  	import { reducedMotion } from 'svelte-akui';
+  </script>
+
+  {#if !reducedMotion.value}
+  	<AnimatedBackground />
+  {/if}
+
+  <button onclick={() => reducedMotion.toggle()}>
+  	Reduced Motion: {reducedMotion.value ? 'On' : 'Off'}
+  </button>
+  ```
+
 
 ### Keyboard Utilities
 
