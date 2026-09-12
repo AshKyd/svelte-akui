@@ -75,6 +75,11 @@
 	export function focus(collapseToStart = true) {
 		return editor.focus(collapseToStart);
 	}
+
+	/** Places the cursor at (approximately) the Nth word of the document and focuses it. */
+	export async function focusAtWordIndex(index: number) {
+		return editor.focusAtWordIndex(index);
+	}
 </script>
 
 <div

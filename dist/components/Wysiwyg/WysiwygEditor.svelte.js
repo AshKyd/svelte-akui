@@ -1,4 +1,38 @@
 /**
+ * Finds the ProseMirror document position of the start of the Nth word (0-indexed), where a
+ * "word" is a maximal run of non-whitespace characters — the same definition a caller must use
+ * when it counted the word index in the first place (e.g. from a click in an independently
+ * rendered preview of the same markdown). Returns `null` if the document has no text at all;
+ * clamps to the end of the document if `targetIndex` is beyond the last word, so a stale index
+ * still lands somewhere rather than silently doing nothing.
+ */
+function docPositionForWordIndex(doc, targetIndex) {
+    let wordCount = 0;
+    let result = null;
+    let sawAnyText = false;
+    doc.descendants((node, pos) => {
+        if (result !== null)
+            return false;
+        if (!node.isText)
+            return true;
+        sawAnyText = true;
+        const text = node.text ?? '';
+        const wordRe = /\S+/g;
+        let match;
+        while ((match = wordRe.exec(text))) {
+            if (wordCount === targetIndex) {
+                result = pos + match.index;
+                return false;
+            }
+            wordCount++;
+        }
+        return true;
+    });
+    if (result !== null)
+        return result;
+    return sawAnyText ? doc.content.size : null;
+}
+/**
  * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.
  * Uses Svelte 5 runes for reactive state tracking.
  */
@@ -11,10 +45,18 @@ export class WysiwygEditorController {
     #value = '';
     #options = {};
     #node = $state(null);
+    // Crepe/Milkdown load on-demand (see #setup), so #crepeInstance isn't ready the instant this
+    // controller (and the bound Wysiwyg component) exists. Anything that needs the live editor —
+    // focusAtWordIndex included — awaits this instead of assuming #crepeInstance is already set.
+    #ready;
+    #resolveReady = null;
     constructor(initialValue, options = {}, onChange) {
         this.#value = initialValue;
         this.#options = options;
         this.#onChange = onChange;
+        this.#ready = new Promise((resolve) => {
+            this.#resolveReady = resolve;
+        });
     }
     /**
      * Update active options dynamically without re-initializing the editor.
@@ -117,11 +159,15 @@ export class WysiwygEditorController {
                 });
             });
             this.loading = false;
+            console.debug('[Wysiwyg] editor ready');
         }
         catch (error) {
             console.error('Failed to load WYSIWYG editor:', error);
             this.loadError = true;
             this.loading = false;
+        }
+        finally {
+            this.#resolveReady?.();
         }
     }
     /**
@@ -144,6 +190,38 @@ export class WysiwygEditorController {
             return true;
         }
         return false;
+    }
+    /**
+     * Places the cursor at (approximately) the Nth word of the document and focuses the editor.
+     * See {@link docPositionForWordIndex} for the word-counting rule the index must match.
+     */
+    async focusAtWordIndex(index) {
+        console.debug('[Wysiwyg] focusAtWordIndex called, awaiting editor readiness', { index });
+        await this.#ready;
+        if (!this.#crepeInstance) {
+            console.debug('[Wysiwyg] focusAtWordIndex: no crepe instance after ready (load failed?)');
+            return false;
+        }
+        const { editorViewCtx } = await import('@milkdown/kit/core');
+        const { TextSelection } = await import('@milkdown/prose/state');
+        let applied = false;
+        this.#crepeInstance.editor.action((ctx) => {
+            const view = ctx.get(editorViewCtx);
+            const pos = docPositionForWordIndex(view.state.doc, index);
+            console.debug('[Wysiwyg] focusAtWordIndex resolved doc position', {
+                index,
+                pos,
+                docTextPreview: view.state.doc.textContent.slice(0, 200)
+            });
+            if (pos === null)
+                return;
+            const tr = view.state.tr.setSelection(TextSelection.create(view.state.doc, pos));
+            view.dispatch(tr);
+            view.focus();
+            applied = true;
+        });
+        console.debug('[Wysiwyg] focusAtWordIndex applied?', applied);
+        return applied;
     }
     #destroy() {
         if (this.#crepeInstance) {

@@ -37,4 +37,9 @@ export declare class WysiwygEditorController {
      * Focuses the editor content editable element.
      */
     focus(collapseToStart?: boolean): boolean;
+    /**
+     * Places the cursor at (approximately) the Nth word of the document and focuses the editor.
+     * See {@link docPositionForWordIndex} for the word-counting rule the index must match.
+     */
+    focusAtWordIndex(index: number): Promise<boolean>;
 }

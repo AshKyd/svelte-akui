@@ -22,6 +22,7 @@ interface Props {
 }
 declare const Wysiwyg: import("svelte").Component<Props, {
     focus: (collapseToStart?: boolean) => boolean;
+    focusAtWordIndex: (index: number) => Promise<boolean>;
 }, "value">;
 type Wysiwyg = ReturnType<typeof Wysiwyg>;
 export default Wysiwyg;
