@@ -1,10 +1,11 @@
 /**
- * Finds the ProseMirror document position of the start of the Nth word (0-indexed), where a
- * "word" is a maximal run of non-whitespace characters — the same definition a caller must use
- * when it counted the word index in the first place (e.g. from a click in an independently
- * rendered preview of the same markdown). Returns `null` if the document has no text at all;
- * clamps to the end of the document if `targetIndex` is beyond the last word, so a stale index
- * still lands somewhere rather than silently doing nothing.
+ * Finds the ProseMirror document position right after the Nth word (0-indexed), where a "word" is
+ * a maximal run of non-whitespace characters — the same definition a caller must use when it
+ * counted the word index in the first place (e.g. from a click in an independently rendered
+ * preview of the same markdown). Lands the cursor at the end of the word itself, not after the
+ * trailing space. Returns `null` if the document has no text at all; clamps to the end of the
+ * document if `targetIndex` is beyond the last word, so a stale index still lands somewhere rather
+ * than silently doing nothing.
  */
 function docPositionForWordIndex(doc, targetIndex) {
     let wordCount = 0;
@@ -21,7 +22,7 @@ function docPositionForWordIndex(doc, targetIndex) {
         let match;
         while ((match = wordRe.exec(text))) {
             if (wordCount === targetIndex) {
-                result = pos + match.index;
+                result = pos + match.index + match[0].length;
                 return false;
             }
             wordCount++;

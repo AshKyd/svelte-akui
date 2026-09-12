@@ -1,12 +1,8 @@
 import type { Action } from 'svelte/action';
 
 /**
- * Finds the ProseMirror document position of the start of the Nth word (0-indexed), where a
- * "word" is a maximal run of non-whitespace characters — the same definition a caller must use
- * when it counted the word index in the first place (e.g. from a click in an independently
- * rendered preview of the same markdown). Returns `null` if the document has no text at all;
- * clamps to the end of the document if `targetIndex` is beyond the last word, so a stale index
- * still lands somewhere rather than silently doing nothing.
+ * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
+ * Clamps to the end of the document if index exceeds word count; returns null if empty.
  */
 function docPositionForWordIndex(doc: any, targetIndex: number): number | null {
 	let wordCount = 0;
@@ -23,7 +19,7 @@ function docPositionForWordIndex(doc: any, targetIndex: number): number | null {
 		let match: RegExpExecArray | null;
 		while ((match = wordRe.exec(text))) {
 			if (wordCount === targetIndex) {
-				result = pos + match.index;
+				result = pos + match.index + match[0].length;
 				return false;
 			}
 			wordCount++;
