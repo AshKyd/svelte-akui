@@ -45,7 +45,7 @@
 <style>
 	@keyframes slideUp {
 		from {
-			translate: 0 100px;
+			translate: 0 20px;
 			opacity: 0;
 		}
 		to {
