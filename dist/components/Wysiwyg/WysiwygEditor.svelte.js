@@ -1,11 +1,6 @@
 /**
- * Finds the ProseMirror document position right after the Nth word (0-indexed), where a "word" is
- * a maximal run of non-whitespace characters — the same definition a caller must use when it
- * counted the word index in the first place (e.g. from a click in an independently rendered
- * preview of the same markdown). Lands the cursor at the end of the word itself, not after the
- * trailing space. Returns `null` if the document has no text at all; clamps to the end of the
- * document if `targetIndex` is beyond the last word, so a stale index still lands somewhere rather
- * than silently doing nothing.
+ * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
+ * Clamps to the end of the document if index exceeds word count; returns null if empty.
  */
 function docPositionForWordIndex(doc, targetIndex) {
     let wordCount = 0;
@@ -110,7 +105,7 @@ export class WysiwygEditorController {
                 root: node,
                 defaultValue: this.#value,
                 features: {
-                    [Crepe.Feature.BlockEdit]: false,
+                    [Crepe.Feature.BlockEdit]: Boolean(this.#options.slashMenu),
                     [Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
                 },
                 featureConfigs: {
@@ -120,7 +115,8 @@ export class WysiwygEditorController {
                     [Crepe.Feature.Placeholder]: {
                         text: this.#options.placeholder || '',
                         mode: 'doc'
-                    }
+                    },
+                    [Crepe.Feature.BlockEdit]: typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined
                 }
             });
             this.#crepeInstance.editor.config((ctx) => {

@@ -1,3 +1,4 @@
+import { type SlashMenuConfig } from './WysiwygEditor.svelte';
 import '@milkdown/crepe/theme/common/style.css';
 import '@milkdown/crepe/theme/frame.css';
 interface Props {
@@ -19,6 +20,11 @@ interface Props {
     transformPastedText?: (text: string, plain: boolean) => string;
     /** Optional paste event handler. Return true to prevent default editor paste behaviour. */
     handlePaste?: (event: ClipboardEvent) => boolean | void;
+    /**
+     * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
+     * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+     */
+    slashMenu?: boolean | SlashMenuConfig;
 }
 declare const Wysiwyg: import("svelte").Component<Props, {
     focus: (collapseToStart?: boolean) => boolean;

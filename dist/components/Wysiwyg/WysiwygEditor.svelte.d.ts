@@ -1,4 +1,11 @@
 import type { Action } from 'svelte/action';
+import type { BlockEditFeatureConfig } from '@milkdown/crepe/feature/block-edit';
+/**
+ * Config for the Crepe "/" slash menu and block-drag-handle (the `BlockEdit` feature).
+ * Set a group (`textGroup`/`listGroup`/`advancedGroup`) or item within it to `null` to hide it,
+ * or provide `buildMenu` to append custom commands via Crepe's `GroupBuilder`.
+ */
+export type SlashMenuConfig = BlockEditFeatureConfig;
 export interface WysiwygEditorOptions {
     placeholder?: string;
     /** Optional hook to transform or sanitize pasted HTML before insertion. */
@@ -7,6 +14,11 @@ export interface WysiwygEditorOptions {
     transformPastedText?: (text: string, plain: boolean) => string;
     /** Optional paste event handler. Return true to prevent default editor paste behaviour. */
     handlePaste?: (event: ClipboardEvent) => boolean | void;
+    /**
+     * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
+     * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+     */
+    slashMenu?: boolean | SlashMenuConfig;
 }
 /**
  * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.

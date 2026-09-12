@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Loader from '../Loader/Loader.svelte';
 	import Button from '../Button/Button.svelte';
-	import { WysiwygEditorController } from './WysiwygEditor.svelte';
+	import { WysiwygEditorController, type SlashMenuConfig } from './WysiwygEditor.svelte';
 
 	// Static imports of style files so the CSS is bundled by the application builder
 	import '@milkdown/crepe/theme/common/style.css';
@@ -27,6 +27,11 @@
 		transformPastedText?: (text: string, plain: boolean) => string;
 		/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
 		handlePaste?: (event: ClipboardEvent) => boolean | void;
+		/**
+		 * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
+		 * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+		 */
+		slashMenu?: boolean | SlashMenuConfig;
 	}
 
 	let {
@@ -38,7 +43,8 @@
 		class: className = '',
 		transformPastedHTML,
 		transformPastedText,
-		handlePaste
+		handlePaste,
+		slashMenu = false
 	}: Props = $props();
 
 	// Instantiate the controller to manage the editor state and lifecycle
@@ -48,7 +54,8 @@
 			placeholder,
 			transformPastedHTML,
 			transformPastedText,
-			handlePaste
+			handlePaste,
+			slashMenu
 		})),
 		(markdown) => {
 			value = markdown;
@@ -62,7 +69,8 @@
 			placeholder,
 			transformPastedHTML,
 			transformPastedText,
-			handlePaste
+			handlePaste,
+			slashMenu
 		});
 	});
 

@@ -1,4 +1,12 @@
 import type { Action } from 'svelte/action';
+import type { BlockEditFeatureConfig } from '@milkdown/crepe/feature/block-edit';
+
+/**
+ * Config for the Crepe "/" slash menu and block-drag-handle (the `BlockEdit` feature).
+ * Set a group (`textGroup`/`listGroup`/`advancedGroup`) or item within it to `null` to hide it,
+ * or provide `buildMenu` to append custom commands via Crepe's `GroupBuilder`.
+ */
+export type SlashMenuConfig = BlockEditFeatureConfig;
 
 /**
  * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
@@ -39,6 +47,11 @@ export interface WysiwygEditorOptions {
 	transformPastedText?: (text: string, plain: boolean) => string;
 	/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
 	handlePaste?: (event: ClipboardEvent) => boolean | void;
+	/**
+	 * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
+	 * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+	 */
+	slashMenu?: boolean | SlashMenuConfig;
 }
 
 /**
@@ -133,7 +146,7 @@ export class WysiwygEditorController {
 				root: node,
 				defaultValue: this.#value,
 				features: {
-					[Crepe.Feature.BlockEdit]: false,
+					[Crepe.Feature.BlockEdit]: Boolean(this.#options.slashMenu),
 					[Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
 				},
 				featureConfigs: {
@@ -143,7 +156,9 @@ export class WysiwygEditorController {
 					[Crepe.Feature.Placeholder]: {
 						text: this.#options.placeholder || '',
 						mode: 'doc'
-					}
+					},
+					[Crepe.Feature.BlockEdit]:
+						typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined
 				}
 			});
 

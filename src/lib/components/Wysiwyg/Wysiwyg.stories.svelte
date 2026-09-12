@@ -1,11 +1,33 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Wysiwyg from './Wysiwyg.svelte';
+	import type { SlashMenuConfig } from './WysiwygEditor.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Components/Wysiwyg',
 		tags: ['autodocs']
 	});
+
+	// Only headings, blockquotes, dividers and lists — no images/tables/code/math in the menu.
+	const scopedSlashMenu: SlashMenuConfig = {
+		advancedGroup: null
+	};
+
+	// Demonstrates a consumer adding their own command to the menu via `buildMenu`.
+	const extendedSlashMenu: SlashMenuConfig = {
+		advancedGroup: null,
+		buildMenu: (builder) => {
+			builder.addGroup('oakhaven', 'Oakhaven').addItem('dragon-nap', {
+				label: 'Dragon Nap Notice',
+				icon: '🐉',
+				onRun: async (ctx) => {
+					const { editorViewCtx } = await import('@milkdown/kit/core');
+					const view = ctx.get(editorViewCtx);
+					view.dispatch(view.state.tr.insertText('A dragon is napping here. Please tiptoe.'));
+				}
+			});
+		}
+	};
 
 	const fantasyNoticeBoard = `# The Hearthside Chronicle
 
@@ -46,4 +68,25 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 
 <Story name="Cosy Fantasy Notice Board">
 	<Wysiwyg value={fantasyNoticeBoard} />
+</Story>
+
+<!-- The "/" slash menu and block-drag-handle are opt-in via the `slashMenu` prop. -->
+<Story name="Slash Menu (Defaults)">
+	<Wysiwyg value="" placeholder="Type / to see the menu..." slashMenu />
+</Story>
+
+<Story name="Slash Menu (Scoped to Text & Lists)">
+	<Wysiwyg
+		value=""
+		placeholder="Type / — only headings, blockquote, dividers and lists appear"
+		slashMenu={scopedSlashMenu}
+	/>
+</Story>
+
+<Story name="Slash Menu (Custom Command via buildMenu)">
+	<Wysiwyg
+		value=""
+		placeholder="Type / and look for the 'Oakhaven' group"
+		slashMenu={extendedSlashMenu}
+	/>
 </Story>
