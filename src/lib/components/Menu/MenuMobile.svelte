@@ -43,6 +43,17 @@
 </div>
 
 <style>
+	@keyframes slideUp {
+		from {
+			translate: 0 100px;
+			opacity: 0;
+		}
+		to {
+			translate: 0 0;
+			opacity: 1;
+		}
+	}
+
 	.akui-menu-mobile-backdrop {
 		position: fixed;
 		top: 0;
@@ -62,6 +73,7 @@
 		right: 0;
 		z-index: 1001;
 		pointer-events: none;
+		animation: slideUp 0.25s ease-out;
 	}
 
 	.akui-mobile-menu-content {
