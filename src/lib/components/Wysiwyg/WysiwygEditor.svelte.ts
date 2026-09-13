@@ -1,5 +1,8 @@
 import type { Action } from 'svelte/action';
 import type { BlockEditFeatureConfig } from '@milkdown/crepe/feature/block-edit';
+import { shift, size, type Middleware } from '@floating-ui/dom';
+import type { Ctx, SliceType } from '@milkdown/kit/ctx';
+import type { EditorView } from '@milkdown/kit/prose/view';
 
 /**
  * Config for the Crepe "/" slash menu and block-drag-handle (the `BlockEdit` feature).
@@ -39,6 +42,24 @@ function docPositionForWordIndex(doc: any, targetIndex: number): number | null {
 	return sawAnyText ? doc.content.size : null;
 }
 
+/**
+ * Keep the slash menu visible and scrollable when mobile keyboards reduce screen space.
+ */
+function createDefaultSlashMenuMiddleware(): Middleware[] {
+	return [
+		shift({ padding: 8 }),
+		size({
+			padding: 8,
+			apply({ availableHeight, elements }) {
+				Object.assign(elements.floating.style, {
+					maxHeight: `${Math.max(availableHeight, 0)}px`,
+					overflowY: 'auto'
+				});
+			}
+		})
+	];
+}
+
 export interface WysiwygEditorOptions {
 	placeholder?: string;
 	/** Optional hook to transform or sanitize pasted HTML before insertion. */
@@ -68,6 +89,8 @@ export class WysiwygEditorController {
 	#value = '';
 	#options: WysiwygEditorOptions = {};
 	#node = $state<HTMLElement | null>(null);
+	#editorViewCtx: SliceType<EditorView, 'editorView'> | null = null;
+	#visualViewportCleanup: (() => void) | null = null;
 
 	// Crepe/Milkdown load on-demand (see #setup), so #crepeInstance isn't ready the instant this
 	// controller (and the bound Wysiwyg component) exists. Anything that needs the live editor —
@@ -137,10 +160,26 @@ export class WysiwygEditorController {
 			// Code-splitting Crepe and Milkdown modules so they load on-demand
 			const { Crepe } = await import('@milkdown/crepe');
 			const { replaceAll } = await import('@milkdown/kit/utils');
-			const { editorViewOptionsCtx } = await import('@milkdown/kit/core');
+			const { editorViewOptionsCtx, editorViewCtx } = await import('@milkdown/kit/core');
 			this.#replaceAllFn = replaceAll;
 
 			if (this.#node !== node) return; // Guard against rapid re-initialization
+
+			const userSlashMenuConfig =
+				typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined;
+
+			// Fill in the default slash-menu middleware (mobile-keyboard-aware positioning) unless
+			// the consumer already supplied their own via a SlashMenuConfig.
+			const blockEditConfig: BlockEditFeatureConfig | undefined = this.#options.slashMenu
+				? {
+						...userSlashMenuConfig,
+						slashMenu: {
+							...userSlashMenuConfig?.slashMenu,
+							middleware:
+								userSlashMenuConfig?.slashMenu?.middleware ?? createDefaultSlashMenuMiddleware()
+						}
+					}
+				: undefined;
 
 			this.#crepeInstance = new Crepe({
 				root: node,
@@ -157,8 +196,7 @@ export class WysiwygEditorController {
 						text: this.#options.placeholder || '',
 						mode: 'doc'
 					},
-					[Crepe.Feature.BlockEdit]:
-						typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined
+					[Crepe.Feature.BlockEdit]: blockEditConfig
 				}
 			});
 
@@ -189,6 +227,11 @@ export class WysiwygEditorController {
 			if (this.#node !== node) {
 				this.#destroy();
 				return;
+			}
+
+			this.#editorViewCtx = editorViewCtx;
+			if (this.#options.slashMenu) {
+				this.#registerVisualViewportReflow();
 			}
 
 			// Listen to content changes and synchronise value state
@@ -269,7 +312,30 @@ export class WysiwygEditorController {
 		return applied;
 	}
 
+	/**
+	 * Nudge Crepe to reposition floating menus when mobile keyboards resize the visual viewport.
+	 */
+	#registerVisualViewportReflow() {
+		const viewport = typeof window !== 'undefined' ? window.visualViewport : null;
+		if (!viewport) return;
+
+		const reflow = () => {
+			const viewCtx = this.#editorViewCtx;
+			if (!this.#crepeInstance || !viewCtx) return;
+			this.#crepeInstance.editor.action((ctx: Ctx) => {
+				const view = ctx.get(viewCtx);
+				if (view.hasFocus()) view.dispatch(view.state.tr);
+			});
+		};
+
+		viewport.addEventListener('resize', reflow);
+		this.#visualViewportCleanup = () => viewport.removeEventListener('resize', reflow);
+	}
+
 	#destroy() {
+		this.#visualViewportCleanup?.();
+		this.#visualViewportCleanup = null;
+		this.#editorViewCtx = null;
 		if (this.#crepeInstance) {
 			this.#crepeInstance.destroy();
 			this.#crepeInstance = null;

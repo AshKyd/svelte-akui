@@ -68,6 +68,7 @@
 		"svelte"
 	],
 	"dependencies": {
+		"@floating-ui/dom": "^1.8.0",
 		"@milkdown/crepe": "^7.21.2",
 		"marked": "^18.0.5",
 		"msrand": "^2.1.0",
