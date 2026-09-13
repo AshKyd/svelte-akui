@@ -60,6 +60,14 @@ function createDefaultSlashMenuMiddleware(): Middleware[] {
 	];
 }
 
+// Markdown parsers require text after `[ ]` to recognise task items.
+// Append a zero-width space to prevent empty checkboxes turning into literal text on round-trip.
+const EMPTY_CHECKLIST_ITEM = /^([ \t]*[-*+][ \t]\[[ xX]\])[ \t]*$/gm;
+
+function preserveEmptyChecklistItems(markdown: string): string {
+	return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 \u200B');
+}
+
 export interface WysiwygEditorOptions {
 	placeholder?: string;
 	/** Optional hook to transform or sanitize pasted HTML before insertion. */
@@ -137,7 +145,9 @@ export class WysiwygEditorController {
 		if (this.#value !== newValue) {
 			this.#value = newValue;
 			if (this.#crepeInstance && this.#replaceAllFn) {
-				this.#crepeInstance.editor.action(this.#replaceAllFn(newValue));
+				this.#crepeInstance.editor.action(
+					this.#replaceAllFn(preserveEmptyChecklistItems(newValue))
+				);
 			}
 		}
 	}
@@ -183,7 +193,7 @@ export class WysiwygEditorController {
 
 			this.#crepeInstance = new Crepe({
 				root: node,
-				defaultValue: this.#value,
+				defaultValue: preserveEmptyChecklistItems(this.#value),
 				features: {
 					[Crepe.Feature.BlockEdit]: Boolean(this.#options.slashMenu),
 					[Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
@@ -236,7 +246,8 @@ export class WysiwygEditorController {
 
 			// Listen to content changes and synchronise value state
 			this.#crepeInstance.on((listener: any) => {
-				listener.markdownUpdated((_ctx: any, markdown: string) => {
+				listener.markdownUpdated((_ctx: any, rawMarkdown: string) => {
+					const markdown = preserveEmptyChecklistItems(rawMarkdown);
 					if (this.#value !== markdown) {
 						this.#value = markdown;
 						this.#onChange(markdown);
