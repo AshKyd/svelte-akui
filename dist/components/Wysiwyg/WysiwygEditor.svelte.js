@@ -1,3 +1,4 @@
+import { shift, size } from '@floating-ui/dom';
 /**
  * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
  * Clamps to the end of the document if index exceeds word count; returns null if empty.
@@ -29,6 +30,29 @@ function docPositionForWordIndex(doc, targetIndex) {
     return sawAnyText ? doc.content.size : null;
 }
 /**
+ * Keep the slash menu visible and scrollable when mobile keyboards reduce screen space.
+ */
+function createDefaultSlashMenuMiddleware() {
+    return [
+        shift({ padding: 8 }),
+        size({
+            padding: 8,
+            apply({ availableHeight, elements }) {
+                Object.assign(elements.floating.style, {
+                    maxHeight: `${Math.max(availableHeight, 0)}px`,
+                    overflowY: 'auto'
+                });
+            }
+        })
+    ];
+}
+// Markdown parsers require text after `[ ]` to recognise task items.
+// Append a zero-width space to prevent empty checkboxes turning into literal text on round-trip.
+const EMPTY_CHECKLIST_ITEM = /^([ \t]*[-*+][ \t]\[[ xX]\])[ \t]*$/gm;
+function preserveEmptyChecklistItems(markdown) {
+    return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 \u200B');
+}
+/**
  * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.
  * Uses Svelte 5 runes for reactive state tracking.
  */
@@ -41,6 +65,8 @@ export class WysiwygEditorController {
     #value = '';
     #options = {};
     #node = $state(null);
+    #editorViewCtx = null;
+    #visualViewportCleanup = null;
     // Crepe/Milkdown load on-demand (see #setup), so #crepeInstance isn't ready the instant this
     // controller (and the bound Wysiwyg component) exists. Anything that needs the live editor —
     // focusAtWordIndex included — awaits this instead of assuming #crepeInstance is already set.
@@ -77,7 +103,7 @@ export class WysiwygEditorController {
         if (this.#value !== newValue) {
             this.#value = newValue;
             if (this.#crepeInstance && this.#replaceAllFn) {
-                this.#crepeInstance.editor.action(this.#replaceAllFn(newValue));
+                this.#crepeInstance.editor.action(this.#replaceAllFn(preserveEmptyChecklistItems(newValue)));
             }
         }
     }
@@ -97,13 +123,25 @@ export class WysiwygEditorController {
             // Code-splitting Crepe and Milkdown modules so they load on-demand
             const { Crepe } = await import('@milkdown/crepe');
             const { replaceAll } = await import('@milkdown/kit/utils');
-            const { editorViewOptionsCtx } = await import('@milkdown/kit/core');
+            const { editorViewOptionsCtx, editorViewCtx } = await import('@milkdown/kit/core');
             this.#replaceAllFn = replaceAll;
             if (this.#node !== node)
                 return; // Guard against rapid re-initialization
+            const userSlashMenuConfig = typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined;
+            // Fill in the default slash-menu middleware (mobile-keyboard-aware positioning) unless
+            // the consumer already supplied their own via a SlashMenuConfig.
+            const blockEditConfig = this.#options.slashMenu
+                ? {
+                    ...userSlashMenuConfig,
+                    slashMenu: {
+                        ...userSlashMenuConfig?.slashMenu,
+                        middleware: userSlashMenuConfig?.slashMenu?.middleware ?? createDefaultSlashMenuMiddleware()
+                    }
+                }
+                : undefined;
             this.#crepeInstance = new Crepe({
                 root: node,
-                defaultValue: this.#value,
+                defaultValue: preserveEmptyChecklistItems(this.#value),
                 features: {
                     [Crepe.Feature.BlockEdit]: Boolean(this.#options.slashMenu),
                     [Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
@@ -116,7 +154,7 @@ export class WysiwygEditorController {
                         text: this.#options.placeholder || '',
                         mode: 'doc'
                     },
-                    [Crepe.Feature.BlockEdit]: typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined
+                    [Crepe.Feature.BlockEdit]: blockEditConfig
                 }
             });
             this.#crepeInstance.editor.config((ctx) => {
@@ -146,9 +184,14 @@ export class WysiwygEditorController {
                 this.#destroy();
                 return;
             }
+            this.#editorViewCtx = editorViewCtx;
+            if (this.#options.slashMenu) {
+                this.#registerVisualViewportReflow();
+            }
             // Listen to content changes and synchronise value state
             this.#crepeInstance.on((listener) => {
-                listener.markdownUpdated((_ctx, markdown) => {
+                listener.markdownUpdated((_ctx, rawMarkdown) => {
+                    const markdown = preserveEmptyChecklistItems(rawMarkdown);
                     if (this.#value !== markdown) {
                         this.#value = markdown;
                         this.#onChange(markdown);
@@ -220,7 +263,30 @@ export class WysiwygEditorController {
         console.debug('[Wysiwyg] focusAtWordIndex applied?', applied);
         return applied;
     }
+    /**
+     * Nudge Crepe to reposition floating menus when mobile keyboards resize the visual viewport.
+     */
+    #registerVisualViewportReflow() {
+        const viewport = typeof window !== 'undefined' ? window.visualViewport : null;
+        if (!viewport)
+            return;
+        const reflow = () => {
+            const viewCtx = this.#editorViewCtx;
+            if (!this.#crepeInstance || !viewCtx)
+                return;
+            this.#crepeInstance.editor.action((ctx) => {
+                const view = ctx.get(viewCtx);
+                if (view.hasFocus())
+                    view.dispatch(view.state.tr);
+            });
+        };
+        viewport.addEventListener('resize', reflow);
+        this.#visualViewportCleanup = () => viewport.removeEventListener('resize', reflow);
+    }
     #destroy() {
+        this.#visualViewportCleanup?.();
+        this.#visualViewportCleanup = null;
+        this.#editorViewCtx = null;
         if (this.#crepeInstance) {
             this.#crepeInstance.destroy();
             this.#crepeInstance = null;

@@ -316,6 +316,14 @@
 		overflow-x: hidden;
 	}
 
+	/* Fallback bound in case the floating-ui `size()` middleware's inline maxHeight isn't applied
+	   (e.g. a consumer overriding slashMenu.middleware) - keeps the menu from spilling past a
+	   shrunk (mobile keyboard) viewport. */
+	.akui-wysiwyg-container :global(.milkdown-slash-menu) {
+		max-height: min(320px, 80vh);
+		overflow-y: auto;
+	}
+
 	/* Bullet points and list numbers should match the list text colour */
 	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper) {
 		color: var(--akui-fg);
