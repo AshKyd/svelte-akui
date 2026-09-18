@@ -10,6 +10,8 @@
 		actions?: Snippet;
 		/** Whether the header is pinned/sticky to the top of the viewport. */
 		pinned?: boolean;
+		/** Called when the empty background area is clicked (e.g. the gap between the title and actions) — not the navigation, title or actions content itself. */
+		onclick?: () => void;
 		/** Additional CSS classes for the header. */
 		class?: string;
 	}
@@ -19,12 +21,26 @@
 		title,
 		actions,
 		pinned = true,
+		onclick,
 		class: className = ''
 	}: Props = $props();
+
+	// Fires onclick only for a direct hit on the empty background, not a bubble from
+	// interactive content inside the navigation/title/actions snippets.
+	function handleBackgroundClick(event: MouseEvent) {
+		if (event.target === event.currentTarget) {
+			onclick?.();
+		}
+	}
 </script>
 
-<header class="akui-header {className}" class:pinned>
-	<div class="akui-header-left">
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<header class="akui-header {className}" class:pinned onclick={handleBackgroundClick}>
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div class="akui-header-left" onclick={handleBackgroundClick}>
 		{#if navigation}
 			<div class="akui-header-navigation">
 				{@render navigation()}
