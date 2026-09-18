@@ -35,6 +35,7 @@ export class DragSourceInstance<T = unknown> {
 	#activePointerId: number | null = null;
 	#pointerType: string = '';
 	#longPressTimer: ReturnType<typeof setTimeout> | null = null;
+	#longPressArmed = false;
 	#gestureListenersAttached = false;
 	#dragTouchMoveAttached = false;
 	#keyListenerAttached = false;
@@ -125,7 +126,7 @@ export class DragSourceInstance<T = unknown> {
 
 		if (e.pointerType === 'touch') {
 			const delay = this.#options.longPressDelay ?? 350;
-			this.#longPressTimer = setTimeout(() => this.#startDrag(), delay);
+			this.#longPressTimer = setTimeout(() => this.#onLongPress(), delay);
 		}
 	};
 
@@ -146,6 +147,9 @@ export class DragSourceInstance<T = unknown> {
 		if (!this.#isDragging) {
 			const threshold = this.#options.mouseThreshold ?? 4;
 			if (this.#pointerType === 'mouse' && distance > threshold) {
+				this.#startDrag();
+			}
+			if (this.#longPressArmed && distance > TOUCH_LONG_PRESS_SLOP) {
 				this.#startDrag();
 			}
 			if (!this.#isDragging) return;
@@ -224,12 +228,31 @@ export class DragSourceInstance<T = unknown> {
 		this.#suppressNextClick = false;
 	};
 
+	/** Fires once when a touch long-press elapses without having moved yet, arming the gesture. */
+	#onLongPress() {
+		if (this.#isDragging || !this.#element) return;
+		this.#longPressTimer = null;
+		this.#longPressArmed = true;
+		this.#suppressNextClick = true;
+
+		if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+			try {
+				navigator.vibrate(40);
+			} catch {
+				// Haptics are optional.
+			}
+		}
+
+		this.#options.onlongpress?.();
+	}
+
 	#startDrag() {
 		if (this.#isDragging || !this.#element) return;
 		if (this.#longPressTimer) {
 			clearTimeout(this.#longPressTimer);
 			this.#longPressTimer = null;
 		}
+		this.#longPressArmed = false;
 
 		this.#isDragging = true;
 		this.#suppressNextClick = true;
@@ -285,6 +308,7 @@ export class DragSourceInstance<T = unknown> {
 			clearTimeout(this.#longPressTimer);
 			this.#longPressTimer = null;
 		}
+		this.#longPressArmed = false;
 		if (this.#gestureListenersAttached && typeof window !== 'undefined') {
 			window.removeEventListener('pointermove', this.#onPointerMove);
 			window.removeEventListener('pointerup', this.#onPointerUp);

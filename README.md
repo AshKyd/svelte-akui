@@ -21,7 +21,7 @@ You can optionally wrap your application in the `UIRoot` component to configure 
 ### Layout & Foundation
 
 - **`UIRoot`**: Optional parent wrapper for global styling and theme management. Sets the base font, HSL colour tokens, and manages theme state. Supports bindable `mode` (the configured theme preference: `'light'`, `'dark'`, or `undefined` for system preference) and bindable `resolvedMode` (the currently active resolved theme: `'light'` or `'dark'`, which takes system settings into account when `mode` is `undefined`). Automatically initialises the `reducedMotion` store.
-- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics. *Note: Panels should be used sparingly, only for items that specifically require visual elevation and distinction from other content on the page (e.g. they should not wrap entire layout pages).*
+- **`Panel`**: A bordered container. Use `variant` (`regular`, `secondary`, `accent`) to change background colors. Use the `tag` prop (e.g. `tag="section"`) to specify a custom HTML element for better semantics. _Note: Panels should be used sparingly, only for items that specifically require visual elevation and distinction from other content on the page (e.g. they should not wrap entire layout pages)._
 - **`Padding`**: Adds consistent spacing. Use `size` (`small`, `medium`, `large`) and optional `x` or `y` flags to specify axes.
 - **`Divider`**: A 1px horizontal or vertical line for visual separation.
 - **`ReaderTypography`**: A wrapper for formatted reading content (such as blog posts or articles). Provides styled global overrides inside a `.reader-typography` container, adjusting margins, headings, paragraph heights, link styles with hover transitions, and embedding responsive 16:9 iframes, figures, and media with rounded corners, with subtle shadow glows applied to images, videos, iframes, and Koenig cards.
@@ -61,14 +61,14 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Tabs`**: A tabbed interface for switching between content sections. Supports a "full-featured" mode with content snippets or a navigation-only mode.
 - **`Menu`**: A floating list of actions. Includes `MenuButton` (trigger), `MenuItem` (standard item), and `MenuDivider`. Supports the `useMenu()` hook for closing from custom controls.
 - **`Sidebar`**: A side navigation drawer component. It supports permanent, modal, and dismissible layout modes. Features a scrollable top section using the `content` snippet and a fixed bottom section using the `footer` snippet. Supports `title` and `icon` (SVG name or image URL) properties to render an optional app branding header at the top of the drawer. In dismissible mode, it transitions width smoothly without squashing child elements. In modal mode, it displays as an overlay with a clickable backdrop and includes a visually hidden, accessible close button at the top of the drawer by default to support screen reader navigation.
-- **`Header`**: A Top App Bar component. It provides three layout zones using the `navigation`, `title`, and `actions` snippets. Supports a `pinned` prop to set whether the bar remains sticky at the top of the viewport or scrolls away with the page.
+- **`Header`**: A Top App Bar component. It provides three layout zones using the `navigation`, `title`, and `actions` snippets. Supports a `pinned` prop to set whether the bar remains sticky at the top of the viewport or scrolls away with the page. An `onclick` prop fires when the empty background area is clicked (not the navigation, title or actions content), useful for e.g. opening a search box.
 - **`HeaderSearch`**: A search bar component designed to integrate with headers. Supports `takeover` mode (which renders an animated circular clip overlay over the parent header when active) and `inline` mode. Features debounced input updates, auto-focus on activation, Escape key dismissal, and customisable `prefix` and `suffix` snippets.
 - **`FeedItemRow`**: A standard list item for RSS feeds, news, or activity streams. Supports a title, excerpt, metadata (tag/time), icons, and images. Handles truncation and focus states out of the box. Also supports stories without headings or tags (e.g., Mastodon RSS feeds), starting the excerpt text inline with the date and icon.
 - **`SwipeAction`**: A touch-only gesture wrapper. Swiping left or right slides the inner component to reveal a configurable background colour and icon, scaling the icon and executing the action on release.
 - **`DynamicImage`**: A smart image component that handles aspect-ratio fitting (cover/contain), loading placeholders, and fade-in transitions.
 - **`Tree`**: A collapsible tree view for hierarchical lists. Supports custom icon snippets, keyboard traversal (arrows, space, Enter), and size options ('small', 'large') to match control styles. It has no drag-and-drop of its own: pass `itemAttributes` to spread your own attributes and attachments onto each row — a `dragSource()` to make rows draggable, a `dropTarget()` to make them accept payloads, or anything else. Return `class: 'akui-tree-item-row-highlight'` from `itemAttributes` to light a row up while it is the active target.
 - **`DropTarget`**: A generic drop target container and element attachment (`dropTarget()`) for accepting drag-and-drop payloads anywhere in an application. Coordinates with global drags via `DropManager`. Exposes `canDrop` to filter payloads, `ondrop` to handle dropped items, and reactive hover states (`isOver`, `canDrop`, `isDragging`). Can be used via `<DropTarget>` or directly on elements with the `{@attach target.attach}` attachment. See the [Drag and Drop guide](docs/drag-and-drop.md).
-- **`Draggable`**: The drag-source mirror of `DropTarget`, backed by `dragSource()`. Wrap any element to make it draggable into global `DropTarget`s via `DropManager`. Takes `getPayload` to build the drag payload, plus `handleSelector`, `disabled`, `longPressDelay`, `mouseThreshold`, `dragScale`, and `ondragstart`/`ondragmove`/`ondrop`/`oncancel`/`ondragend` callbacks. Exposes reactive `isDragging` and `delta` (to its `children` snippet). Owns its own start gate (mouse travel threshold / touch long-press), pointer capture, Escape-to-cancel, trailing-click suppression, and a snap-back settle when the drag ends. Use via `<Draggable>` or directly with the `{@attach source.attach}` attachment. See the [Drag and Drop guide](docs/drag-and-drop.md).
+- **`Draggable`**: The drag-source mirror of `DropTarget`, backed by `dragSource()`. Wrap any element to make it draggable into global `DropTarget`s via `DropManager`. Takes `getPayload` to build the drag payload, plus `handleSelector`, `disabled`, `longPressDelay`, `mouseThreshold`, `dragScale`, and `ondragstart`/`onlongpress`/`ondragmove`/`ondrop`/`oncancel`/`ondragend` callbacks. `onlongpress` fires once a touch long-press elapses without the finger having moved yet — useful for a press-and-hold "select" gesture — and the drag still promotes normally if the finger moves afterwards. Exposes reactive `isDragging` and `delta` (to its `children` snippet). Owns its own start gate (mouse travel threshold / touch long-press), pointer capture, Escape-to-cancel, trailing-click suppression, and a snap-back settle when the drag ends. Use via `<Draggable>` or directly with the `{@attach source.attach}` attachment. See the [Drag and Drop guide](docs/drag-and-drop.md).
 
 ### Media & Lists
 
@@ -167,7 +167,6 @@ Components should be composed: wrap any input in a `Field` to add a label.
   	Reduced Motion: {reducedMotion.value ? 'On' : 'Off'}
   </button>
   ```
-
 
 ### Keyboard Utilities
 
@@ -275,7 +274,11 @@ To set up standard lists of items, wrap your `ControlItemText`, `ControlItemExpa
 	{#snippet content()}
 		<ControlGroup>
 			<ControlItemText label="Dashboard" icon="house" href="/" />
-			<ControlItemExpanded label="Library Capacity" extra="45%" description="Physical shelves filled.">
+			<ControlItemExpanded
+				label="Library Capacity"
+				extra="45%"
+				description="Physical shelves filled."
+			>
 				<progress value="45" max="100" style="width: 100%; margin-top: 0.5rem;"></progress>
 			</ControlItemExpanded>
 			<ControlItemText label="Profile" icon="person" href="/profile" />
@@ -334,4 +337,3 @@ To lay out settings panels or dashboard configurations consistently across appli
   - For simple binary options, use a checkbox layout by setting `layout="horizontal"` and `controlType="checkbox"`, and binding `checked`.
   - For complex controls (e.g. dropdowns, buttons, custom inputs, or list pickers), place them inside the default slot (children) of the component.
 - **Navigation**: Place a `<Header>` at the top of the settings viewport with a navigation action (e.g., a "Close" or "Back" arrow button) to allow users to navigate back to the main application context.
-

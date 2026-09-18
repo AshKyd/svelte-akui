@@ -1,10 +1,12 @@
 <script lang="ts" module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
+	import { SvelteSet } from 'svelte/reactivity';
 	import Draggable from './Draggable.svelte';
 	import DropTarget from '../DropTarget/DropTarget.svelte';
 	import Masonry from '../Masonry/Masonry.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 	import { dragSource, dropTarget, type DragPayload } from '../../hooks/dnd/index.js';
+	import { clickOutside } from '../../hooks/clickOutside.js';
 
 	const { Story } = defineMeta({
 		title: 'Components/Draggable',
@@ -54,6 +56,45 @@
 		const [moved] = next.splice(from, 1);
 		next.splice(to, 0, moved);
 		tray = next;
+	}
+
+	// "Long-press to select" — onlongpress arms a card without dragging it; moving the
+	// finger afterwards still promotes to a normal drag.
+	let armedBakeId = $state<string | null>(null);
+	let restingSpot = $state<string[]>([]);
+
+	function settle(payload: DragPayload) {
+		const bake = payload.data as Bake;
+		restingSpot = [...restingSpot, bake.name];
+	}
+
+	function resetLongPressRound() {
+		armedBakeId = null;
+		restingSpot = [];
+	}
+
+	// "Click to select, drag to reorder" — selection is a plain click toggle, entirely
+	// separate from the drag gesture. A completed drag never toggles selection because
+	// Draggable already swallows the trailing click once a drag has happened.
+	// $state only deep-proxies plain objects/arrays, not Set/Map/Date — a plain
+	// `$state(new Set())` looks reactive but `.add()`/`.delete()` on it are invisible to
+	// Svelte, so reads like `.has()` never re-run. SvelteSet is the reactive alternative.
+	let selectedBakeIds = new SvelteSet<string>();
+	let clickSelectTray = $state<Bake[]>(rack.map((b) => ({ ...b })));
+
+	function toggleSelected(id: string) {
+		if (selectedBakeIds.has(id)) selectedBakeIds.delete(id);
+		else selectedBakeIds.add(id);
+	}
+
+	function swapClickSelectTray(draggedId: string, targetId: string) {
+		const from = clickSelectTray.findIndex((b) => b.id === draggedId);
+		const to = clickSelectTray.findIndex((b) => b.id === targetId);
+		if (from < 0 || to < 0 || from === to) return;
+		const next = [...clickSelectTray];
+		const [moved] = next.splice(from, 1);
+		next.splice(to, 0, moved);
+		clickSelectTray = next;
 	}
 
 	// "Primitives only" — using the attachment layer directly with plain DOM elements.
@@ -225,6 +266,168 @@
 				</div>
 			</Draggable>
 		{/each}
+	</LayoutContentWidth>
+</Story>
+
+<Story name="Long-press to select (onlongpress)">
+	<LayoutContentWidth
+		size="large"
+		style="display: flex; flex-direction: column; gap: 16px; padding: 20px;"
+	>
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<p style="margin: 0; color: var(--akui-fg-secondary); font-size: 0.9rem;">
+				On a touch device (or with DevTools touch emulation), hold a bake still — it lights up as
+				"selected" via <code>onlongpress</code> without moving. Keep holding and drag your finger
+				and it promotes to a normal drag onto the resting spot instead. A quick tap does nothing,
+				same as before. Clicking anywhere outside the selected bake — including on another bake —
+				clears the selection, via the <code>clickOutside</code> attachment.
+			</p>
+			<button
+				style="padding: 6px 14px; border-radius: 6px; border: 1px solid var(--akui-border-input); background: var(--akui-bg); cursor: pointer;"
+				onclick={resetLongPressRound}
+			>
+				Reset
+			</button>
+		</div>
+		<div style="display: grid; grid-template-columns: 1fr 220px; gap: 20px; align-items: start;">
+			<div style="display: flex; flex-direction: column; gap: 10px;">
+				{#each rack as bake (bake.id)}
+					<Draggable
+						getPayload={() => ({ type: 'long-press-bake', data: bake })}
+						onlongpress={() => (armedBakeId = bake.id)}
+						ondragstart={() => (armedBakeId = null)}
+						ondragend={() => (armedBakeId = null)}
+					>
+						{#snippet children({ isDragging })}
+							<div
+								{@attach armedBakeId === bake.id
+									? clickOutside(() => (armedBakeId = null))
+									: undefined}
+								style="
+									background: {isDragging
+									? 'var(--akui-bg-secondary)'
+									: armedBakeId === bake.id
+										? 'var(--akui-bg-accent-secondary, #dbeafe)'
+										: 'var(--akui-bg)'};
+									border: 1px solid {isDragging || armedBakeId === bake.id
+									? 'var(--akui-bg-accent)'
+									: 'var(--akui-border-input)'};
+									border-radius: 8px;
+									padding: 12px 14px;
+									cursor: grab;
+								"
+							>
+								<div style="font-weight: 600; font-size: 0.9rem;">
+									{bake.name}
+									{#if armedBakeId === bake.id}
+										<span style="font-size: 0.75rem; color: var(--akui-bg-accent);">selected</span>
+									{/if}
+								</div>
+								<div style="font-size: 0.8rem; color: var(--akui-fg-secondary);">{bake.note}</div>
+							</div>
+						{/snippet}
+					</Draggable>
+				{/each}
+			</div>
+			<DropTarget canDrop={() => true} ondrop={settle}>
+				{#snippet children({ isOver, canDrop })}
+					<div
+						style="
+							border: 2px dashed {isOver && canDrop
+							? 'var(--akui-bg-accent, #2563eb)'
+							: 'var(--akui-border-input)'};
+							background: {isOver && canDrop ? 'var(--akui-bg-secondary)' : 'var(--akui-bg)'};
+							border-radius: 12px;
+							padding: 16px;
+							min-height: 160px;
+						"
+					>
+						<div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 8px;">Resting spot</div>
+						{#if restingSpot.length === 0}
+							<div style="font-size: 0.8rem; color: var(--akui-fg-secondary);">
+								Nothing dragged here yet
+							</div>
+						{:else}
+							<ul style="margin: 0; padding-left: 18px; font-size: 0.85rem;">
+								{#each restingSpot as name, i (i)}
+									<li>{name}</li>
+								{/each}
+							</ul>
+						{/if}
+					</div>
+				{/snippet}
+			</DropTarget>
+		</div>
+	</LayoutContentWidth>
+</Story>
+
+<Story name="Click to select, drag to reorder">
+	<LayoutContentWidth
+		size="large"
+		style="display: flex; flex-direction: column; gap: 16px; padding: 20px;"
+	>
+		<div style="display: flex; justify-content: space-between; align-items: center;">
+			<p style="margin: 0; color: var(--akui-fg-secondary); font-size: 0.9rem;">
+				Every bake is draggable from the start — no long-press needed to arm it first. Selection is
+				independent of that: click a bake, or long-press it without moving on touch, to toggle it
+				selected — click a selected one (or click outside) to deselect. Dragging a bake (from a
+				long-press that moves, or a mouse drag) deselects it, since a drag is "move this", not
+				"select this" — and a completed drag never also toggles selection, since
+				<code>Draggable</code> swallows the trailing click once a drag has happened.
+			</p>
+			<button
+				style="padding: 6px 14px; border-radius: 6px; border: 1px solid var(--akui-border-input); background: var(--akui-bg); cursor: pointer;"
+				onclick={() => selectedBakeIds.clear()}
+			>
+				Clear selection ({selectedBakeIds.size})
+			</button>
+		</div>
+		<Masonry animate={true} items={clickSelectTray} colWidth="minmax(200px, 1fr)" gridGap="12px">
+			{#snippet itemSnippet(bake)}
+				<Draggable
+					dragScale={0.6}
+					getPayload={() => ({ type: 'click-select-bake', data: bake })}
+					onlongpress={() => toggleSelected(bake.id)}
+					ondragstart={() => selectedBakeIds.delete(bake.id)}
+				>
+					<DropTarget
+						canDrop={(payload) =>
+							payload.type === 'click-select-bake' && payload.data.id !== bake.id}
+						ondrop={(payload) => swapClickSelectTray(payload.data.id, bake.id)}
+					>
+						{#snippet children({ isOver, canDrop })}
+							{@const selected = selectedBakeIds.has(bake.id)}
+							<div
+								{@attach selected ? clickOutside(() => selectedBakeIds.delete(bake.id)) : undefined}
+								onclick={() => toggleSelected(bake.id)}
+								role="button"
+								tabindex="0"
+								onkeydown={(e) => e.key === 'Enter' && toggleSelected(bake.id)}
+								style="
+									background: {selected ? 'var(--akui-bg-accent-secondary, #dbeafe)' : 'var(--akui-bg)'};
+									border: 1px solid {selected ? 'var(--akui-bg-accent)' : 'var(--akui-border-input)'};
+									border-radius: 8px;
+									padding: 16px;
+									cursor: pointer;
+									outline: {isOver && canDrop
+									? '2px dashed var(--akui-bg-accent, #2563eb)'
+									: '2px dashed transparent'};
+									outline-offset: -2px;
+								"
+							>
+								<div style="font-weight: 600; font-size: 0.9rem;">
+									{bake.name}
+									{#if selected}
+										<span style="font-size: 0.75rem; color: var(--akui-bg-accent);">selected</span>
+									{/if}
+								</div>
+								<div style="font-size: 0.8rem; color: var(--akui-fg-secondary);">{bake.note}</div>
+							</div>
+						{/snippet}
+					</DropTarget>
+				</Draggable>
+			{/snippet}
+		</Masonry>
 	</LayoutContentWidth>
 </Story>
 

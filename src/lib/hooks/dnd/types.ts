@@ -56,6 +56,8 @@ export interface DragSourceOptions<T = unknown> {
 	mouseThreshold?: number;
 	/** Invoked once, immediately after the drag begins. */
 	ondragstart?: () => void;
+	/** Invoked once, immediately when a touch long-press elapses without having moved yet. */
+	onlongpress?: () => void;
 	/** Invoked on every pointer move during a drag. */
 	ondragmove?: (detail: DragMoveDetail) => void;
 	/** Invoked on release. `handledExternally` is true when a drop target consumed the drop. */
