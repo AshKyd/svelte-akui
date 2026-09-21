@@ -78,6 +78,18 @@
 	--akui-color-amber-bg: rgba(251, 191, 36, 0.15);
 	--akui-color-amber-fg: #78350f;
 	--akui-color-amber-border: rgba(251, 191, 36, 0.2);
+
+	--akui-color-red-bg: rgba(248, 113, 113, 0.15);
+	--akui-color-red-fg: #7f1d1d;
+	--akui-color-red-border: rgba(248, 113, 113, 0.2);
+
+	--akui-color-teal-bg: rgba(45, 212, 191, 0.15);
+	--akui-color-teal-fg: #134e4a;
+	--akui-color-teal-border: rgba(45, 212, 191, 0.2);
+
+	--akui-color-grey-bg: rgba(148, 163, 184, 0.18);
+	--akui-color-grey-fg: #1e293b;
+	--akui-color-grey-border: rgba(148, 163, 184, 0.25);
 }
 
 [data-theme='dark'] {
@@ -159,6 +171,18 @@
 	--akui-color-amber-bg: rgba(251, 191, 36, 0.1);
 	--akui-color-amber-fg: #fbbf24;
 	--akui-color-amber-border: rgba(251, 191, 36, 0.2);
+
+	--akui-color-red-bg: rgba(248, 113, 113, 0.1);
+	--akui-color-red-fg: #f87171;
+	--akui-color-red-border: rgba(248, 113, 113, 0.2);
+
+	--akui-color-teal-bg: rgba(45, 212, 191, 0.1);
+	--akui-color-teal-fg: #2dd4bf;
+	--akui-color-teal-border: rgba(45, 212, 191, 0.2);
+
+	--akui-color-grey-bg: rgba(148, 163, 184, 0.1);
+	--akui-color-grey-fg: #cbd5e1;
+	--akui-color-grey-border: rgba(148, 163, 184, 0.2);
 }
 
 * {
