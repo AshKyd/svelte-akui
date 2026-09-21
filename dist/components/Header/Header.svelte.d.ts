@@ -8,6 +8,8 @@ interface Props {
     actions?: Snippet;
     /** Whether the header is pinned/sticky to the top of the viewport. */
     pinned?: boolean;
+    /** Called when the empty background area is clicked (e.g. the gap between the title and actions) — not the navigation, title or actions content itself. */
+    onclick?: () => void;
     /** Additional CSS classes for the header. */
     class?: string;
 }

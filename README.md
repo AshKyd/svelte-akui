@@ -198,6 +198,22 @@ Components should be composed: wrap any input in a `Field` to add a label.
   </div>
   ```
 
+### DOM & Event Attachments
+
+- **`clickOutside`**: A Svelte 5 attachment (`Attachment<HTMLElement>`) that invokes a callback when a pointer press occurs outside the attached element. Listens on `pointerdown` in the capture phase using `on()` from `svelte/events`, ensuring dismissal triggers before target click handlers run without racing event delegation.
+
+  ```svelte
+  <script>
+  	import { clickOutside } from 'svelte-akui';
+
+  	let selected = $state(false);
+  </script>
+
+  <div {@attach selected ? clickOutside(() => (selected = false)) : undefined}>
+  	Card content
+  </div>
+  ```
+
 ## Application Shell & Layout
 
 To build a responsive application shell, position the `Sidebar` alongside the main content area in a flex container or grid layout. Coordinate the shell's components by following this checklist:

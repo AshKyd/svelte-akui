@@ -337,6 +337,7 @@ Detail object passed to `ondragmove`.
 | `mouseThreshold` | `number` | `4` | Mouse travel in pixels required before a drag starts. |
 | `dragScale` | `number` | `1` | Visual scale applied to the element while dragging. |
 | `ondragstart` | `() => void` | `undefined` | Fired once when a drag begins. |
+| `onlongpress` | `() => void` | `undefined` | Fired immediately when a touch long-press timeout elapses without movement. |
 | `ondragmove` | `(detail: DragMoveDetail) => void` | `undefined` | Fired on pointer move during a drag. |
 | `ondrop` | `(detail: { handledExternally: boolean; event: PointerEvent }) => void` | `undefined` | Fired when dropped. `handledExternally` is `true` if consumed by a target. |
 | `oncancel` | `(reason: DragCancelReason) => void` | `undefined` | Fired when the drag is aborted. |
@@ -372,6 +373,7 @@ Creates a reactive drag source instance.
 - `longPressDelay?: number` (default: `350`)
 - `mouseThreshold?: number` (default: `4`)
 - `ondragstart?: () => void`
+- `onlongpress?: () => void`
 - `ondragmove?: (detail: DragMoveDetail) => void`
 - `ondrop?: (detail: { handledExternally: boolean; event: PointerEvent }) => void`
 - `oncancel?: (reason: DragCancelReason) => void`

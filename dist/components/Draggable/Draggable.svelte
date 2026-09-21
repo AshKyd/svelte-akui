@@ -33,6 +33,8 @@
 		dragScale?: number;
 		/** Fired once when a drag begins */
 		ondragstart?: () => void;
+		/** Fired once when a touch long-press elapses without having moved yet */
+		onlongpress?: () => void;
 		/** Fired on each pointer move during a drag, with cursor position and delta from the grab point */
 		ondragmove?: (detail: DragMoveDetail) => void;
 		/** Fired on release; handledExternally is true when a global drop target consumed the drop */
@@ -55,6 +57,7 @@
 		mouseThreshold,
 		dragScale = 1,
 		ondragstart,
+		onlongpress,
 		ondragmove,
 		ondrop,
 		oncancel,
@@ -104,6 +107,9 @@
 		ondragstart: () => {
 			settleOrigin = { ...source.grabOffset };
 			ondragstart?.();
+		},
+		onlongpress: () => {
+			onlongpress?.();
 		},
 		get ondragmove() {
 			return ondragmove;

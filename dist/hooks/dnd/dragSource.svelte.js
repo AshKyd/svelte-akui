@@ -28,6 +28,7 @@ export class DragSourceInstance {
     #activePointerId = null;
     #pointerType = '';
     #longPressTimer = null;
+    #longPressArmed = false;
     #gestureListenersAttached = false;
     #dragTouchMoveAttached = false;
     #keyListenerAttached = false;
@@ -109,7 +110,7 @@ export class DragSourceInstance {
         this.#addGestureListeners();
         if (e.pointerType === 'touch') {
             const delay = this.#options.longPressDelay ?? 350;
-            this.#longPressTimer = setTimeout(() => this.#startDrag(), delay);
+            this.#longPressTimer = setTimeout(() => this.#onLongPress(), delay);
         }
     };
     #onPointerMove = (e) => {
@@ -127,6 +128,9 @@ export class DragSourceInstance {
         if (!this.#isDragging) {
             const threshold = this.#options.mouseThreshold ?? 4;
             if (this.#pointerType === 'mouse' && distance > threshold) {
+                this.#startDrag();
+            }
+            if (this.#longPressArmed && distance > TOUCH_LONG_PRESS_SLOP) {
                 this.#startDrag();
             }
             if (!this.#isDragging)
@@ -200,6 +204,23 @@ export class DragSourceInstance {
         e.stopPropagation();
         this.#suppressNextClick = false;
     };
+    /** Fires once when a touch long-press elapses without having moved yet, arming the gesture. */
+    #onLongPress() {
+        if (this.#isDragging || !this.#element)
+            return;
+        this.#longPressTimer = null;
+        this.#longPressArmed = true;
+        this.#suppressNextClick = true;
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            try {
+                navigator.vibrate(40);
+            }
+            catch {
+                // Haptics are optional.
+            }
+        }
+        this.#options.onlongpress?.();
+    }
     #startDrag() {
         if (this.#isDragging || !this.#element)
             return;
@@ -207,6 +228,7 @@ export class DragSourceInstance {
             clearTimeout(this.#longPressTimer);
             this.#longPressTimer = null;
         }
+        this.#longPressArmed = false;
         this.#isDragging = true;
         this.#suppressNextClick = true;
         this.#delta = { x: 0, y: 0 };
@@ -256,6 +278,7 @@ export class DragSourceInstance {
             clearTimeout(this.#longPressTimer);
             this.#longPressTimer = null;
         }
+        this.#longPressArmed = false;
         if (this.#gestureListenersAttached && typeof window !== 'undefined') {
             window.removeEventListener('pointermove', this.#onPointerMove);
             window.removeEventListener('pointerup', this.#onPointerUp);
