@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet, setContext } from 'svelte';
 	import '../theme/theme.css';
+	import { reducedMotion } from '../hooks/reducedMotion.svelte.js';
 
 	interface Props {
 		/** The user-configured theme preference ('light', 'dark', or undefined/null for system preference). */
@@ -38,6 +39,13 @@
 
 	$effect(() => {
 		resolvedMode = currentTheme;
+	});
+
+	// CSS can't see the user override, only the OS setting, so the effective reduced-motion value is
+	// published on <html> as `data-reduced-motion`. Component styles key off that attribute instead
+	// of `@media (prefers-reduced-motion)`, so the settings toggle works in both directions.
+	$effect(() => {
+		document.documentElement.dataset.reducedMotion = String(reducedMotion.value);
 	});
 
 	setContext('akui-theme', {
@@ -87,10 +95,25 @@
 		}
 
 		/* 3. Enable keyword animations */
-		@media (prefers-reduced-motion: no-preference) {
-			html {
-				interpolate-size: allow-keywords;
-			}
+		html:not([data-reduced-motion='true']) {
+			interpolate-size: allow-keywords;
+		}
+
+		/*
+		 * Reduced motion, from the `reducedMotion` store (the settings toggle, defaulting to the OS
+		 * setting). Stops every CSS transition and keyframe animation, including inline `style`
+		 * transitions such as Draggable's settle and Masonry's reflow, which `!important` overrides.
+		 * Durations are near zero rather than `none` so `transitionend`/`animationend` still fire.
+		 * Svelte `transition:` directives aren't CSS — they use `motion()` from the same store.
+		 */
+		html[data-reduced-motion='true'] *,
+		html[data-reduced-motion='true'] *::before,
+		html[data-reduced-motion='true'] *::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			transition-delay: 0s !important;
+			scroll-behavior: auto !important;
 		}
 
 		body {

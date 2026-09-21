@@ -2,6 +2,7 @@
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import { ControlGroup } from '../ControlGroup/index.js';
 	import { Glow } from '../Glow/index.js';
 
@@ -22,7 +23,7 @@
 <!-- Rendered side-by-side with the mobile menu content layer -->
 <div
 	class="akui-menu-mobile-backdrop"
-	transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+	transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 ></div>
 
 <div
@@ -32,7 +33,7 @@
 >
 	<div
 		class="akui-mobile-menu-content"
-		transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+		transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 	>
 		<Glow />
 		<div class="akui-menu-mobile-handle"></div>

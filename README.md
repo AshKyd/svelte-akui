@@ -146,7 +146,9 @@ Components should be composed: wrap any input in a `Field` to add a label.
   </button>
   ```
 
-- **`reducedMotion`**: Reactive store tracking `prefers-reduced-motion`. Defaults to the system OS preference, with optional user overrides persisted to `localStorage` (`akui-reduced-motion`). Initialised automatically when using `UIRoot`, or manually via `reducedMotion.init()`.
+- **`reducedMotion`**: Reactive store tracking `prefers-reduced-motion`. Defaults to the system OS preference, with optional user overrides persisted to `localStorage` (`akui-reduced-motion`). All akui components follow it, including the override:
+  - `UIRoot` writes the effective value to `<html data-reduced-motion>`, and while it is `true` stops all CSS transitions and keyframe animations (loaders keep a slow spin). Style your own reduced-motion rules with `html[data-reduced-motion='true']` rather than `@media (prefers-reduced-motion)`, which can't see the override.
+  - `motion(params)`: wrap Svelte transition params so they become instant when reduced motion is on, e.g. `transition:fade={motion({ duration: 200 })}`. Svelte transitions don't go through CSS, so the `UIRoot` rule can't stop them.
   - `reducedMotion.value`: Boolean indicating whether reduced motion is active (returns the override if set, otherwise the system preference).
   - `reducedMotion.systemPrefers`: Live OS-level `prefers-reduced-motion` value.
   - `reducedMotion.override`: User override (`true`, `false`, or `null` when following system settings).

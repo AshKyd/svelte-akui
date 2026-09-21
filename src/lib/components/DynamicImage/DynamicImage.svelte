@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 
 	interface Props {
 		/** Image source URL */
@@ -103,7 +104,7 @@
 			style:object-fit={computedFit}
 			onload={handleLoad}
 			onerror={handleError}
-			transition:fade={{ duration: 300 }}
+			transition:fade={motion({ duration: 300 })}
 			loading="lazy"
 		/>
 	{/if}

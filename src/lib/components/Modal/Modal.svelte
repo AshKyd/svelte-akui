@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import Icon from '../Icon/Icon.svelte';
 	import { Glow } from '../Glow/index.js';
 
@@ -95,8 +96,8 @@
 			class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
 			style:--akui-modal-min-width={minWidth}
 			style:--akui-modal-min-height={minHeight}
-			in:scale={{ duration: 200, start: 0.95 }}
-			out:scale={{ duration: 200, start: 0.95 }}
+			in:scale={motion({ duration: 200, start: 0.95 })}
+			out:scale={motion({ duration: 200, start: 0.95 })}
 		>
 			<Glow />
 			{#if hasHeader}

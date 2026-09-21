@@ -157,11 +157,9 @@
 	}
 
 	/* WCAG 2.2.2: no auto-moving content. The timer still runs — a timer is not motion. */
-	@media (prefers-reduced-motion: reduce) {
-		.akui-notification-countdown-fill {
-			animation: none;
-			transform: scaleX(1);
-			opacity: 0.35;
-		}
+	:global(html[data-reduced-motion='true']) .akui-notification-countdown-fill {
+		animation: none !important;
+		transform: scaleX(1);
+		opacity: 0.35;
 	}
 </style>

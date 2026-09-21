@@ -75,6 +75,15 @@
 		border-top-color: currentColor;
 	}
 
+	/*
+	 * Exempt from the reduced-motion override in UIRoot: a spinner that stops looks like a frozen
+	 * app. A slower spin keeps the "working" signal with less motion.
+	 */
+	:global(html[data-reduced-motion='true']) .akui-loader {
+		animation-duration: 1.5s !important;
+		animation-iteration-count: infinite !important;
+	}
+
 	@keyframes akui-spin {
 		to {
 			transform: rotate(360deg);

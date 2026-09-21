@@ -2,6 +2,7 @@
 	import { type Snippet, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION } from '../../constants.js';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import Button from '../Button/Button.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import Header from '../Header/Header.svelte';
@@ -80,7 +81,7 @@
 	<div
 		class="akui-sidebar-scrim"
 		onclick={() => (isOpen = false)}
-		transition:fade={{ duration: ANIMATION_DURATION }}
+		transition:fade={motion({ duration: ANIMATION_DURATION })}
 		aria-hidden="true"
 	></div>
 {/if}

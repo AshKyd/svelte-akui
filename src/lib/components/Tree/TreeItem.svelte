@@ -2,6 +2,7 @@
 	import { type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { slide } from 'svelte/transition';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import Icon from '../Icon/Icon.svelte';
 	import TreeItem from './TreeItem.svelte';
 
@@ -124,7 +125,7 @@
 	</div>
 
 	{#if isFolder && isExpanded && hasChildren}
-		<ul role="group" class="akui-tree-group" transition:slide={{ duration: 200 }}>
+		<ul role="group" class="akui-tree-group" transition:slide={motion({ duration: 200 })}>
 			{#each item.children || [] as child (child.id)}
 				<TreeItem
 					item={child}

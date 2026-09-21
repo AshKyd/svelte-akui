@@ -46,3 +46,14 @@ class ReducedMotionState {
 }
 
 export const reducedMotion = new ReducedMotionState();
+
+/**
+ * Returns Svelte transition params with the motion removed when reduced motion is on:
+ * `transition:fade={motion({ duration: 200 })}`.
+ *
+ * Svelte transitions run through the Web Animations API, so the global CSS override in `UIRoot`
+ * doesn't reach them. Every `transition:`, `in:` and `out:` should pass its params through this.
+ */
+export function motion<T extends { duration?: number; delay?: number }>(params: T): T {
+	return reducedMotion.value ? { ...params, duration: 0, delay: 0 } : params;
+}

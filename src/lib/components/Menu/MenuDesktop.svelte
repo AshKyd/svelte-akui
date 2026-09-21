@@ -2,6 +2,7 @@
 	import { type Snippet } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import { ControlGroup } from '../ControlGroup/index.js';
 	import { Glow } from '../Glow/index.js';
 
@@ -15,7 +16,7 @@
 
 <div
 	class="akui-desktop-menu-layer {className}"
-	transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+	transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 >
 	<div class="akui-menu-card">
 		<Glow />
