@@ -2,6 +2,7 @@
 	import { type Snippet, onMount, setContext } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import MenuDesktop from './MenuDesktop.svelte';
 	import MenuMobile from './MenuMobile.svelte';
 	import { MENU_CONTEXT_KEY } from './index.js';
@@ -109,7 +110,7 @@
 	bind:this={dialog}
 	oncancel={handleCancel}
 	onclick={handleClose}
-	transition:fade={{ duration: ANIMATION_DURATION, easing: ANIMATION_EASING }}
+	transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 	class="akui-menu-dialog"
 >
 	{#if rendered}

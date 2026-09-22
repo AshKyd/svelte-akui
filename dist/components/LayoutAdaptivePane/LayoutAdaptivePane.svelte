@@ -4,6 +4,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import DragHandler from '../DragHandler/DragHandler.svelte';
+	import { reducedMotion } from '../../hooks/reducedMotion.svelte.js';
 
 	interface Props {
 		/** Minimum width (in pixels) for the container to show both panes. Defaults to 768. */
@@ -48,7 +49,8 @@
 	}: Props = $props();
 
 	let containerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 0);
-	let prefersReducedMotion = $state(false);
+	/** From the shared store rather than the media query, so the settings toggle applies here. */
+	const prefersReducedMotion = $derived(reducedMotion.value);
 	let isDragging = $state(false);
 	let isLayoutReady = $state(false);
 
@@ -99,16 +101,7 @@
 			isLayoutReady = true;
 		}, 20);
 
-		const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-		prefersReducedMotion = mediaQuery.matches;
-		const listener = (e: MediaQueryListEvent) => {
-			prefersReducedMotion = e.matches;
-		};
-		mediaQuery.addEventListener('change', listener);
-		return () => {
-			clearTimeout(timer);
-			mediaQuery.removeEventListener('change', listener);
-		};
+		return () => clearTimeout(timer);
 	});
 
 	let nestedEl = $state<HTMLElement | null>(null);
@@ -448,21 +441,9 @@
 		transition: none;
 	}
 
-	@media (prefers-reduced-motion: reduce) {
-		.akui-layout-adaptive-pane.is-stacked .akui-pane-main,
-		.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
-			transform: none !important;
-			transition: opacity 0.2s ease;
-		}
-		.akui-pane-main,
-		.akui-pane-nested {
-			transition:
-				opacity 0.2s ease,
-				max-width 0.2s ease,
-				flex 0.2s ease !important;
-		}
-		.akui-pane-divider-overlay {
-			transition: none !important;
-		}
+	/* Keyed off the `reducedMotion` store (see UIRoot), which also stops the transitions themselves. */
+	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-stacked .akui-pane-main,
+	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
+		transform: none !important;
 	}
 </style>

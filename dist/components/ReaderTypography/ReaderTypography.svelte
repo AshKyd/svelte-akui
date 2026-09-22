@@ -103,7 +103,7 @@
 
 	/* Premium link styles with offset and colour transition */
 	.reader-typography :global(a) {
-		color: var(--akui-bg-accent, #2563eb);
+		color: var(--akui-fg-link, var(--akui-bg-accent, #2563eb));
 		text-decoration: underline;
 		text-underline-offset: 4px;
 		text-decoration-thickness: 1px;
@@ -113,7 +113,7 @@
 	}
 
 	.reader-typography :global(a:hover) {
-		color: var(--akui-bg-accent-hover, #1d4ed8);
+		color: var(--akui-fg-link-hover, var(--akui-bg-accent-hover, #1d4ed8));
 		text-decoration-thickness: 2px;
 	}
 

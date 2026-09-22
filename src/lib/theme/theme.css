@@ -393,7 +393,7 @@ input:not(.bespoke):not(.bespoke *)[type='radio'] {
 
 input:not(.bespoke):not(.bespoke *)[type='checkbox']:checked,
 input:not(.bespoke):not(.bespoke *)[type='radio']:checked {
-	background-color: var(--akui-bg-accent);
+	background-color: var(--akui-checkbox-accent, var(--akui-bg-accent));
 	border-color: transparent;
 	box-shadow: var(--akui-glow-top);
 }

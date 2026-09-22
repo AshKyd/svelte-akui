@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -93,5 +93,5 @@ screen, with no error.
 - Props use an explicit `Props` interface with a one-line JSDoc per prop, for IntelliSense.
 - Australian English in names and docs (colour, centre, analyse).
 - TypeScript throughout; avoid `any`.
-- This is the library that *provides* the styling, so component CSS lives here — but it must be built
+- This is the library that _provides_ the styling, so component CSS lives here — but it must be built
   from the `theme.css` tokens, not hardcoded colours, so light and dark both work.

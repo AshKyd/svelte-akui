@@ -5,6 +5,7 @@
 	import Icon from '../Icon/Icon.svelte';
 	import Loader from '../Loader/Loader.svelte';
 	import { Glow } from '../Glow/index.js';
+	import { reducedMotion, motion } from '../../hooks/reducedMotion.svelte.js';
 
 	interface Props {
 		/** Desktop background image URL */
@@ -152,11 +153,8 @@
 		node: HTMLElement,
 		{ direction = 'up', type = 'in', duration = 300, delay = 0 } = {}
 	) {
-		const prefersReducedMotion = typeof window !== 'undefined'
-			? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-			: false;
-
-		if (prefersReducedMotion || direction === 'none') {
+		// The shared store, not the media query, so the settings toggle applies here too.
+		if (reducedMotion.value || direction === 'none') {
 			return {
 				delay,
 				duration,
@@ -216,7 +214,7 @@
 	{#if viewState && viewState !== 'blank'}
 		<div
 			class="akui-layout-focus-shell__panel"
-			transition:fade={{ duration: 250, easing: cubicOut }}
+			transition:fade={motion({ duration: 250, easing: cubicOut })}
 		>
 			<Glow />
 
@@ -268,7 +266,7 @@
 				</div>
 
 				{#if loading}
-					<div class="akui-layout-focus-shell__loading-overlay" transition:fade={{ duration: 200 }}>
+					<div class="akui-layout-focus-shell__loading-overlay" transition:fade={motion({ duration: 200 })}>
 						<Loader size="2rem" />
 					</div>
 				{/if}

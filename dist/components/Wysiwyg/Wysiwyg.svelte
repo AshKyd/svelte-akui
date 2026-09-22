@@ -188,6 +188,15 @@
 		box-sizing: border-box;
 	}
 
+	/* Links follow --akui-fg-link so a host can keep them readable on custom backgrounds. */
+	.akui-wysiwyg-container :global(.milkdown a) {
+		color: var(--akui-fg-link, var(--akui-bg-accent));
+	}
+
+	.akui-wysiwyg-container :global(.milkdown a:hover) {
+		color: var(--akui-fg-link-hover, var(--akui-bg-accent-hover));
+	}
+
 	/* Text selection styling using akui theme tokens */
 	.akui-wysiwyg-container ::selection,
 	.akui-wysiwyg-container :global(::selection),
@@ -331,6 +340,11 @@
 
 	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper svg) {
 		fill: var(--akui-fg);
+	}
+
+	/* Checked task items use the checkbox accent colour */
+	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper .checked svg) {
+		fill: var(--akui-checkbox-accent, var(--akui-bg-accent));
 	}
 
 	.akui-wysiwyg-container :global(.milkdown ol li::marker),
