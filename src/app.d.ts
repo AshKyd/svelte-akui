@@ -8,6 +8,11 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	interface Window {
+		maplibregl?: any;
+	}
 }
+
+declare module 'ngeohash';
 
 export {};

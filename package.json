@@ -14,7 +14,8 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"storybook": "storybook dev -p 6006 --ci",
-		"build-storybook": "storybook build"
+		"build-storybook": "storybook build",
+		"fetch-geonames": "node scripts/fetch-geonames.js"
 	},
 	"files": [
 		"dist",
@@ -67,11 +68,15 @@
 	"keywords": [
 		"svelte"
 	],
+	"license": "ISC",
 	"dependencies": {
 		"@floating-ui/dom": "^1.8.0",
 		"@milkdown/crepe": "^7.21.2",
+		"browser-geocoder-geonames": "^0.0.2",
+		"maplibre-gl": "^6.11.2",
 		"marked": "^18.0.5",
 		"msrand": "^2.1.0",
+		"ngeohash": "^0.6.4",
 		"svelte-bootstrap-icons": "^3.3.0"
 	}
 }

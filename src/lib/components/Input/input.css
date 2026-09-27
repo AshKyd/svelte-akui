@@ -127,17 +127,21 @@ textarea.akui-input-base.large {
 }
 
 /* Ghost variant */
-.akui-input-base.ghost {
-	background-color: transparent;
-	border-color: transparent;
-	box-shadow: none;
+.akui-input-base.ghost,
+input:not(.bespoke).akui-input-base.ghost {
+	background-color: transparent !important;
+	border-color: transparent !important;
+	box-shadow: none !important;
 }
 
 .akui-input-base.ghost:hover,
 .akui-input-base.ghost:focus,
-.akui-input-base.ghost:focus-within {
-	background-color: transparent;
-	border-color: transparent;
-	box-shadow: none;
-	outline: none;
+.akui-input-base.ghost:focus-within,
+input:not(.bespoke).akui-input-base.ghost:hover,
+input:not(.bespoke).akui-input-base.ghost:focus,
+input:not(.bespoke).akui-input-base.ghost:focus-within {
+	background-color: transparent !important;
+	border-color: transparent !important;
+	box-shadow: none !important;
+	outline: none !important;
 }

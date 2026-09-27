@@ -45,7 +45,7 @@
 		display: flex;
 		flex-direction: column;
 		min-width: 180px;
-		max-width: 320px;
+		max-width: 380px;
 		backdrop-filter: blur(8px);
 	}
 

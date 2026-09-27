@@ -47,4 +47,5 @@ export * from './hooks/theme.svelte.js';
 export * from './hooks/reducedMotion.svelte.js';
 export * from './hooks/dnd/index.js';
 export * from './hooks/clickOutside.js';
+export * from './components/LocationPicker/index.js';
 export * from './constants.js';

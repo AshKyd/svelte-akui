@@ -1,0 +1,22 @@
+export {
+	loadGeoNamesDataset,
+	loadGeoNamesDataset as loadGeoNamesDict,
+	searchGeoNames,
+	geolocateNearest,
+	parseMapUrl,
+	parseBase36Population,
+	haversineDistance,
+	decodeGeohash,
+	getNormalizedFirstLetter,
+	DEFAULT_DATA_URL,
+	DEFAULT_MAX_GEOLOCATE_DISTANCE_KM
+} from 'browser-geocoder-geonames';
+
+export type {
+	GeoNameResult,
+	NearestLocationResult,
+	ParsedMapUrlResult,
+	GeoNamesLicense,
+	GeoNamesParsedStore,
+	GeoNamesDict
+} from 'browser-geocoder-geonames';
