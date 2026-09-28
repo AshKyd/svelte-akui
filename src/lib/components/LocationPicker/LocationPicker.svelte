@@ -16,9 +16,11 @@
 		type GeoNameResult,
 		type NearestLocationResult
 	} from 'browser-geocoder-geonames';
+	import Small from '../Small/Small.svelte';
 
 	const MAPLIBRE_CSS_URL = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
 	const MAPLIBRE_JS_URL = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+	const CONTENT_AREA_HEIGHT_PX = 260;
 
 	interface Props {
 		/** Longitude coordinate (-180 to 180) */
@@ -64,8 +66,17 @@
 		mapStyle,
 		ongeolocate,
 		onclear,
-		searchFn = (kw, cb, sig) => defaultSearchGeoNames({ keyword: kw, dataUrl, onProgress: cb, signal: sig }),
-		geolocateFn = (lat, lon, maxDist, cb, sig) => defaultGeolocateNearest({ latitude: lat, longitude: lon, dataUrl, maxDistanceKm: maxDist, onProgress: cb, signal: sig }),
+		searchFn = (kw, cb, sig) =>
+			defaultSearchGeoNames({ keyword: kw, dataUrl, onProgress: cb, signal: sig }),
+		geolocateFn = (lat, lon, maxDist, cb, sig) =>
+			defaultGeolocateNearest({
+				latitude: lat,
+				longitude: lon,
+				dataUrl,
+				maxDistanceKm: maxDist,
+				onProgress: cb,
+				signal: sig
+			}),
 		class: className = ''
 	}: Props = $props();
 
@@ -180,11 +191,10 @@
 				});
 
 				const nav = new maplibregl.NavigationControl({ showCompass: false });
-				instance.addControl(nav, 'bottom-right');
+				instance.addControl(nav, 'top-right');
 
 				// Resolve primary AKUI accent colour for pin (or computed CSS var)
-				const pinColor =
-					currentTheme === 'dark' ? '#3b82f6' : '#2563eb';
+				const pinColor = currentTheme === 'dark' ? '#3b82f6' : '#2563eb';
 
 				const markerInstance = new maplibregl.Marker({
 					draggable: !readonly,
@@ -434,17 +444,37 @@
 			</ControlItemText>
 		{/if}
 
-		<div class="akui-location-picker-content-area">
-			<div
-				class="akui-location-picker-map-pane"
-				class:hidden={isSearchingActive}
-			>
+		<div
+			class="akui-location-picker-content-area"
+			style="--picker-content-height: {CONTENT_AREA_HEIGHT_PX}px;"
+		>
+			<div class="akui-location-picker-map-pane" class:hidden={isSearchingActive}>
 				<ControlItemExpanded
 					label={name || 'Selected Location'}
 					description="{latitude.toFixed(4)}°, {longitude.toFixed(4)}°"
 				>
 					<div class="akui-location-picker-map-wrapper">
 						<div bind:this={mapContainer} class="akui-location-picker-map"></div>
+					</div>
+					<div class="attr">
+						<a href="https://openfreemap.org" target="_blank" rel="noopener noreferrer">
+							<Small colour="secondary">OpenFreeMap</Small>
+						</a>
+						<a
+							href="https://www.openstreetmap.org/copyright"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							<Small colour="secondary">© OSM</Small>
+						</a>
+						<a href="https://www.geonames.org" target="_blank" rel="noopener noreferrer">
+							<Small colour="secondary">GeoNames</Small>
+						</a>
+						<a
+							href="https://creativecommons.org/licenses/by/4.0/"
+							target="_blank"
+							rel="noopener noreferrer"><Small colour="secondary">CC BY 4.0</Small></a
+						>
 					</div>
 				</ControlItemExpanded>
 			</div>
@@ -467,7 +497,9 @@
 							<ControlItemExpanded
 								label={item.name}
 								description={[item.state, item.country].filter(Boolean).join(', ') || undefined}
-								extra={formatPopulation(item.population) ? `Pop: ${formatPopulation(item.population)}` : undefined}
+								extra={formatPopulation(item.population)
+									? `Pop: ${formatPopulation(item.population)}`
+									: undefined}
 								layout="horizontal"
 								onclick={() => handleSelectResult(item)}
 							/>
@@ -477,9 +509,6 @@
 			{/if}
 		</div>
 	</ControlGroup>
-	<p class="akui-location-picker-attribution">
-		Location data by <a href="https://www.geonames.org" target="_blank" rel="noopener noreferrer">GeoNames</a> under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. Provided "as is" without warranty.
-	</p>
 </div>
 
 <style>
@@ -510,7 +539,7 @@
 	}
 
 	.akui-location-picker-content-area {
-		height: 240px;
+		height: var(--picker-content-height, 250px);
 		width: 100%;
 		position: relative;
 		overflow: hidden;
@@ -519,14 +548,27 @@
 	.akui-location-picker-map-pane {
 		height: 100%;
 		width: 100%;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.akui-location-picker-map-pane.hidden {
 		display: none;
 	}
 
-	.akui-location-picker-results-container {
+	.akui-location-picker-map-pane :global(.akui-control-item-expanded-wrapper),
+	.akui-location-picker-map-pane :global(.akui-control-item-expanded-content),
+	.akui-location-picker-map-pane :global(.akui-control-item-expanded-inner),
+	.akui-location-picker-map-pane :global(.akui-control-item-expanded-container),
+	.akui-location-picker-map-pane :global(.akui-control-item-expanded-control) {
 		height: 100%;
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
+	}
+
+	.akui-location-picker-results-container {
+		height: var(--picker-content-height, 250px);
 		width: 100%;
 		overflow-y: auto;
 		display: flex;
@@ -547,7 +589,8 @@
 
 	.akui-location-picker-map-wrapper {
 		width: 100%;
-		height: 170px;
+		flex: 1;
+		min-height: 0;
 		border-radius: var(--akui-radius-s, 4px);
 		overflow: hidden;
 		margin-top: 0.25rem;
@@ -557,16 +600,11 @@
 		width: 100%;
 		height: 100%;
 	}
-
-	.akui-location-picker-attribution {
-		margin-top: 0.25rem;
-		font-size: 0.7rem;
-		color: var(--akui-fg-secondary, #6b7280);
-		text-align: right;
-	}
-
-	.akui-location-picker-attribution a {
-		color: inherit;
-		text-decoration: underline;
+	.attr a:not(:first-child):before {
+		content: '/ ';
+		font-size: 0.75rem;
+		opacity: 0.2;
+		text-decoration: none;
+		color: white;
 	}
 </style>
