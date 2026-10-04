@@ -306,9 +306,9 @@ a:not(.bespoke):focus-visible {
 }
 
 /* Global Form Controls (Reset Only) */
-input:not(.bespoke):not(.bespoke *):not([type='checkbox']):not([type='radio']):not([type='range']):not(
-		[type='file']
-	),
+input:not(.bespoke):not(.bespoke *):not([type='checkbox']):not([type='radio']):not(
+		[type='range']
+	):not([type='file']),
 select:not(.bespoke):not(.bespoke *),
 textarea:not(.bespoke):not(.bespoke *) {
 	appearance: none;

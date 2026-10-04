@@ -201,8 +201,7 @@
 			height: 100dvh;
 		}
 
-		.akui-modal-fullscreen-mobile,
-		.akui-modal-fullscreen-mobile .akui-modal-header {
+		.akui-modal-fullscreen-mobile {
 			border-radius: 0;
 		}
 
@@ -218,11 +217,11 @@
 		display: flex;
 		align-items: center;
 		padding: var(--akui-space-m);
+		border-top: none;
 		border-bottom: 1px solid var(--akui-border-input);
 		background: var(--akui-bg-secondary);
-		box-shadow: var(--akui-glow-top), var(--akui-glow-bottom);
-		border-top-left-radius: var(--akui-radius-l);
-		border-top-right-radius: var(--akui-radius-l);
+		border-top-left-radius: calc(var(--akui-radius-l) - 1px);
+		border-top-right-radius: calc(var(--akui-radius-l) - 1px);
 		gap: var(--akui-space-m);
 	}
 
@@ -300,6 +299,8 @@
 		padding: var(--akui-space-m);
 		background: var(--akui-bg-secondary);
 		border-top: 1px solid var(--akui-border-input);
+		border-bottom-left-radius: calc(var(--akui-radius-l) - 1px);
+		border-bottom-right-radius: calc(var(--akui-radius-l) - 1px);
 		display: flex;
 		justify-content: flex-end;
 		gap: var(--akui-space-s);

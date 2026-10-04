@@ -135,7 +135,8 @@
 	--akui-radius-l: 12px;
 
 	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+	--akui-glow-top-color: rgba(255, 255, 255, 0.15);
+	--akui-glow-top: inset 0 1px 0 var(--akui-glow-top-color);
 	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
 	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.4);
 	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.3);
@@ -306,9 +307,9 @@ a:not(.bespoke):focus-visible {
 }
 
 /* Global Form Controls (Reset Only) */
-input:not(.bespoke):not(.bespoke *):not([type='checkbox']):not([type='radio']):not([type='range']):not(
-		[type='file']
-	),
+input:not(.bespoke):not(.bespoke *):not([type='checkbox']):not([type='radio']):not(
+		[type='range']
+	):not([type='file']),
 select:not(.bespoke):not(.bespoke *),
 textarea:not(.bespoke):not(.bespoke *) {
 	appearance: none;
