@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { marked } from 'marked';
+	import { Marked } from 'marked';
+	import { sanitizeHtml } from '../../constants.js';
 
 	interface Props {
 		/** The markdown string content to render. */
@@ -10,13 +11,16 @@
 
 	let { content = '', class: className = '' }: Props = $props();
 
-	// Derived HTML compiled from markdown
+	const markedInstance = new Marked();
+
+	// Derived HTML compiled from markdown and passed through the central sanitiser
 	const html = $derived.by(() => {
 		try {
-			return marked.parse(content) as string;
+			const compiled = markedInstance.parse(content) as string;
+			return sanitizeHtml(compiled);
 		} catch (e) {
 			console.error('Failed to parse markdown', e);
-			return content;
+			return sanitizeHtml(content);
 		}
 	});
 </script>
