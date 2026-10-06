@@ -16,7 +16,7 @@ class ReducedMotionState {
 	isOverridden = $derived(this.override !== null);
 
 	constructor() {
-		if (typeof window === 'undefined') return;
+		if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
 
 		const stored = localStorage.getItem(STORAGE_KEY);
 		if (stored !== null) this.override = stored === 'true';
@@ -32,11 +32,11 @@ class ReducedMotionState {
 	set(next: boolean): void {
 		if (next === this.systemPrefers) {
 			this.override = null;
-			localStorage.removeItem(STORAGE_KEY);
+			if (typeof localStorage !== 'undefined') localStorage.removeItem(STORAGE_KEY);
 			return;
 		}
 		this.override = next;
-		localStorage.setItem(STORAGE_KEY, String(next));
+		if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, String(next));
 	}
 
 	/** Toggles the effective preference. */
