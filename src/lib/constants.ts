@@ -87,12 +87,20 @@ export function isAllowedHtmlTag(tagName: string): boolean {
 export function sanitizeHtml(html: string): string {
 	if (!html || typeof html !== 'string') return '';
 
-	let processedHtml = html;
+	// 1. Extract content between <!--StartFragment--> and <!--EndFragment--> if clipboard fragment comments exist
+	const fragmentMatch = html.match(/<!--StartFragment-->([\s\S]*?)<!--EndFragment-->/i);
+	let rawHtml = fragmentMatch ? fragmentMatch[1] : html;
+
+	let processedHtml = rawHtml;
 	if (typeof DOMParser !== 'undefined') {
 		const parser = new DOMParser();
-		const doc = parser.parseFromString(`<body>${html}</body>`, 'text/html');
+		const doc = parser.parseFromString(`<body>${rawHtml}</body>`, 'text/html');
 		const body = doc.body;
 		if (body) {
+			// Strip clipboard metadata & document header tags entirely before sanitising content
+			const metadata = Array.from(body.querySelectorAll('meta, link, base, title'));
+			metadata.forEach((el) => el.remove());
+
 			const allElements = Array.from(body.querySelectorAll('*'));
 			allElements.forEach((el) => {
 				const tag = el.tagName.toLowerCase();
