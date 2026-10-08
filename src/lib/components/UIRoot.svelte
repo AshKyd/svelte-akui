@@ -104,6 +104,7 @@
 		 * setting). Stops every CSS transition and keyframe animation, including inline `style`
 		 * transitions such as Draggable's settle and Masonry's reflow, which `!important` overrides.
 		 * Durations are near zero rather than `none` so `transitionend`/`animationend` still fire.
+		 * Delays are cleared too, so staggered entrances (e.g. menu items) don't sit hidden first.
 		 * Svelte `transition:` directives aren't CSS — they use `motion()` from the same store.
 		 */
 		html[data-reduced-motion='true'] *,
@@ -111,6 +112,7 @@
 		html[data-reduced-motion='true'] *::after {
 			animation-duration: 0.01ms !important;
 			animation-iteration-count: 1 !important;
+			animation-delay: 0s !important;
 			transition-duration: 0.01ms !important;
 			transition-delay: 0s !important;
 			scroll-behavior: auto !important;

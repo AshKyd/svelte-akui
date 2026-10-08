@@ -5,6 +5,7 @@
 	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import { ControlGroup } from '../ControlGroup/index.js';
 	import { Glow } from '../Glow/index.js';
+	import { staggerMenuItems } from './staggerMenuItems.js';
 
 	interface Props {
 		children: Snippet;
@@ -32,7 +33,8 @@
 	onclick={(e) => e.stopPropagation()}
 >
 	<div
-		class="akui-mobile-menu-content"
+		class="akui-mobile-menu-content akui-menu-surface"
+		{@attach staggerMenuItems}
 		transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 	>
 		<Glow />

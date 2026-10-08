@@ -5,6 +5,7 @@
 	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import { ControlGroup } from '../ControlGroup/index.js';
 	import { Glow } from '../Glow/index.js';
+	import { staggerMenuItems } from './staggerMenuItems.js';
 
 	interface Props {
 		children: Snippet;
@@ -18,7 +19,7 @@
 	class="akui-desktop-menu-layer {className}"
 	transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 >
-	<div class="akui-menu-card">
+	<div class="akui-menu-card akui-menu-surface" {@attach staggerMenuItems}>
 		<Glow />
 		<ControlGroup role="menu" border={false} class="akui-menu-scroll-area">
 			{@render children()}
