@@ -32,6 +32,8 @@
 		 * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
 		 */
 		slashMenu?: boolean | SlashMenuConfig;
+		/** Move ticked task items to a collapsible "completed" section at the end of their list. Read once on load. */
+		groupCompletedTasks?: boolean;
 	}
 
 	let {
@@ -44,7 +46,8 @@
 		transformPastedHTML,
 		transformPastedText,
 		handlePaste,
-		slashMenu = false
+		slashMenu = false,
+		groupCompletedTasks = false
 	}: Props = $props();
 
 	// Instantiate the controller to manage the editor state and lifecycle
@@ -55,7 +58,8 @@
 			transformPastedHTML,
 			transformPastedText,
 			handlePaste,
-			slashMenu
+			slashMenu,
+			groupCompletedTasks
 		})),
 		(markdown) => {
 			value = markdown;
@@ -70,7 +74,8 @@
 			transformPastedHTML,
 			transformPastedText,
 			handlePaste,
-			slashMenu
+			slashMenu,
+			groupCompletedTasks
 		});
 	});
 
@@ -345,6 +350,53 @@
 	/* Checked task items use the checkbox accent colour */
 	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper .checked svg) {
 		fill: var(--akui-checkbox-accent, var(--akui-bg-accent));
+	}
+
+	/* Completed tasks section (groupCompletedTasks, see completedTasks.ts). `!important` beats the
+	   `.prose *` margin/padding reset above. */
+	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-hidden) {
+		display: none;
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle) {
+		display: flex;
+		align-items: center;
+		gap: var(--akui-space-xs, 0.25rem);
+		width: 100%;
+		margin: var(--akui-space-s, 0.5rem) 0 var(--akui-space-xs, 0.25rem) !important;
+		padding: var(--akui-space-s, 0.5rem) 0 0 !important;
+		border: none;
+		border-top: 1px solid var(--akui-border-input);
+		background: transparent;
+		color: var(--akui-fg-secondary);
+		font: inherit;
+		font-size: 0.875rem;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle::before) {
+		content: '';
+		width: 0.4em;
+		height: 0.4em;
+		margin: 0 0.3em !important;
+		border-right: 2px solid currentColor;
+		border-bottom: 2px solid currentColor;
+		transform: rotate(45deg);
+		transition: transform 150ms ease;
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle[aria-expanded='false']::before) {
+		transform: rotate(-45deg);
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle:hover) {
+		color: var(--akui-fg);
+	}
+
+	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle:focus-visible) {
+		outline: 3px solid var(--akui-bg-accent);
+		outline-offset: 2px;
 	}
 
 	.akui-wysiwyg-container :global(.milkdown ol li::marker),

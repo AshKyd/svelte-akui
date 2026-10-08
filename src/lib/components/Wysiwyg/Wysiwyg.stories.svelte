@@ -47,6 +47,12 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 \`\`\`
 
 *May your hearth be warm and your kettle always whistling.*`;
+
+	const witchErrands = `- [ ] Return the borrowed cauldron to Mrs Thistlewick
+- [ ] Reshelve the overdue grimoires at the parish library
+- [ ] Ask the council about broom parking on market day
+- [x] Feed the toad
+- [x] Sweep the moth wings off the porch`;
 </script>
 
 <Story name="Default">
@@ -68,6 +74,11 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 
 <Story name="Cosy Fantasy Notice Board">
 	<Wysiwyg value={fantasyNoticeBoard} />
+</Story>
+
+<!-- Ticked items move to a collapsible "completed" section at the end of the list. -->
+<Story name="Grouped Completed Tasks">
+	<Wysiwyg value={witchErrands} groupCompletedTasks />
 </Story>
 
 <!-- The "/" slash menu and block-drag-handle are opt-in via the `slashMenu` prop. -->

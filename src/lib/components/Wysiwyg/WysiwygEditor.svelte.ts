@@ -95,6 +95,11 @@ export interface WysiwygEditorOptions {
 	 * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
 	 */
 	slashMenu?: boolean | SlashMenuConfig;
+	/**
+	 * Move ticked task items to a collapsible "completed" section at the end of their list.
+	 * Read once when the editor loads.
+	 */
+	groupCompletedTasks?: boolean;
 }
 
 /**
@@ -183,7 +188,8 @@ export class WysiwygEditorController {
 		try {
 			// Code-splitting Crepe and Milkdown modules so they load on-demand
 			const { Crepe } = await import('@milkdown/crepe');
-			const { replaceAll } = await import('@milkdown/kit/utils');
+			// Renamed: Svelte reserves the `$` prefix for identifiers in .svelte.ts modules
+			const { replaceAll, $prose: proseToMilkdownPlugin } = await import('@milkdown/kit/utils');
 			const { editorViewOptionsCtx, editorViewCtx } = await import('@milkdown/kit/core');
 			this.#replaceAllFn = replaceAll;
 
@@ -247,6 +253,12 @@ export class WysiwygEditorController {
 					}
 				}));
 			});
+
+			// Loaded on demand like Crepe, so editors without the option don't pay for it.
+			if (this.#options.groupCompletedTasks) {
+				const { createCompletedTasksPlugin } = await import('./completedTasks');
+				this.#crepeInstance.editor.use(proseToMilkdownPlugin(() => createCompletedTasksPlugin()));
+			}
 
 			await this.#crepeInstance.create();
 
