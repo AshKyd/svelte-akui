@@ -86,6 +86,10 @@ A wrapper for freeform content (sliders, text blocks, form fields). Ensures the 
 </MenuContent>
 ```
 
+### `Menu` and `MenuButton` options
+
+- `presentation`: `'auto'` (default) shows a popover on wide screens and a bottom sheet on narrow ones. `'popover'` always floats the menu next to its trigger, e.g. for a floating action button. `'sheet'` always uses the bottom sheet.- `open` (`MenuButton` only): bindable open state, e.g. to change the button icon while the menu is open.
+
 ## 4. Opening Animation
 
 - Items fade in one after another and slide in from the edge the menu opened from. The menu surface (background, border, shadow) fades in and moves a few pixels away from the opening edge at the same time, finishing as the last item lands.

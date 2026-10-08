@@ -29,7 +29,7 @@
 		</Button>
 
 		{#if showMobile}
-			<Menu forceMobile={true} onClose={() => (showMobile = false)}>
+			<Menu presentation="sheet" onClose={() => (showMobile = false)}>
 				<MenuItem icon="share" label="Share" />
 				<MenuItem icon="link-45deg" label="Copy Link" />
 				<MenuContent>

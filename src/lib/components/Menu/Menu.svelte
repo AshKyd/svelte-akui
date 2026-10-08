@@ -13,7 +13,8 @@
 		onClose?: () => void;
 		children: Snippet;
 		class?: string;
-		forceMobile?: boolean;
+		/** How the menu is shown. 'auto' picks a popover on wide screens and a bottom sheet on narrow ones. */
+		presentation?: 'auto' | 'popover' | 'sheet';
 		origin?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 		/** Edge the opening animation starts from. Defaults to the vertical part of `origin`; mobile sheets always open from the bottom. */
 		openFrom?: 'top' | 'bottom';
@@ -25,7 +26,7 @@
 		onClose,
 		children,
 		class: className = '',
-		forceMobile = false,
+		presentation = 'auto',
 		origin = 'top-left',
 		openFrom
 	}: Props = $props();
@@ -39,7 +40,10 @@
 	let dialog = $state<HTMLDialogElement>();
 	let container = $state<HTMLDivElement>();
 	let windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
-	const isMobile = $derived.by(() => forceMobile || windowWidth <= 720);
+	const isMobile = $derived.by(() => {
+		if (presentation !== 'auto') return presentation === 'sheet';
+		return windowWidth <= 720;
+	});
 
 	/**
 	 * Items animate in from the edge nearest the trigger. A bottom-anchored menu sits above its
