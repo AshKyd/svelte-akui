@@ -92,8 +92,7 @@
 		max-height: 90vh;
 		pointer-events: auto;
 		overflow: hidden;
-		width: 100%;
-	}
+		width: 100%;	}
 
 	.akui-menu-mobile-handle {
 		width: 36px;
@@ -115,4 +114,5 @@
 		display: flex;
 		flex-direction: column;
 	}
+
 </style>
