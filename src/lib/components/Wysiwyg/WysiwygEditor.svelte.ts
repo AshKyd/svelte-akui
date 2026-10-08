@@ -3,6 +3,7 @@ import type { BlockEditFeatureConfig } from '@milkdown/crepe/feature/block-edit'
 import { shift, size, type Middleware } from '@floating-ui/dom';
 import type { Ctx, SliceType } from '@milkdown/kit/ctx';
 import type { EditorView } from '@milkdown/kit/prose/view';
+import { splitListItem } from '@milkdown/kit/prose/schema-list';
 
 /**
  * Config for the Crepe "/" slash menu and block-drag-handle (the `BlockEdit` feature).
@@ -66,6 +67,19 @@ const EMPTY_CHECKLIST_ITEM = /^([ \t]*[-*+][ \t]\[[ xX]\])[ \t]*$/gm;
 
 function preserveEmptyChecklistItems(markdown: string): string {
 	return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 \u200B');
+}
+
+/** Splits checked checklist items with `checked: false` so new items start unchecked. */
+function splitCheckedItemAsUnchecked(view: EditorView, event: KeyboardEvent): boolean {
+	if (event.key !== 'Enter' || event.shiftKey) return false;
+
+	// Renamed from ProseMirror's `$from`: `.svelte.ts` modules reserve the `$` prefix for runes.
+	const { $from: selectionStart } = view.state.selection;
+	const listItem = selectionStart.node(-1);
+	if (listItem.type.name !== 'list_item' || listItem.attrs.checked !== true) return false;
+	if (selectionStart.parent.content.size === 0) return false;
+
+	return splitListItem(listItem.type, { checked: false })(view.state, view.dispatch);
 }
 
 export interface WysiwygEditorOptions {
@@ -221,7 +235,9 @@ export class WysiwygEditorController {
 						const fn = this.#options.transformPastedText;
 						return fn ? fn(text, plain) : text;
 					},
-					handlePaste: (_view: any, event: ClipboardEvent) => {
+					handleKeyDown: (view: EditorView, event: KeyboardEvent) =>
+							splitCheckedItemAsUnchecked(view, event),
+						handlePaste: (_view: any, event: ClipboardEvent) => {
 						const fn = this.#options.handlePaste;
 						if (fn) {
 							const handled = fn(event);
