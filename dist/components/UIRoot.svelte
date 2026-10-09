@@ -1,13 +1,22 @@
 <script lang="ts">
-	import { type Snippet, setContext } from 'svelte';
+	import { type Snippet, setContext, untrack } from 'svelte';
 	import '../theme/theme.css';
 	import { reducedMotion } from '../hooks/reducedMotion.svelte.js';
+	import {
+		type AkuiTheme,
+		DARK_THEME,
+		LIGHT_THEME,
+		ThemeStore,
+		setThemeStore
+	} from '../hooks/themeStore.svelte.js';
 
 	interface Props {
-		/** The user-configured theme preference ('light', 'dark', or undefined/null for system preference). */
+		/** The user-configured theme preference ('light', 'dark', or undefined for system or a custom theme). */
 		mode?: 'light' | 'dark' | undefined;
 		/** The currently active theme mode ('light' or 'dark') resolved based on preference and system settings. */
 		resolvedMode?: 'light' | 'dark';
+		/** Custom themes offered alongside Light and Dark. `ThemePicker` lists whatever is given here. */
+		themes?: AkuiTheme[];
 		/** The content to render inside the UI root. */
 		children: Snippet;
 	}
@@ -15,31 +24,41 @@
 	let {
 		mode = $bindable(),
 		resolvedMode = $bindable('light'),
+		themes = [],
 		children
 	}: Props = $props();
 
-	let systemMode = $state<'light' | 'dark'>('light');
+	const themeStore = setThemeStore(new ThemeStore(() => themes));
 
-	// Only track system preference if mode is not explicitly provided
+	$effect(() => themeStore.listenToSystemScheme());
+
+	// An explicit `mode` (e.g. the Storybook toolbar) drives the store without being persisted, so it
+	// never overwrites the user's saved choice.
 	$effect(() => {
-		if (mode || typeof window === 'undefined') return;
-
-		const mql = window.matchMedia('(prefers-color-scheme: dark)');
-		systemMode = mql.matches ? 'dark' : 'light';
-
-		const handler = (e: MediaQueryListEvent) => {
-			systemMode = e.matches ? 'dark' : 'light';
-		};
-
-		mql.addEventListener('change', handler);
-		return () => mql.removeEventListener('change', handler);
+		if (!mode) return;
+		const theme = mode === 'dark' ? DARK_THEME : LIGHT_THEME;
+		untrack(() => {
+			if (themeStore.selectedId !== theme.id) themeStore.select(theme, { persist: false });
+		});
 	});
 
-	const currentTheme = $derived.by(() => mode ?? systemMode);
+	// Mirror store changes back to `mode` for the built-in themes. A custom theme leaves `mode` alone.
+	$effect(() => {
+		const { selectedId } = themeStore;
+		const mirrored = selectedId === 'light' || selectedId === 'dark' ? selectedId : undefined;
+		const isBuiltInOrSystem = mirrored || selectedId === 'system';
+		if (isBuiltInOrSystem && untrack(() => mode) !== mirrored) mode = mirrored;
+	});
 
 	$effect(() => {
-		resolvedMode = currentTheme;
+		resolvedMode = themeStore.scheme;
 	});
+
+	const tokenStyle = $derived(
+		Object.entries(themeStore.tokens)
+			.map(([name, value]) => `${name}:${value}`)
+			.join(';')
+	);
 
 	// CSS can't see the user override, only the OS setting, so the effective reduced-motion value is
 	// published on <html> as `data-reduced-motion`. Component styles key off that attribute instead
@@ -50,12 +69,17 @@
 
 	setContext('akui-theme', {
 		get current() {
-			return currentTheme;
+			return themeStore.scheme;
 		}
 	});
 </script>
 
-<div class="akui-root" data-theme={currentTheme}>
+<div
+	class="akui-root"
+	data-theme={themeStore.scheme}
+	data-akui-theme={themeStore.selectedId}
+	style={tokenStyle || undefined}
+>
 	{@render children()}
 </div>
 
@@ -104,6 +128,7 @@
 		 * setting). Stops every CSS transition and keyframe animation, including inline `style`
 		 * transitions such as Draggable's settle and Masonry's reflow, which `!important` overrides.
 		 * Durations are near zero rather than `none` so `transitionend`/`animationend` still fire.
+		 * Delays are cleared too, so staggered entrances (e.g. menu items) don't sit hidden first.
 		 * Svelte `transition:` directives aren't CSS — they use `motion()` from the same store.
 		 */
 		html[data-reduced-motion='true'] *,
@@ -111,6 +136,7 @@
 		html[data-reduced-motion='true'] *::after {
 			animation-duration: 0.01ms !important;
 			animation-iteration-count: 1 !important;
+			animation-delay: 0s !important;
 			transition-duration: 0.01ms !important;
 			transition-delay: 0s !important;
 			scroll-behavior: auto !important;

@@ -21,8 +21,8 @@ export interface NotificationItem {
     icon?: string;
     /** Auto-dismiss after this many ms. 0 or omitted means it stays until dismissed. 1–4999 is raised to {@link MIN_TIMEOUT}. */
     timeout?: number;
-    /** Click handler for the whole notification body. Renders the body as a button. */
-    onClick?: () => void;
+    /** Makes the whole card a button with hover/active/focus states. The notification dismisses once it resolves. */
+    onClick?: () => void | Promise<void>;
     /** Label for a trailing action button, e.g. "Undo". */
     actionLabel?: string;
     /** Runs when the action button is pressed. The notification dismisses once it resolves. */

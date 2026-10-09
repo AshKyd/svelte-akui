@@ -128,6 +128,8 @@
 		font-family: inherit;
 		box-sizing: border-box;
 		transition: var(--akui-transition-theme);
+		/* Mobile browsers draw a square tap scrim that ignores border-radius; the :active styles replace it. */
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	/* Reset link decoration */

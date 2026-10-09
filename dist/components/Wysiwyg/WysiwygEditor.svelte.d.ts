@@ -19,6 +19,11 @@ export interface WysiwygEditorOptions {
      * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
      */
     slashMenu?: boolean | SlashMenuConfig;
+    /**
+     * Move ticked task items to a collapsible "completed" section at the end of their list.
+     * Read once when the editor loads.
+     */
+    groupCompletedTasks?: boolean;
 }
 /**
  * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.

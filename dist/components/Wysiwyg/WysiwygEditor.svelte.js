@@ -1,4 +1,5 @@
 import { shift, size } from '@floating-ui/dom';
+import { splitListItem } from '@milkdown/kit/prose/schema-list';
 /**
  * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
  * Clamps to the end of the document if index exceeds word count; returns null if empty.
@@ -51,6 +52,19 @@ function createDefaultSlashMenuMiddleware() {
 const EMPTY_CHECKLIST_ITEM = /^([ \t]*[-*+][ \t]\[[ xX]\])[ \t]*$/gm;
 function preserveEmptyChecklistItems(markdown) {
     return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 \u200B');
+}
+/** Splits checked checklist items with `checked: false` so new items start unchecked. */
+function splitCheckedItemAsUnchecked(view, event) {
+    if (event.key !== 'Enter' || event.shiftKey)
+        return false;
+    // Renamed from ProseMirror's `$from`: `.svelte.ts` modules reserve the `$` prefix for runes.
+    const { $from: selectionStart } = view.state.selection;
+    const listItem = selectionStart.node(-1);
+    if (listItem.type.name !== 'list_item' || listItem.attrs.checked !== true)
+        return false;
+    if (selectionStart.parent.content.size === 0)
+        return false;
+    return splitListItem(listItem.type, { checked: false })(view.state, view.dispatch);
 }
 /**
  * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.
@@ -122,7 +136,8 @@ export class WysiwygEditorController {
         try {
             // Code-splitting Crepe and Milkdown modules so they load on-demand
             const { Crepe } = await import('@milkdown/crepe');
-            const { replaceAll } = await import('@milkdown/kit/utils');
+            // Renamed: Svelte reserves the `$` prefix for identifiers in .svelte.ts modules
+            const { replaceAll, $prose: proseToMilkdownPlugin } = await import('@milkdown/kit/utils');
             const { editorViewOptionsCtx, editorViewCtx } = await import('@milkdown/kit/core');
             this.#replaceAllFn = replaceAll;
             if (this.#node !== node)
@@ -168,6 +183,7 @@ export class WysiwygEditorController {
                         const fn = this.#options.transformPastedText;
                         return fn ? fn(text, plain) : text;
                     },
+                    handleKeyDown: (view, event) => splitCheckedItemAsUnchecked(view, event),
                     handlePaste: (_view, event) => {
                         const fn = this.#options.handlePaste;
                         if (fn) {
@@ -179,6 +195,11 @@ export class WysiwygEditorController {
                     }
                 }));
             });
+            // Loaded on demand like Crepe, so editors without the option don't pay for it.
+            if (this.#options.groupCompletedTasks) {
+                const { createCompletedTasksPlugin } = await import('./completedTasks');
+                this.#crepeInstance.editor.use(proseToMilkdownPlugin(() => createCompletedTasksPlugin()));
+            }
             await this.#crepeInstance.create();
             if (this.#node !== node) {
                 this.#destroy();

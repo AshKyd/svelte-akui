@@ -86,7 +86,21 @@ A wrapper for freeform content (sliders, text blocks, form fields). Ensures the 
 </MenuContent>
 ```
 
-## 4. Best Practices
+### `Menu` and `MenuButton` options
+
+- `presentation`: `'auto'` (default) shows a popover on wide screens and a bottom sheet on narrow ones. `'popover'` always floats the menu next to its trigger, e.g. for a floating action button. `'sheet'` always uses the bottom sheet.- `open` (`MenuButton` only): bindable open state, e.g. to change the button icon while the menu is open.
+
+## 4. Opening Animation
+
+- Items fade in one after another and slide in from the edge the menu opened from. The menu surface (background, border, shadow) fades in and moves a few pixels away from the opening edge at the same time, finishing as the last item lands.
+- The edge comes from `origin`: `top-*` opens from the top, `bottom-*` from the bottom. Set `openFrom` on `Menu` to override it. Mobile sheets always open from the bottom.
+- Opening from the bottom reverses the order, so the item nearest the trigger appears first.
+- `staggerMenuItems` numbers the items with CSS variables. The delays are plain CSS in `Menu.svelte`.
+- Tune it by overriding these variables on `.akui-menu-dialog`: `--akui-menu-item-duration`, `--akui-menu-item-stagger`, `--akui-menu-item-distance`, `--akui-menu-stagger-limit` (items past this share the last delay), `--akui-menu-surface-distance`.
+- Items added after the menu opens fade in without a delay.
+- Reduced motion removes the durations and delays (`UIRoot`).
+
+## 5. Best Practices
 
 1. **Keep it Semantic**: Always use `MenuItem`, `MenuDivider`, or `MenuContent` as direct children of a `Menu`. This ensures the accessibility tree remains valid.
 2. **Handle Closing**: Always provide an `onClose` handler (or use `MenuButton` which handles it for you) to ensure the state remains in sync when clicking outside or pressing Escape.

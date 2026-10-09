@@ -148,6 +148,7 @@
 <style>
 	.akui-sidebar {
 		height: 100dvh;
+		/* Same in every theme (no per-scheme override), so custom themes style it via tokens. */
 		background: var(--akui-bg);
 		border-right: 1px solid var(--akui-border-input);
 		box-sizing: border-box;
@@ -247,14 +248,5 @@
 		height: 100vh;
 		background: rgba(0, 0, 0, 0.4);
 		z-index: 99;
-	}
-
-	:global([data-theme='dark']) .akui-sidebar {
-		background: var(--akui-bg-secondary);
-		border-right-color: rgba(255, 255, 255, 0.05);
-	}
-
-	:global([data-theme='dark']) .akui-sidebar-footer {
-		border-top-color: rgba(255, 255, 255, 0.05);
 	}
 </style>

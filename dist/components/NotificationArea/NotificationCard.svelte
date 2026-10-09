@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
+	import { type Snippet, untrack } from 'svelte';
 	import InfoBox from '../InfoBox/InfoBox.svelte';
 	import Button from '../Button/Button.svelte';
 	import { resolveTimeout, type NotificationItem } from './types.js';
@@ -25,7 +25,7 @@
 	// writes it, and it must survive the effect re-running on every pause/resume without itself
 	// retriggering that effect. `item.timeout` is set once when the notification is created and
 	// never mutated, so `total` is stable for the life of this instance.
-	let remaining = total;
+	let remaining = untrack(() => total);
 	let armedAt = 0;
 
 	$effect(() => {
@@ -48,6 +48,15 @@
 			onDismiss(item.id);
 		}
 	}
+
+	/** Same as the action: a clicked notification has done its job, so it dismisses. */
+	async function runClick() {
+		try {
+			await item.onClick?.();
+		} finally {
+			onDismiss(item.id);
+		}
+	}
 </script>
 
 {#snippet actionButton()}
@@ -64,6 +73,7 @@
 
 <div
 	class="akui-notification"
+	class:clickable={!!item.onClick && !itemSnippet}
 	data-notification-id={item.id}
 	data-paused={paused || undefined}
 	style="--akui-notification-timeout: {total}ms"
@@ -79,7 +89,7 @@
 		{#if itemSnippet}
 			{@render itemSnippet({ item })}
 		{:else if item.onClick}
-			<button type="button" class="akui-notification-trigger bespoke" onclick={() => item.onClick?.()}>
+			<button type="button" class="akui-notification-trigger bespoke" onclick={runClick}>
 				{@render body()}
 			</button>
 		{:else}
@@ -104,7 +114,7 @@
 		box-shadow: var(--akui-shadow-m, 0 4px 12px rgba(0, 0, 0, 0.15));
 	}
 
-	/* Make the whole body a plain-looking, full-width click target. */
+	/* The message button stays plain text; its ::after stretches over the whole card as the target. */
 	.akui-notification-trigger {
 		display: block;
 		width: 100%;
@@ -119,9 +129,45 @@
 	}
 
 	.akui-notification-trigger:focus-visible {
+		outline: none;
+	}
+
+	/* Hover/active tint uses the variant's text colour (currentColor), so it suits every variant and theme. */
+	.akui-notification-trigger::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		background: transparent;
+		transition: background-color 0.15s ease;
+	}
+
+	.akui-notification-trigger:hover::after {
+		background: color-mix(in srgb, currentColor 6%, transparent);
+	}
+
+	.akui-notification-trigger:active::after {
+		background: color-mix(in srgb, currentColor 12%, transparent);
+	}
+
+	.akui-notification-trigger:focus-visible::after {
 		outline: 2px solid var(--akui-ring-focus);
-		outline-offset: 2px;
-		border-radius: var(--akui-radius-s);
+		outline-offset: -2px;
+	}
+
+	/* Pressed feedback on the card itself, like Button. */
+	.akui-notification.clickable:has(.akui-notification-trigger:active) {
+		transform: translateY(0.5px);
+	}
+
+	/* Keep the action and × buttons above the stretched click target. */
+	.akui-notification.clickable :global(.akui-infobox-trailing) {
+		position: relative;
+		z-index: 1;
+	}
+
+	:global(html[data-reduced-motion='true']) .akui-notification-trigger::after {
+		transition: none;
 	}
 
 	.akui-notification-countdown {

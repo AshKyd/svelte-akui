@@ -130,6 +130,13 @@
 		font-family: inherit;
 	}
 
+	/* Touch devices need larger tap targets (48px+), so give the inner Padding more room. */
+	@media (pointer: coarse) {
+		.akui-control-item-expanded-content {
+			--akui-space-m: 1.25rem;
+		}
+	}
+
 	.akui-control-item-expanded-content.interactive {
 		cursor: pointer;
 		transition: background-color 0.2s ease;

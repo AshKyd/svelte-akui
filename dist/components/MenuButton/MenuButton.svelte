@@ -10,13 +10,22 @@
 		children?: Snippet;
 		/** The menu's origin relative to the button. */
 		origin?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+		/** Whether the menu is open. Bindable, e.g. to change the button icon while open. */
+		open?: boolean;
+		/** How the menu is shown. 'auto' picks a popover on wide screens and a bottom sheet on narrow ones. */
+		presentation?: 'auto' | 'popover' | 'sheet';
 		/** All other props are forwarded to the Button component. */
 		[key: string]: unknown;
 	}
 
-	let { menu, children, origin = 'bottom-left', ...rest }: Props = $props();
-
-	let showMenu = $state(false);
+	let {
+		menu,
+		children,
+		origin = 'bottom-left',
+		open: showMenu = $bindable(false),
+		presentation = 'auto',
+		...rest
+	}: Props = $props();
 	let buttonEl = $state<HTMLButtonElement>();
 	let coords = $state({ x: 0, y: 0 });
 
@@ -51,7 +60,13 @@
 <Button {...rest} {children} bind:element={buttonEl} onclick={handleToggle} />
 
 {#if showMenu}
-	<Menu x={coords.x} y={coords.y} origin={menuOrigin} onClose={() => (showMenu = false)}>
+	<Menu
+		x={coords.x}
+		y={coords.y}
+		origin={menuOrigin}
+		{presentation}
+		onClose={() => (showMenu = false)}
+	>
 		{@render menu()}
 	</Menu>
 {/if}

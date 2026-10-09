@@ -113,6 +113,13 @@
 		outline: none;
 	}
 
+	/* Touch devices need larger tap targets (48px+), so give the inner Padding more room. */
+	@media (pointer: coarse) {
+		.akui-control-item-text {
+			--akui-space-m: 1.25rem;
+		}
+	}
+
 	.akui-control-item-text:hover {
 		background-color: var(--akui-bg-hover);
 	}

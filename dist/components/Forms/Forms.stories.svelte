@@ -4,6 +4,7 @@
 	import Button from '../Button/Button.svelte';
 	import { Field, TextInput, PasswordInput, TextArea, Select, InputGroup } from '../Input/index.js';
 	import { Fieldset } from '../Fieldset/index.js';
+	import SelectableItem from '../SelectableItem/SelectableItem.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
 
 	const { Story } = defineMeta({
@@ -84,9 +85,35 @@
 					</Fieldset>
 				</Padding>
 
-				<Field label="Birth Date">
-					<TextInput type="date" />
-				</Field>
+				<Fieldset legend="Home &amp; Chores" isInForm>
+						<div class="akui-field">
+							<p class="akui-label">Home</p>
+							<div style="display: flex; gap: 0.75rem; flex-wrap: wrap;" role="radiogroup" aria-label="Home">
+								{#each [['toadstool', 'Toadstool Cottage'], ['hollow', 'Hollow Oak'], ['teapot', 'Teapot Lodge']] as [value, label] (value)}
+									<SelectableItem name="home" {value} checked={value === 'hollow'}>
+										<div style="padding: 0.75rem 1rem;">{label}</div>
+									</SelectableItem>
+								{/each}
+							</div>
+						</div>
+
+						<div class="akui-field">
+							<p class="akui-label">Weekly chores</p>
+							<div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+								{#each [['moss', 'Sweep the moss'], ['lanterns', 'Trim the lanterns'], ['jam', 'Label the jam']] as [value, label] (value)}
+									<SelectableItem type="checkbox" name="chores" {value}>
+										<div style="padding: 0.75rem 1rem;">{label}</div>
+									</SelectableItem>
+								{/each}
+							</div>
+						</div>
+					</Fieldset>
+
+				<Padding y size="m">
+					<Field label="Birth Date">
+						<TextInput type="date" />
+					</Field>
+				</Padding>
 
 				<div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
 					<Button label="Reset" type="reset" />
