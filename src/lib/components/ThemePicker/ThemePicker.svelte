@@ -11,6 +11,7 @@
 	import {
 		buildThemeOptions,
 		groupThemeOptions,
+		themeScopeStyle,
 		type ThemeGroupBy,
 		type ThemeOption
 	} from './themePickerOptions.js';
@@ -36,12 +37,6 @@
 		groupThemeOptions(buildThemeOptions({ themes: store.themes, includeSystem }), groupBy)
 	);
 
-	/** Inline `--akui-*` overrides for a preview. */
-	const tokenStyle = (theme: AkuiTheme) =>
-		Object.entries(theme.tokens ?? {})
-			.map(([name, value]) => `${name}:${value}`)
-			.join(';');
-
 	/** The radios' `group` follows `store.selectedId`, so a pick only has to update the store. */
 	function pick(option: ThemeOption) {
 		store.select(option.theme);
@@ -59,7 +54,7 @@
 			{#each [LIGHT_THEME, DARK_THEME] as fallback (fallback.id)}
 				<!-- Use the app's own Light/Dark definitions, which may be re-branded. -->
 				{@const half = store.themes.find(({ id }) => id === fallback.id) ?? fallback}
-				<span class="sample half" data-theme={half.scheme} style={tokenStyle(half)}>
+				<span class="sample half" data-theme={half.scheme} style={themeScopeStyle(half)}>
 					<span class="accent"></span>
 				</span>
 			{/each}
@@ -81,7 +76,7 @@
 				onchange={() => pick(option)}
 			>
 				<!-- The whole card is scoped to the theme, so its background and text are the theme's own. -->
-				<span class="face" data-theme={faceTheme.scheme} style={tokenStyle(faceTheme)}>
+				<span class="face" data-theme={faceTheme.scheme} style={themeScopeStyle(faceTheme)}>
 					<span class="preview">
 						{@render preview(option.theme)}
 					</span>

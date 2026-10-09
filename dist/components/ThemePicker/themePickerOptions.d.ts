@@ -5,6 +5,11 @@ export interface ThemeOption {
     /** The theme to select, or `null` for "follow the system". */
     theme: AkuiTheme | null;
 }
+/**
+ * Inline `style` that scopes an element to a theme: the scheme's base surface values, overridden
+ * by the theme's own `tokens`.
+ */
+export declare function themeScopeStyle(theme: AkuiTheme): string;
 export type ThemeGroupBy = 'none' | 'scheme' | 'group';
 export interface ThemeOptionGroup {
     /** Heading for the group, or `null` for options shown without one. */

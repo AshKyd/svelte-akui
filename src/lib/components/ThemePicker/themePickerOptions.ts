@@ -7,6 +7,41 @@ export interface ThemeOption {
 	theme: AkuiTheme | null;
 }
 
+/**
+ * The surface and text values `theme.css` gives each built-in scheme. A picker card sets these
+ * (plus the theme's own tokens) inline, so it shows the theme's colours without depending on the
+ * cascade: the page's active theme can't leak in. There is no way to read a CSS custom property
+ * for another scheme at runtime, so keep these in step with `theme.css` by hand.
+ */
+const SCHEME_SURFACES: Record<AkuiTheme['scheme'], Record<`--akui-${string}`, string>> = {
+	light: {
+		'--akui-bg': '#ffffff',
+		'--akui-fg': '#111827',
+		'--akui-bg-secondary': '#f3f4f6',
+		'--akui-fg-secondary': '#4b5563',
+		'--akui-bg-accent': '#2563eb',
+		'--akui-border-input': '#d1d5db'
+	},
+	dark: {
+		'--akui-bg': '#0d0f14',
+		'--akui-fg': '#ffffff',
+		'--akui-bg-secondary': '#161920',
+		'--akui-fg-secondary': '#9ca3af',
+		'--akui-bg-accent': '#3b82f6',
+		'--akui-border-input': '#39404e'
+	}
+};
+
+/**
+ * Inline `style` that scopes an element to a theme: the scheme's base surface values, overridden
+ * by the theme's own `tokens`.
+ */
+export function themeScopeStyle(theme: AkuiTheme): string {
+	return Object.entries({ ...SCHEME_SURFACES[theme.scheme], ...theme.tokens })
+		.map(([name, value]) => `${name}:${value}`)
+		.join(';');
+}
+
 export type ThemeGroupBy = 'none' | 'scheme' | 'group';
 
 export interface ThemeOptionGroup {
