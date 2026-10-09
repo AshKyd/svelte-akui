@@ -68,17 +68,17 @@ export class ThemeStore {
 	}
 
 	/**
-	 * Every theme on offer: Light and Dark, then the custom ones. A custom theme with id `light` or
-	 * `dark` replaces that built-in in place, which is how an app re-brands the defaults (e.g. its
-	 * own accent colour). Other duplicate ids keep the first.
+	 * Every theme on offer, in the order the app passed them. A custom theme with id `light` or
+	 * `dark` replaces that built-in, which is how an app re-brands the defaults (e.g. its own
+	 * accent colour), and takes the position it was given. Built-ins the app doesn't replace come
+	 * first. Duplicate ids keep the first.
 	 */
 	themes = $derived.by(() => {
 		const custom = this.#getCustomThemes();
-		const defaults = DEFAULT_THEMES.map(
-			(theme) => custom.find(({ id }) => id === theme.id) ?? theme
+		const untouchedDefaults = DEFAULT_THEMES.filter(
+			({ id }) => !custom.some((theme) => theme.id === id)
 		);
-		const extras = custom.filter(({ id }) => !DEFAULT_THEMES.some((theme) => theme.id === id));
-		const all = [...defaults, ...extras];
+		const all = [...untouchedDefaults, ...custom];
 		return all.filter((theme, index) => all.findIndex(({ id }) => id === theme.id) === index);
 	});
 
