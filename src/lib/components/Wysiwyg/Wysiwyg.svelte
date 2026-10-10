@@ -170,7 +170,9 @@
 		--crepe-color-surface-low: var(--akui-bg-input);
 		--crepe-color-on-surface: var(--akui-fg);
 		--crepe-color-on-surface-variant: var(--akui-fg-secondary);
-		--crepe-color-outline: var(--akui-border-input);
+		/* Crepe uses outline for text-like marks (placeholders, icons, list markers), so it needs text
+		 * contrast. --akui-border-input is too pale for that. */
+		--crepe-color-outline: var(--akui-fg-secondary);
 		--crepe-color-primary: var(--akui-bg-accent);
 		--crepe-color-secondary: var(--akui-bg-button);
 		--crepe-color-on-secondary: var(--akui-fg-button);
