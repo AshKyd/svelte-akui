@@ -5,6 +5,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import DragHandler from '../DragHandler/DragHandler.svelte';
 	import { reducedMotion } from '../../hooks/reducedMotion.svelte.js';
+	import { surfaceStyle, type SurfaceStyle } from '../../utils/surface.js';
 
 	interface Props {
 		/** Minimum width (in pixels) for the container to show both panes. Defaults to 768. */
@@ -31,6 +32,15 @@
 		maxMainPaneWidth?: number;
 		/** Minimum allowed width for the nested detail pane on desktop. Defaults to 400. */
 		minNestedPaneWidth?: number;
+		/** Overrides the background of the container and the main pane (e.g. 'transparent' to show an app background). The nested pane stays opaque so it covers the main pane in 'over' mode. */
+		surface?: SurfaceStyle;
+		/**
+		 * Page background drawn behind the nested pane on the desktop split, e.g. the same background the app uses.
+		 * It is sized to the whole window and offset so it lines up with the page behind at rest, and it is part of
+		 * the pane, so it slides with it and is composited once instead of blurring the list every frame.
+		 * Not drawn when stacked, where the pane stays opaque. Content inside should not paint its own solid background.
+		 */
+		nestedBackdrop?: Snippet;
 	}
 
 	let {
@@ -45,10 +55,15 @@
 		mainPaneWidth = $bindable(400),
 		minMainPaneWidth = 400,
 		maxMainPaneWidth = Infinity,
-		minNestedPaneWidth = 400
+		minNestedPaneWidth = 400,
+		surface,
+		nestedBackdrop
 	}: Props = $props();
 
 	let containerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 0);
+	let containerEl = $state<HTMLElement | null>(null);
+	let windowWidth = $state(0);
+	let windowHeight = $state(0);
 	/** From the shared store rather than the media query, so the settings toggle applies here. */
 	const prefersReducedMotion = $derived(reducedMotion.value);
 	let isDragging = $state(false);
@@ -70,6 +85,23 @@
 	 * pane at a time, so there is nothing to lay over.
 	 */
 	let isOverlay = $derived(paneMode === 'over' && !isStacked);
+
+	let hasNestedBackdrop = $derived(!!nestedBackdrop && !isStacked);
+
+	/**
+	 * Places the backdrop so its window-sized box starts at the window's top-left, which is where the
+	 * page background behind the panes starts. The nested pane's own position is the container's
+	 * viewport offset plus the split, so the backdrop is shifted back by that much. Measured rather than
+	 * derived because the container's offset depends on the sidebar and header around it.
+	 */
+	let backdropStyle = $state('');
+	$effect(() => {
+		// Re-run when anything that can move or resize the container changes.
+		void [containerWidth, mainPaneWidth, windowWidth, windowHeight];
+		if (!containerEl || !hasNestedBackdrop) return;
+		const { left, top } = containerEl.getBoundingClientRect();
+		backdropStyle = `left: ${-(left + mainPaneWidth)}px; top: ${-top}px; width: ${windowWidth}px; height: ${windowHeight}px;`;
+	});
 
 	/**
 	 * In overlay mode the main pane always fills the container: keeping its width fixed is the whole
@@ -176,6 +208,8 @@
 </script>
 
 <svelte:window
+	bind:innerWidth={windowWidth}
+	bind:innerHeight={windowHeight}
 	onpointerdowncapture={onDismiss ? handleWindowPointerDownCapture : undefined}
 	onclick={onDismiss ? handleWindowClick : undefined}
 />
@@ -192,11 +226,13 @@
 <div
 	class="akui-layout-adaptive-pane"
 	bind:clientWidth={containerWidth}
+	bind:this={containerEl}
 	class:is-stacked={isStacked}
 	class:is-overlay={isOverlay}
 	class:hide-nested={shouldHideNested}
 	class:is-ready={isLayoutReady}
 	class:is-dragging={isDragging}
+	style={surfaceStyle('pane', surface)}
 	style:--akui-split="{mainPaneWidth}px"
 >
 	<div
@@ -216,8 +252,18 @@
 		class="akui-pane-nested"
 		bind:this={nestedEl}
 		class:active={!isBaseRoute}
+		class:has-backdrop={hasNestedBackdrop}
 		inert={(isStacked && isBaseRoute) || shouldHideNested ? true : undefined}
 	>
+		{#if hasNestedBackdrop}
+			<!-- Clipped to the pane; the snippet inside is window-sized and offset to line up with the page. -->
+			<div class="akui-pane-nested-backdrop" aria-hidden="true">
+				<div class="akui-pane-nested-backdrop-fill" style={backdropStyle}>
+					{@render nestedBackdrop?.()}
+				</div>
+			</div>
+		{/if}
+
 		{#if isOverlay && !isStacked}
 			<!-- Floated on the leading edge of the overlay pane so it animates in and out with it. -->
 			<div class="akui-pane-divider-overlay" bind:this={dividerEl}>
@@ -261,7 +307,7 @@
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
-		background-color: var(--akui-bg, #ffffff);
+		background-color: var(--akui-pane-bg, var(--akui-bg, #ffffff));
 		position: relative;
 	}
 
@@ -271,8 +317,8 @@
 		min-width: 400px;
 		height: 100%;
 		overflow-y: auto;
-		border-right: 1px solid var(--akui-border-input, #e5e7eb);
-		background-color: var(--akui-bg);
+		border-right: 1px solid var(--akui-pane-border, var(--akui-border-input, #e5e7eb));
+		background-color: var(--akui-pane-bg, var(--akui-bg));
 		box-sizing: border-box;
 		transition: border-right-color 0.3s ease;
 	}
@@ -315,6 +361,29 @@
 		overflow-y: auto;
 		box-sizing: border-box;
 		background-color: var(--akui-bg);
+	}
+
+	/* The backdrop is the pane's background, so the wrappers must let it show. */
+	.akui-pane-nested.has-backdrop,
+	.akui-pane-nested.has-backdrop .akui-pane-nested-transition-wrapper {
+		background-color: transparent;
+	}
+
+	/* Own stacking context so the backdrop's z-index: -1 stays above the pane and below its content. */
+	.akui-pane-nested.has-backdrop {
+		isolation: isolate;
+	}
+
+	.akui-pane-nested-backdrop {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		overflow: hidden;
+		pointer-events: none;
+	}
+
+	.akui-pane-nested-backdrop-fill {
+		position: absolute;
 	}
 
 	.akui-layout-adaptive-pane.hide-nested .akui-pane-main {

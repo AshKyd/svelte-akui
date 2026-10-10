@@ -57,39 +57,39 @@
 	 */
 	--akui-color-blue-bg: rgba(96, 165, 250, 0.15);
 	--akui-color-blue-fg: #1e3a8a;
-	--akui-color-blue-border: rgba(96, 165, 250, 0.2);
+	--akui-color-blue-border: color-mix(in srgb, rgba(96, 165, 250, 0.2), black 5%);
 
 	--akui-color-green-bg: rgba(74, 222, 128, 0.15);
 	--akui-color-green-fg: #065f46;
-	--akui-color-green-border: rgba(74, 222, 128, 0.2);
+	--akui-color-green-border: color-mix(in srgb, rgba(74, 222, 128, 0.2), black 5%);
 
 	--akui-color-orange-bg: rgba(251, 146, 60, 0.15);
 	--akui-color-orange-fg: #7c2d12;
-	--akui-color-orange-border: rgba(251, 146, 60, 0.2);
+	--akui-color-orange-border: color-mix(in srgb, rgba(251, 146, 60, 0.2), black 5%);
 
 	--akui-color-pink-bg: rgba(244, 114, 182, 0.15);
 	--akui-color-pink-fg: #831843;
-	--akui-color-pink-border: rgba(244, 114, 182, 0.2);
+	--akui-color-pink-border: color-mix(in srgb, rgba(244, 114, 182, 0.2), black 5%);
 
 	--akui-color-purple-bg: rgba(167, 139, 250, 0.15);
 	--akui-color-purple-fg: #4c1d95;
-	--akui-color-purple-border: rgba(167, 139, 250, 0.2);
+	--akui-color-purple-border: color-mix(in srgb, rgba(167, 139, 250, 0.2), black 5%);
 
 	--akui-color-amber-bg: rgba(251, 191, 36, 0.15);
 	--akui-color-amber-fg: #78350f;
-	--akui-color-amber-border: rgba(251, 191, 36, 0.2);
+	--akui-color-amber-border: color-mix(in srgb, rgba(251, 191, 36, 0.2), black 5%);
 
 	--akui-color-red-bg: rgba(248, 113, 113, 0.15);
 	--akui-color-red-fg: #7f1d1d;
-	--akui-color-red-border: rgba(248, 113, 113, 0.2);
+	--akui-color-red-border: color-mix(in srgb, rgba(248, 113, 113, 0.2), black 5%);
 
 	--akui-color-teal-bg: rgba(45, 212, 191, 0.15);
 	--akui-color-teal-fg: #134e4a;
-	--akui-color-teal-border: rgba(45, 212, 191, 0.2);
+	--akui-color-teal-border: color-mix(in srgb, rgba(45, 212, 191, 0.2), black 5%);
 
 	--akui-color-grey-bg: rgba(148, 163, 184, 0.18);
 	--akui-color-grey-fg: #1e293b;
-	--akui-color-grey-border: rgba(148, 163, 184, 0.25);
+	--akui-color-grey-border: color-mix(in srgb, rgba(148, 163, 184, 0.25), black 5%);
 
 	/*
 	 * Solid fills for blocks that carry no text (progress bars, status boxes). Unlike `-fg`, these
@@ -161,42 +161,78 @@
 	--akui-transition-theme:
 		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
-	/* Design Tokens: Coloured Components (Dark Mode) */
+	/*
+	 * Design Tokens: Coloured Components (Dark Mode)
+	 * `-border` is the colour's tint with black mixed in (5% light, 40% dark): a dense edge that stays
+	 * visible against a tinted fill. Note cards use it directly.
+	 */
 	--akui-color-blue-bg: rgba(96, 165, 250, 0.1);
 	--akui-color-blue-fg: #60a5fa;
-	--akui-color-blue-border: rgba(96, 165, 250, 0.2);
+	--akui-color-blue-border: color-mix(in srgb, rgba(96, 165, 250, 0.2), black 40%);
 
 	--akui-color-green-bg: rgba(74, 222, 128, 0.1);
 	--akui-color-green-fg: #4ade80;
-	--akui-color-green-border: rgba(74, 222, 128, 0.2);
+	--akui-color-green-border: color-mix(in srgb, rgba(74, 222, 128, 0.2), black 40%);
 
 	--akui-color-orange-bg: rgba(251, 146, 60, 0.1);
 	--akui-color-orange-fg: #fb923c;
-	--akui-color-orange-border: rgba(251, 146, 60, 0.2);
+	--akui-color-orange-border: color-mix(in srgb, rgba(251, 146, 60, 0.2), black 40%);
 
 	--akui-color-pink-bg: rgba(244, 114, 182, 0.1);
 	--akui-color-pink-fg: #f472b6;
-	--akui-color-pink-border: rgba(244, 114, 182, 0.2);
+	--akui-color-pink-border: color-mix(in srgb, rgba(244, 114, 182, 0.2), black 40%);
 
 	--akui-color-purple-bg: rgba(167, 139, 250, 0.1);
 	--akui-color-purple-fg: #a78bfa;
-	--akui-color-purple-border: rgba(167, 139, 250, 0.2);
+	--akui-color-purple-border: color-mix(in srgb, rgba(167, 139, 250, 0.2), black 40%);
 
 	--akui-color-amber-bg: rgba(251, 191, 36, 0.1);
 	--akui-color-amber-fg: #fbbf24;
-	--akui-color-amber-border: rgba(251, 191, 36, 0.2);
+	--akui-color-amber-border: color-mix(in srgb, rgba(251, 191, 36, 0.2), black 40%);
 
 	--akui-color-red-bg: rgba(248, 113, 113, 0.1);
 	--akui-color-red-fg: #f87171;
-	--akui-color-red-border: rgba(248, 113, 113, 0.2);
+	--akui-color-red-border: color-mix(in srgb, rgba(248, 113, 113, 0.2), black 40%);
 
 	--akui-color-teal-bg: rgba(45, 212, 191, 0.1);
 	--akui-color-teal-fg: #2dd4bf;
-	--akui-color-teal-border: rgba(45, 212, 191, 0.2);
+	--akui-color-teal-border: color-mix(in srgb, rgba(45, 212, 191, 0.2), black 40%);
 
 	--akui-color-grey-bg: rgba(148, 163, 184, 0.1);
 	--akui-color-grey-fg: #cbd5e1;
-	--akui-color-grey-border: rgba(148, 163, 184, 0.2);
+	--akui-color-grey-border: color-mix(in srgb, rgba(148, 163, 184, 0.2), black 40%);
+}
+
+/*
+ * Alpha variants of the opaque surface tokens. `--akui-alpha-surface` (0 to 1) is unset by default, so
+ * every `-surface` token equals its opaque original and nothing changes. Set it on UIRoot (or any
+ * ancestor) to make the components that use these tokens translucent.
+ *
+ * Declared on `[data-theme]` as well as `:root` so the mix resolves against the active theme's colours.
+ * color-mix is used instead of rgb triplets so any token format (hex, hsl, rgba) works.
+ */
+:root,
+[data-theme] {
+	--akui-bg-surface: color-mix(
+		in srgb,
+		var(--akui-bg) calc(var(--akui-alpha-surface, 1) * 100%),
+		transparent
+	);
+	--akui-bg-secondary-surface: color-mix(
+		in srgb,
+		var(--akui-bg-secondary) calc(var(--akui-alpha-surface, 1) * 100%),
+		transparent
+	);
+	--akui-bg-input-surface: color-mix(
+		in srgb,
+		var(--akui-bg-input) calc(var(--akui-alpha-surface, 1) * 100%),
+		transparent
+	);
+	--akui-bg-button-surface: color-mix(
+		in srgb,
+		var(--akui-bg-button) calc(var(--akui-alpha-surface, 1) * 100%),
+		transparent
+	);
 }
 
 * {

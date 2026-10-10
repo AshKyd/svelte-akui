@@ -1,4 +1,5 @@
 import type { Snippet } from 'svelte';
+import { type SurfaceStyle } from '../../utils/surface.js';
 interface Props {
     /** Minimum width (in pixels) for the container to show both panes. Defaults to 768. */
     minWidth?: number;
@@ -28,6 +29,15 @@ interface Props {
     maxMainPaneWidth?: number;
     /** Minimum allowed width for the nested detail pane on desktop. Defaults to 400. */
     minNestedPaneWidth?: number;
+    /** Overrides the background of the container and the main pane (e.g. 'transparent' to show an app background). The nested pane stays opaque so it covers the main pane in 'over' mode. */
+    surface?: SurfaceStyle;
+    /**
+     * Page background drawn behind the nested pane on the desktop split, e.g. the same background the app uses.
+     * It is sized to the whole window and offset so it lines up with the page behind at rest, and it is part of
+     * the pane, so it slides with it and is composited once instead of blurring the list every frame.
+     * Not drawn when stacked, where the pane stays opaque. Content inside should not paint its own solid background.
+     */
+    nestedBackdrop?: Snippet;
 }
 declare const LayoutAdaptivePane: import("svelte").Component<Props, {}, "mainPaneWidth">;
 type LayoutAdaptivePane = ReturnType<typeof LayoutAdaptivePane>;

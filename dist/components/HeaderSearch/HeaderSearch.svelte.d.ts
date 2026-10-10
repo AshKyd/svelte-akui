@@ -1,4 +1,5 @@
 import { type Snippet } from 'svelte';
+import { type SurfaceStyle } from '../../utils/surface.js';
 interface Props {
     /** Whether searching mode is currently active. */
     isSearching?: boolean;
@@ -18,6 +19,12 @@ interface Props {
     onsearch?: (query: string) => void;
     /** Callback triggered when search mode is activated or deactivated. */
     onsearchtoggle?: (isSearching: boolean) => void;
+    /**
+     * Overrides the bar's background, text colour and border colour. `backdropFilter` is ignored:
+     * a blur nested inside the Header's own blur would only see the Header, not what is behind it.
+     * In 'takeover' mode the bar is drawn over the Header's content, so with a translucent `background` the consumer must hide that content while searching.
+     */
+    surface?: SurfaceStyle;
     /** Additional CSS classes for the container. */
     class?: string;
 }

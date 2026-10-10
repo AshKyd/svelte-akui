@@ -27,8 +27,13 @@
 <section>
 	<h2>Surfaces and layout</h2>
 
+	<p class="surface-note">
+		Panel, Header, HeaderSearch, Sidebar and LayoutAdaptivePane use the <code>--akui-bg-surface</code>
+		tokens. Use the "Surface opacity" toolbar control to make them translucent over the gradient.
+	</p>
+
 	<h3>Panel</h3>
-	<div class="demo-row">
+	<div class="demo-row demo-backdrop">
 		{#each panelColours as colour (colour)}
 			<Panel {colour}><Padding>{colour} panel</Padding></Panel>
 			<Panel {colour} radius="full"><Padding>{colour}, full radius</Padding></Panel>
@@ -74,7 +79,7 @@
 	</div>
 
 	<h3>Header and sidebar</h3>
-	<div class="demo-row">
+	<div class="demo-row demo-backdrop">
 		<div class="demo-cell demo-box">
 			<Header>
 				{#snippet navigation()}<Button variant="ghost" icon="list" iconPosition="only" aria-label="Menu" />{/snippet}

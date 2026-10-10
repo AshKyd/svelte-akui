@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
+	import { surfaceStyle, type SurfaceStyle } from '../../utils/surface.js';
 
 	interface Props {
 		/** Svelte snippet for the left-aligned navigation (e.g. menu button). */
@@ -12,6 +13,8 @@
 		pinned?: boolean;
 		/** Called when the empty background area is clicked (e.g. the gap between the title and actions) — not the navigation, title or actions content itself. */
 		onclick?: () => void;
+		/** Overrides the header's background, text colour, border colour and backdrop filter. */
+		surface?: SurfaceStyle;
 		/** Additional CSS classes for the header. */
 		class?: string;
 	}
@@ -22,6 +25,7 @@
 		actions,
 		pinned = true,
 		onclick,
+		surface,
 		class: className = ''
 	}: Props = $props();
 
@@ -37,7 +41,12 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<header class="akui-header {className}" class:pinned onclick={handleBackgroundClick}>
+<header
+	class="akui-header {className}"
+	class:pinned
+	style={surfaceStyle('header', surface)}
+	onclick={handleBackgroundClick}
+>
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div class="akui-header-left" onclick={handleBackgroundClick}>
@@ -68,9 +77,10 @@
 		align-items: center;
 		height: 4rem;
 		padding: 0 var(--akui-space-m);
-		background-color: var(--akui-bg);
-		color: var(--akui-fg);
-		border-bottom: 1px solid var(--akui-border-input);
+		background-color: var(--akui-header-bg, var(--akui-bg));
+		color: var(--akui-header-fg, var(--akui-fg));
+		border-bottom: 1px solid var(--akui-header-border, var(--akui-border-input));
+		backdrop-filter: var(--akui-header-backdrop, none);
 		box-sizing: border-box;
 		width: 100%;
 		position: relative;

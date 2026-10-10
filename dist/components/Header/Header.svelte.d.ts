@@ -1,4 +1,5 @@
 import { type Snippet } from 'svelte';
+import { type SurfaceStyle } from '../../utils/surface.js';
 interface Props {
     /** Svelte snippet for the left-aligned navigation (e.g. menu button). */
     navigation?: Snippet;
@@ -10,6 +11,8 @@ interface Props {
     pinned?: boolean;
     /** Called when the empty background area is clicked (e.g. the gap between the title and actions) — not the navigation, title or actions content itself. */
     onclick?: () => void;
+    /** Overrides the header's background, text colour, border colour and backdrop filter. */
+    surface?: SurfaceStyle;
     /** Additional CSS classes for the header. */
     class?: string;
 }

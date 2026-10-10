@@ -109,6 +109,22 @@
 		flex: 1 1 16rem;
 	}
 
+	/* A colourful backdrop so translucent surfaces (--akui-alpha-surface) are visible. */
+	.kitchen-sink :global(.demo-backdrop) {
+		padding: 1rem;
+		border-radius: var(--akui-radius-m);
+		background:
+			radial-gradient(circle at 15% 20%, var(--akui-color-blue-solid), transparent 55%),
+			radial-gradient(circle at 85% 30%, var(--akui-color-pink-solid), transparent 55%),
+			radial-gradient(circle at 50% 100%, var(--akui-color-teal-solid), transparent 60%);
+	}
+
+	.kitchen-sink :global(.surface-note) {
+		margin: 0 0 1rem;
+		color: var(--akui-fg-secondary);
+		font-size: 0.875rem;
+	}
+
 	.kitchen-sink :global(.demo-box) {
 		position: relative;
 		border: 1px dashed var(--akui-border-input);

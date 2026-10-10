@@ -1,4 +1,5 @@
 import { type Snippet } from 'svelte';
+import { type SurfaceStyle } from '../../utils/surface.js';
 interface Props {
     /** Optional title to show in the sidebar header branding. */
     title?: string;
@@ -16,6 +17,8 @@ interface Props {
     showCloseButton?: boolean;
     /** The width of the sidebar when open. Defaults to '280px'. */
     width?: string;
+    /** Overrides the sidebar's background, text colour, border colour and backdrop filter. Its branding header follows it. */
+    surface?: SurfaceStyle;
     /** Additional CSS classes for the container. */
     class?: string;
 }

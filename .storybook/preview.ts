@@ -26,8 +26,7 @@ const preview: Preview = {
         Component: StorybookDecorator,
         props: {
           mode: globals.theme as 'light' | 'dark',
-          themes: parameters.akuiThemes as AkuiTheme[] | undefined,
-        },
+          themes: parameters.akuiThemes as AkuiTheme[] | undefined,        },
       }
     },
   ],

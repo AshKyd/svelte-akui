@@ -6,6 +6,7 @@
 	import Button from '../Button/Button.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import Header from '../Header/Header.svelte';
+	import { surfaceStyle, type SurfaceStyle } from '../../utils/surface.js';
 
 	interface Props {
 		/** Optional title to show in the sidebar header branding. */
@@ -24,6 +25,8 @@
 		showCloseButton?: boolean;
 		/** The width of the sidebar when open. Defaults to '280px'. */
 		width?: string;
+		/** Overrides the sidebar's background, text colour, border colour and backdrop filter. Its branding header follows it. */
+		surface?: SurfaceStyle;
 		/** Additional CSS classes for the container. */
 		class?: string;
 	}
@@ -37,8 +40,12 @@
 		mode = 'permanent',
 		showCloseButton: userShowCloseButton,
 		width = '280px',
+		surface,
 		class: className = ''
 	}: Props = $props();
+
+	/** The branding header sits inside the sidebar, so it takes the colours but never its own blur (a nested blur would only see the sidebar). */
+	const headerSurface = $derived<SurfaceStyle>({ ...surface, backdropFilter: undefined });
 
 	const showCloseButton = $derived(
 		userShowCloseButton !== undefined ? userShowCloseButton : mode === 'modal'
@@ -93,6 +100,7 @@
 	class:mode-permanent={mode === 'permanent'}
 	class:mode-modal={mode === 'modal'}
 	class:mode-dismissible={mode === 'dismissible'}
+	style={surfaceStyle('sidebar', surface)}
 	style:--sidebar-width={width}
 	inert={(mode === 'modal' || mode === 'dismissible') && !isOpen}
 	role={mode === 'modal' ? 'dialog' : 'navigation'}
@@ -101,7 +109,7 @@
 >
 	<div class="akui-sidebar-inner" style:width>
 		{#if title || icon || showCloseButton}
-			<Header class="akui-sidebar-header" pinned={false}>
+			<Header class="akui-sidebar-header" pinned={false} surface={headerSurface}>
 				{#snippet title()}
 					<div class="akui-sidebar-brand">
 						{#if icon}
@@ -149,8 +157,10 @@
 	.akui-sidebar {
 		height: 100dvh;
 		/* Same in every theme (no per-scheme override), so custom themes style it via tokens. */
-		background: var(--akui-bg);
-		border-right: 1px solid var(--akui-border-input);
+		background: var(--akui-sidebar-bg, var(--akui-bg));
+		color: var(--akui-sidebar-fg, inherit);
+		border-right: 1px solid var(--akui-sidebar-border, var(--akui-border-input));
+		backdrop-filter: var(--akui-sidebar-backdrop, none);
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;

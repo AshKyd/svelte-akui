@@ -3,6 +3,7 @@
 	import { cubicInOut } from 'svelte/easing';
 	import Button from '../Button/Button.svelte';
 	import Icon from '../Icon/Icon.svelte';
+	import { surfaceStyle, type SurfaceStyle } from '../../utils/surface.js';
 
 	interface Props {
 		/** Whether searching mode is currently active. */
@@ -23,6 +24,12 @@
 		onsearch?: (query: string) => void;
 		/** Callback triggered when search mode is activated or deactivated. */
 		onsearchtoggle?: (isSearching: boolean) => void;
+		/**
+		 * Overrides the bar's background, text colour and border colour. `backdropFilter` is ignored:
+		 * a blur nested inside the Header's own blur would only see the Header, not what is behind it.
+		 * In 'takeover' mode the bar is drawn over the Header's content, so with a translucent `background` the consumer must hide that content while searching.
+		 */
+		surface?: SurfaceStyle;
 		/** Additional CSS classes for the container. */
 		class?: string;
 	}
@@ -37,8 +44,11 @@
 		suffix,
 		onsearch,
 		onsearchtoggle,
+		surface,
 		class: className = ''
 	}: Props = $props();
+
+	const barStyle = $derived(surfaceStyle('header-search', { ...surface, backdropFilter: undefined }));
 
 	let inputElement = $state<HTMLInputElement | null>(null);
 	let localValue = $state(searchQuery);
@@ -95,6 +105,7 @@
 {#if isSearching || mode === 'inline'}
 	<div
 		class="akui-header-search {mode} {className}"
+		style={barStyle}
 		transition:clipSearchTakeover
 		role="search"
 	>
@@ -138,15 +149,15 @@
 
 <style>
 	.akui-header-search {
-		background-color: var(--akui-bg);
-		color: var(--akui-fg);
+		background-color: var(--akui-header-search-bg, var(--akui-bg-surface));
+		color: var(--akui-header-search-fg, var(--akui-fg));
 		box-sizing: border-box;
 	}
 
 	.akui-header-search.takeover {
 		position: absolute;
 		inset: 0;
-		border-bottom: 1px solid var(--akui-border-input);
+		border-bottom: 1px solid var(--akui-header-search-border, var(--akui-border-input));
 		z-index: 10;
 		display: flex;
 		align-items: center;
@@ -183,7 +194,7 @@
 		min-width: 0;
 		border: none !important;
 		background: transparent !important;
-		color: var(--akui-fg) !important;
+		color: var(--akui-header-search-fg, var(--akui-fg)) !important;
 		font-size: 1rem;
 		height: 100%;
 		outline: none !important;
@@ -219,8 +230,8 @@
 		justify-content: center;
 	}
 
+	/* Background removed from this dark override: it re-applied --akui-bg and defeated `surface`. */
 	:global([data-theme='dark']) .akui-header-search {
-		background-color: var(--akui-bg);
-		border-bottom-color: rgba(255, 255, 255, 0.05);
+		border-bottom-color: var(--akui-header-search-border, rgba(255, 255, 255, 0.05));
 	}
 </style>

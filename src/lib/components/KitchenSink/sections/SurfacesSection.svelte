@@ -16,6 +16,9 @@
 	} from '$lib/index.js';
 
 	const panelColours = ['regular', 'secondary', 'accent'] as const;
+	/** The background token behind each Panel colour, for picking its alpha variant. */
+	const panelTokens = { regular: 'bg', secondary: 'bg-secondary', accent: 'bg-accent' } as const;
+	const alphaTokens = ['bg', 'bg-secondary', 'bg-input', 'bg-button', 'bg-accent'] as const;
 
 	const hoverTooltip = createTooltip({ position: 'top' });
 	const clickTooltip = createTooltip({ position: 'bottom', trigger: 'click' });
@@ -27,11 +30,27 @@
 <section>
 	<h2>Surfaces and layout</h2>
 
+	<h3>Translucent backgrounds</h3>
+	<p class="surface-note">
+		Each background token has a 25% alpha variant, e.g. <code>--akui-bg-alpha</code>. Pass it through a
+		<code>surface</code> prop.
+	</p>
+	<div class="demo-row demo-backdrop">
+		{#each alphaTokens as token (token)}
+			<div class="alpha-swatch" style="background: var(--akui-{token}-alpha);">
+				<code>--akui-{token}-alpha</code>
+			</div>
+		{/each}
+	</div>
+
 	<h3>Panel</h3>
-	<div class="demo-row">
+	<div class="demo-row demo-backdrop">
 		{#each panelColours as colour (colour)}
 			<Panel {colour}><Padding>{colour} panel</Padding></Panel>
 			<Panel {colour} radius="full"><Padding>{colour}, full radius</Padding></Panel>
+			<Panel {colour} surface={{ background: `var(--akui-${panelTokens[colour]}-alpha)` }}>
+				<Padding>{colour}, alpha</Padding>
+			</Panel>
 		{/each}
 	</div>
 
@@ -74,7 +93,7 @@
 	</div>
 
 	<h3>Header and sidebar</h3>
-	<div class="demo-row">
+	<div class="demo-row demo-backdrop">
 		<div class="demo-cell demo-box">
 			<Header>
 				{#snippet navigation()}<Button variant="ghost" icon="list" iconPosition="only" aria-label="Menu" />{/snippet}
@@ -106,3 +125,14 @@
 
 {#snippet tabOne()}<Padding>First tab content</Padding>{/snippet}
 {#snippet tabTwo()}<Padding>Second tab content</Padding>{/snippet}
+
+<style>
+	.alpha-swatch {
+		flex: 1 1 12rem;
+		padding: 0.75rem;
+		border: 1px solid var(--akui-border-input);
+		border-radius: var(--akui-radius-m);
+		color: var(--akui-fg);
+		font-size: 0.75rem;
+	}
+</style>

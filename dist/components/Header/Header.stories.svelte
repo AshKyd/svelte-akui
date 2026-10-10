@@ -34,6 +34,24 @@
 	/>
 </Story>
 
+<Story name="Frosted over Background">
+	<div
+		style="height: 12rem; overflow-y: auto; background: linear-gradient(135deg, #f6a6c1, #8ec5fc 50%, #c3a6f6);"
+	>
+		<Header
+			navigation={navigationSnippet}
+			title={titleSnippet}
+			actions={actionsSnippet}
+			surface={{
+				background: 'rgb(255 255 255 / 0.35)',
+				backdropFilter: 'blur(12px) saturate(1.4)',
+				foreground: '#1a1a1a'
+			}}
+		/>
+		<div style="height: 24rem; padding: 1rem; color: #1a1a1a;">Scrolling content sits under the header.</div>
+	</div>
+</Story>
+
 <Story name="Title Only">
 	<Header title={titleSnippet} />
 </Story>

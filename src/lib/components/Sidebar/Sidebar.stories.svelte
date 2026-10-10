@@ -59,6 +59,32 @@
 	</Padding>
 {/snippet}
 
+<Story name="Frosted over Background">
+	<div
+		class="layout-demo"
+		style="background: linear-gradient(135deg, #f6a6c1, #8ec5fc 50%, #c3a6f6);"
+	>
+		<Sidebar
+			title="Cosy Reader"
+			icon="book"
+			content={sidebarContent}
+			footer={sidebarFooter}
+			mode="permanent"
+			surface={{
+				background: 'rgb(255 255 255 / 0.35)',
+				backdropFilter: 'blur(12px) saturate(1.4)',
+				foreground: '#1a1a1a'
+			}}
+		/>
+		<div class="main-content-demo" style="background: transparent;">
+			<Padding size="l">
+				<h1>Frosted Sidebar</h1>
+				<p>The sidebar is translucent and blurs the gradient behind it.</p>
+			</Padding>
+		</div>
+	</div>
+</Story>
+
 <Story name="Permanent">
 	<div class="layout-demo">
 		<Sidebar title="Cosy Reader" icon="book" content={sidebarContent} footer={sidebarFooter} mode="permanent" />

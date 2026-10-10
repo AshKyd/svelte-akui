@@ -1,5 +1,6 @@
 import { type Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
+import { type SurfaceStyle } from '../../utils/surface.js';
 interface Props extends HTMLAttributes<HTMLElement> {
     /** The background colour of the panel. */
     colour?: 'regular' | 'secondary' | 'accent';
@@ -9,6 +10,8 @@ interface Props extends HTMLAttributes<HTMLElement> {
     class?: string;
     /** Style overrides. */
     style?: string;
+    /** Overrides the panel's background, text colour, border colour and backdrop filter, e.g. a translucent background to show the page behind. */
+    surface?: SurfaceStyle;
     /** The corner radius of the panel. Defaults to 'regular'. 'full' is infinite (circular). */
     radius?: 'regular' | 'full';
     /** The HTML element to use. Defaults to 'div'. */

@@ -7,6 +7,8 @@ interface Props {
     mode?: 'light' | 'dark';
     /** Custom themes for the story's `UIRoot`, set via the story parameter `akuiThemes`. */
     themes?: AkuiTheme[];
+    /** Sets `--akui-alpha-surface` (0 to 1) so components using the `-surface` tokens turn translucent. Opaque when unset. */
+    surfaceAlpha?: number;
 }
 declare const StorybookDecorator: import("svelte").Component<Props, {}, "">;
 type StorybookDecorator = ReturnType<typeof StorybookDecorator>;
