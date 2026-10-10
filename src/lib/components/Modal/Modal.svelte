@@ -8,6 +8,7 @@
 	/**
 	 * @component Modal
 	 * An accessible modal component using the native HTML <dialog> element.
+	 * Pass `inline` to render the card in page flow instead (no dialog, backdrop or Esc handling).
 	 */
 
 	interface Props {
@@ -31,6 +32,8 @@
 		minWidth?: string;
 		/** Optional minimum height of the modal on desktop. */
 		minHeight?: string;
+		/** Render the card in normal page flow, without the native <dialog>, backdrop or Esc handling. Useful for theme testing. */
+		inline?: boolean;
 	}
 
 	let {
@@ -43,13 +46,17 @@
 		children,
 		fullscreenOnMobile = false,
 		minWidth,
-		minHeight
+		minHeight,
+		inline = false
 	}: Props = $props();
 
-	let dialog: HTMLDialogElement;
-	let visible = $state(false);
+	let dialog = $state<HTMLDialogElement>();
+	// Inline cards have no dialog to open, so they are visible from the start.
+	// svelte-ignore state_referenced_locally
+	let visible = $state(inline);
 
 	onMount(() => {
+		if (inline || !dialog) return;
 		dialog.showModal();
 		visible = true;
 
@@ -60,14 +67,14 @@
 		};
 
 		dialog.addEventListener('cancel', handleCancel);
-		return () => dialog.removeEventListener('cancel', handleCancel);
+		return () => dialog?.removeEventListener('cancel', handleCancel);
 	});
 
 	function requestClose() {
 		visible = false;
 		// Wait for transition to finish
 		setTimeout(() => {
-			if (dialog.open) dialog.close();
+			if (dialog?.open) dialog.close();
 			onClose();
 		}, 200); // Matches transition duration
 	}
@@ -83,62 +90,73 @@
 	});
 </script>
 
-<dialog
-	bind:this={dialog}
-	class="akui-modal-dialog"
-	class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
-	onclick={handleBackdropClick}
-	onclose={onClose}
->
-	{#if visible}
-		<div
-			class="akui-modal-content"
-			class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
-			style:--akui-modal-min-width={minWidth}
-			style:--akui-modal-min-height={minHeight}
-			in:scale={motion({ duration: 200, start: 0.95 })}
-			out:scale={motion({ duration: 200, start: 0.95 })}
-		>
-			<Glow />
-			{#if hasHeader}
-				<header class="akui-modal-header">
-					<div class="akui-modal-title-group">
-						{#if iconSnippet}
-							<div class="akui-modal-icon-container">
-								{@render iconSnippet()}
-							</div>
-						{:else if icon}
-							<Icon name={icon} size="1.125rem" class="akui-modal-icon" />
-						{/if}
-						{#if title}
-							<h2 class="akui-modal-title">{title}</h2>
-						{/if}
-					</div>
-					{#if showCloseButton}
-						<button
-							type="button"
-							class="akui-modal-close"
-							onclick={requestClose}
-							aria-label="Close"
-						>
-							<Icon name="x-lg" size="1.25em" />
-						</button>
+{#snippet card()}
+	<div
+		class="akui-modal-content"
+		class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
+		class:akui-modal-content--inline={inline}
+		style:--akui-modal-min-width={minWidth}
+		style:--akui-modal-min-height={minHeight}
+		in:scale={motion({ duration: 200, start: 0.95 })}
+		out:scale={motion({ duration: 200, start: 0.95 })}
+	>
+		<Glow />
+		{#if hasHeader}
+			<header class="akui-modal-header">
+				<div class="akui-modal-title-group">
+					{#if iconSnippet}
+						<div class="akui-modal-icon-container">
+							{@render iconSnippet()}
+						</div>
+					{:else if icon}
+						<Icon name={icon} size="1.125rem" class="akui-modal-icon" />
 					{/if}
-				</header>
-			{/if}
+					{#if title}
+						<h2 class="akui-modal-title">{title}</h2>
+					{/if}
+				</div>
+				{#if showCloseButton}
+					<button
+						type="button"
+						class="akui-modal-close"
+						onclick={requestClose}
+						aria-label="Close"
+					>
+						<Icon name="x-lg" size="1.25em" />
+					</button>
+				{/if}
+			</header>
+		{/if}
 
-			<div class="akui-modal-body">
-				{@render children?.()}
-			</div>
-
-			{#if footer}
-				<footer class="akui-modal-footer">
-					{@render footer()}
-				</footer>
-			{/if}
+		<div class="akui-modal-body">
+			{@render children?.()}
 		</div>
+
+		{#if footer}
+			<footer class="akui-modal-footer">
+				{@render footer()}
+			</footer>
+		{/if}
+	</div>
+{/snippet}
+
+{#if inline}
+	{#if visible}
+		{@render card()}
 	{/if}
-</dialog>
+{:else}
+	<dialog
+		bind:this={dialog}
+		class="akui-modal-dialog"
+		class:akui-modal-fullscreen-mobile={fullscreenOnMobile}
+		onclick={handleBackdropClick}
+		onclose={onClose}
+	>
+		{#if visible}
+			{@render card()}
+		{/if}
+	</dialog>
+{/if}
 
 <style>
 	.akui-modal-dialog {
@@ -184,6 +202,11 @@
 		max-height: inherit; /* Inherit the dialog's max-height (90vh) */
 		overflow: hidden;
 		transition: var(--akui-transition-theme);
+	}
+
+	/* Inline cards sit in normal flow, so there is no dialog to cap their height. */
+	.akui-modal-content--inline {
+		max-height: none;
 	}
 
 	@media (max-width: 720px) {

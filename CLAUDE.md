@@ -39,6 +39,15 @@ When creating or modifying a component, update the index in `README.md`. Write p
 hyperbole. Explain what the component does and what its variations are, so an implementor can tell at
 a glance what is available without opening the source.
 
+### Add new components to the kitchen sink
+
+When creating a component, add it to the `Kitchen Sink` story
+(`src/lib/components/KitchenSink/`) so themes can be checked against it. Put it in the matching file in
+`sections/`, or add a new section file and list it in `KitchenSink.stories.svelte`. Show its variants,
+sizes and states in the wrapping `.demo-row` layout. Skip components with no colour or theme styling
+(for example layout-only ones like `Padding` and `Masonry`) and components that need data, network or
+routing.
+
 ### Flexible content pattern
 
 Anywhere a component takes content — an icon, an image — also let the implementor pass a snippet to
