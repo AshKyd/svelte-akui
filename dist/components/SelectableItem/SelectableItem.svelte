@@ -29,6 +29,8 @@
 		onchange?: (event: Event) => void;
 		/** Additional CSS classes for the outer element. */
 		class?: string;
+		/** Inline style for the outer element, e.g. to scope it to a theme's colour variables. */
+		style?: string;
 		/** The item's contents. */
 		children: Snippet;
 		/** Spread onto the underlying input (e.g. `aria-label`, `required`, `form`). */
@@ -44,6 +46,7 @@
 		disabled = false,
 		onchange,
 		class: className = '',
+		style,
 		children,
 		...rest
 	}: Props = $props();
@@ -51,7 +54,7 @@
 	const isChecked = $derived(type === 'radio' ? group === value : checked);
 </script>
 
-<label class="akui-selectable {className}" class:disabled data-checked={isChecked}>
+<label class="akui-selectable {className}" class:disabled data-checked={isChecked} {style}>
 	<!-- Two branches: Svelte needs a static `type` on an input that uses two-way binding. -->
 	{#if type === 'radio'}
 		<input type="radio" bind:group {value} {name} {disabled} {onchange} {...rest} />
@@ -71,7 +74,10 @@
 		border-radius: var(--akui-radius-m);
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
-		transition: transform 0.1s ease;
+		/* Pressed state moves via `top`, not `transform`: a transform puts the item on its own layer
+		   and makes rounded, clipped edges render with visible aliasing. */
+		top: 0;
+		transition: top 0.1s ease;
 	}
 
 	.akui-selectable.disabled {
@@ -113,7 +119,7 @@
 	/* Pressed in, like `.akui-btn:active`. Selected items rest in this state. */
 	.akui-selectable:not(.disabled):active,
 	.akui-selectable[data-checked='true'] {
-		transform: translateY(1px);
+		top: 1px;
 	}
 
 	.akui-selectable :global(.akui-glow) {

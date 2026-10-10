@@ -46,17 +46,13 @@
 
 {#snippet preview(theme: AkuiTheme | null)}
 	{#if theme}
-		<span class="sample">
-			<span class="accent"></span>
-		</span>
+		<span class="sample"></span>
 	{:else}
-		<span class="sample split">
+		<span class="sample">
 			{#each [LIGHT_THEME, DARK_THEME] as fallback (fallback.id)}
 				<!-- Use the app's own Light/Dark definitions, which may be re-branded. -->
 				{@const half = store.themes.find(({ id }) => id === fallback.id) ?? fallback}
-				<span class="sample half" data-theme={half.scheme} style={themeScopeStyle(half)}>
-					<span class="accent"></span>
-				</span>
+				<span class="sample half" style={themeScopeStyle(half)}></span>
 			{/each}
 		</span>
 	{/if}
@@ -66,25 +62,24 @@
 	<div class="options">
 		{#each groupOptions as option (option.id)}
 			<!-- System has no theme of its own, so its card takes the one matching the OS scheme. -->
-			{@const faceTheme =
+			{@const cardTheme =
 				option.theme ?? store.themes.find(({ id }) => id === store.systemScheme) ?? LIGHT_THEME}
+			<!-- The inline style scopes the whole card to the theme: its background, text and border. -->
 			<SelectableItem
 				class="option"
+				style={themeScopeStyle(cardTheme)}
 				{name}
 				value={option.id}
 				group={store.selectedId}
 				onchange={() => pick(option)}
 			>
-				<!-- The whole card is scoped to the theme, so its background and text are the theme's own. -->
-				<span class="face" data-theme={faceTheme.scheme} style={themeScopeStyle(faceTheme)}>
-					<span class="preview">
-						{@render preview(option.theme)}
-					</span>
-					<span class="caption">
-						<Small tag="span" colour={store.selectedId === option.id ? 'regular' : 'secondary'}>
-							{option.label}
-						</Small>
-					</span>
+				<span class="preview">
+					{@render preview(option.theme)}
+				</span>
+				<span class="caption">
+					<Small tag="span" colour={store.selectedId === option.id ? 'regular' : 'secondary'}>
+						{option.label}
+					</Small>
 				</span>
 			</SelectableItem>
 		{/each}
@@ -124,25 +119,29 @@
 		gap: var(--akui-space-m);
 	}
 
-	/* The card frame: one border. The background and text come from the theme in `.face`. */
+	/*
+	 * One ordinary rounded box: background and border on the same element, so the browser draws
+	 * them together with no seam. The colour variables come from the item's inline theme style, so
+	 * they are the theme's own, not the page's. `SelectableItem` clips the contents (overflow hidden).
+	 */
 	.theme-picker :global(.option) {
 		width: 6rem;
+		color: var(--akui-fg);
 		text-align: center;
+		background: var(--akui-bg);
 		border: 1px solid var(--akui-border-input);
 		transition:
-			transform 0.1s ease,
+			top 0.1s ease,
 			border-color 0.2s ease;
 	}
 
 	.theme-picker :global(.option[data-checked='true']) {
-		border-color: rgba(var(--akui-bg-accent-rgb), 0.7);
+		border-color: var(--akui-bg-accent);
 	}
 
-	/* Re-scoped to the theme (data-theme and inline tokens), so these vars are the theme's own. */
-	.face {
-		display: block;
-		color: var(--akui-fg);
-		background: var(--akui-bg);
+	/* The Glow fills the padding box, which is one border-width smaller than the outer radius. */
+	.theme-picker :global(.option .akui-glow) {
+		border-radius: calc(var(--akui-radius-m) - 1px);
 	}
 
 	.preview {
@@ -155,27 +154,14 @@
 		padding: var(--akui-space-xs) var(--akui-space-s);
 	}
 
+	/* A flat block of the theme's secondary colour; System shows two side by side. */
 	.sample {
 		display: flex;
 		flex: 1;
-		align-items: flex-end;
-		justify-content: flex-end;
-		padding: var(--akui-space-xs);
 		background: var(--akui-bg-secondary);
-	}
-
-	.split {
-		padding: 0;
 	}
 
 	.half {
 		height: 100%;
-	}
-
-	.accent {
-		width: 1rem;
-		height: 1rem;
-		background: var(--akui-bg-accent);
-		border-radius: 50%;
 	}
 </style>

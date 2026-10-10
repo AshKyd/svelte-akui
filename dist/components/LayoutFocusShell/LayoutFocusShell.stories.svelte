@@ -104,6 +104,19 @@
 	{/snippet}
 </Story>
 
+<!-- Story: Contained in a parent element -->
+<Story name="Contained">
+	{#snippet children()}
+		<div style="position: relative; width: 100%; height: 480px; border: 1px solid var(--akui-border-input);">
+			<LayoutFocusShell viewState="login" contained backTo="#">
+				<Field label="Wand Serial Number">
+					<TextInput placeholder="e.g. OAK-1294-DRAGON" />
+				</Field>
+			</LayoutFocusShell>
+		</div>
+	{/snippet}
+</Story>
+
 <!-- Story: No Background Image -->
 <Story name="No Background Image">
 	{#snippet children()}

@@ -45,6 +45,19 @@
 		</Padding>
 	</Modal>
 </Story>
+
+<Story name="Inline">
+	<Modal title="Inline Modal" icon="house" inline onClose={() => console.log('Close requested')}>
+		{#snippet footer()}
+			<Button>Cancel</Button>
+			<Button variant="accent">Save</Button>
+		{/snippet}
+		<Padding>
+			<p>Rendered in page flow with no dialog or backdrop.</p>
+		</Padding>
+	</Modal>
+</Story>
+
 <Story name="Mobile Fullscreen">
 	<Modal
 		title="Mobile View"

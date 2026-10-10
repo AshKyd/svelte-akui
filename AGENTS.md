@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to coding agents when working with code in this repository.
 
 `svelte-akui` is a modular Svelte 5 UI library — the component kit consumed by `aknotes`. It is
 unstable by design and breaks without notice. Consumers install it from GitHub, so changes here do
@@ -47,6 +47,13 @@ When creating a component, add it to the `Kitchen Sink` story
 sizes and states in the wrapping `.demo-row` layout. Skip components with no colour or theme styling
 (for example layout-only ones like `Padding` and `Masonry`) and components that need data, network or
 routing.
+
+### Use `-solid` colour tokens for fills without text
+
+Use `--akui-color-<name>-solid` for filled blocks that carry no text (`ProgressBar`,
+`ProgressXmasTree`), not `-fg`. `-fg` is a deep shade in light mode so text stays readable, which looks
+heavy as a fill. `-solid` is one mid-tone `hsl()` shared by light and dark. When adding a colour, add
+`-bg`, `-fg`, `-border` and `-solid`, and check it in both modes in the `Kitchen Sink` story.
 
 ### Flexible content pattern
 

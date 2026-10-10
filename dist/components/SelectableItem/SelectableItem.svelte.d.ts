@@ -26,6 +26,8 @@ interface Props {
     onchange?: (event: Event) => void;
     /** Additional CSS classes for the outer element. */
     class?: string;
+    /** Inline style for the outer element, e.g. to scope it to a theme's colour variables. */
+    style?: string;
     /** The item's contents. */
     children: Snippet;
     /** Spread onto the underlying input (e.g. `aria-label`, `required`, `form`). */

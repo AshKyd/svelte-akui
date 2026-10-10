@@ -23,7 +23,7 @@
 	const progress = $derived(Math.min(Math.max(value / max, 0), 1));
 	
 	const progressColour = $derived(
-		colour === 'accent' ? 'var(--akui-bg-accent)' : `var(--akui-color-${colour}-fg)`
+		colour === 'accent' ? 'var(--akui-bg-accent)' : `var(--akui-color-${colour}-solid)`
 	);
 </script>
 

@@ -90,6 +90,20 @@
 	--akui-color-grey-bg: rgba(148, 163, 184, 0.18);
 	--akui-color-grey-fg: #1e293b;
 	--akui-color-grey-border: rgba(148, 163, 184, 0.25);
+
+	/*
+	 * Solid fills for blocks that carry no text (progress bars, status boxes). Unlike `-fg`, these
+	 * don't need text contrast, so the same mid-tone is used in light and dark. 
+	 */
+	--akui-color-blue-solid: hsl(213, 92%, 61%);
+	--akui-color-green-solid: hsl(142, 68%, 51%);
+	--akui-color-orange-solid: hsl(27, 92%, 54%);
+	--akui-color-pink-solid: hsl(330, 80%, 53%);
+	--akui-color-purple-solid: hsl(255, 90%, 69%);
+	--akui-color-amber-solid: hsl(43, 92%, 49%);
+	--akui-color-red-solid: hsl(0, 88%, 64%);
+	--akui-color-teal-solid: hsl(172, 65%, 43%);
+	--akui-color-grey-solid: hsl(214, 34%, 84%);
 }
 
 [data-theme='dark'] {

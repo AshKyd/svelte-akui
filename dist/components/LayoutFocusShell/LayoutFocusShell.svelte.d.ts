@@ -23,6 +23,8 @@ interface Props {
         duration?: number;
         delay?: number;
     };
+    /** Fill the parent element (100% width and height) instead of the viewport. */
+    contained?: boolean;
     /** Child content (form, buttons, etc.) */
     children: Snippet;
 }

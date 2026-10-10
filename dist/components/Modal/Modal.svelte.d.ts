@@ -1,6 +1,7 @@
 /**
  * @component Modal
  * An accessible modal component using the native HTML <dialog> element.
+ * Pass `inline` to render the card in page flow instead (no dialog, backdrop or Esc handling).
  */
 interface Props {
     /** Optional title for the modal. */
@@ -23,6 +24,8 @@ interface Props {
     minWidth?: string;
     /** Optional minimum height of the modal on desktop. */
     minHeight?: string;
+    /** Render the card in normal page flow, without the native <dialog>, backdrop or Esc handling. Useful for theme testing. */
+    inline?: boolean;
 }
 declare const Modal: import("svelte").Component<Props, {}, "">;
 type Modal = ReturnType<typeof Modal>;

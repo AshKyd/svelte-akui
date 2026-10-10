@@ -24,7 +24,7 @@
 		if (!colour) return 'var(--akui-bg-accent)';
 		if (colour === 'accent') return 'var(--akui-bg-accent)';
 		if (['blue', 'green', 'orange', 'pink', 'purple', 'amber'].includes(colour)) {
-			return `var(--akui-color-${colour}-fg)`;
+			return `var(--akui-color-${colour}-solid)`;
 		}
 		return colour; // support custom hex/rgb colors
 	});

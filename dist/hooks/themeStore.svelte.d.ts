@@ -27,9 +27,10 @@ export declare class ThemeStore {
     #private;
     constructor(getCustomThemes?: () => AkuiTheme[]);
     /**
-     * Every theme on offer: Light and Dark, then the custom ones. A custom theme with id `light` or
-     * `dark` replaces that built-in in place, which is how an app re-brands the defaults (e.g. its
-     * own accent colour). Other duplicate ids keep the first.
+     * Every theme on offer, in the order the app passed them. A custom theme with id `light` or
+     * `dark` replaces that built-in, which is how an app re-brands the defaults (e.g. its own
+     * accent colour), and takes the position it was given. Built-ins the app doesn't replace come
+     * first. Duplicate ids keep the first.
      */
     themes: AkuiTheme[];
     /** Live OS `prefers-color-scheme` value. */

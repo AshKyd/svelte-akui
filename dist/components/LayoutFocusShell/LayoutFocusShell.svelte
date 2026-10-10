@@ -31,6 +31,8 @@
 			duration?: number;
 			delay?: number;
 		};
+		/** Fill the parent element (100% width and height) instead of the viewport. */
+		contained?: boolean;
 		/** Child content (form, buttons, etc.) */
 		children: Snippet;
 	}
@@ -46,6 +48,7 @@
 		viewState = 'login',
 		slideDirection = 'up',
 		transitionParams = {},
+		contained = false,
 		children
 	}: Props = $props();
 
@@ -65,7 +68,8 @@
 
 	// Adjust wrapper height to match the visual viewport (handles mobile keyboard overlays)
 	$effect(() => {
-		if (typeof window === 'undefined') return;
+		// A contained shell sizes to its parent, so the viewport height is irrelevant.
+		if (typeof window === 'undefined' || contained) return;
 
 		const handleViewportChange = () => {
 			if (window.visualViewport) {
@@ -193,6 +197,7 @@
 
 <div
 	class="akui-layout-focus-shell"
+	class:akui-layout-focus-shell--contained={contained}
 	style="--mobile-reserve: {mobileReservePixels}px; --viewport-height: {visualViewportHeight};"
 >
 	{#if currentBgUrl}
@@ -287,6 +292,16 @@
 		box-sizing: border-box;
 		background-color: var(--akui-bg-secondary);
 		overflow: hidden;
+	}
+
+	.akui-layout-focus-shell--contained {
+		width: 100%;
+		height: 100%;
+		min-height: 0;
+	}
+
+	.akui-layout-focus-shell--contained .akui-layout-focus-shell__back-btn {
+		position: absolute;
 	}
 
 	.akui-layout-focus-shell__bg-img {
