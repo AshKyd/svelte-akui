@@ -83,6 +83,7 @@
 		variant={item.variant ?? 'info'}
 		title={item.title}
 		icon={item.icon}
+		iconSnippet={item.iconSnippet}
 		onClose={item.dismissible === false ? undefined : () => onDismiss(item.id)}
 		action={item.actionLabel ? actionButton : undefined}
 	>
