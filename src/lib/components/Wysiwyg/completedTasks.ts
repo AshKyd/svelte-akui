@@ -127,12 +127,23 @@ function createSectionToggle(count: number, collapsed: boolean) {
 	};
 }
 
-/** Adds a header before each list's completed section, and hides the section's items when collapsed. */
+/** True when the node at `pos` sits inside a list item, i.e. it is a nested list. */
+function isNestedInListItem(doc: ProseNode, pos: number): boolean {
+	const resolved = doc.resolve(pos);
+	return Array.from({ length: resolved.depth + 1 }, (_, depth) => resolved.node(depth)).some(
+		(ancestor) => ancestor.type.name === 'list_item'
+	);
+}
+
+/**
+ * Adds a header before each top-level list's completed section, and hides the section's items when
+ * collapsed. Nested lists get no header: one divider per checklist keeps sub-tasks from cluttering it.
+ */
 function buildDecorations(doc: ProseNode, collapsed: boolean): DecorationSet {
 	const decorations: Decoration[] = [];
 
 	doc.descendants((node, pos) => {
-		if (!isListNode(node)) return true;
+		if (!isListNode(node) || isNestedInListItem(doc, pos)) return true;
 
 		const items = node.children;
 		const sectionStart = completedSectionStart(items.map(isTickedItem));
