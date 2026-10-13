@@ -77,7 +77,7 @@
 		align-items: center;
 		height: 4rem;
 		padding: 0 var(--akui-space-m);
-		background-color: var(--akui-header-bg, var(--akui-bg-surface));
+		background-color: var(--akui-header-bg, var(--akui-bg));
 		color: var(--akui-header-fg, var(--akui-fg));
 		border-bottom: 1px solid var(--akui-header-border, var(--akui-border-input));
 		backdrop-filter: var(--akui-header-backdrop, none);

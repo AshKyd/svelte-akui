@@ -157,7 +157,7 @@
 	.akui-sidebar {
 		height: 100dvh;
 		/* Same in every theme (no per-scheme override), so custom themes style it via tokens. */
-		background: var(--akui-sidebar-bg, var(--akui-bg-surface));
+		background: var(--akui-sidebar-bg, var(--akui-bg));
 		color: var(--akui-sidebar-fg, inherit);
 		border-right: 1px solid var(--akui-sidebar-border, var(--akui-border-input));
 		backdrop-filter: var(--akui-sidebar-backdrop, none);

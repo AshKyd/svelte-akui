@@ -19,6 +19,8 @@ export interface NotificationItem {
     announce?: string;
     /** Bootstrap-icon name, overriding the per-variant default. */
     icon?: string;
+    /** Custom icon content, such as a `Loader`. Takes priority over `icon`. */
+    iconSnippet?: Snippet;
     /** Auto-dismiss after this many ms. 0 or omitted means it stays until dismissed. 1–4999 is raised to {@link MIN_TIMEOUT}. */
     timeout?: number;
     /** Makes the whole card a button with hover/active/focus states. The notification dismisses once it resolves. */

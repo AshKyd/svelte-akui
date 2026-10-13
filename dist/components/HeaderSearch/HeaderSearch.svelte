@@ -149,7 +149,7 @@
 
 <style>
 	.akui-header-search {
-		background-color: var(--akui-header-search-bg, var(--akui-bg-surface));
+		background-color: var(--akui-header-search-bg, var(--akui-bg));
 		color: var(--akui-header-search-fg, var(--akui-fg));
 		box-sizing: border-box;
 	}

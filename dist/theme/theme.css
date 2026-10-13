@@ -20,6 +20,16 @@
 	--akui-bg-accent-hover: #1d4ed8;
 	--akui-bg-accent-focus: #3b82f6;
 
+	/*
+	 * Translucent backgrounds: each opaque background above at 25% alpha. Use these when a surface
+	 * should let what is behind it show through. Keep in step with the opaque values.
+	 */
+	--akui-bg-alpha: rgba(255, 255, 255, 0.25);
+	--akui-bg-secondary-alpha: rgba(243, 244, 246, 0.25);
+	--akui-bg-input-alpha: rgba(249, 250, 251, 0.25);
+	--akui-bg-button-alpha: rgba(229, 231, 235, 0.25);
+	--akui-bg-accent-alpha: rgba(37, 99, 235, 0.25);
+
 	/* Form Controls */
 	--akui-bg-input: #f9fafb;
 	--akui-fg-input: #111827;
@@ -127,6 +137,13 @@
 	--akui-bg-accent-hover: #2563eb;
 	--akui-bg-accent-focus: #1d4ed8;
 
+	/* Translucent backgrounds: see the light block. */
+	--akui-bg-alpha: rgba(13, 15, 20, 0.25);
+	--akui-bg-secondary-alpha: rgba(22, 25, 32, 0.25);
+	--akui-bg-input-alpha: rgba(22, 25, 32, 0.25);
+	--akui-bg-button-alpha: rgba(35, 39, 49, 0.25);
+	--akui-bg-accent-alpha: rgba(59, 130, 246, 0.25);
+
 	/* Form Controls */
 	--akui-bg-input: #161920;
 	--akui-fg-input: #ffffff;
@@ -163,8 +180,6 @@
 
 	/*
 	 * Design Tokens: Coloured Components (Dark Mode)
-	 * `-border` is the colour's tint with black mixed in (5% light, 40% dark): a dense edge that stays
-	 * visible against a tinted fill. Note cards use it directly.
 	 */
 	--akui-color-blue-bg: rgba(96, 165, 250, 0.1);
 	--akui-color-blue-fg: #60a5fa;
@@ -201,38 +216,6 @@
 	--akui-color-grey-bg: rgba(148, 163, 184, 0.1);
 	--akui-color-grey-fg: #cbd5e1;
 	--akui-color-grey-border: color-mix(in srgb, rgba(148, 163, 184, 0.2), black 40%);
-}
-
-/*
- * Alpha variants of the opaque surface tokens. `--akui-alpha-surface` (0 to 1) is unset by default, so
- * every `-surface` token equals its opaque original and nothing changes. Set it on UIRoot (or any
- * ancestor) to make the components that use these tokens translucent.
- *
- * Declared on `[data-theme]` as well as `:root` so the mix resolves against the active theme's colours.
- * color-mix is used instead of rgb triplets so any token format (hex, hsl, rgba) works.
- */
-:root,
-[data-theme] {
-	--akui-bg-surface: color-mix(
-		in srgb,
-		var(--akui-bg) calc(var(--akui-alpha-surface, 1) * 100%),
-		transparent
-	);
-	--akui-bg-secondary-surface: color-mix(
-		in srgb,
-		var(--akui-bg-secondary) calc(var(--akui-alpha-surface, 1) * 100%),
-		transparent
-	);
-	--akui-bg-input-surface: color-mix(
-		in srgb,
-		var(--akui-bg-input) calc(var(--akui-alpha-surface, 1) * 100%),
-		transparent
-	);
-	--akui-bg-button-surface: color-mix(
-		in srgb,
-		var(--akui-bg-button) calc(var(--akui-alpha-surface, 1) * 100%),
-		transparent
-	);
 }
 
 * {

@@ -10,14 +10,6 @@ export interface SurfaceStyle {
     backdropFilter?: string;
 }
 /**
- * Mixes any `--akui-*` colour token with transparent, e.g. `alphaColour('bg', 0.25)` for a 25% opaque
- * `--akui-bg`. Use it for a `SurfaceStyle` field; `alpha` is clamped to 0–1.
- *
- * It uses `color-mix` rather than rgb triplets so it works with every token format and follows the
- * active theme. Pair with `--akui-alpha-surface` when the strength should be set once for the whole UI.
- */
-export declare function alphaColour(token: string, alpha: number): string;
-/**
  * Turns a `SurfaceStyle` into private custom properties for one component, e.g. `--akui-header-bg`.
  *
  * Each component uses its own `prefix` because custom properties inherit: a shared name set on a

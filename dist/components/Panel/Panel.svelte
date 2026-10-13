@@ -69,12 +69,12 @@
 	}
 
 	.akui-panel.regular {
-		background-color: var(--akui-panel-bg, var(--akui-bg-surface));
+		background-color: var(--akui-panel-bg, var(--akui-bg));
 		color: var(--akui-panel-fg, var(--akui-fg));
 	}
 
 	.akui-panel.secondary {
-		background-color: var(--akui-panel-bg, var(--akui-bg-secondary-surface));
+		background-color: var(--akui-panel-bg, var(--akui-bg-secondary));
 		color: var(--akui-panel-fg, var(--akui-fg-secondary));
 	}
 

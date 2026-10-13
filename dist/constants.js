@@ -75,6 +75,34 @@ export function isAllowedHtmlTag(tagName) {
     return ALLOWED_HTML_TAGS.has(tagName.toLowerCase().trim());
 }
 /**
+ * Turns everything inside `<code>` back into plain text, so code that mentions HTML survives.
+ *
+ * The editor renders raw HTML typed inside inline code as `<span data-type="html" data-value="...">`.
+ * The sanitiser strips `data-*` attributes and would otherwise drop or reinterpret that markup, so
+ * the span's `data-value` (the original source) is used as the text. Other nested elements are
+ * escaped as literal markup; plain `<span>`s (e.g. syntax highlighting from a web page) are unwrapped
+ * to their text.
+ */
+function flattenInlineCodeContents(doc, body) {
+    body.querySelectorAll('code').forEach((code) => {
+        // Deepest first, so each replacement only sees already-flattened children.
+        Array.from(code.querySelectorAll('*'))
+            .reverse()
+            .forEach((el) => {
+            const tag = el.tagName.toLowerCase();
+            if (tag === 'br')
+                return;
+            const sourceValue = el.getAttribute('data-value');
+            if (sourceValue !== null && el.getAttribute('data-type') === 'html') {
+                el.replaceWith(doc.createTextNode(sourceValue));
+                return;
+            }
+            const text = tag === 'span' ? (el.textContent ?? '') : el.outerHTML;
+            el.replaceWith(doc.createTextNode(text));
+        });
+    });
+}
+/**
  * Central HTML sanitiser used across paste handling and Markdown rendering.
  *
  * - Allows safe tags defined in ALLOWED_HTML_TAGS.
@@ -96,6 +124,7 @@ export function sanitizeHtml(html) {
             // Strip clipboard metadata & document header tags entirely before sanitising content
             const metadata = Array.from(body.querySelectorAll('meta, link, base, title'));
             metadata.forEach((el) => el.remove());
+            flattenInlineCodeContents(doc, body);
             const allElements = Array.from(body.querySelectorAll('*'));
             allElements.forEach((el) => {
                 const tag = el.tagName.toLowerCase();

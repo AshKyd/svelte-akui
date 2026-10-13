@@ -11,6 +11,7 @@
 	import NotificationArea from './NotificationArea.svelte';
 	import { type NotificationItem } from './types.js';
 	import Button from '../Button/Button.svelte';
+	import Loader from '../Loader/Loader.svelte';
 
 	let items = $state<NotificationItem[]>([]);
 	let counter = 0;
@@ -23,6 +24,10 @@
 		items = items.filter((item) => item.id !== id);
 	}
 </script>
+
+{#snippet spinner()}
+	<Loader size={20} label="Working" />
+{/snippet}
 
 <Story name="Playground">
 	{#snippet children()}
@@ -73,6 +78,18 @@
 					})}
 			>
 				With Undo action
+			</Button>
+			<Button
+				size="small"
+				onclick={() =>
+					push({
+						variant: 'info',
+						message: 'Reloading to fetch the latest tea leaves…',
+						iconSnippet: spinner,
+						timeout: 0
+					})}
+			>
+				Spinner icon
 			</Button>
 		</div>
 

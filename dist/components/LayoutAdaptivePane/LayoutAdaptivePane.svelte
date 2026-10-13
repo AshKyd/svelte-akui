@@ -307,7 +307,7 @@
 		width: 100%;
 		height: 100%;
 		overflow: hidden;
-		background-color: var(--akui-pane-bg, var(--akui-bg-surface, #ffffff));
+		background-color: var(--akui-pane-bg, var(--akui-bg, #ffffff));
 		position: relative;
 	}
 
@@ -318,7 +318,7 @@
 		height: 100%;
 		overflow-y: auto;
 		border-right: 1px solid var(--akui-pane-border, var(--akui-border-input, #e5e7eb));
-		background-color: var(--akui-pane-bg, var(--akui-bg-surface));
+		background-color: var(--akui-pane-bg, var(--akui-bg));
 		box-sizing: border-box;
 		transition: border-right-color 0.3s ease;
 	}
