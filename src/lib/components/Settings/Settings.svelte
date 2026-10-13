@@ -4,6 +4,7 @@
 	import Button from '../Button/Button.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import Padding from '../Padding/Padding.svelte';
+	import { surfaceStyle, type SurfaceStyle } from '../../utils/surface.js';
 	import { ControlGroup, ControlItemText } from '../ControlGroup/index.js';
 	import SettingsNavItem from './SettingsNavItem/SettingsNavItem.svelte';
 	import type { SettingsSection } from './types.js';
@@ -29,6 +30,8 @@
 		detailActions?: Snippet<[SettingsSection]>;
 		/** Custom navigation (left) content for the top header, shown instead of the back button. */
 		headerNavigation?: Snippet;
+		/** Overrides the background, text and border of Settings and its headers, e.g. `{ background: 'transparent' }` to show a page background through it. */
+		surface?: SurfaceStyle;
 		/** Desktop tab size, as `Tree`'s `size`. Defaults to 'small'. */
 		size?: 'small' | 'large';
 		/** Space around the desktop tab list, from the theme spacing scale (as `Padding`'s `size`). Defaults to 's'. */
@@ -50,6 +53,7 @@
 		headerActions,
 		detailActions,
 		headerNavigation,
+		surface,
 		size = 'small',
 		padding = 's',
 		mobileBreakpoint = 768,
@@ -146,6 +150,7 @@
 	{/snippet}
 	<Header
 		pinned={false}
+		{surface}
 		navigation={showBack ? detailNavigation : undefined}
 		title={detailHeading}
 		actions={detailActions ? detailHeaderActions : undefined}
@@ -155,12 +160,13 @@
 <div
 	class="akui-settings {className}"
 	class:mobile={isMobile}
+	style={surfaceStyle('settings', surface)}
 	bind:clientWidth={containerWidth}
 >
 	{#if isMobile}
 		<!-- Mobile: overview and detail are stacked layers that slide horizontally. -->
 		<div class="akui-settings-layer overview" class:covered={isDetailOpen} inert={isDetailOpen}>
-			<Header pinned={false} navigation={topNavigation} title={headerTitle} actions={headerActions} />
+			<Header pinned={false} {surface} navigation={topNavigation} title={headerTitle} actions={headerActions} />
 			<div class="akui-settings-scroll">
 				<ControlGroup>
 					{#each sections as section (section.id)}
@@ -191,7 +197,7 @@
 	{:else}
 		<!-- Desktop: tab column beside the section content. -->
 		<div class="akui-settings-column">
-			<Header pinned={false} navigation={topNavigation} title={headerTitle} actions={headerActions} />
+			<Header pinned={false} {surface} navigation={topNavigation} title={headerTitle} actions={headerActions} />
 			<!-- Focus lives on the tabs (roving tabindex), not the list. -->
 			<!-- svelte-ignore a11y_interactive_supports_focus -->
 			<div
@@ -237,8 +243,8 @@
 		height: 100%;
 		min-height: 0;
 		overflow: hidden;
-		background-color: var(--akui-bg);
-		color: var(--akui-fg);
+		background-color: var(--akui-settings-bg, var(--akui-bg));
+		color: var(--akui-settings-fg, var(--akui-fg));
 	}
 
 	/* Desktop */
@@ -247,7 +253,7 @@
 		flex-direction: column;
 		flex: 0 0 16rem;
 		min-width: 0;
-		border-right: 1px solid var(--akui-border-input);
+		border-right: 1px solid var(--akui-settings-border, var(--akui-border-input));
 	}
 
 	.akui-settings-tabs {
@@ -284,15 +290,16 @@
 		inset: 0;
 		display: flex;
 		flex-direction: column;
-		background-color: var(--akui-bg);
+		background-color: var(--akui-settings-bg, var(--akui-bg));
 		transition:
 			transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
 			opacity 0.3s ease;
 	}
 
+	/* Fades fully out (not part way) so a transparent surface doesn't show the overview through the detail. */
 	.akui-settings-layer.overview.covered {
 		transform: translateX(-30%);
-		opacity: 0.6;
+		opacity: 0;
 	}
 
 	.akui-settings-layer.detail {

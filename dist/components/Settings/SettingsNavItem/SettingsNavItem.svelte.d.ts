@@ -5,6 +5,8 @@ interface Props {
     icon?: string;
     /** Whether this is the active tab. */
     selected?: boolean;
+    /** Row size, matching `Tree`. Defaults to 'small'. */
+    size?: 'small' | 'large';
     /** Called when the item is pressed. */
     onclick?: (event: MouseEvent) => void;
     /** Additional CSS classes. */
