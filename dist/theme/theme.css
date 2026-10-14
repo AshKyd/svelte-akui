@@ -1,5 +1,13 @@
 :root,
 [data-theme='light'] {
+	/* Thread geometry (the `small` size). Theme independent, so it is not repeated in the dark block. `Thread` overrides these per `size`. */
+	--akui-thread-avatar: 2.25rem;
+	--akui-thread-gap: 0.5rem;
+	--akui-thread-line-width: 2px;
+	--akui-thread-spacing: 0.5rem;
+	--akui-thread-dot: 0.5rem;
+	--akui-thread-font-size: 0.875rem;
+
 	color-scheme: light;
 	--akui-bg: #ffffff;
 	--akui-bg-rgb: 255, 255, 255;

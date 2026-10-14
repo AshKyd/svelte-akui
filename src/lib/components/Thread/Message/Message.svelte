@@ -10,6 +10,12 @@
 		username?: string;
 		/** When the message was posted. Rendered with `RelativeTime`. */
 		date?: Date | number | string;
+		/**
+		 * How much of the header row to show. `full` is name, username and date. `date` drops the
+		 * name and username, for a follow-up by the same author (the dot already says who). `none`
+		 * drops the whole row, including `headerControls`, so the contents start at the dot.
+		 */
+		header?: 'full' | 'date' | 'none';
 		/** Extra controls on the right of the header row, e.g. a menu button. */
 		headerControls?: Snippet;
 		/** The message contents. */
@@ -18,23 +24,35 @@
 		controls?: Snippet;
 	}
 
-	let { name, username, date, headerControls, children, controls }: Props = $props();
+	let {
+		name,
+		username,
+		date,
+		header = 'full',
+		headerControls,
+		children,
+		controls
+	}: Props = $props();
 
 	// Set by the enclosing `ThreadItem`. Absent when a `Message` is used on its own.
 	const itemState = getContext<ThreadItemState | undefined>(THREAD_ITEM_CONTEXT);
 	const collapsed = $derived(itemState?.collapsed ?? false);
 </script>
 
-<article class="akui-message">
-	<!-- A grid of its own, so the contents below can't widen the header's columns. -->
-	<div class="akui-message-header">
-		<span class="akui-message-name" title={name}>{name}</span>
-		<span class="akui-message-username" title={username}>{username}</span>
-		<span class="akui-message-date">
-			{#if date !== undefined}<RelativeTime {date} />{/if}
-		</span>
-		<span class="akui-message-header-controls">{@render headerControls?.()}</span>
-	</div>
+<article class={['akui-message', header === 'none' && 'no-header']}>
+	{#if header !== 'none'}
+		<!-- A grid of its own, so the contents below can't widen the header's columns. -->
+		<div class={['akui-message-header', header === 'date' && 'date-only']}>
+			{#if header === 'full'}
+				<span class="akui-message-name" title={name}>{name}</span>
+				<span class="akui-message-username" title={username}>{username}</span>
+			{/if}
+			<span class="akui-message-date">
+				{#if date !== undefined}<RelativeTime {date} />{/if}
+			</span>
+			<span class="akui-message-header-controls">{@render headerControls?.()}</span>
+		</div>
+	{/if}
 
 	<!--
 		Everything below the header row. When the enclosing `ThreadItem` is collapsed it shrinks to
@@ -69,6 +87,15 @@
 		grid-template-columns: minmax(0, max-content) minmax(0, max-content) auto 1fr;
 		align-items: center;
 		column-gap: var(--akui-space-s);
+	}
+
+	.akui-message-header.date-only {
+		grid-template-columns: auto 1fr;
+	}
+
+	/* With no header row the first line of contents has to sit level with the dot, which is at half the avatar height. */
+	.akui-message.no-header .akui-message-extra-inner {
+		padding-top: calc(var(--akui-thread-avatar, 2.25rem) / 4);
 	}
 
 	.akui-message-name,

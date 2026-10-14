@@ -44,6 +44,8 @@ export * from './components/RelativeTime/index.js';
 export * from './components/ImageMosaic/index.js';
 export * from './components/DropTarget/index.js';
 export * from './components/Draggable/index.js';
+export * from './components/Avatar/index.js';
+export * from './components/Thread/index.js';
 export * from './hooks/keyboardNavigation.js';
 export * from './hooks/theme.svelte.js';
 export * from './hooks/themeStore.svelte.js';
