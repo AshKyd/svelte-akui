@@ -9,6 +9,10 @@
 		ImageMosaic,
 		SwipeAction,
 		Padding,
+		Avatar,
+		Thread,
+		ThreadItem,
+		Message,
 		type TableColumn,
 		type TreeItemData
 	} from '$lib/index.js';
@@ -97,6 +101,45 @@
 			<SwipeAction leftIcon="trash" rightIcon="archive">
 				<Padding>Swipe me sideways</Padding>
 			</SwipeAction>
+		</div>
+	</div>
+
+	<h3>Avatars</h3>
+	<div class="demo-row">
+		<div class="demo-cell" style="display: flex; gap: 0.75rem;">
+			<Avatar initials="AB" />
+			<Avatar initials="CD" shape="round" />
+			<Avatar />
+		</div>
+	</div>
+
+	<h3>Threads</h3>
+	<div class="demo-row">
+		<div class="demo-cell">
+			<Thread collapsible>
+				<ThreadItem avatar={{ initials: 'AB' }}>
+					<Message name="Name" username="@user" date={new Date(Date.now() - 7_200_000)}>
+						Top-level message.
+					</Message>
+					{#snippet replies()}
+						<ThreadItem>
+							<Message name="Name" username="@user" date={new Date(Date.now() - 3_600_000)}>
+								Directly below.
+							</Message>
+						</ThreadItem>
+						<ThreadItem indent avatar={{ initials: 'CD' }}>
+							<Message name="Name" username="@user" date={new Date(Date.now() - 1_800_000)}>
+								Indented reply.
+							</Message>
+						</ThreadItem>
+						<ThreadItem indent>
+							<Message name="Name" username="@user" date={new Date(Date.now() - 600_000)}>
+								Another indented reply.
+							</Message>
+						</ThreadItem>
+					{/snippet}
+				</ThreadItem>
+			</Thread>
 		</div>
 	</div>
 
