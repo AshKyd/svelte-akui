@@ -8,5 +8,5 @@ export { default as MenuMobile } from './MenuMobile.svelte';
 export const MENU_CONTEXT_KEY = Symbol('akui-menu');
 
 export function useMenu() {
-	return getContext<{ close: () => void } | undefined>(MENU_CONTEXT_KEY);
+	return getContext<{ close: () => void; size: 'small' | 'large' } | undefined>(MENU_CONTEXT_KEY);
 }

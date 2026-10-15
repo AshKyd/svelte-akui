@@ -22,6 +22,8 @@
 		checked?: boolean;
 		/** Optional control type on the right hand side. */
 		controlType?: 'checkbox' | 'radio';
+		/** Item density. 'small' condenses padding, text and icon. Defaults to 'large'. */
+		size?: 'small' | 'large';
 		/** Spread remaining attributes. */
 		[key: string]: unknown;
 	}
@@ -36,6 +38,7 @@
 		selected = false,
 		checked = $bindable(false),
 		controlType,
+		size = 'large',
 		...rest
 	}: Props = $props();
 
@@ -55,13 +58,18 @@
 		{role}
 		class="akui-control-item-text {className}"
 		class:selected
+		class:small={size === 'small'}
 		onclick={handleContainerClick}
 		{...rest}
 	>
-		<Padding size="m" class="akui-control-item-text-inner">
+		<Padding size={size === 'small' ? 's' : 'm'} class="akui-control-item-text-inner">
 			<div class="akui-control-item-text-content">
 				{#if icon}
-					<Icon name={icon} size="1.25em" class="akui-control-item-text-icon" />
+					<Icon
+						name={icon}
+						size={size === 'small' ? '1em' : '1.25em'}
+						class="akui-control-item-text-icon"
+					/>
 				{/if}
 				<span class="akui-control-item-text-label">
 					{#if children}
@@ -118,6 +126,10 @@
 		.akui-control-item-text {
 			--akui-space-m: 1.25rem;
 		}
+
+		.akui-control-item-text.small {
+			--akui-space-s: 0.75rem;
+		}
 	}
 
 	.akui-control-item-text:hover {
@@ -143,6 +155,14 @@
 		display: flex;
 		align-items: center;
 		gap: var(--akui-space-m);
+	}
+
+	.akui-control-item-text.small .akui-control-item-text-content {
+		gap: var(--akui-space-s);
+	}
+
+	.akui-control-item-text.small .akui-control-item-text-label {
+		font-size: 0.85rem;
 	}
 
 	.akui-control-item-text-label {

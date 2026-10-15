@@ -18,6 +18,10 @@
 		origin?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 		/** Edge the opening animation starts from. Defaults to the vertical part of `origin`; mobile sheets always open from the bottom. */
 		openFrom?: 'top' | 'bottom';
+		/** Accessible name for the menu, announced when it opens. Defaults to 'Menu'. */
+		label?: string;
+		/** Item density for `MenuItem`s inside. 'small' condenses the menu. Defaults to 'large'. */
+		size?: 'small' | 'large';
 	}
 
 	let {
@@ -28,14 +32,21 @@
 		class: className = '',
 		presentation = 'auto',
 		origin = 'top-left',
-		openFrom
+		openFrom,
+		label = 'Menu',
+		size = 'large'
 	}: Props = $props();
 
 	function handleClose() {
 		if (onClose) onClose();
 	}
 
-	setContext(MENU_CONTEXT_KEY, { close: handleClose });
+	setContext(MENU_CONTEXT_KEY, {
+		close: handleClose,
+		get size() {
+			return size;
+		}
+	});
 
 	let dialog = $state<HTMLDialogElement>();
 	let container = $state<HTMLDivElement>();
@@ -128,11 +139,12 @@
 	onclick={handleClose}
 	transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 	class="akui-menu-dialog"
+	aria-label={label}
 	data-open-from={resolvedOpenFrom}
 >
 	{#if rendered}
 		{#if isMobile}
-			<MenuMobile class={className}>
+			<MenuMobile class={className} {label}>
 				{@render children()}
 			</MenuMobile>
 		{:else}
@@ -145,7 +157,7 @@
 				style:transform-origin={origin.split('-').join(' ')}
 				onclick={(e) => e.stopPropagation()}
 			>
-				<MenuDesktop class={className}>
+				<MenuDesktop class={className} {label}>
 					{@render children()}
 				</MenuDesktop>
 			</div>

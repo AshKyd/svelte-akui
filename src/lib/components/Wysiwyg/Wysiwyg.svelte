@@ -2,14 +2,10 @@
 	import Loader from '../Loader/Loader.svelte';
 	import Button from '../Button/Button.svelte';
 	import { WysiwygEditorController, type SlashMenuConfig } from './WysiwygEditor.svelte';
-
-	// Static imports of style files so the CSS is bundled by the application builder
-	import '@milkdown/crepe/theme/common/style.css';
-	import '@milkdown/crepe/theme/frame.css';
 	import { untrack } from 'svelte';
 
 	interface Props {
-		/** Bindable current value of the editor. */
+		/** Bindable current value of the editor, as markdown. */
 		value?: string;
 		/** Optional placeholder text displayed when editor is empty. Defaults to empty string. */
 		placeholder?: string;
@@ -28,8 +24,8 @@
 		/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
 		handlePaste?: (event: ClipboardEvent) => boolean | void;
 		/**
-		 * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
-		 * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+		 * Opt in to the "/" slash menu. Pass `true` for the default commands, or a
+		 * {@link SlashMenuConfig} to hide, reorder or add commands.
 		 */
 		slashMenu?: boolean | SlashMenuConfig;
 		/** Move ticked task items to a collapsible "completed" section at the end of their list. Read once on load. */
@@ -162,45 +158,58 @@
 		display: none;
 	}
 
-	/* Map milkdown crepe theme variables to svelte-akui design tokens */
-	.akui-wysiwyg-container :global(.milkdown) {
-		--crepe-color-background: transparent;
-		--crepe-color-on-background: var(--akui-fg);
-		--crepe-color-surface: var(--akui-bg-secondary);
-		--crepe-color-surface-low: var(--akui-bg-input);
-		--crepe-color-on-surface: var(--akui-fg);
-		--crepe-color-on-surface-variant: var(--akui-fg-secondary);
-		/* Crepe uses outline for text-like marks (placeholders, icons, list markers), so it needs text
-		 * contrast. --akui-border-input is too pale for that. */
-		--crepe-color-outline: var(--akui-fg-secondary);
-		--crepe-color-primary: var(--akui-bg-accent);
-		--crepe-color-secondary: var(--akui-bg-button);
-		--crepe-color-on-secondary: var(--akui-fg-button);
-		--crepe-color-inline-code: var(--akui-fg);
-		--crepe-color-hover: var(--akui-bg-hover);
-		--crepe-color-selected: var(--akui-bg-hover);
-
-		/* Reset built-in fonts to inherit svelte-akui styling */
-		--crepe-font-default: inherit;
-		--crepe-font-title: inherit;
-		--crepe-font-code: inherit;
-
+	/*
+	 * The typing area fills the height the container reserves, so the whole panel stays
+	 * clickable rather than only the first line of text.
+	 */
+	.akui-wysiwyg-container :global(.tiptap) {
+		flex: 1;
+		min-height: var(--akui-wysiwyg-min-height, 250px);
+		outline: none;
 		font-family: inherit;
-		font-size: inherit !important;
-		background-color: transparent;
+		font-size: inherit;
 		color: var(--akui-fg);
-		padding: 0;
+		background-color: transparent;
 		width: 100%;
 		max-width: 100%;
 		box-sizing: border-box;
+		overflow-wrap: anywhere;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap > *:first-child) {
+		margin-top: 0;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap p) {
+		margin: 0 0 0.5em;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap h1),
+	.akui-wysiwyg-container :global(.tiptap h2),
+	.akui-wysiwyg-container :global(.tiptap h3) {
+		margin: 0.8em 0 0.4em;
+		line-height: 1.25;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap h1) {
+		font-size: 1.6em;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap h2) {
+		font-size: 1.3em;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap h3) {
+		font-size: 1.1em;
 	}
 
 	/* Links follow --akui-fg-link so a host can keep them readable on custom backgrounds. */
-	.akui-wysiwyg-container :global(.milkdown a) {
+	.akui-wysiwyg-container :global(.tiptap a) {
 		color: var(--akui-fg-link, var(--akui-bg-accent));
+		cursor: pointer;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown a:hover) {
+	.akui-wysiwyg-container :global(.tiptap a:hover) {
 		color: var(--akui-fg-link-hover, var(--akui-bg-accent-hover));
 	}
 
@@ -214,7 +223,7 @@
 	}
 
 	/* Code styling matching svelte-akui design tokens */
-	.akui-wysiwyg-container :global(.milkdown code) {
+	.akui-wysiwyg-container :global(.tiptap code) {
 		font-family: monospace;
 		font-size: 0.9em;
 		background-color: var(--akui-bg-secondary);
@@ -223,150 +232,139 @@
 		padding: 0.2em 0.4em;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown pre) {
-		background-color: var(--akui-bg-secondary) !important;
-		border: 1px solid var(--akui-border-input) !important;
-		border-radius: var(--akui-radius-m) !important;
-		color: var(--akui-fg) !important;
-		padding: 1rem !important;
+	.akui-wysiwyg-container :global(.tiptap pre) {
+		background-color: var(--akui-bg-secondary);
+		border: 1px solid var(--akui-border-input);
+		border-radius: var(--akui-radius-m);
+		color: var(--akui-fg);
+		padding: 1rem;
 		overflow-x: auto;
+		margin: 0.5em 0;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown pre code) {
-		background: transparent !important;
-		padding: 0 !important;
-		border-radius: 0 !important;
-		color: inherit !important;
+	.akui-wysiwyg-container :global(.tiptap pre code) {
+		background: transparent;
+		padding: 0;
+		border-radius: 0;
+		color: inherit;
 	}
 
-	/* Crepe's code-block copy button ships with no hover/focus/active states of its own — style it
-	   to match akui's ghost icon-only Button (see .akui-btn.ghost / .icon-only in theme.css). */
-	.akui-wysiwyg-container :global(.milkdown .copy-button) {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		border: none;
-		border-radius: var(--akui-radius-s);
-		background-color: transparent;
+	.akui-wysiwyg-container :global(.tiptap blockquote) {
+		margin: 0.5em 0;
+		padding-left: 1em;
+		border-left: 3px solid var(--akui-border-input);
 		color: var(--akui-fg-secondary);
-		cursor: pointer;
-		transition: var(--akui-transition-theme);
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .copy-button:hover) {
-		background-color: var(--akui-bg-hover);
+	.akui-wysiwyg-container :global(.tiptap hr) {
+		border: none;
+		border-top: 1px solid var(--akui-border-input);
+		margin: 1em 0;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .copy-button:focus-visible) {
-		outline: 3px solid var(--akui-bg-accent);
-		outline-offset: 2px;
+	/* Lists */
+	.akui-wysiwyg-container :global(.tiptap ul),
+	.akui-wysiwyg-container :global(.tiptap ol) {
+		margin: 0 0 0.5em;
+		padding-left: 1.5em;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .copy-button:active) {
-		transform: translateY(1px);
+	.akui-wysiwyg-container :global(.tiptap li > p) {
+		margin: 0;
 	}
 
-	/* Reset default block indentation inside the editor content area */
-	.akui-wysiwyg-container :global(.milkdown .editor > *) {
-		margin-left: 0 !important;
-		padding-left: 0 !important;
-	}
-
-	.akui-wysiwyg-container :global(.milkdown .editor),
-	.akui-wysiwyg-container :global(.milkdown .editor-container),
-	.akui-wysiwyg-container :global(.milkdown .prose),
-	.akui-wysiwyg-container :global(.milkdown .prose *) {
-		outline: none;
-		flex: 1;
-		box-sizing: border-box;
-		max-width: 100% !important;
-		margin: 0 !important;
-		padding: 0 !important;
-	}
-
-	/*
-	 * The typing area fills the height the container reserves, so the whole panel stays
-	 * clickable rather than only the first line of text. Kept off `.prose *` — every
-	 * descendant inheriting a min-height would stretch individual paragraphs.
-	 */
-	.akui-wysiwyg-container :global(.milkdown .editor),
-	.akui-wysiwyg-container :global(.milkdown .editor-container) {
-		min-height: var(--akui-wysiwyg-min-height, 250px);
-	}
-
-	/* Ensure Milkdown dropdowns, popups, and floating menus sit above surrounding UI */
-	.akui-wysiwyg-container :global(.milkdown-slash-menu),
-	.akui-wysiwyg-container :global(.milkdown-toolbar),
-	.akui-wysiwyg-container :global(.milkdown-block-handle),
-	.akui-wysiwyg-container :global(.milkdown-link-preview),
-	.akui-wysiwyg-container :global(.milkdown-link-edit),
-	.akui-wysiwyg-container :global(.milkdown-top-bar),
-	.akui-wysiwyg-container :global(.milkdown-ai) {
-		z-index: 1000;
-	}
-
-	/* Style Crepe dropdowns, toolbars, and popups to match akui design tokens */
-	.akui-wysiwyg-container :global(.milkdown-slash-menu),
-	.akui-wysiwyg-container :global(.milkdown-toolbar),
-	.akui-wysiwyg-container :global(.milkdown-link-preview > .link-preview),
-	.akui-wysiwyg-container :global(.milkdown-link-edit > .link-edit),
-	.akui-wysiwyg-container :global(.milkdown-ai) {
-		border: 1px solid var(--akui-border-input) !important;
-		border-radius: var(--akui-radius-m) !important;
-		background-color: var(--akui-bg) !important;
-		color: var(--akui-fg) !important;
-		box-shadow:
-			var(--akui-shadow-shiny),
-			0 4px 12px rgba(0, 0, 0, 0.15) !important;
-		transition: var(--akui-transition-theme);
-	}
-
-	/* Style Crepe placeholder to match svelte-akui placeholder design token */
-	.akui-wysiwyg-container :global(.milkdown .crepe-placeholder::before) {
-		color: var(--akui-fg-placeholder) !important;
-		opacity: 1 !important;
-	}
-
-	/* Prevent horizontal scrollbars inside the slash menu list dropdown container */
-	.akui-wysiwyg-container :global(.milkdown-slash-menu .menu-groups) {
-		overflow-x: hidden;
-	}
-
-	/* Fallback bound in case the floating-ui `size()` middleware's inline maxHeight isn't applied
-	   (e.g. a consumer overriding slashMenu.middleware) - keeps the menu from spilling past a
-	   shrunk (mobile keyboard) viewport. */
-	.akui-wysiwyg-container :global(.milkdown-slash-menu) {
-		max-height: min(320px, 80vh);
-		overflow-y: auto;
-	}
-
-	/* Bullet points and list numbers should match the list text colour */
-	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper) {
+	.akui-wysiwyg-container :global(.tiptap ol li::marker),
+	.akui-wysiwyg-container :global(.tiptap ul li::marker) {
 		color: var(--akui-fg);
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper svg) {
-		fill: var(--akui-fg);
+	/* Task lists: checkbox then content on one line */
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList']) {
+		list-style: none;
+		padding-left: 0;
 	}
 
-	/* Checked task items use the checkbox accent colour */
-	.akui-wysiwyg-container :global(.milkdown .milkdown-list-item-block li .label-wrapper .checked svg) {
-		fill: var(--akui-checkbox-accent, var(--akui-bg-accent));
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] ul[data-type='taskList']) {
+		padding-left: 1.5em;
 	}
 
-	/* Completed tasks section (groupCompletedTasks, see completedTasks.ts). `!important` beats the
-	   `.prose *` margin/padding reset above. */
-	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-hidden) {
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li) {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.5em;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > label) {
+		flex: 0 0 auto;
+		display: flex;
+		align-items: center;
+		min-height: 1.5em;
+		user-select: none;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > label input) {
+		accent-color: var(--akui-checkbox-accent, var(--akui-bg-accent));
+		cursor: pointer;
+		margin: 0;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > div) {
+		flex: 1;
+		min-width: 0;
+	}
+
+	/* Tables (kept when pasted or already in a note; no tools to create or restructure them) */
+	.akui-wysiwyg-container :global(.tiptap table) {
+		border-collapse: collapse;
+		table-layout: fixed;
+		width: 100%;
+		margin: 0.5em 0;
+		overflow: hidden;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap th),
+	.akui-wysiwyg-container :global(.tiptap td) {
+		border: 1px solid var(--akui-border-input);
+		padding: 0.4em 0.6em;
+		vertical-align: top;
+		position: relative;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap th) {
+		background-color: var(--akui-bg-secondary);
+		text-align: left;
+		font-weight: 600;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap .selectedCell::after) {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: var(--akui-bg-hover);
+		pointer-events: none;
+	}
+
+	/* Placeholder (Tiptap marks the empty first node) */
+	.akui-wysiwyg-container :global(.tiptap p.is-editor-empty:first-child::before) {
+		content: attr(data-placeholder);
+		float: left;
+		height: 0;
+		pointer-events: none;
+		color: var(--akui-fg-placeholder);
+	}
+
+	/* Completed tasks section (groupCompletedTasks, see completedTasks.ts). */
+	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-hidden) {
 		display: none;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle) {
+	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-toggle) {
 		display: flex;
 		align-items: center;
 		gap: var(--akui-space-xs, 0.25rem);
 		width: 100%;
-		margin: var(--akui-space-s, 0.5rem) 0 var(--akui-space-xs, 0.25rem) !important;
-		padding: var(--akui-space-s, 0.5rem) 0 0 !important;
+		margin: var(--akui-space-s, 0.5rem) 0 var(--akui-space-xs, 0.25rem);
+		padding: var(--akui-space-s, 0.5rem) 0 0;
 		border: none;
 		border-top: 1px solid var(--akui-border-input);
 		background: transparent;
@@ -377,32 +375,28 @@
 		cursor: pointer;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle::before) {
+	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-toggle::before) {
 		content: '';
 		width: 0.4em;
 		height: 0.4em;
-		margin: 0 0.3em !important;
+		margin: 0 0.3em;
 		border-right: 2px solid currentColor;
 		border-bottom: 2px solid currentColor;
 		transform: rotate(45deg);
 		transition: transform 150ms ease;
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle[aria-expanded='false']::before) {
+	.akui-wysiwyg-container
+		:global(.tiptap .akui-wysiwyg-completed-toggle[aria-expanded='false']::before) {
 		transform: rotate(-45deg);
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle:hover) {
+	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-toggle:hover) {
 		color: var(--akui-fg);
 	}
 
-	.akui-wysiwyg-container :global(.milkdown .akui-wysiwyg-completed-toggle:focus-visible) {
+	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-toggle:focus-visible) {
 		outline: 3px solid var(--akui-bg-accent);
 		outline-offset: 2px;
-	}
-
-	.akui-wysiwyg-container :global(.milkdown ol li::marker),
-	.akui-wysiwyg-container :global(.milkdown ul li::marker) {
-		color: var(--akui-fg);
 	}
 </style>

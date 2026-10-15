@@ -1,27 +1,20 @@
 import type { Action } from 'svelte/action';
-import type { BlockEditFeatureConfig } from '@milkdown/crepe/feature/block-edit';
-import { shift, size, type Middleware } from '@floating-ui/dom';
-import type { Ctx, SliceType } from '@milkdown/kit/ctx';
-import type { EditorView } from '@milkdown/kit/prose/view';
-import { splitListItem } from '@milkdown/kit/prose/schema-list';
+import type { Editor } from '@tiptap/core';
+import type { Node as ProseNode } from '@tiptap/pm/model';
+import type { SlashMenuConfig } from './slashItems';
 
-/**
- * Config for the Crepe "/" slash menu and block-drag-handle (the `BlockEdit` feature).
- * Set a group (`textGroup`/`listGroup`/`advancedGroup`) or item within it to `null` to hide it,
- * or provide `buildMenu` to append custom commands via Crepe's `GroupBuilder`.
- */
-export type SlashMenuConfig = BlockEditFeatureConfig;
+export type { SlashItem, SlashMenuConfig } from './slashItems';
 
 /**
  * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
  * Clamps to the end of the document if index exceeds word count; returns null if empty.
  */
-function docPositionForWordIndex(doc: any, targetIndex: number): number | null {
+function docPositionForWordIndex(doc: ProseNode, targetIndex: number): number | null {
 	let wordCount = 0;
 	let result: number | null = null;
 	let sawAnyText = false;
 
-	doc.descendants((node: any, pos: number) => {
+	doc.descendants((node, pos) => {
 		if (result !== null) return false;
 		if (!node.isText) return true;
 		sawAnyText = true;
@@ -43,43 +36,12 @@ function docPositionForWordIndex(doc: any, targetIndex: number): number | null {
 	return sawAnyText ? doc.content.size : null;
 }
 
-/**
- * Keep the slash menu visible and scrollable when mobile keyboards reduce screen space.
- */
-function createDefaultSlashMenuMiddleware(): Middleware[] {
-	return [
-		shift({ padding: 8 }),
-		size({
-			padding: 8,
-			apply({ availableHeight, elements }) {
-				Object.assign(elements.floating.style, {
-					maxHeight: `${Math.max(availableHeight, 0)}px`,
-					overflowY: 'auto'
-				});
-			}
-		})
-	];
-}
-
 // Markdown parsers require text after `[ ]` to recognise task items.
 // Append a zero-width space to prevent empty checkboxes turning into literal text on round-trip.
 const EMPTY_CHECKLIST_ITEM = /^([ \t]*[-*+][ \t]\[[ xX]\])[ \t]*$/gm;
 
-function preserveEmptyChecklistItems(markdown: string): string {
-	return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 \u200B');
-}
-
-/** Splits checked checklist items with `checked: false` so new items start unchecked. */
-function splitCheckedItemAsUnchecked(view: EditorView, event: KeyboardEvent): boolean {
-	if (event.key !== 'Enter' || event.shiftKey) return false;
-
-	// Renamed from ProseMirror's `$from`: `.svelte.ts` modules reserve the `$` prefix for runes.
-	const { $from: selectionStart } = view.state.selection;
-	const listItem = selectionStart.node(-1);
-	if (listItem.type.name !== 'list_item' || listItem.attrs.checked !== true) return false;
-	if (selectionStart.parent.content.size === 0) return false;
-
-	return splitListItem(listItem.type, { checked: false })(view.state, view.dispatch);
+export function preserveEmptyChecklistItems(markdown: string): string {
+	return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 ​');
 }
 
 export interface WysiwygEditorOptions {
@@ -91,8 +53,8 @@ export interface WysiwygEditorOptions {
 	/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
 	handlePaste?: (event: ClipboardEvent) => boolean | void;
 	/**
-	 * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
-	 * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+	 * Opt in to the "/" slash menu. Pass `true` for the default commands, or a
+	 * {@link SlashMenuConfig} to hide, reorder or add commands.
 	 */
 	slashMenu?: boolean | SlashMenuConfig;
 	/**
@@ -103,25 +65,24 @@ export interface WysiwygEditorOptions {
 }
 
 /**
- * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.
+ * Controller class to manage the lifecycle and state of the Tiptap WYSIWYG editor.
+ * Notes are stored as markdown, so content goes in and out through `@tiptap/markdown`.
  * Uses Svelte 5 runes for reactive state tracking.
  */
 export class WysiwygEditorController {
 	loading = $state(true);
 	loadError = $state(false);
 
-	#crepeInstance: any = null;
-	#replaceAllFn: any = null;
+	#editor: Editor | null = null;
 	#onChange: (val: string) => void;
 	#value = '';
 	#options: WysiwygEditorOptions = {};
 	#node = $state<HTMLElement | null>(null);
-	#editorViewCtx: SliceType<EditorView, 'editorView'> | null = null;
 	#visualViewportCleanup: (() => void) | null = null;
 
-	// Crepe/Milkdown load on-demand (see #setup), so #crepeInstance isn't ready the instant this
-	// controller (and the bound Wysiwyg component) exists. Anything that needs the live editor —
-	// focusAtWordIndex included — awaits this instead of assuming #crepeInstance is already set.
+	// Tiptap loads on-demand (see #setup), so #editor isn't ready the instant this controller (and the
+	// bound Wysiwyg component) exists. Anything that needs the live editor — focusAtWordIndex
+	// included — awaits this instead of assuming #editor is already set.
 	#ready: Promise<void>;
 	#resolveReady: (() => void) | null = null;
 
@@ -161,24 +122,21 @@ export class WysiwygEditorController {
 	 * Synchronise external value updates with the editor instance.
 	 */
 	updateValue(newValue: string) {
-		if (this.#value !== newValue) {
-			this.#value = newValue;
-			if (this.#crepeInstance && this.#replaceAllFn) {
-				this.#crepeInstance.editor.action(
-					this.#replaceAllFn(preserveEmptyChecklistItems(newValue))
-				);
-			}
-		}
+		if (this.#value === newValue) return;
+		this.#value = newValue;
+		this.#editor?.commands.setContent(preserveEmptyChecklistItems(newValue), {
+			contentType: 'markdown',
+			emitUpdate: false
+		});
 	}
 
 	/**
 	 * Retries the editor initialization process.
 	 */
 	retry() {
-		if (this.#node) {
-			this.#destroy();
-			this.#setup(this.#node);
-		}
+		if (!this.#node) return;
+		this.#destroy();
+		this.#setup(this.#node);
 	}
 
 	async #setup(node: HTMLElement) {
@@ -186,53 +144,73 @@ export class WysiwygEditorController {
 		this.loadError = false;
 
 		try {
-			// Code-splitting Crepe and Milkdown modules so they load on-demand
-			const { Crepe } = await import('@milkdown/crepe');
-			// Renamed: Svelte reserves the `$` prefix for identifiers in .svelte.ts modules
-			const { replaceAll, $prose: proseToMilkdownPlugin } = await import('@milkdown/kit/utils');
-			const { editorViewOptionsCtx, editorViewCtx } = await import('@milkdown/kit/core');
-			this.#replaceAllFn = replaceAll;
+			// Code-splitting Tiptap so it loads on-demand
+			const [{ Editor }, { default: StarterKit }, { Markdown }, listModule, tableModule, extras] =
+				await Promise.all([
+					import('@tiptap/core'),
+					import('@tiptap/starter-kit'),
+					import('@tiptap/markdown'),
+					import('@tiptap/extension-list'),
+					import('@tiptap/extension-table'),
+					import('@tiptap/extensions')
+				]);
+			const { TaskList, TaskItem } = listModule;
+			const { TableKit } = tableModule;
+			const { Placeholder } = extras;
+			const { Keybindings } = await import('./extensions/Keybindings');
 
 			if (this.#node !== node) return; // Guard against rapid re-initialization
 
-			const userSlashMenuConfig =
-				typeof this.#options.slashMenu === 'object' ? this.#options.slashMenu : undefined;
+			const { slashMenu, placeholder, groupCompletedTasks } = this.#options;
 
-			// Fill in the default slash-menu middleware (mobile-keyboard-aware positioning) unless
-			// the consumer already supplied their own via a SlashMenuConfig.
-			const blockEditConfig: BlockEditFeatureConfig | undefined = this.#options.slashMenu
-				? {
-						...userSlashMenuConfig,
-						slashMenu: {
-							...userSlashMenuConfig?.slashMenu,
-							middleware:
-								userSlashMenuConfig?.slashMenu?.middleware ?? createDefaultSlashMenuMiddleware()
-						}
-					}
-				: undefined;
+			const extensions = [
+				StarterKit.configure({
+					// Underline has no markdown form, so it would be lost on save.
+					underline: false,
+					link: { openOnClick: false, autolink: true }
+				}),
+				Markdown,
+				TaskList,
+				TaskItem.configure({ nested: true }),
+				// Parse and keep pasted/existing tables. There are no editing tools and no slash command to
+				// create one, so column resizing (which needs a drag handle UI) is off.
+				TableKit.configure({ table: { resizable: false } }),
+				Keybindings
+			];
+			if (placeholder) extensions.push(Placeholder.configure({ placeholder }));
 
-			this.#crepeInstance = new Crepe({
-				root: node,
-				defaultValue: preserveEmptyChecklistItems(this.#value),
-				features: {
-					[Crepe.Feature.BlockEdit]: Boolean(this.#options.slashMenu),
-					[Crepe.Feature.Placeholder]: Boolean(this.#options.placeholder)
-				},
-				featureConfigs: {
-					[Crepe.Feature.Cursor]: {
-						virtual: false
-					},
-					[Crepe.Feature.Placeholder]: {
-						text: this.#options.placeholder || '',
-						mode: 'doc'
-					},
-					[Crepe.Feature.BlockEdit]: blockEditConfig
-				}
-			});
+			if (slashMenu) {
+				const { SlashCommand } = await import('./extensions/SlashCommand');
+				extensions.push(
+					SlashCommand.configure({
+						config: typeof slashMenu === 'object' ? slashMenu : {},
+						host: node
+					})
+				);
+			}
 
-			this.#crepeInstance.editor.config((ctx: any) => {
-				ctx.update(editorViewOptionsCtx, (prev: any) => ({
-					...prev,
+			// Loaded on demand, so editors without the option don't pay for it.
+			if (groupCompletedTasks) {
+				const [{ Extension }, { createCompletedTasksPlugin }] = await Promise.all([
+					import('@tiptap/core'),
+					import('./completedTasks')
+				]);
+				extensions.push(
+					Extension.create({
+						name: 'akuiCompletedTasks',
+						addProseMirrorPlugins: () => [createCompletedTasksPlugin()]
+					})
+				);
+			}
+
+			if (this.#node !== node) return;
+
+			this.#editor = new Editor({
+				element: node,
+				extensions,
+				content: preserveEmptyChecklistItems(this.#value),
+				contentType: 'markdown',
+				editorProps: {
 					transformPastedHTML: (html: string) => {
 						const fn = this.#options.transformPastedHTML;
 						return fn ? fn(html) : html;
@@ -241,50 +219,20 @@ export class WysiwygEditorController {
 						const fn = this.#options.transformPastedText;
 						return fn ? fn(text, plain) : text;
 					},
-					handleKeyDown: (view: EditorView, event: KeyboardEvent) =>
-							splitCheckedItemAsUnchecked(view, event),
-						handlePaste: (_view: any, event: ClipboardEvent) => {
-						const fn = this.#options.handlePaste;
-						if (fn) {
-							const handled = fn(event);
-							if (handled) return true;
-						}
-						return false;
-					}
-				}));
+					handlePaste: (_view, event) => Boolean(this.#options.handlePaste?.(event))
+				},
+				// Listen to content changes and synchronise value state
+				onUpdate: ({ editor }) => {
+					const markdown = preserveEmptyChecklistItems(editor.getMarkdown());
+					if (this.#value === markdown) return;
+					this.#value = markdown;
+					this.#onChange(markdown);
+				}
 			});
 
-			// Loaded on demand like Crepe, so editors without the option don't pay for it.
-			if (this.#options.groupCompletedTasks) {
-				const { createCompletedTasksPlugin } = await import('./completedTasks');
-				this.#crepeInstance.editor.use(proseToMilkdownPlugin(() => createCompletedTasksPlugin()));
-			}
-
-			await this.#crepeInstance.create();
-
-			if (this.#node !== node) {
-				this.#destroy();
-				return;
-			}
-
-			this.#editorViewCtx = editorViewCtx;
-			if (this.#options.slashMenu) {
-				this.#registerVisualViewportReflow();
-			}
-
-			// Listen to content changes and synchronise value state
-			this.#crepeInstance.on((listener: any) => {
-				listener.markdownUpdated((_ctx: any, rawMarkdown: string) => {
-					const markdown = preserveEmptyChecklistItems(rawMarkdown);
-					if (this.#value !== markdown) {
-						this.#value = markdown;
-						this.#onChange(markdown);
-					}
-				});
-			});
+			if (slashMenu) this.#registerVisualViewportReflow();
 
 			this.loading = false;
-			console.debug('[Wysiwyg] editor ready');
 		} catch (error) {
 			console.error('Failed to load WYSIWYG editor:', error);
 			this.loadError = true;
@@ -295,24 +243,11 @@ export class WysiwygEditorController {
 	}
 
 	/**
-	 * Focuses the editor content editable element.
+	 * Focuses the editor, with the cursor at the start or end of the document.
 	 */
 	focus(collapseToStart = true) {
-		if (!this.#node) return false;
-		const editorEl = this.#node.querySelector('[contenteditable="true"]') as HTMLElement | null;
-		if (editorEl) {
-			editorEl.focus();
-			const range = document.createRange();
-			const selection = window.getSelection();
-			if (selection) {
-				range.selectNodeContents(editorEl);
-				range.collapse(collapseToStart);
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
-			return true;
-		}
-		return false;
+		if (!this.#editor) return false;
+		return this.#editor.commands.focus(collapseToStart ? 'start' : 'end');
 	}
 
 	/**
@@ -320,51 +255,25 @@ export class WysiwygEditorController {
 	 * See {@link docPositionForWordIndex} for the word-counting rule the index must match.
 	 */
 	async focusAtWordIndex(index: number): Promise<boolean> {
-		console.debug('[Wysiwyg] focusAtWordIndex called, awaiting editor readiness', { index });
 		await this.#ready;
+		const editor = this.#editor;
+		if (!editor) return false;
 
-		if (!this.#crepeInstance) {
-			console.debug('[Wysiwyg] focusAtWordIndex: no crepe instance after ready (load failed?)');
-			return false;
-		}
-
-		const { editorViewCtx } = await import('@milkdown/kit/core');
-		const { TextSelection } = await import('@milkdown/prose/state');
-
-		let applied = false;
-		this.#crepeInstance.editor.action((ctx: any) => {
-			const view = ctx.get(editorViewCtx);
-			const pos = docPositionForWordIndex(view.state.doc, index);
-			console.debug('[Wysiwyg] focusAtWordIndex resolved doc position', {
-				index,
-				pos,
-				docTextPreview: view.state.doc.textContent.slice(0, 200)
-			});
-			if (pos === null) return;
-
-			const tr = view.state.tr.setSelection(TextSelection.create(view.state.doc, pos));
-			view.dispatch(tr);
-			view.focus();
-			applied = true;
-		});
-		console.debug('[Wysiwyg] focusAtWordIndex applied?', applied);
-		return applied;
+		const pos = docPositionForWordIndex(editor.state.doc, index);
+		if (pos === null) return false;
+		return editor.chain().focus().setTextSelection(pos).run();
 	}
 
 	/**
-	 * Nudge Crepe to reposition floating menus when mobile keyboards resize the visual viewport.
+	 * Nudge the slash menu to reposition when mobile keyboards resize the visual viewport.
 	 */
 	#registerVisualViewportReflow() {
 		const viewport = typeof window !== 'undefined' ? window.visualViewport : null;
 		if (!viewport) return;
 
 		const reflow = () => {
-			const viewCtx = this.#editorViewCtx;
-			if (!this.#crepeInstance || !viewCtx) return;
-			this.#crepeInstance.editor.action((ctx: Ctx) => {
-				const view = ctx.get(viewCtx);
-				if (view.hasFocus()) view.dispatch(view.state.tr);
-			});
+			const editor = this.#editor;
+			if (editor?.isFocused) editor.view.dispatch(editor.state.tr);
 		};
 
 		viewport.addEventListener('resize', reflow);
@@ -374,10 +283,7 @@ export class WysiwygEditorController {
 	#destroy() {
 		this.#visualViewportCleanup?.();
 		this.#visualViewportCleanup = null;
-		this.#editorViewCtx = null;
-		if (this.#crepeInstance) {
-			this.#crepeInstance.destroy();
-			this.#crepeInstance = null;
-		}
+		this.#editor?.destroy();
+		this.#editor = null;
 	}
 }
