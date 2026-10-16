@@ -51,8 +51,9 @@
 	}: Props = $props();
 
 	function handleContainerClick(event: MouseEvent) {
+		// A radio can only be switched on by clicking it; picking the chosen one again keeps it chosen.
 		if (controlType) {
-			checked = !checked;
+			checked = controlType === 'radio' ? true : !checked;
 		}
 		if (onclick) {
 			onclick(event);

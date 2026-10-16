@@ -14,6 +14,9 @@
 <script lang="ts">
 	let showMobile = $state(false);
 	let showLarge = $state(false);
+	let showChoices = $state(false);
+	let brew = $state<'day' | 'night'>('day');
+	let nutmeg = $state(true);
 </script>
 
 <Story name="Desktop Positioning">
@@ -43,6 +46,43 @@
 			</Menu>
 		{/if}
 	</div>
+</Story>
+
+<Story name="Radio and Checkbox Items">
+	<div style="padding: 2rem; display: flex; justify-content: center;">
+		<Button onclick={() => (showChoices = !showChoices)}>
+			{showChoices ? 'Hide' : 'Show'} Choices Menu
+		</Button>
+	</div>
+
+	{#if showChoices}
+		<Menu
+			x={typeof window !== 'undefined' ? window.innerWidth / 2 : 100}
+			y={150}
+			onClose={() => (showChoices = false)}
+		>
+			<MenuItem
+				controlType="radio"
+				icon="sun"
+				label="Daytime brew"
+				checked={brew === 'day'}
+				onclick={() => (brew = 'day')}
+			/>
+			<MenuItem
+				controlType="radio"
+				icon="moon"
+				label="Moonlit brew"
+				checked={brew === 'night'}
+				onclick={() => (brew = 'night')}
+			/>
+			<MenuItem
+				controlType="checkbox"
+				label="Add a pinch of nutmeg"
+				checked={nutmeg}
+				onclick={() => (nutmeg = !nutmeg)}
+			/>
+		</Menu>
+	{/if}
 </Story>
 
 <Story name="Overflow & Scrolling">

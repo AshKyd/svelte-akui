@@ -5,7 +5,8 @@
 
 import type { Attachment } from 'svelte/attachments';
 
-const ENABLED_ITEM = '[role="menuitem"]:not(:disabled):not([aria-disabled="true"])';
+/** Matches `menuitem`, `menuitemcheckbox` and `menuitemradio`. */
+const ENABLED_ITEM = '[role^="menuitem"]:not(:disabled):not([aria-disabled="true"])';
 
 /**
  * Arrow Up/Down move focus between menu items (wrapping), Home/End jump to the first/last, and typing

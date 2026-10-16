@@ -70,6 +70,14 @@ The standard action item. Wraps a button in an `<li>` with appropriate ARIA role
 - `label`: Standard text display.
 - `onclick`: Interaction handler.
 - `children`: Snippet for custom internal markup (overrides label).
+- `controlType`: `'checkbox'` or `'radio'` shows that control on the right and sets the role to `menuitemcheckbox` / `menuitemradio` with `aria-checked`. Use `radio` for one-of-many choices (adjacent items form the group) and `checkbox` for an on/off option.
+- `checked`: Whether the checkbox or radio is checked. The parent owns the state: change it from `onclick`. The drawn radio or checkbox ignores pointer events, so a click anywhere on the row, including on the control, runs `onclick` once. Clicking a radio or checkbox item keeps the menu open (plain items still close it), and clicking the chosen radio again leaves it chosen.
+
+```svelte
+<MenuItem controlType="radio" label="Note view" checked={view === 'note'} onclick={() => (view = 'note')} />
+<MenuItem controlType="radio" label="Journal view" checked={view === 'journal'} onclick={() => (view = 'journal')} />
+<MenuItem controlType="checkbox" label="Show in all notes" checked={showAll} onclick={() => (showAll = !showAll)} />
+```
 
 ### `MenuContent`
 
