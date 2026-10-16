@@ -503,10 +503,11 @@
 	}
 
 	/* While dragging, the seam has to track the pointer frame for frame — easing
-	   between positions reads as lag. */
-	.akui-layout-adaptive-pane.is-dragging .akui-pane-main,
-	.akui-layout-adaptive-pane.is-dragging .akui-pane-nested,
-	.akui-layout-adaptive-pane.is-dragging .akui-pane-divider-overlay {
+	   between positions reads as lag. `.is-ready` is repeated so these outrank the
+	   `.is-ready.is-overlay` transition on `left`, which otherwise eased the seam behind the pointer. */
+	.akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-main,
+	.akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-nested,
+	.akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-divider-overlay {
 		transition: none;
 	}
 
