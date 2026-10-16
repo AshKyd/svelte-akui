@@ -1,6 +1,11 @@
 import { mount, unmount } from 'svelte';
 import { Extension } from '@tiptap/core';
-import Suggestion, { type SuggestionKeyDownProps, type SuggestionProps } from '@tiptap/suggestion';
+import { PluginKey } from '@tiptap/pm/state';
+import Suggestion, {
+	exitSuggestion,
+	type SuggestionKeyDownProps,
+	type SuggestionProps
+} from '@tiptap/suggestion';
 import { computePosition, flip, shift, size } from '@floating-ui/dom';
 import {
 	defaultSlashItems,
@@ -19,6 +24,8 @@ export interface SlashCommandOptions {
 }
 
 let menuCounter = 0;
+
+const slashCommandKey = new PluginKey('akuiSlashCommand');
 
 /**
  * One open slash menu session: the akui menu surface in a `fixed` popup, plus the combobox ARIA
@@ -142,17 +149,38 @@ export const SlashCommand = Extension.create<SlashCommandOptions>({
 					state.doc.resolve(range.from).parent.type.name !== 'codeBlock',
 				items: ({ query }) => filterSlashItems(allItems, query),
 				command: ({ editor, range, props: item }) => runSlashItem(editor, range, item),
+				pluginKey: slashCommandKey,
 				render: () => {
 					let menu: ReturnType<typeof openSlashMenu> | null = null;
+					let closeOnBlur: (() => void) | null = null;
 					return {
 						onStart: (props) => {
 							if (!host) return;
 							menu = openSlashMenu(host, props, config.size);
 							menu.update(props);
+
+							// Suggestion never closes when the editor loses focus, so the menu would stay open
+							// over whatever took focus (e.g. the label picker). Clicking an item doesn't blur:
+							// the menu cancels mousedown.
+							const { view } = props.editor;
+							closeOnBlur = () => exitSuggestion(view, slashCommandKey);
+							view.dom.addEventListener('blur', closeOnBlur);
 						},
 						onUpdate: (props) => menu?.update(props),
-						onKeyDown: (props) => menu?.onKeyDown(props) ?? false,
-						onExit: () => {
+						onKeyDown: (props) => {
+							// Escape closes only the menu. Stopping propagation keeps it from also reaching
+							// the note's Escape handler (which closes the note or composer).
+							if (props.event.key === 'Escape') {
+								props.event.preventDefault();
+								props.event.stopPropagation();
+								exitSuggestion(props.view, slashCommandKey);
+								return true;
+							}
+							return menu?.onKeyDown(props) ?? false;
+						},
+						onExit: (props) => {
+							if (closeOnBlur) props.editor.view.dom.removeEventListener('blur', closeOnBlur);
+							closeOnBlur = null;
 							menu?.destroy();
 							menu = null;
 						}

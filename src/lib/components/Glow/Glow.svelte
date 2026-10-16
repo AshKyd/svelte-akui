@@ -19,8 +19,8 @@
 		z-index: 10;
 	}
 
-	/* Same pressed shadow as `.akui-btn.regular:active` in theme.css. */
+	/* The exact inverse of the raised glow: a dark 1px line on top, a light one below. Same as inputs. */
 	.akui-glow.inset {
-		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--akui-shadow-sunken);
 	}
 </style>

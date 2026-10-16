@@ -2,7 +2,17 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Padding from '../Padding/Padding.svelte';
 	import Button from '../Button/Button.svelte';
-	import { Field, TextInput, PasswordInput, TextArea, Select, InputGroup } from '../Input/index.ts';
+	import {
+		Field,
+		TextInput,
+		PasswordInput,
+		TextArea,
+		Select,
+		InputGroup,
+		Checkbox,
+		Radio,
+		Toggle
+	} from '../Input/index.ts';
 	import { Fieldset } from '../Fieldset/index.ts';
 	import SelectableItem from '../SelectableItem/SelectableItem.svelte';
 	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
@@ -11,6 +21,10 @@
 		title: 'Components/Forms',
 		tags: ['autodocs']
 	});
+</script>
+
+<script lang="ts">
+	let frequency = $state('daily');
 </script>
 
 <Story name="Complete Form">
@@ -54,32 +68,18 @@
 						</Field>
 
 						<div class="akui-field">
-							<label
-								for="newsletter"
-								style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;"
-							>
-								<input type="checkbox" id="newsletter" checked />
-								Receive newsletter updates
-							</label>
+							<Checkbox name="newsletter" label="Receive newsletter updates" checked />
 						</div>
 
 						<div class="akui-field">
+							<Toggle name="owl-post" label="Deliver by owl post" />
+						</div>
+
+						<div class="akui-field" role="radiogroup" aria-label="Notification Frequency">
 							<p class="akui-label">Notification Frequency</p>
 							<div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
-								<label
-									for="notify-daily"
-									style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;"
-								>
-									<input type="radio" id="notify-daily" name="freq" value="daily" checked />
-									Daily
-								</label>
-								<label
-									for="notify-weekly"
-									style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;"
-								>
-									<input type="radio" id="notify-weekly" name="freq" value="weekly" />
-									Weekly
-								</label>
+								<Radio name="freq" value="daily" label="Daily" bind:group={frequency} />
+								<Radio name="freq" value="weekly" label="Weekly" bind:group={frequency} />
 							</div>
 						</div>
 					</Fieldset>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import MenuDesktop from '../Menu/MenuDesktop.svelte';
-	import ControlItemText from '../ControlGroup/ControlItemText/ControlItemText.svelte';
+	import MenuItem from '../Menu/MenuItem.svelte';
 	import { slashOptionId, type SlashMenuState } from './slashMenuState.svelte';
 
 	interface Props {
@@ -23,7 +23,10 @@
 	});
 </script>
 
-<!-- Keep the editor selection while clicking items. -->
+<!--
+	Same surface and `MenuItem`s as the other akui menus (e.g. the label picker). It is not the modal
+	`Menu` dialog because the editor must keep focus. mousedown is cancelled to keep the editor selection.
+-->
 <div
 	class="akui-wysiwyg-slash-menu"
 	id={menuId}
@@ -32,16 +35,15 @@
 >
 	<MenuDesktop label="Insert block">
 		{#each state.items as item, index (item.id)}
-			<ControlItemText
+			<MenuItem
 				id={slashOptionId(menuId, item.id)}
+				icon={item.icon}
+				label={item.label}
 				{size}
-				class={index === state.selectedIndex ? 'akui-wysiwyg-slash-active' : ''}
+				highlighted={index === state.selectedIndex}
 				tabindex={-1}
 				onclick={() => state.onselect(item)}
-			>
-				{item.label}
-				{#if item.hint}<span class="akui-wysiwyg-slash-hint">{item.hint}</span>{/if}
-			</ControlItemText>
+			/>
 		{:else}
 			<li role="none" class="akui-wysiwyg-slash-empty">No matching commands</li>
 		{/each}
@@ -59,21 +61,9 @@
 		min-width: 12rem;
 	}
 
-	/* The keyboard-highlighted item looks the same as a hovered one. */
-	.akui-wysiwyg-slash-menu :global(.akui-wysiwyg-slash-active) {
-		background-color: var(--akui-bg-hover);
-	}
-
 	.akui-wysiwyg-slash-empty {
 		padding: var(--akui-space-s, 0.5rem) var(--akui-space-m, 1rem);
 		color: var(--akui-fg-secondary);
 		list-style: none;
-	}
-
-	.akui-wysiwyg-slash-hint {
-		float: right;
-		font-family: monospace;
-		font-size: 0.8em;
-		color: var(--akui-fg-secondary);
 	}
 </style>

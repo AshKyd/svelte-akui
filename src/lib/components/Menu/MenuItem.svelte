@@ -14,6 +14,8 @@
 		children?: Snippet;
 		/** Item density. Defaults to the parent `Menu`'s `size`. */
 		size?: 'small' | 'large';
+		/** Shows the keyboard focus style without DOM focus (see `ControlItemText`). */
+		highlighted?: boolean;
 		/** Additional CSS classes. */
 		class?: string;
 		/** Spread remaining attributes. */

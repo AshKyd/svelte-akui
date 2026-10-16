@@ -1,0 +1,168 @@
+/*
+ * Shared styles for Checkbox, Radio and Toggle.
+ * Each wraps a real <input> (visually hidden, never `display: none`, so it stays focusable and
+ * form-submittable) and draws its own control in `.akui-choice-box`.
+ */
+
+.akui-choice {
+	/* Control size. Sized per `small` / `medium` / `large` below. */
+	--akui-choice-size: 1.25rem;
+	--akui-choice-font-size: 0.9375rem;
+	--akui-choice-radius: var(--akui-radius-s);
+	display: inline-flex;
+	align-items: center;
+	gap: 0.625rem;
+	position: relative;
+	cursor: pointer;
+	font-size: var(--akui-choice-font-size);
+	color: var(--akui-fg);
+	line-height: 1.3;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.akui-choice.small {
+	--akui-choice-size: 1rem;
+	--akui-choice-font-size: 0.8rem;
+	--akui-choice-radius: 3px;
+	gap: 0.5rem;
+}
+
+.akui-choice.large {
+	--akui-choice-size: 1.625rem;
+	--akui-choice-font-size: 1.1rem;
+	--akui-choice-radius: var(--akui-radius-m);
+	gap: 0.75rem;
+}
+
+.akui-choice.disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+/*
+ * The native input sits invisibly over the control: clicks and focus land on it.
+ * Components add the `bespoke` class to it: theme.css styles every plain checkbox/radio (size,
+ * checked fill and tick, disabled opacity) with higher specificity than this file, which would
+ * resize the hit area and make a disabled input visible.
+ */
+.akui-choice-input {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: var(--akui-choice-width, var(--akui-choice-size));
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: inherit;
+	z-index: 11;
+}
+
+/* The drawn control. `position: relative` anchors the Glow overlay. */
+.akui-choice-box {
+	position: relative;
+	flex: none;
+	box-sizing: border-box;
+	width: var(--akui-choice-width, var(--akui-choice-size));
+	height: var(--akui-choice-size);
+	border: 1px solid var(--akui-border-input);
+	border-radius: var(--akui-choice-radius);
+	/*
+	 * Not `--akui-bg-input`: in light mode that is near-white, so the sunken glow's white bottom
+	 * line has nothing to show against. `--akui-bg-secondary` is a touch darker and the same in dark mode.
+	 */
+	background-color: var(--akui-bg-secondary);
+	color: #fff;
+	display: inline-grid;
+	place-items: center;
+	transition:
+		background-color 0.2s ease,
+		border-color 0.2s ease,
+		outline-offset 0.15s ease;
+}
+
+/* Checked: filled accent with a raised glow (see the :global rule below for the halo). */
+.akui-choice-input:checked + .akui-choice-box,
+.akui-choice-input:indeterminate + .akui-choice-box {
+	background-color: var(--akui-bg-accent);
+	border-color: var(--akui-bg-accent);
+}
+
+.akui-choice:not(.disabled):hover .akui-choice-input:checked + .akui-choice-box,
+.akui-choice:not(.disabled):hover .akui-choice-input:indeterminate + .akui-choice-box {
+	background-color: var(--akui-bg-accent-hover);
+	border-color: var(--akui-bg-accent-hover);
+}
+
+.akui-choice-input:focus-visible + .akui-choice-box {
+	outline: 3px solid var(--akui-bg-accent-focus);
+	outline-offset: 2px;
+}
+
+.akui-choice-box .akui-glow {
+	transition: box-shadow 0.2s ease;
+}
+
+/*
+ * `Glow` is absolutely positioned, so it fills the box's padding edge, inside the 1px border.
+ * Its default `border-radius: inherit` would use the outer radius, so take the border width off
+ * to keep the inner curve concentric with the outer one.
+ */
+.akui-choice-box > .akui-glow {
+	border-radius: calc(var(--akui-choice-radius) - 1px);
+}
+
+/*
+ * Checked: the raised glow covers the side and bottom border (`inset: 0 -1px -1px`, outer radius),
+ * so its dark bottom line sits on the control's real edge, not 1px inside it. The top stays at the
+ * padding edge.
+ */
+.akui-choice:not(.toggle) .akui-choice-input:checked + .akui-choice-box > .akui-glow,
+.akui-choice:not(.toggle) .akui-choice-input:indeterminate + .akui-choice-box > .akui-glow {
+	inset: 0 -1px -1px;
+	border-radius: var(--akui-choice-radius);
+}
+
+/* Soft accent halo once on, so a checked control reads as lit from within. */
+.akui-choice:not(.toggle) .akui-choice-input:checked + .akui-choice-box > .akui-glow,
+.akui-choice:not(.toggle) .akui-choice-input:indeterminate + .akui-choice-box > .akui-glow {
+	box-shadow:
+		var(--akui-shadow-glow),
+		0 0 8px 1px rgba(var(--akui-bg-accent-rgb), 0.55);
+}
+
+/*
+ * Toggle track: the checkbox rules above don't apply to it (it only borrows the box). It stays
+ * recessed with sunken lines, keeps the glow inside the border, and adds the accent halo when on.
+ */
+.akui-choice.toggle:not(.disabled) .akui-choice-input:checked + .akui-choice-box > .akui-glow {
+	box-shadow:
+		var(--akui-shadow-sunken),
+		0 0 8px 1px rgba(var(--akui-bg-accent-rgb), 0.55);
+}
+
+.akui-choice.disabled .akui-choice-box > .akui-glow {
+	box-shadow: none;
+}
+
+/* Toggle mid-drag: the track previews the state the knob would land on. */
+.akui-choice.toggle[data-drag='on'] .akui-choice-box {
+	background-color: var(--akui-bg-accent);
+	border-color: var(--akui-bg-accent);
+}
+
+.akui-choice.toggle[data-drag='off'] .akui-choice-box {
+	background-color: var(--akui-bg-secondary);
+	border-color: var(--akui-border-input);
+}
+
+/* Pressed: the control sinks, like `.akui-btn:active`. */
+.akui-choice:not(.disabled):active .akui-choice-box {
+	transform: scale(0.94);
+}
+
+.akui-choice-label {
+	user-select: none;
+}
+
+html[data-reduced-motion='true'] .akui-choice:active .akui-choice-box {
+	transform: none;
+}

@@ -24,6 +24,11 @@
 		controlType?: 'checkbox' | 'radio';
 		/** Item density. 'small' condenses padding, text and icon. Defaults to 'large'. */
 		size?: 'small' | 'large';
+		/**
+		 * Shows the keyboard focus style without DOM focus, for lists where focus stays elsewhere
+		 * (e.g. the editor's slash menu, which uses `aria-activedescendant`).
+		 */
+		highlighted?: boolean;
 		/** Spread remaining attributes. */
 		[key: string]: unknown;
 	}
@@ -39,6 +44,7 @@
 		checked = $bindable(false),
 		controlType,
 		size = 'large',
+		highlighted = false,
 		...rest
 	}: Props = $props();
 
@@ -56,8 +62,9 @@
 	<button
 		type="button"
 		{role}
-		class="akui-control-item-text {className}"
+		class="akui-control-item-text bespoke {className}"
 		class:selected
+		class:highlighted
 		class:small={size === 'small'}
 		onclick={handleContainerClick}
 		{...rest}
@@ -140,7 +147,12 @@
 		background-color: var(--akui-bg-button-hover);
 	}
 
-	.akui-control-item-text:focus-visible {
+	/*
+	 * `bespoke` keeps the global button focus outline (theme.css) off this element: it drew a second
+	 * outline outside the inset ring, which the list's overflow then clipped into a double line.
+	 */
+	.akui-control-item-text:focus-visible,
+	.akui-control-item-text.highlighted {
 		background-color: var(--akui-bg-hover);
 		box-shadow: inset 0 0 0 2px var(--akui-bg-accent);
 	}
