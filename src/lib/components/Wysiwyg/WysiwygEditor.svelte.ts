@@ -274,7 +274,9 @@ export class WysiwygEditorController {
 	 */
 	focus(collapseToStart = true) {
 		if (!this.#editor) return false;
-		return this.#editor.commands.focus(collapseToStart ? 'start' : 'end');
+		// Tiptap's default scrolls the caret into view on the next frame. That scrolls every ancestor,
+		// including overflow:hidden ones, so focusing while a pane is still sliding in made the layout jump.
+		return this.#editor.commands.focus(collapseToStart ? 'start' : 'end', { scrollIntoView: false });
 	}
 
 	/**
@@ -288,7 +290,28 @@ export class WysiwygEditorController {
 
 		const pos = docPositionForWordIndex(editor.state.doc, index);
 		if (pos === null) return false;
-		return editor.chain().focus().setTextSelection(pos).run();
+		const applied = editor.chain().focus(null, { scrollIntoView: false }).setTextSelection(pos).run();
+		if (applied) this.#scrollCaretIntoViewVertically(editor, pos);
+		return applied;
+	}
+
+	/**
+	 * Brings the caret into view by scrolling only the nearest vertical scroll container.
+	 * Unlike `scrollIntoView`, it never scrolls horizontally or moves outer overflow:hidden ancestors,
+	 * which is what made the layout jump while a pane was sliding in.
+	 */
+	#scrollCaretIntoViewVertically(editor: Editor, pos: number) {
+		const { top, bottom } = editor.view.coordsAtPos(pos);
+		const scroller = (() => {
+			for (let el = editor.view.dom.parentElement; el; el = el.parentElement) {
+				if (/(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight) return el;
+			}
+			return null;
+		})();
+		if (!scroller) return;
+		const area = scroller.getBoundingClientRect();
+		if (top < area.top) scroller.scrollTop += top - area.top;
+		else if (bottom > area.bottom) scroller.scrollTop += bottom - area.bottom;
 	}
 
 	/**
