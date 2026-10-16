@@ -44,6 +44,24 @@ export function preserveEmptyChecklistItems(markdown: string): string {
 	return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 ​');
 }
 
+// A task item line, then blank lines, then another task item line.
+const BLANK_LINES_BETWEEN_TASKS = /^([ \t]*[-*+][ \t]\[[ xX]\].*)\n(?:[ \t]*\n)+(?=[ \t]*[-*+][ \t]\[[ xX]\])/gm;
+
+/**
+ * Removes blank lines between checklist items.
+ *
+ * Tiptap's markdown parser turns each blank-line-separated item into its own task list, with one
+ * item in it. Completing a task moves it within its list, so with one item per list there is nowhere
+ * to move it to, and every list grows its own "completed" header. Joining them makes one list. The
+ * editor saves checklists without blank lines anyway, so only older notes are affected.
+ */
+export function tightenChecklists(markdown: string): string {
+	return markdown.replace(BLANK_LINES_BETWEEN_TASKS, '$1\n');
+}
+
+/** Markdown as it should be loaded into the editor. */
+const prepareMarkdown = (markdown: string) => tightenChecklists(preserveEmptyChecklistItems(markdown));
+
 export interface WysiwygEditorOptions {
 	placeholder?: string;
 	/** Optional hook to transform or sanitize pasted HTML before insertion. */
@@ -62,6 +80,11 @@ export interface WysiwygEditorOptions {
 	 * Read once when the editor loads.
 	 */
 	groupCompletedTasks?: boolean;
+	/**
+	 * Svelte context of the host component (`getAllContexts()`), passed to components that
+	 * `svelteNodeView` mounts inside the editor. Read once when the editor loads.
+	 */
+	context?: Map<unknown, unknown>;
 }
 
 /**
@@ -124,7 +147,7 @@ export class WysiwygEditorController {
 	updateValue(newValue: string) {
 		if (this.#value === newValue) return;
 		this.#value = newValue;
-		this.#editor?.commands.setContent(preserveEmptyChecklistItems(newValue), {
+		this.#editor?.commands.setContent(prepareMarkdown(newValue), {
 			contentType: 'markdown',
 			emitUpdate: false
 		});
@@ -154,10 +177,13 @@ export class WysiwygEditorController {
 					import('@tiptap/extension-table'),
 					import('@tiptap/extensions')
 				]);
-			const { TaskList, TaskItem } = listModule;
+			const { TaskList } = listModule;
 			const { TableKit } = tableModule;
 			const { Placeholder } = extras;
-			const { Keybindings } = await import('./extensions/Keybindings');
+			const [{ Keybindings }, { SvelteTaskItem }] = await Promise.all([
+				import('./extensions/Keybindings'),
+				import('./extensions/TaskItem')
+			]);
 
 			if (this.#node !== node) return; // Guard against rapid re-initialization
 
@@ -171,7 +197,8 @@ export class WysiwygEditorController {
 				}),
 				Markdown,
 				TaskList,
-				TaskItem.configure({ nested: true }),
+				// Checkbox is an akui `Checkbox` mounted by `svelteNodeView`; see devdocs/wysiwyg-tiptap.md.
+				SvelteTaskItem.configure({ nested: true, context: this.#options.context }),
 				// Parse and keep pasted/existing tables. There are no editing tools and no slash command to
 				// create one, so column resizing (which needs a drag handle UI) is off.
 				TableKit.configure({ table: { resizable: false } }),
@@ -208,7 +235,7 @@ export class WysiwygEditorController {
 			this.#editor = new Editor({
 				element: node,
 				extensions,
-				content: preserveEmptyChecklistItems(this.#value),
+				content: prepareMarkdown(this.#value),
 				contentType: 'markdown',
 				editorProps: {
 					transformPastedHTML: (html: string) => {

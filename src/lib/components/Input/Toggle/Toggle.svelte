@@ -209,7 +209,7 @@
 			<!-- The thumb is its own raised surface, so it gets its own Glow. -->
 			<Glow />
 		</span>
-		<!-- Always recessed. Once on, `choice.css` adds the accent halo that Checkbox and Radio have. -->
+		<!-- Always recessed; the thumb is what sits proud of it. -->
 		<Glow inset />
 	</span>
 	{#if children}

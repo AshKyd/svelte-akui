@@ -1,6 +1,7 @@
 <script module lang="ts">
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Checkbox from './Checkbox.svelte';
+	import CheckboxGraphic from './CheckboxGraphic.svelte';
 
 	// No `component`: the stories render Checkbox themselves.
 	const { Story } = defineMeta({
@@ -42,6 +43,21 @@
 			<Checkbox label="Indeterminate" indeterminate />
 			<Checkbox label="Disabled" disabled />
 			<Checkbox label="Disabled and checked" disabled checked />
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="Graphic (no input)">
+	{#snippet children()}
+		<div style="display: flex; flex-direction: column; gap: 1rem;">
+			{#each sizes as size (size)}
+				<div style="display: flex; gap: 0.75rem; align-items: center;">
+					<CheckboxGraphic {size} />
+					<CheckboxGraphic {size} checked />
+					<CheckboxGraphic {size} indeterminate />
+					<span>{size}: display only, no input element</span>
+				</div>
+			{/each}
 		</div>
 	{/snippet}
 </Story>

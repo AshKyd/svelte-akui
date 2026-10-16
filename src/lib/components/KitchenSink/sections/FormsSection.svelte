@@ -18,6 +18,7 @@
 		Button,
 		Icon,
 		Checkbox,
+		CheckboxGraphic,
 		Radio,
 		Toggle
 	} from '$lib/index.js';
@@ -146,6 +147,17 @@
 			<Toggle label="Disabled" disabled />
 			<Toggle label="Disabled on" disabled checked />
 		</div>
+	</div>
+
+	<h3>Checkbox graphic (display only, no input)</h3>
+	<div class="demo-row">
+		{#each sizes as size (size)}
+			<div class="demo-cell choice-stack">
+				<CheckboxGraphic {size} />
+				<CheckboxGraphic {size} checked />
+				<CheckboxGraphic {size} indeterminate />
+			</div>
+		{/each}
 	</div>
 
 	<h3>Selectable items</h3>

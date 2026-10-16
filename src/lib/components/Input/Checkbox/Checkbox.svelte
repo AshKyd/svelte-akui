@@ -6,6 +6,7 @@
 	 */
 	import { getContext, type Snippet } from 'svelte';
 	import Glow from '../../Glow/Glow.svelte';
+	import CheckMark from './CheckMark.svelte';
 	import { INPUT_GROUP_CONTEXT, type InputGroupContext } from '../context.ts';
 	import '../choice.css';
 
@@ -83,11 +84,8 @@
 		{...rest}
 	/>
 	<span class="akui-choice-box">
-		<svg viewBox="0 0 16 16" class="mark" aria-hidden="true">
-			<path class="tick" d="M3.5 8.5l3 3 6-6.5" />
-			<path class="dash" d="M4 8h8" />
-		</svg>
-		<!-- Sunken while empty, raised and haloed once on. -->
+		<CheckMark />
+		<!-- Sunken while empty, raised once on. -->
 		<Glow inset={!checked && !indeterminate} />
 	</span>
 	{#if children}
@@ -96,35 +94,3 @@
 		<span class="akui-choice-label">{label}</span>
 	{/if}
 </label>
-
-<style>
-	.mark {
-		width: 80%;
-		height: 80%;
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 2.2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	/* Marks draw themselves in via stroke-dashoffset. */
-	.tick,
-	.dash {
-		stroke-dasharray: 16;
-		stroke-dashoffset: 16;
-		transition: stroke-dashoffset 0.2s ease;
-	}
-
-	.akui-choice-input:checked + .akui-choice-box .tick {
-		stroke-dashoffset: 0;
-	}
-
-	.akui-choice-input:indeterminate + .akui-choice-box .tick {
-		stroke-dashoffset: 16;
-	}
-
-	.akui-choice-input:indeterminate + .akui-choice-box .dash {
-		stroke-dashoffset: 0;
-	}
-</style>

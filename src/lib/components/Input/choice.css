@@ -6,6 +6,12 @@
 
 .akui-choice {
 	/* Control size. Sized per `small` / `medium` / `large` below. */
+	/*
+	 * Notes with a colour set `--akui-checkbox-accent` (see note-backgrounds.md) so their checkboxes
+	 * match. Everything accent-coloured below derives from it, falling back to the theme accent.
+	 */
+	--akui-choice-accent: var(--akui-checkbox-accent, var(--akui-bg-accent));
+	--akui-choice-accent-hover: color-mix(in srgb, var(--akui-choice-accent) 85%, black);
 	--akui-choice-size: 1.25rem;
 	--akui-choice-font-size: 0.9375rem;
 	--akui-choice-radius: var(--akui-radius-s);
@@ -79,21 +85,25 @@
 		outline-offset 0.15s ease;
 }
 
-/* Checked: filled accent with a raised glow (see the :global rule below for the halo). */
+/*
+ * Checked: filled accent with a raised glow.
+ * `.checked` on the box is the same state for CheckboxGraphic, which has no input to read it from.
+ */
 .akui-choice-input:checked + .akui-choice-box,
-.akui-choice-input:indeterminate + .akui-choice-box {
-	background-color: var(--akui-bg-accent);
-	border-color: var(--akui-bg-accent);
+.akui-choice-input:indeterminate + .akui-choice-box,
+.akui-choice-box.checked {
+	background-color: var(--akui-choice-accent);
+	border-color: var(--akui-choice-accent);
 }
 
 .akui-choice:not(.disabled):hover .akui-choice-input:checked + .akui-choice-box,
 .akui-choice:not(.disabled):hover .akui-choice-input:indeterminate + .akui-choice-box {
-	background-color: var(--akui-bg-accent-hover);
-	border-color: var(--akui-bg-accent-hover);
+	background-color: var(--akui-choice-accent-hover);
+	border-color: var(--akui-choice-accent-hover);
 }
 
 .akui-choice-input:focus-visible + .akui-choice-box {
-	outline: 3px solid var(--akui-bg-accent-focus);
+	outline: 3px solid var(--akui-choice-accent);
 	outline-offset: 2px;
 }
 
@@ -116,28 +126,16 @@
  * padding edge.
  */
 .akui-choice:not(.toggle) .akui-choice-input:checked + .akui-choice-box > .akui-glow,
-.akui-choice:not(.toggle) .akui-choice-input:indeterminate + .akui-choice-box > .akui-glow {
+.akui-choice:not(.toggle) .akui-choice-input:indeterminate + .akui-choice-box > .akui-glow,
+.akui-choice:not(.toggle) .akui-choice-box.checked > .akui-glow {
 	inset: 0 -1px -1px;
 	border-radius: var(--akui-choice-radius);
 }
 
-/* Soft accent halo once on, so a checked control reads as lit from within. */
-.akui-choice:not(.toggle) .akui-choice-input:checked + .akui-choice-box > .akui-glow,
-.akui-choice:not(.toggle) .akui-choice-input:indeterminate + .akui-choice-box > .akui-glow {
-	box-shadow:
-		var(--akui-shadow-glow),
-		0 0 8px 1px rgba(var(--akui-bg-accent-rgb), 0.55);
-}
-
 /*
- * Toggle track: the checkbox rules above don't apply to it (it only borrows the box). It stays
- * recessed with sunken lines, keeps the glow inside the border, and adds the accent halo when on.
+ * No outer accent halo: checked controls use the plain raised `Glow` lines (Checkbox, Radio) or the
+ * recessed ones (Toggle track). The toggle track is excluded from the border extension above.
  */
-.akui-choice.toggle:not(.disabled) .akui-choice-input:checked + .akui-choice-box > .akui-glow {
-	box-shadow:
-		var(--akui-shadow-sunken),
-		0 0 8px 1px rgba(var(--akui-bg-accent-rgb), 0.55);
-}
 
 .akui-choice.disabled .akui-choice-box > .akui-glow {
 	box-shadow: none;
@@ -145,8 +143,8 @@
 
 /* Toggle mid-drag: the track previews the state the knob would land on. */
 .akui-choice.toggle[data-drag='on'] .akui-choice-box {
-	background-color: var(--akui-bg-accent);
-	border-color: var(--akui-bg-accent);
+	background-color: var(--akui-choice-accent);
+	border-color: var(--akui-choice-accent);
 }
 
 .akui-choice.toggle[data-drag='off'] .akui-choice-box {
@@ -161,6 +159,48 @@
 
 .akui-choice-label {
 	user-select: none;
+}
+
+/*
+ * CheckboxGraphic: the same box with no input, so it is inert (no hover, press or cursor) and
+ * takes no pointer events, leaving clicks to whatever it sits in, e.g. a note card.
+ */
+.akui-choice-graphic {
+	pointer-events: none;
+	cursor: inherit;
+}
+
+/* Tick and dash marks, shared by Checkbox and CheckboxGraphic. They draw in via stroke-dashoffset. */
+.akui-choice-mark {
+	width: 80%;
+	height: 80%;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.akui-choice-mark .tick,
+.akui-choice-mark .dash {
+	stroke-dasharray: 16;
+	stroke-dashoffset: 16;
+	transition: stroke-dashoffset 0.2s ease;
+}
+
+.akui-choice-input:checked + .akui-choice-box .tick,
+.akui-choice-box.checked .tick {
+	stroke-dashoffset: 0;
+}
+
+.akui-choice-input:indeterminate + .akui-choice-box .tick,
+.akui-choice-box.indeterminate .tick {
+	stroke-dashoffset: 16;
+}
+
+.akui-choice-input:indeterminate + .akui-choice-box .dash,
+.akui-choice-box.indeterminate .dash {
+	stroke-dashoffset: 0;
 }
 
 html[data-reduced-motion='true'] .akui-choice:active .akui-choice-box {

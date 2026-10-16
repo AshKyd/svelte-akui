@@ -2,6 +2,8 @@
 	import { type Snippet } from 'svelte';
 	import Icon from '../../Icon/Icon.svelte';
 	import Padding from '../../Padding/Padding.svelte';
+	import Checkbox from '../../Input/Checkbox/Checkbox.svelte';
+	import Radio from '../../Input/Radio/Radio.svelte';
 
 	interface Props {
 		/** Optional icon name (Bootstrap Icon). */
@@ -85,19 +87,20 @@
 						{label}
 					{/if}
 				</span>
+				<!-- The row's own click toggles `checked`; the control stops its click reaching the row. -->
 				{#if controlType === 'checkbox'}
-					<input
-						type="checkbox"
-						class="akui-control-item-text-input"
+					<Checkbox
+						size={size === 'small' ? 'small' : 'medium'}
 						bind:checked
-						onclick={(e) => e.stopPropagation()}
+						onclick={(e: MouseEvent) => e.stopPropagation()}
 					/>
 				{:else if controlType === 'radio'}
-					<input
-						type="radio"
-						class="akui-control-item-text-input"
-						checked={checked}
-						onclick={(e) => e.stopPropagation()}
+					<Radio
+						size={size === 'small' ? 'small' : 'medium'}
+						value="on"
+						group={checked ? 'on' : undefined}
+						onclick={(e: MouseEvent) => e.stopPropagation()}
+						onchange={() => (checked = true)}
 					/>
 				{/if}
 			</div>
@@ -194,13 +197,5 @@
 
 	.akui-control-item-text.selected :global(.akui-control-item-text-icon) {
 		color: var(--akui-bg-accent);
-	}
-
-	.akui-control-item-text-input {
-		width: 1.25rem;
-		height: 1.25rem;
-		accent-color: var(--akui-bg-accent);
-		cursor: pointer;
-		margin: 0;
 	}
 </style>

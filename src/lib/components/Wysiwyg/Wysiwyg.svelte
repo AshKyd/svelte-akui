@@ -2,7 +2,7 @@
 	import Loader from '../Loader/Loader.svelte';
 	import Button from '../Button/Button.svelte';
 	import { WysiwygEditorController, type SlashMenuConfig } from './WysiwygEditor.svelte';
-	import { untrack } from 'svelte';
+	import { getAllContexts, untrack } from 'svelte';
 
 	interface Props {
 		/** Bindable current value of the editor, as markdown. */
@@ -46,6 +46,10 @@
 		groupCompletedTasks = false
 	}: Props = $props();
 
+	// Svelte components mounted inside the editor (e.g. task checkboxes) are outside this tree,
+	// so hand them our context explicitly.
+	const context = getAllContexts();
+
 	// Instantiate the controller to manage the editor state and lifecycle
 	const editor = new WysiwygEditorController(
 		value,
@@ -55,7 +59,8 @@
 			transformPastedText,
 			handlePaste,
 			slashMenu,
-			groupCompletedTasks
+			groupCompletedTasks,
+			context
 		})),
 		(markdown) => {
 			value = markdown;
@@ -71,7 +76,8 @@
 			transformPastedText,
 			handlePaste,
 			slashMenu,
-			groupCompletedTasks
+			groupCompletedTasks,
+			context
 		});
 	});
 
@@ -294,18 +300,13 @@
 		gap: 0.5em;
 	}
 
-	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > label) {
+	/* The checkbox is an akui `Checkbox` (see extensions/TaskItemView.svelte), centred on the first line. */
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > .akui-task-checkbox) {
 		flex: 0 0 auto;
 		display: flex;
 		align-items: center;
 		min-height: 1.5em;
 		user-select: none;
-	}
-
-	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > label input) {
-		accent-color: var(--akui-checkbox-accent, var(--akui-bg-accent));
-		cursor: pointer;
-		margin: 0;
 	}
 
 	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > div) {

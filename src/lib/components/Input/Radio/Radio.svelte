@@ -71,7 +71,7 @@
 	/>
 	<span class="akui-choice-box">
 		<span class="dot"></span>
-		<!-- Sunken while empty, raised and haloed once selected. -->
+		<!-- Sunken while empty, raised once selected. -->
 		<Glow inset={!isSelected} />
 	</span>
 	{#if children}

@@ -49,6 +49,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
 - **`Wysiwyg`**: A rich-text WYSIWYG editor component powered by Tiptap, with markdown in and out. Opt-in "/" slash menu (`slashMenu`, extendable via `items`) and keyboard shortcuts. Loads its JavaScript bundle dynamically on-demand with a placeholder spinner during loading to enable code splitting. Fully integrated with light and dark mode. Supports custom paste hooks (`transformPastedHTML`, `transformPastedText`, `handlePaste`) for sanitisation and custom clipboard workflows. Exposes a `focus(collapseToStart?: boolean)` function to focus the editor. The "/" slash menu and block-drag-handle are opt-in via `slashMenu`: pass `true` for Crepe's defaults (headings, blockquotes, lists/checklists, images, code blocks, tables, math), or a `SlashMenuConfig` object to hide groups/items (set any entry to `null`) or extend the menu with your own commands via `buildMenu`. Set `groupCompletedTasks` to move ticked checklist items to a collapsible "completed" section at the end of their list.
 - **`Select`**: Drop-down menu for picking from `options`.
 - **`Checkbox`**: Styled native checkbox with `label` (or `children`), `bind:checked`, `indeterminate`, `disabled`, `required` and `small`/`medium`/`large` sizes. Submits and resets like a normal checkbox.
+- **`CheckboxGraphic`**: The `Checkbox` look with no `<input>` behind it. Takes `checked`, `indeterminate` and `size`. Display only: it takes no pointer events and has no form value. Exposed as a read-only `role="checkbox"`.
 - **`Radio`**: Styled native radio with `label` (or `children`), `value` and `bind:group`. Radios sharing a `name` form one group with native arrow-key navigation. Same sizes and states as `Checkbox`.
 - **`Toggle`**: On/off switch built on a native checkbox with `role="switch"`. Same props, sizes and form behaviour as `Checkbox`, minus `indeterminate`.
 - **`Typeahead`**: An input field that supports suggestions and multi-selection via badges. Can be configured for "tagging" mode using `allowFreetext`, where commas or Enter create new items. Supports `regular` and `ghost` variants (where `ghost` has transparent borders/background by default and reveals them on hover/focus). Expands downward as content grows.
@@ -85,7 +86,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Implemented using flexbox without strict column wrappers for optimal semantic structure.
   - Allows custom rendering of each item via a `children` snippet override.
 
-- **`MarkdownContent`**: Renders a markdown string as HTML.
+- **`MarkdownContent`**: Renders a markdown string as HTML. `checkboxes="graphic"` draws task-list checkboxes (`- [x]`) as `CheckboxGraphic` instead of the browser's disabled checkbox; `checkboxSize` sets their size.
 
 - **`FeedItemRow`**: A flexible grid-based item for list views.
   - Supports optional `title` and `excerpt` with customizable line clamping via `titleClamp` and `excerptClamp` (both default to 2; set to `'none'` to disable).

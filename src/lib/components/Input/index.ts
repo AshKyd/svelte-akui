@@ -8,6 +8,7 @@ export { default as Select } from './Select/Select.svelte';
 export { default as Typeahead } from './Typeahead/Typeahead.svelte';
 export { default as Field } from './Field/Field.svelte';
 export { default as Checkbox } from './Checkbox/Checkbox.svelte';
+export { default as CheckboxGraphic } from './Checkbox/CheckboxGraphic.svelte';
 export { default as Radio } from './Radio/Radio.svelte';
 export { default as Toggle } from './Toggle/Toggle.svelte';
 export { INPUT_GROUP_CONTEXT, type InputGroupContext } from './context.ts';
