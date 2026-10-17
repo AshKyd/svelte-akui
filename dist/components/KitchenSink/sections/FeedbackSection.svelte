@@ -7,9 +7,19 @@
 		LoaderOverlay,
 		ProgressBar,
 		ProgressXmasTree,
+		ProgressChecks,
 		Button,
-		type NotificationItem
+		type NotificationItem,
+		type ProgressCheckStep
 	} from '../../../index.js';
+
+	const checkSteps: ProgressCheckStep[] = [
+		{ id: 'done', label: 'Done', status: 'done', detail: '12 notes' },
+		{ id: 'active', label: 'Active', status: 'active', value: 5, max: 12 },
+		{ id: 'warning', label: 'Skipped some', status: 'warning', skipped: 3, message: '3 empty' },
+		{ id: 'error', label: 'Failed', status: 'error', value: 4, max: 12, failed: 8, message: 'Connection lost' },
+		{ id: 'pending', label: 'Pending' }
+	];
 
 	const variants = ['info', 'success', 'warning', 'error', 'message'] as const;
 	const progressColours = ['accent', 'blue', 'green', 'orange', 'pink', 'purple', 'amber'] as const;
@@ -91,5 +101,10 @@
 		<div style="width: 100%; max-width: 300px;">
 			<ProgressXmasTree items={xmasItems} colour="purple" />
 		</div>
+	</div>
+
+	<h3>ProgressChecks</h3>
+	<div class="demo-row">
+		<div class="demo-cell"><ProgressChecks steps={checkSteps} /></div>
 	</div>
 </section>

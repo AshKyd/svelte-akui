@@ -2,6 +2,8 @@
 	import { type Snippet } from 'svelte';
 	import Padding from '../../Padding/Padding.svelte';
 	import Small from '../../Small/Small.svelte';
+	import Checkbox from '../../Input/Checkbox/Checkbox.svelte';
+	import Radio from '../../Input/Radio/Radio.svelte';
 
 	interface Props {
 		/** The heading label of the control. */
@@ -88,19 +90,15 @@
 						{#if children}
 							{@render children()}
 						{/if}
+						<!-- The row's own click toggles `checked`; the control stops its click reaching the row. -->
 						{#if controlType === 'checkbox'}
-							<input
-								type="checkbox"
-								class="akui-control-item-expanded-input"
-								bind:checked
-								onclick={(e) => e.stopPropagation()}
-							/>
+							<Checkbox bind:checked onclick={(e: MouseEvent) => e.stopPropagation()} />
 						{:else if controlType === 'radio'}
-							<input
-								type="radio"
-								class="akui-control-item-expanded-input"
-								checked={checked}
-								onclick={(e) => e.stopPropagation()}
+							<Radio
+								value="on"
+								group={checked ? 'on' : undefined}
+								onclick={(e: MouseEvent) => e.stopPropagation()}
+								onchange={() => (checked = true)}
 							/>
 						{/if}
 					</div>
@@ -210,13 +208,5 @@
 
 	.layout-vertical .akui-control-item-expanded-control {
 		width: 100%;
-	}
-
-	.akui-control-item-expanded-input {
-		width: 1.25rem;
-		height: 1.25rem;
-		accent-color: var(--akui-bg-accent);
-		cursor: pointer;
-		margin: 0;
 	}
 </style>

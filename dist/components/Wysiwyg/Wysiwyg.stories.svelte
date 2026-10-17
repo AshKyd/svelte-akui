@@ -2,31 +2,30 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import Wysiwyg from './Wysiwyg.svelte';
 	import type { SlashMenuConfig } from './WysiwygEditor.svelte';
+	import { KEYBINDING_REFERENCE } from './extensions/Keybindings';
 
 	const { Story } = defineMeta({
 		title: 'Components/Wysiwyg',
 		tags: ['autodocs']
 	});
 
-	// Only headings, blockquotes, dividers and lists — no images/tables/code/math in the menu.
+	// Only text and list commands — no code block or divider in the menu.
 	const scopedSlashMenu: SlashMenuConfig = {
-		advancedGroup: null
+		items: (defaults) => defaults.filter(({ id }) => !['code-block', 'divider'].includes(id))
 	};
 
-	// Demonstrates a consumer adding their own command to the menu via `buildMenu`.
+	// Demonstrates a consumer adding their own command to the menu via `items`.
 	const extendedSlashMenu: SlashMenuConfig = {
-		advancedGroup: null,
-		buildMenu: (builder) => {
-			builder.addGroup('oakhaven', 'Oakhaven').addItem('dragon-nap', {
+		items: (defaults) => [
+			...defaults,
+			{
+				id: 'dragon-nap',
 				label: 'Dragon Nap Notice',
-				icon: '🐉',
-				onRun: async (ctx) => {
-					const { editorViewCtx } = await import('@milkdown/kit/core');
-					const view = ctx.get(editorViewCtx);
-					view.dispatch(view.state.tr.insertText('A dragon is napping here. Please tiptoe.'));
-				}
-			});
-		}
+				keywords: ['dragon', 'nap'],
+				onRun: (editor) =>
+					editor.chain().focus().insertContent('A dragon is napping here. Please tiptoe.').run()
+			}
+		]
 	};
 
 	const fantasyNoticeBoard = `# The Hearthside Chronicle
@@ -56,7 +55,7 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 </script>
 
 <Story name="Default">
-	<Wysiwyg value="Hello, Milkdown Crepe!" />
+	<Wysiwyg value="Hello, Tiptap!" />
 </Story>
 
 <Story name="Empty (No Placeholder)">
@@ -81,7 +80,7 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 	<Wysiwyg value={witchErrands} groupCompletedTasks />
 </Story>
 
-<!-- The "/" slash menu and block-drag-handle are opt-in via the `slashMenu` prop. -->
+<!-- The "/" slash menu is opt-in via the `slashMenu` prop. -->
 <Story name="Slash Menu (Defaults)">
 	<Wysiwyg value="" placeholder="Type / to see the menu..." slashMenu />
 </Story>
@@ -89,15 +88,28 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 <Story name="Slash Menu (Scoped to Text & Lists)">
 	<Wysiwyg
 		value=""
-		placeholder="Type / — only headings, blockquote, dividers and lists appear"
+		placeholder="Type / — only text and list commands appear"
 		slashMenu={scopedSlashMenu}
 	/>
 </Story>
 
-<Story name="Slash Menu (Custom Command via buildMenu)">
+<Story name="Slash Menu (Custom Command via items)">
 	<Wysiwyg
 		value=""
-		placeholder="Type / and look for the 'Oakhaven' group"
+		placeholder="Type / and look for 'Dragon Nap Notice'"
 		slashMenu={extendedSlashMenu}
 	/>
+</Story>
+
+<Story name="Slash Menu (Large)">
+	<Wysiwyg value="" placeholder="Type / to see the roomier menu..." slashMenu={{ size: 'large' }} />
+</Story>
+
+<Story name="Keybindings">
+	<ul>
+		{#each KEYBINDING_REFERENCE as { keys, action } (keys)}
+			<li><kbd>{keys}</kbd> — {action}</li>
+		{/each}
+	</ul>
+	<Wysiwyg value="Try the shortcuts here." slashMenu minHeight="120px" />
 </Story>

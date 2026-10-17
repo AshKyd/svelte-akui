@@ -16,7 +16,11 @@
 		ControlItemText,
 		ControlItemExpanded,
 		Button,
-		Icon
+		Icon,
+		Checkbox,
+		CheckboxGraphic,
+		Radio,
+		Toggle
 	} from '../../../index.js';
 
 	const sizes = ['small', 'medium', 'large'] as const;
@@ -34,6 +38,9 @@
 
 	let clearable = $state('Clear me');
 	let checkedSettings = $state(true);
+	let sinkChecked = $state(true);
+	let sinkRadio = $state('a');
+	let sinkToggle = $state(true);
 </script>
 
 <section>
@@ -107,6 +114,52 @@
 		</div>
 	</div>
 
+	<h3>Checkbox, radio and toggle by size</h3>
+	<div class="demo-row">
+		{#each sizes as size (size)}
+			<div class="demo-cell choice-stack">
+				<Checkbox {size} label="{size} checkbox" bind:checked={sinkChecked} />
+				<Radio {size} name="sink-radio-{size}" value="a" label="{size} radio" bind:group={sinkRadio} />
+				<Radio {size} name="sink-radio-{size}" value="b" label="{size} radio" bind:group={sinkRadio} />
+				<Toggle {size} label="{size} toggle" bind:checked={sinkToggle} />
+			</div>
+		{/each}
+	</div>
+
+	<h3>Checkbox, radio and toggle states</h3>
+	<div class="demo-row">
+		<div class="demo-cell choice-stack">
+			<Checkbox label="Unchecked" />
+			<Checkbox label="Checked" checked />
+			<Checkbox label="Indeterminate" indeterminate />
+			<Checkbox label="Disabled" disabled />
+			<Checkbox label="Disabled checked" disabled checked />
+		</div>
+		<div class="demo-cell choice-stack">
+			<Radio name="sink-radio-states" value="off" label="Unselected" />
+			<Radio name="sink-radio-states" value="on" label="Selected" group="on" />
+			<Radio name="sink-radio-disabled" value="x" label="Disabled" disabled />
+			<Radio name="sink-radio-disabled-on" value="x" label="Disabled selected" group="x" disabled />
+		</div>
+		<div class="demo-cell choice-stack">
+			<Toggle label="Off" />
+			<Toggle label="On" checked />
+			<Toggle label="Disabled" disabled />
+			<Toggle label="Disabled on" disabled checked />
+		</div>
+	</div>
+
+	<h3>Checkbox graphic (display only, no input)</h3>
+	<div class="demo-row">
+		{#each sizes as size (size)}
+			<div class="demo-cell choice-stack">
+				<CheckboxGraphic {size} />
+				<CheckboxGraphic {size} checked />
+				<CheckboxGraphic {size} indeterminate />
+			</div>
+		{/each}
+	</div>
+
 	<h3>Selectable items</h3>
 	<div class="demo-row">
 		<SelectableItem type="radio" group="demo-radio" value="one">Radio one</SelectableItem>
@@ -146,3 +199,10 @@
 		</div>
 	</div>
 </section>
+
+<style>
+	/* Stops the inline controls stretching, so only the box and label are clickable. */
+	.choice-stack {
+		align-items: flex-start;
+	}
+</style>

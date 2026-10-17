@@ -1,11 +1,16 @@
 import type { Action } from 'svelte/action';
-import type { BlockEditFeatureConfig } from '@milkdown/crepe/feature/block-edit';
+import type { SlashMenuConfig } from './slashItems';
+export type { SlashItem, SlashMenuConfig } from './slashItems';
+export declare function preserveEmptyChecklistItems(markdown: string): string;
 /**
- * Config for the Crepe "/" slash menu and block-drag-handle (the `BlockEdit` feature).
- * Set a group (`textGroup`/`listGroup`/`advancedGroup`) or item within it to `null` to hide it,
- * or provide `buildMenu` to append custom commands via Crepe's `GroupBuilder`.
+ * Removes blank lines between checklist items.
+ *
+ * Tiptap's markdown parser turns each blank-line-separated item into its own task list, with one
+ * item in it. Completing a task moves it within its list, so with one item per list there is nowhere
+ * to move it to, and every list grows its own "completed" header. Joining them makes one list. The
+ * editor saves checklists without blank lines anyway, so only older notes are affected.
  */
-export type SlashMenuConfig = BlockEditFeatureConfig;
+export declare function tightenChecklists(markdown: string): string;
 export interface WysiwygEditorOptions {
     placeholder?: string;
     /** Optional hook to transform or sanitize pasted HTML before insertion. */
@@ -15,8 +20,8 @@ export interface WysiwygEditorOptions {
     /** Optional paste event handler. Return true to prevent default editor paste behaviour. */
     handlePaste?: (event: ClipboardEvent) => boolean | void;
     /**
-     * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
-     * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+     * Opt in to the "/" slash menu. Pass `true` for the default commands, or a
+     * {@link SlashMenuConfig} to hide, reorder or add commands.
      */
     slashMenu?: boolean | SlashMenuConfig;
     /**
@@ -24,9 +29,15 @@ export interface WysiwygEditorOptions {
      * Read once when the editor loads.
      */
     groupCompletedTasks?: boolean;
+    /**
+     * Svelte context of the host component (`getAllContexts()`), passed to components that
+     * `svelteNodeView` mounts inside the editor. Read once when the editor loads.
+     */
+    context?: Map<unknown, unknown>;
 }
 /**
- * Controller class to manage the lifecycle and state of the Milkdown Crepe WYSIWYG editor.
+ * Controller class to manage the lifecycle and state of the Tiptap WYSIWYG editor.
+ * Notes are stored as markdown, so content goes in and out through `@tiptap/markdown`.
  * Uses Svelte 5 runes for reactive state tracking.
  */
 export declare class WysiwygEditorController {
@@ -51,7 +62,7 @@ export declare class WysiwygEditorController {
      */
     retry(): void;
     /**
-     * Focuses the editor content editable element.
+     * Focuses the editor, with the cursor at the start or end of the document.
      */
     focus(collapseToStart?: boolean): boolean;
     /**

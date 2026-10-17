@@ -1,5 +1,5 @@
-import { Plugin } from '@milkdown/kit/prose/state';
-import { DecorationSet } from '@milkdown/kit/prose/view';
+import { Plugin } from '@tiptap/pm/state';
+import { DecorationSet } from '@tiptap/pm/view';
 /**
  * Completed tasks section.
  *

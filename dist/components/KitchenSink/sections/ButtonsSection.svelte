@@ -4,6 +4,9 @@
 	const variants = ['regular', 'accent', 'ghost'] as const;
 	const sizes = ['small', 'medium', 'large'] as const;
 
+	let drink = $state<'tea' | 'cocoa'>('tea');
+	let biscuits = $state(true);
+
 	/** Resolves or rejects after a short wait so `FeedbackButton` shows each state. */
 	const wait = (shouldFail: boolean) => () =>
 		new Promise<void>((resolve, reject) => setTimeout(shouldFail ? reject : resolve, 800));
@@ -38,6 +41,29 @@
 				<MenuItem icon="pencil" label="Edit" />
 				<MenuItem icon="copy" label="Duplicate" />
 				<MenuItem icon="trash" label="Delete" />
+			{/snippet}
+		</MenuButton>
+		<MenuButton>
+			Menu choices
+			{#snippet menu()}
+				<MenuItem
+					controlType="radio"
+					label="Tea"
+					checked={drink === 'tea'}
+					onclick={() => (drink = 'tea')}
+				/>
+				<MenuItem
+					controlType="radio"
+					label="Cocoa"
+					checked={drink === 'cocoa'}
+					onclick={() => (drink = 'cocoa')}
+				/>
+				<MenuItem
+					controlType="checkbox"
+					label="With biscuits"
+					checked={biscuits}
+					onclick={() => (biscuits = !biscuits)}
+				/>
 			{/snippet}
 		</MenuButton>
 	</div>

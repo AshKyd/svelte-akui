@@ -6,4 +6,5 @@ export { default as MenuMobile } from './MenuMobile.svelte';
 export declare const MENU_CONTEXT_KEY: unique symbol;
 export declare function useMenu(): {
     close: () => void;
+    size: "small" | "large";
 } | undefined;

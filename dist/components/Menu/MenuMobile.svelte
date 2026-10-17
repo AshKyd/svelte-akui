@@ -6,13 +6,16 @@
 	import { ControlGroup } from '../ControlGroup/index.js';
 	import { Glow } from '../Glow/index.js';
 	import { staggerMenuItems } from './staggerMenuItems.js';
+	import { menuKeyboardNavigation } from './menuKeyboardNavigation.js';
 
 	interface Props {
 		children: Snippet;
 		class?: string;
+		/** Accessible name for the menu. */
+		label?: string;
 	}
 
-	let { children, class: className = '' }: Props = $props();
+	let { children, class: className = '', label = 'Menu' }: Props = $props();
 
 	// handleBackdropClick function removed as the backdrop div is removed.
 	// function handleBackdropClick(e: MouseEvent) {
@@ -35,11 +38,18 @@
 	<div
 		class="akui-mobile-menu-content akui-menu-surface"
 		{@attach staggerMenuItems}
+		{@attach menuKeyboardNavigation}
 		transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
 	>
 		<Glow />
-		<div class="akui-menu-mobile-handle"></div>
-		<ControlGroup role="menu" border={false} class="akui-menu-scroll-area">
+		<div class="akui-menu-mobile-handle" aria-hidden="true"></div>
+		<ControlGroup
+			role="menu"
+			aria-label={label}
+			aria-orientation="vertical"
+			border={false}
+			class="akui-menu-scroll-area"
+		>
 			{@render children()}
 		</ControlGroup>
 	</div>

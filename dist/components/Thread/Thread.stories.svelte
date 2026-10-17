@@ -94,6 +94,32 @@
 	{/snippet}
 </Story>
 
+<Story name="Same-author follow-ups (header options)">
+	{#snippet template(args)}
+		<Thread size={args.size} collapsible={args.collapsible}>
+			<ThreadItem avatar={{ src: photos.puscas, initials: 'TF', alt: 'Tansy Fiddlewick' }}>
+				<Message name="Tansy Fiddlewick" username="@tansy" date={hoursAgo(3)} header="full">
+					Notes from tonight's hedge-trimming committee, in three parts.
+				</Message>
+				{#snippet replies()}
+					<ThreadItem>
+						<!-- Posted minutes after the last one: no header row, text level with the dot. -->
+						<Message name="Tansy Fiddlewick" username="@tansy" date={hoursAgo(2.95)} header="none">
+							One: the hedge has agreed to be trimmed, provided nobody mentions the topiary swan.
+						</Message>
+					</ThreadItem>
+					<ThreadItem>
+						<!-- Posted much later: the dot stays and only the date shows. -->
+						<Message name="Tansy Fiddlewick" username="@tansy" date={hoursAgo(1)} header="date">
+							Two: the swan has been told, and is taking it well.
+						</Message>
+					</ThreadItem>
+				{/snippet}
+			</ThreadItem>
+		</Thread>
+	{/snippet}
+</Story>
+
 <Story name="Indented replies branch">
 	{#snippet template(args)}
 		<Thread size={args.size} collapsible={args.collapsible}>

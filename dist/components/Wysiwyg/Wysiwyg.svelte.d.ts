@@ -1,8 +1,6 @@
 import { type SlashMenuConfig } from './WysiwygEditor.svelte';
-import '@milkdown/crepe/theme/common/style.css';
-import '@milkdown/crepe/theme/frame.css';
 interface Props {
-    /** Bindable current value of the editor. */
+    /** Bindable current value of the editor, as markdown. */
     value?: string;
     /** Optional placeholder text displayed when editor is empty. Defaults to empty string. */
     placeholder?: string;
@@ -21,8 +19,8 @@ interface Props {
     /** Optional paste event handler. Return true to prevent default editor paste behaviour. */
     handlePaste?: (event: ClipboardEvent) => boolean | void;
     /**
-     * Opt in to the "/" slash menu and block-drag-handle. Pass `true` for Crepe's defaults, or a
-     * {@link SlashMenuConfig} to hide groups/items or extend the menu with `buildMenu`.
+     * Opt in to the "/" slash menu. Pass `true` for the default commands, or a
+     * {@link SlashMenuConfig} to hide, reorder or add commands.
      */
     slashMenu?: boolean | SlashMenuConfig;
     /** Move ticked task items to a collapsible "completed" section at the end of their list. Read once on load. */

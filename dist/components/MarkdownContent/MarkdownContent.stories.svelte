@@ -64,6 +64,23 @@ For more details, visit the [Council Archives](#archives).
 	{/snippet}
 </Story>
 
+<Story name="Task List (graphic checkboxes)">
+	{#snippet children()}
+		<LayoutContentWidth size="medium">
+			<MarkdownContent
+				checkboxes="graphic"
+				content={`
+## Spring Cleaning at the Toadstool Cottage
+- [x] Sweep the moss from the porch
+- [ ] Polish the cauldron
+- [x] Feed the hedge sprites
+- [ ] Return the borrowed broomstick
+				`}
+			/>
+		</LayoutContentWidth>
+	{/snippet}
+</Story>
+
 <Story name="Code and Blockquotes">
 	{#snippet children()}
 		<LayoutContentWidth size="medium">

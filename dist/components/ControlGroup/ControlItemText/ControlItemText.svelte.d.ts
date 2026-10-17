@@ -18,6 +18,13 @@ interface Props {
     checked?: boolean;
     /** Optional control type on the right hand side. */
     controlType?: 'checkbox' | 'radio';
+    /** Item density. 'small' condenses padding, text and icon. Defaults to 'large'. */
+    size?: 'small' | 'large';
+    /**
+     * Shows the keyboard focus style without DOM focus, for lists where focus stays elsewhere
+     * (e.g. the editor's slash menu, which uses `aria-activedescendant`).
+     */
+    highlighted?: boolean;
     /** Spread remaining attributes. */
     [key: string]: unknown;
 }

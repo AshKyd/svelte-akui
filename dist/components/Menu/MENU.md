@@ -70,6 +70,14 @@ The standard action item. Wraps a button in an `<li>` with appropriate ARIA role
 - `label`: Standard text display.
 - `onclick`: Interaction handler.
 - `children`: Snippet for custom internal markup (overrides label).
+- `controlType`: `'checkbox'` or `'radio'` shows that control on the right and sets the role to `menuitemcheckbox` / `menuitemradio` with `aria-checked`. Use `radio` for one-of-many choices (adjacent items form the group) and `checkbox` for an on/off option.
+- `checked`: Whether the checkbox or radio is checked. The parent owns the state: change it from `onclick`. The drawn radio or checkbox ignores pointer events, so a click anywhere on the row, including on the control, runs `onclick` once. Clicking a radio or checkbox item keeps the menu open (plain items still close it), and clicking the chosen radio again leaves it chosen.
+
+```svelte
+<MenuItem controlType="radio" label="Note view" checked={view === 'note'} onclick={() => (view = 'note')} />
+<MenuItem controlType="radio" label="Journal view" checked={view === 'journal'} onclick={() => (view = 'journal')} />
+<MenuItem controlType="checkbox" label="Show in all notes" checked={showAll} onclick={() => (showAll = !showAll)} />
+```
 
 ### `MenuContent`
 
@@ -89,6 +97,17 @@ A wrapper for freeform content (sliders, text blocks, form fields). Ensures the 
 ### `Menu` and `MenuButton` options
 
 - `presentation`: `'auto'` (default) shows a popover on wide screens and a bottom sheet on narrow ones. `'popover'` always floats the menu next to its trigger, e.g. for a floating action button. `'sheet'` always uses the bottom sheet.- `open` (`MenuButton` only): bindable open state, e.g. to change the button icon while the menu is open.
+
+## 3a. Keyboard and ARIA
+
+- `Menu` takes `size` (`'small' | 'large'`, default `'large'`, as on `Tree`). `'small'` condenses `MenuItem` padding, text and icon. A `MenuItem` can override it with its own `size`; `ControlItemText` takes the same prop.
+- `Menu` takes `label` (default `'Menu'`), used as the `aria-label` of the dialog and of the `role="menu"` list (`aria-orientation="vertical"`).
+- `menuKeyboardNavigation` ([menuKeyboardNavigation.ts](menuKeyboardNavigation.ts)) is attached to the desktop and mobile surfaces:
+  - Arrow Up/Down move focus between enabled `menuitem`s and wrap.
+  - Home/End jump to the first/last item.
+  - Typing characters jumps to the next item whose text starts with them.
+  - Escape closes the menu (the dialog's `cancel` event).
+- `MenuDesktop` can be used without `Menu` for non-modal menus where focus must stay elsewhere. The editor slash menu does this and exposes the highlighted item with `aria-activedescendant` (see `devdocs/wysiwyg-tiptap.md`).
 
 ## 4. Opening Animation
 

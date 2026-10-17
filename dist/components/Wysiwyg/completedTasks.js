@@ -1,12 +1,13 @@
-import { Plugin, PluginKey, TextSelection } from '@milkdown/kit/prose/state';
-import { Decoration, DecorationSet } from '@milkdown/kit/prose/view';
-import { AttrStep } from '@milkdown/kit/prose/transform';
+import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
+import { Decoration, DecorationSet } from '@tiptap/pm/view';
 const completedTasksKey = new PluginKey('akuiCompletedTasks');
 /** prosemirror-history tags undo/redo transactions with this meta key (its PluginKey is "history"). */
 const HISTORY_META = 'history$';
+/** Tag on the transactions this plugin appends, so they are never mistaken for a user toggle. */
+const MOVE_META = 'akuiCompletedTasksMove';
 const isTickedItem = (node) => node.attrs.checked === true;
-const isTaskItem = (node) => node.type.name === 'list_item' && typeof node.attrs.checked === 'boolean';
-const isListNode = (node) => node.firstChild?.type.name === 'list_item';
+const isTaskItem = (node) => node.type.name === 'taskItem';
+const isListNode = (node) => node.type.name === 'taskList';
 /**
  * Index of the first item in the trailing run of ticked items (the completed section), or the
  * list length when there is none.
@@ -22,21 +23,29 @@ export function completedSectionStart(itemsTicked) {
 // Moving toggled items
 // ---------------------------------------------------------------------------
 /**
- * Positions (in the final doc) of list items whose `checked` attribute changed. Crepe's checkbox
- * dispatches `setNodeAttribute`, which is an `AttrStep`. Undo/redo is skipped so undoing a tick
- * puts the item back where it was rather than moving it again.
+ * Positions (in the final doc) of task items whose `checked` attribute changed.
+ *
+ * Tiptap's checkbox uses `setNodeMarkup`, which is a `ReplaceAroundStep` rather than an attribute
+ * step, so toggles are found by comparing each task item before and after the transactions.
+ * Undo/redo is skipped so undoing a tick puts the item back where it was rather than moving it again.
  */
-function toggledItemPositions(transactions) {
-    return transactions.flatMap((tr, trIndex) => {
-        if (tr.getMeta(HISTORY_META))
+function toggledItemPositions(transactions, oldState, newState) {
+    if (transactions.some((tr) => tr.getMeta(HISTORY_META) || tr.getMeta(MOVE_META)))
+        return [];
+    if (!transactions.some((tr) => tr.docChanged))
+        return [];
+    const previousItems = [];
+    oldState.doc.descendants((node, pos) => {
+        if (isTaskItem(node))
+            previousItems.push({ pos, checked: isTickedItem(node) });
+        return true;
+    });
+    return previousItems.flatMap(({ pos, checked }) => {
+        const mapped = transactions.reduce((current, tr) => tr.mapping.map(current, -1), pos);
+        const node = newState.doc.nodeAt(mapped);
+        if (!node || !isTaskItem(node) || isTickedItem(node) === checked)
             return [];
-        const laterMappings = transactions.slice(trIndex + 1).map(({ mapping }) => mapping);
-        return tr.steps.flatMap((step, stepIndex) => {
-            if (!(step instanceof AttrStep) || step.attr !== 'checked')
-                return [];
-            const mappings = [tr.mapping.slice(stepIndex + 1), ...laterMappings];
-            return [mappings.reduce((pos, mapping) => mapping.map(pos), step.pos)];
-        });
+        return [mapped];
     });
 }
 /** Moves the task item at `itemPos` to the top (ticked) or just above (unticked) its completed section. */
@@ -90,10 +99,10 @@ function createSectionToggle(count, collapsed) {
         return button;
     };
 }
-/** True when the node at `pos` sits inside a list item, i.e. it is a nested list. */
+/** True when the node at `pos` sits inside a task item, i.e. it is a nested list. */
 function isNestedInListItem(doc, pos) {
     const resolved = doc.resolve(pos);
-    return Array.from({ length: resolved.depth + 1 }, (_, depth) => resolved.node(depth)).some((ancestor) => ancestor.type.name === 'list_item');
+    return Array.from({ length: resolved.depth + 1 }, (_, depth) => resolved.node(depth)).some(isTaskItem);
 }
 /**
  * Adds a header before each top-level list's completed section, and hides the section's items when
@@ -146,12 +155,12 @@ export function createCompletedTasksPlugin() {
         props: {
             decorations: (state) => completedTasksKey.getState(state)?.decorations
         },
-        appendTransaction(transactions, _oldState, newState) {
-            const positions = toggledItemPositions(transactions);
+        appendTransaction(transactions, oldState, newState) {
+            const positions = toggledItemPositions(transactions, oldState, newState);
             if (!positions.length)
                 return null;
             const collapsed = completedTasksKey.getState(newState)?.collapsed ?? false;
-            const tr = newState.tr;
+            const tr = newState.tr.setMeta(MOVE_META, true);
             positions.forEach((pos) => moveToggledItem(tr, tr.mapping.map(pos), collapsed));
             return tr.docChanged ? tr : null;
         }
