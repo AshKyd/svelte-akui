@@ -193,7 +193,8 @@ export class WysiwygEditorController {
 				StarterKit.configure({
 					// Underline has no markdown form, so it would be lost on save.
 					underline: false,
-					link: { openOnClick: false, autolink: true }
+					// Clicking opens the link; to edit one, move the cursor into it with the keyboard.
+						link: { openOnClick: true, autolink: true }
 				}),
 				Markdown,
 				TaskList,
