@@ -102,7 +102,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - Solid color loading placeholders.
   - Built-in opacity fade-in.
 
-- **`Tree`**: Collapsible tree navigation.
+- **`Tree`**: Collapsible tree navigation. Pass `onReorder` to let items be dragged into a new order among their siblings: a grip handle shows on hover and focus (it is a tab stop: Up and Down arrows move the item, with a screen reader announcement), the dragged row follows the pointer and the rows it passes slide aside. `reorderable(item)` limits which items can move; the rest stay put. The tree doesn't reorder `items` itself, so reorder your data in `onReorder`.
   - Recursively renders hierarchical nodes.
   - Supports keyboard navigation (arrows to traverse, Space to toggle, Enter to select).
   - Drag and drop is composed via `itemAttributes`: attach `dragSource()` / `dropTarget()` attachments to customize per-row drag or drop behavior without built-in assumptions.

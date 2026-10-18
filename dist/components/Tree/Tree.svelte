@@ -2,6 +2,7 @@
 	import { type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import TreeItem, { type TreeItemData } from './TreeItem.svelte';
+	import { TreeReorder, setTreeReorder, type TreeReorderEvent } from './treeReorder.svelte';
 
 	interface Props {
 		/** Array of tree items */
@@ -25,6 +26,16 @@
 		 * per item: a new attachment on every render is torn down and recreated.
 		 */
 		itemAttributes?: (item: TreeItemData) => HTMLAttributes<HTMLDivElement> | undefined;
+		/**
+		 * Which items can be dragged to a new place among their siblings. Defaults to all of them
+		 * when `onReorder` is set. Items that return false stay put and bound the drag.
+		 */
+		reorderable?: (item: TreeItemData) => boolean;
+		/**
+		 * Opt in to drag-to-reorder. A grip handle shows on hover and focus. The tree does not
+		 * reorder `items` itself: reorder your data in this callback, which runs once on drop.
+		 */
+		onReorder?: (event: TreeReorderEvent) => void;
 	}
 
 	let {
@@ -35,8 +46,12 @@
 		onSelect,
 		onToggle,
 		size = 'small',
-		itemAttributes
+		itemAttributes,
+		reorderable,
+		onReorder
 	}: Props = $props();
+
+	setTreeReorder(new TreeReorder(() => ({ reorderable, onReorder })));
 
 	function handleToggle(id: string) {
 		if (expanded.has(id)) {
@@ -115,6 +130,7 @@
 	{#each items as item (item.id)}
 		<TreeItem
 			{item}
+			siblings={items}
 			{expanded}
 			{size}
 			onToggle={handleToggle}

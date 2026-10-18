@@ -69,6 +69,16 @@
 		{ id: 'jar-5', label: 'Unsorted: pressed clover', icon: 'box' }
 	]);
 
+	// Fixed rows at either end stay put; the jars between them can be dragged into any order.
+	let shelfItems = $state<TreeItemData[]>([
+		{ id: 'shelf-top', label: 'Pantry', icon: 'house' },
+		{ id: 'shelf-1', label: 'Pickled gooseberries', icon: 'box', status: '4' },
+		{ id: 'shelf-2', label: 'Moonlit honey', icon: 'box', status: '2' },
+		{ id: 'shelf-3', label: 'Thimble-sized jams', icon: 'box', status: '9' },
+		{ id: 'shelf-4', label: 'Dandelion cordial', icon: 'box' },
+		{ id: 'shelf-bottom', label: 'Compost bin', icon: 'trash' }
+	]);
+
 	let log = $state('Drag a jar onto a shelf or drawer to file it away.');
 
 	/**
@@ -187,6 +197,22 @@
 			expanded={new Set(['1', '1.1', '1.1.1'])}
 		/>
 	</div>
+</Story>
+
+<Story name="Reorderable">
+	{#snippet children()}
+		<div style="width: 260px;">
+			<Tree
+				items={shelfItems}
+				reorderable={(item) => item.id !== 'shelf-top' && item.id !== 'shelf-bottom'}
+				onReorder={({ siblings, from, to }) => {
+					const next = siblings.filter((_, index) => index !== from);
+					next.splice(to, 0, siblings[from]);
+					shelfItems = next;
+				}}
+			/>
+		</div>
+	{/snippet}
 </Story>
 
 <Story name="Compose drag and drop">

@@ -12,6 +12,8 @@ export interface TreeItemData {
 }
 interface Props {
     item: TreeItemData;
+    /** The array `item` belongs to (its parent's children, or the tree's items). Needed to reorder. */
+    siblings?: TreeItemData[];
     depth?: number;
     parentId?: string;
     expanded?: Set<string>;

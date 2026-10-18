@@ -1,6 +1,7 @@
 import { type Snippet } from 'svelte';
 import type { HTMLAttributes } from 'svelte/elements';
 import { type TreeItemData } from './TreeItem.svelte';
+import { type TreeReorderEvent } from './treeReorder.svelte';
 interface Props {
     /** Array of tree items */
     items: TreeItemData[];
@@ -23,6 +24,16 @@ interface Props {
      * per item: a new attachment on every render is torn down and recreated.
      */
     itemAttributes?: (item: TreeItemData) => HTMLAttributes<HTMLDivElement> | undefined;
+    /**
+     * Which items can be dragged to a new place among their siblings. Defaults to all of them
+     * when `onReorder` is set. Items that return false stay put and bound the drag.
+     */
+    reorderable?: (item: TreeItemData) => boolean;
+    /**
+     * Opt in to drag-to-reorder. A grip handle shows on hover and focus. The tree does not
+     * reorder `items` itself: reorder your data in this callback, which runs once on drop.
+     */
+    onReorder?: (event: TreeReorderEvent) => void;
 }
 declare const Tree: import("svelte").Component<Props, {}, "expanded">;
 type Tree = ReturnType<typeof Tree>;

@@ -5,6 +5,7 @@
 	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import Icon from '../Icon/Icon.svelte';
 	import TreeItem from './TreeItem.svelte';
+	import { getTreeReorder } from './treeReorder.svelte';
 
 	export interface TreeItemData {
 		id: string;
@@ -18,6 +19,8 @@
 
 	interface Props {
 		item: TreeItemData;
+		/** The array `item` belongs to (its parent's children, or the tree's items). Needed to reorder. */
+		siblings?: TreeItemData[];
 		depth?: number;
 		parentId?: string;
 		expanded?: Set<string>;
@@ -32,6 +35,7 @@
 
 	let {
 		item,
+		siblings = [],
 		depth = 0,
 		parentId,
 		expanded = new Set(),
@@ -46,6 +50,31 @@
 	const hasChildren = $derived(item.children && item.children.length > 0);
 	const isFolder = $derived(item.isFolder || hasChildren);
 	const extra = $derived(itemAttributes?.(item));
+
+	const reorder = getTreeReorder();
+	const canReorder = $derived(Boolean(reorder?.canReorder(item)));
+	/** Set while another item in this list is being dragged, or this one is. */
+	const drag = $derived(reorder?.transformFor(item, siblings));
+
+	function startReorder(event: PointerEvent) {
+		const row = (event.currentTarget as HTMLElement).closest<HTMLElement>('.akui-tree-item-row');
+		// Primary button or touch only.
+		if (!row || event.button > 0) return;
+		reorder?.start({ item, siblings, row, event });
+	}
+
+	/**
+	 * Keyboard reorder: with the handle focused, Up and Down move the item one place. Every key
+	 * stops here, or Enter and Space would also reach the row and select it.
+	 */
+	function handleHandleKeyDown(e: KeyboardEvent) {
+		e.stopPropagation();
+		if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+		e.preventDefault();
+		const row = (e.currentTarget as HTMLElement).closest<HTMLElement>('.akui-tree-item-row');
+		if (!row) return;
+		reorder?.moveBy({ item, siblings, row, delta: e.key === 'ArrowUp' ? -1 : 1 });
+	}
 
 	function handleToggle(e: MouseEvent | KeyboardEvent) {
 		e.stopPropagation();
@@ -79,7 +108,12 @@
 	role="treeitem"
 	aria-expanded={isFolder ? isExpanded : undefined}
 	aria-selected={undefined}
-	class="akui-tree-item-container"
+	class={[
+		'akui-tree-item-container',
+		drag?.role === 'dragged' && 'akui-tree-item-dragging',
+		drag?.role === 'shifting' && 'akui-tree-item-shifting'
+	]}
+	style:transform={drag ? `translateY(${drag.y}px)` : undefined}
 	data-id={item.id}
 >
 	<div
@@ -91,6 +125,25 @@
 		role="button"
 		tabindex="0"
 	>
+		<!-- Drag handle: sits in the row's left padding so the icon doesn't shift. -->
+		{#if canReorder}
+			<span
+				class="akui-tree-handle"
+				role="button"
+				tabindex="0"
+				aria-label="Reorder {item.label}. Up and down arrows move it."
+				onpointerdown={startReorder}
+				onkeydown={handleHandleKeyDown}
+				onclick={(e) => e.stopPropagation()}
+			>
+				<svg viewBox="0 0 10 16" width="8" height="13" aria-hidden="true" fill="currentColor">
+					<circle cx="3" cy="3" r="1.3" /><circle cx="7" cy="3" r="1.3" />
+					<circle cx="3" cy="8" r="1.3" /><circle cx="7" cy="8" r="1.3" />
+					<circle cx="3" cy="13" r="1.3" /><circle cx="7" cy="13" r="1.3" />
+				</svg>
+			</span>
+		{/if}
+
 		<!-- Icon Column / Chevron -->
 		<div class="akui-tree-item-icon">
 			{#if isFolder}
@@ -129,6 +182,7 @@
 			{#each item.children || [] as child (child.id)}
 				<TreeItem
 					item={child}
+					siblings={item.children}
 					depth={depth + 1}
 					parentId={item.id}
 					{expanded}
@@ -150,7 +204,62 @@
 		padding: 0;
 	}
 
+	/* Drag to reorder (see treeReorder.svelte.ts): the dragged item follows the pointer, passed siblings slide aside. */
+	.akui-tree-item-dragging {
+		position: relative;
+		z-index: 1;
+		cursor: grabbing;
+		background: var(--akui-bg);
+		border-radius: var(--akui-radius-s);
+		box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+	}
+
+	.akui-tree-item-shifting {
+		transition: transform 150ms ease;
+	}
+
+	.akui-tree-handle {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+		width: 10px;
+		justify-content: center;
+		color: var(--akui-fg-placeholder, var(--akui-fg-secondary));
+		cursor: grab;
+		touch-action: none;
+		user-select: none;
+		opacity: 0;
+		transition: opacity 120ms ease;
+	}
+
+	.akui-tree-item-row:hover > .akui-tree-handle,
+	.akui-tree-item-row:focus-within > .akui-tree-handle,
+	.akui-tree-item-dragging .akui-tree-handle {
+		opacity: 1;
+	}
+
+	.akui-tree-handle:focus-visible {
+		opacity: 1;
+		outline: 2px solid var(--akui-bg-accent, #2563eb);
+		outline-offset: -2px;
+		border-radius: var(--akui-radius-s);
+	}
+
+	@media (hover: none) {
+		.akui-tree-handle {
+			opacity: 0.5;
+		}
+	}
+
+	.akui-tree-handle:hover {
+		color: var(--akui-fg);
+	}
+
 	.akui-tree-item-row {
+		position: relative;
 		display: flex;
 		align-items: center;
 		padding: 4px 8px;

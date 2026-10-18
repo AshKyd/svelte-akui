@@ -7,6 +7,7 @@
 	import type { Node as ProseNode } from '@tiptap/pm/model';
 	import Checkbox from '../../Input/Checkbox/Checkbox.svelte';
 	import type { SvelteNodeViewProps } from './svelteNodeView.svelte';
+	import { beginTaskItemDrag } from './taskItemDrag';
 	interface Props extends SvelteNodeViewProps {
 		/** Lets a read-only editor accept a tick. Return false to refuse it. Same as `TaskItem`'s option. */
 		onReadOnlyChecked?: (node: ProseNode, checked: boolean) => boolean;
@@ -14,7 +15,8 @@
 		a11y?: { checkboxLabel?: (node: ProseNode, checked: boolean) => string };
 	}
 
-	let { node, editable, updateAttributes, onReadOnlyChecked, a11y }: Props = $props();
+	let { node, editable, editor, getPos, updateAttributes, onReadOnlyChecked, a11y }: Props =
+		$props();
 
 	const checked = $derived(Boolean(node.attrs.checked));
 	const label = $derived(
@@ -47,9 +49,34 @@
 		}
 		if (!onReadOnlyChecked?.(node, nextChecked)) refusals++;
 	}
+
+	/** Ticked items can't be dragged: their place in the completed section follows from ticking. */
+	const draggable = $derived(editable && !checked);
+
+	function startDrag(event: PointerEvent) {
+		const itemPos = getPos();
+		if (itemPos === undefined || event.button > 0) return;
+		beginTaskItemDrag({ view: editor.view, itemPos, event });
+	}
 </script>
 
 <!-- Not editable text: ProseMirror must not put the caret in here. -->
+{#if draggable}
+	<span
+		class="akui-task-handle"
+		contenteditable="false"
+		role="button"
+		tabindex="-1"
+		aria-label="Drag to reorder task"
+		onpointerdown={startDrag}
+	>
+		<svg viewBox="0 0 10 16" width="10" height="16" aria-hidden="true" fill="currentColor">
+			<circle cx="3" cy="3" r="1.3" /><circle cx="7" cy="3" r="1.3" />
+			<circle cx="3" cy="8" r="1.3" /><circle cx="7" cy="8" r="1.3" />
+			<circle cx="3" cy="13" r="1.3" /><circle cx="7" cy="13" r="1.3" />
+		</svg>
+	</span>
+{/if}
 <span class="akui-task-checkbox" contenteditable="false">
 	<Checkbox
 		bind:checked={readChecked, writeChecked}
