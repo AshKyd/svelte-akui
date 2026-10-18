@@ -1,6 +1,7 @@
 import { TaskItem, type TaskItemOptions } from '@tiptap/extension-list';
 import { svelteNodeView } from './svelteNodeView.svelte';
 import TaskItemView from './TaskItemView.svelte';
+import { createTaskItemDragPlugin } from './taskItemDrag';
 
 export interface SvelteTaskItemOptions extends TaskItemOptions {
 	/** Svelte context for the mounted checkbox, so it can read the same context as the editor's host. */
@@ -14,6 +15,10 @@ export interface SvelteTaskItemOptions extends TaskItemOptions {
 export const SvelteTaskItem = TaskItem.extend<SvelteTaskItemOptions>({
 	addOptions() {
 		return { ...this.parent?.(), context: undefined } as SvelteTaskItemOptions;
+	},
+
+	addProseMirrorPlugins() {
+		return [...(this.parent?.() ?? []), createTaskItemDragPlugin()];
 	},
 
 	addNodeView() {

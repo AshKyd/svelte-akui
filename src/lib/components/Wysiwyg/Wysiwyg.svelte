@@ -324,6 +324,58 @@
 		user-select: none;
 	}
 
+	/*
+	 * Drag handle (extensions/taskItemDrag.ts). Sits in the left margin so checkboxes don't shift.
+	 * Shown on hover and on the item holding the cursor; always faintly visible on touch screens.
+	 */
+	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li) {
+		position: relative;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap .akui-task-handle) {
+		position: absolute;
+		left: -1.1em;
+		top: 0;
+		display: flex;
+		align-items: center;
+		min-height: 1.5em;
+		padding: 0 0.15em;
+		color: var(--akui-fg-placeholder);
+		cursor: grab;
+		touch-action: none;
+		user-select: none;
+		opacity: 0;
+		transition: opacity 120ms ease;
+	}
+
+	.akui-wysiwyg-container :global(.tiptap li:hover > .akui-task-handle),
+	.akui-wysiwyg-container :global(.tiptap li.akui-task-active > .akui-task-handle),
+	.akui-wysiwyg-container :global(.tiptap li.akui-task-dragging > .akui-task-handle) {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		.akui-wysiwyg-container :global(.tiptap .akui-task-handle) {
+			opacity: 0.5;
+		}
+	}
+
+	.akui-wysiwyg-container :global(.tiptap .akui-task-handle:hover) {
+		color: var(--akui-fg);
+	}
+
+	/* The dragged item follows the pointer (no transition), siblings slide out of its way. */
+	.akui-wysiwyg-container :global(.tiptap li.akui-task-dragging) {
+		z-index: 1;
+		cursor: grabbing;
+		background: var(--akui-bg);
+		box-shadow: var(--akui-shadow-s, 0 2px 8px rgb(0 0 0 / 0.2));
+	}
+
+	.akui-wysiwyg-container :global(.tiptap li.akui-task-shifting) {
+		transition: transform 150ms ease;
+	}
+
 	.akui-wysiwyg-container :global(.tiptap ul[data-type='taskList'] li > div) {
 		flex: 1;
 		min-width: 0;
