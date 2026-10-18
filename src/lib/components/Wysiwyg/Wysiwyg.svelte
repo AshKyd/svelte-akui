@@ -422,8 +422,9 @@
 	}
 
 	/* Completed tasks section (groupCompletedTasks, see completedTasks.ts). */
+	/* `!important`: task items set `display: flex` with higher specificity (`ul[data-type='taskList'] li`). */
 	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-hidden) {
-		display: none;
+		display: none !important;
 	}
 
 	.akui-wysiwyg-container :global(.tiptap .akui-wysiwyg-completed-toggle) {
