@@ -51,7 +51,8 @@
 		onReorder
 	}: Props = $props();
 
-	setTreeReorder(new TreeReorder(() => ({ reorderable, onReorder })));
+	const reorder = new TreeReorder(() => ({ reorderable, onReorder }));
+	setTreeReorder(reorder);
 
 	function handleToggle(id: string) {
 		if (expanded.has(id)) {
@@ -141,7 +142,21 @@
 	{/each}
 </ul>
 
+<!-- Says where a keyboard move landed. Outside the tree: a `ul` may only hold items. -->
+{#if onReorder}
+	<div class="akui-tree-announcer" role="status" aria-live="polite">{reorder.announcement}</div>
+{/if}
+
 <style>
+	.akui-tree-announcer {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
 	.akui-tree {
 		list-style: none;
 		margin: 0;

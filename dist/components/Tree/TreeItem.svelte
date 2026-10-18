@@ -63,6 +63,19 @@
 		reorder?.start({ item, siblings, row, event });
 	}
 
+	/**
+	 * Keyboard reorder: with the handle focused, Up and Down move the item one place. Every key
+	 * stops here, or Enter and Space would also reach the row and select it.
+	 */
+	function handleHandleKeyDown(e: KeyboardEvent) {
+		e.stopPropagation();
+		if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+		e.preventDefault();
+		const row = (e.currentTarget as HTMLElement).closest<HTMLElement>('.akui-tree-item-row');
+		if (!row) return;
+		reorder?.moveBy({ item, siblings, row, delta: e.key === 'ArrowUp' ? -1 : 1 });
+	}
+
 	function handleToggle(e: MouseEvent | KeyboardEvent) {
 		e.stopPropagation();
 		if (isFolder) {
@@ -117,9 +130,10 @@
 			<span
 				class="akui-tree-handle"
 				role="button"
-				tabindex="-1"
-				aria-label="Drag to reorder {item.label}"
+				tabindex="0"
+				aria-label="Reorder {item.label}. Up and down arrows move it."
 				onpointerdown={startReorder}
+				onkeydown={handleHandleKeyDown}
 				onclick={(e) => e.stopPropagation()}
 			>
 				<svg viewBox="0 0 10 16" width="8" height="13" aria-hidden="true" fill="currentColor">
@@ -225,6 +239,13 @@
 	.akui-tree-item-row:focus-within > .akui-tree-handle,
 	.akui-tree-item-dragging .akui-tree-handle {
 		opacity: 1;
+	}
+
+	.akui-tree-handle:focus-visible {
+		opacity: 1;
+		outline: 2px solid var(--akui-bg-accent, #2563eb);
+		outline-offset: -2px;
+		border-radius: var(--akui-radius-s);
 	}
 
 	@media (hover: none) {

@@ -1,4 +1,4 @@
-import { getContext, setContext } from 'svelte';
+import { getContext, setContext, tick } from 'svelte';
 import { reorderTargetIndex, siblingShift, startReorderDrag } from '../../utils/reorderDrag';
 const CONTEXT_KEY = Symbol('akui-tree-reorder');
 /**
@@ -44,6 +44,28 @@ export class TreeReorder {
                     this.#options().onReorder?.({ item, from: index, to, siblings });
             }
         });
+    }
+    /** Latest keyboard move, worded for a screen reader. Shown in a live region by `Tree`. */
+    announcement = $state('');
+    /**
+     * Moves an item one place up or down from the keyboard (arrow keys on its handle). It stops at
+     * the first and last item that can be reordered, like the drag. Focus returns to the item's
+     * handle afterwards, because moving the row can drop it.
+     */
+    async moveBy({ item, siblings, row, delta }) {
+        const from = siblings.indexOf(item);
+        const movable = siblings.flatMap((sibling, index) => (this.canReorder(sibling) ? [index] : []));
+        const to = from + delta;
+        if (from < 0 || to < Math.min(...movable) || to > Math.max(...movable))
+            return;
+        const list = row.closest('li')?.parentElement;
+        this.#options().onReorder?.({ item, from, to, siblings });
+        this.announcement = `Moved ${item.label} to position ${to - Math.min(...movable) + 1} of ${movable.length}`;
+        await tick();
+        const handle = Array.from(list?.children ?? [])
+            .find((element) => element.dataset.id === item.id)
+            ?.querySelector(':scope > .akui-tree-item-row > .akui-tree-handle');
+        handle?.focus();
     }
     /** Transform for an item's `<li>` while a drag is under way, or undefined when it stays put. */
     transformFor(item, siblings) {

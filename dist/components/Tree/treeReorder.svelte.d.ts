@@ -42,6 +42,19 @@ export declare class TreeReorder {
         row: HTMLElement;
         event: PointerEvent;
     }): void;
+    /** Latest keyboard move, worded for a screen reader. Shown in a live region by `Tree`. */
+    announcement: string;
+    /**
+     * Moves an item one place up or down from the keyboard (arrow keys on its handle). It stops at
+     * the first and last item that can be reordered, like the drag. Focus returns to the item's
+     * handle afterwards, because moving the row can drop it.
+     */
+    moveBy({ item, siblings, row, delta }: {
+        item: TreeItemData;
+        siblings: TreeItemData[];
+        row: HTMLElement;
+        delta: -1 | 1;
+    }): Promise<void>;
     /** Transform for an item's `<li>` while a drag is under way, or undefined when it stays put. */
     transformFor(item: TreeItemData, siblings: TreeItemData[]): {
         role: "dragged";
