@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { type Snippet } from 'svelte';
+	import { slide } from 'svelte/transition';
+	import { motion } from '../../../hooks/reducedMotion.svelte.js';
 	import Padding from '../../Padding/Padding.svelte';
 	import Small from '../../Small/Small.svelte';
 	import Checkbox from '../../Input/Checkbox/Checkbox.svelte';
@@ -10,6 +12,14 @@
 		label: string;
 		/** An optional small description below the label. */
 		description?: string;
+		/** Snippet that replaces `description`. */
+		descriptionSnippet?: Snippet;
+		/** Slides the description open and shut as it appears and goes. Defaults to false. */
+		animateDescription?: boolean;
+		/** Snippet for an icon (or any leading content) before the label. */
+		icon?: Snippet;
+		/** ARIA role of the wrapping `<li>`. Defaults to 'none' (for menus); use 'listitem' in a list. */
+		wrapperRole?: string;
 		/** An optional right-aligned extra value or label. */
 		extra?: string;
 		/** Snippet for custom extra content. */
@@ -33,6 +43,10 @@
 	let {
 		label,
 		description,
+		descriptionSnippet,
+		animateDescription = false,
+		icon,
+		wrapperRole = 'none',
 		extra,
 		extraSnippet,
 		checked = $bindable(false),
@@ -54,7 +68,7 @@
 	}
 </script>
 
-<li role="none" class="akui-control-item-expanded-wrapper">
+<li role={wrapperRole} class="akui-control-item-expanded-wrapper">
 	<svelte:element
 		this={onclick || controlType ? 'button' : 'div'}
 		type={onclick || controlType ? 'button' : undefined}
@@ -69,11 +83,19 @@
 				class:layout-horizontal={layout === 'horizontal'}
 				class:layout-vertical={layout === 'vertical'}
 			>
-				<div class="akui-control-item-expanded-header">
+				<div class="akui-control-item-expanded-header" class:has-icon={icon}>
+					{#if icon}
+						<span class="akui-control-item-expanded-icon">{@render icon()}</span>
+					{/if}
 					<div class="akui-control-item-expanded-label-group">
 						<span class="akui-control-item-expanded-label">{label}</span>
-						{#if description}
-							<Small class="akui-control-item-expanded-description">{description}</Small>
+						{#if descriptionSnippet || description}
+							<!-- Duration 0 when not animated, so the same markup serves both. -->
+							<div transition:slide={motion({ duration: animateDescription ? 200 : 0 })}>
+								<Small class="akui-control-item-expanded-description">
+									{#if descriptionSnippet}{@render descriptionSnippet()}{:else}{description}{/if}
+								</Small>
+							</div>
 						{/if}
 					</div>
 					{#if extraSnippet}
@@ -176,14 +198,24 @@
 		flex: 1;
 	}
 
-	.layout-horizontal .akui-control-item-expanded-header {
+	.layout-horizontal .akui-control-item-expanded-header,
+	.akui-control-item-expanded-header.has-icon {
 		align-items: center;
+	}
+
+	.akui-control-item-expanded-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.akui-control-item-expanded-label-group {
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
+		flex: 1;
+		min-width: 0;
 	}
 
 	.akui-control-item-expanded-label {

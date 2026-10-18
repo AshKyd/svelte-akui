@@ -30,6 +30,16 @@ export interface WysiwygEditorOptions {
      */
     groupCompletedTasks?: boolean;
     /**
+     * When the value is empty, start with an empty H1 instead of a paragraph and focus it.
+     * Read once when the editor loads, and again each time the value is reset to empty.
+     */
+    startWithHeading?: boolean;
+    /**
+     * Turn the first-line H1 into a paragraph once it is longer than this many characters (once per
+     * editor). Read once when the editor loads.
+     */
+    demoteLongHeadingAt?: number;
+    /**
      * Svelte context of the host component (`getAllContexts()`), passed to components that
      * `svelteNodeView` mounts inside the editor. Read once when the editor loads.
      */
@@ -70,4 +80,9 @@ export declare class WysiwygEditorController {
      * See {@link docPositionForWordIndex} for the word-counting rule the index must match.
      */
     focusAtWordIndex(index: number): Promise<boolean>;
+    /**
+     * Places the cursor `offset` characters into the first-line heading (clamped to its length)
+     * and focuses the editor. Does nothing if the first line is not a heading.
+     */
+    focusHeadingAt(offset: number): Promise<boolean>;
 }

@@ -80,6 +80,17 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 	<Wysiwyg value={witchErrands} groupCompletedTasks />
 </Story>
 
+<!-- An empty editor opens on an empty H1. Typing more than 20 characters turns it into a paragraph, once. -->
+<Story name="Start With Heading (Auto-Demote)">
+	<Wysiwyg
+		value=""
+		placeholder="Name your spell…"
+		startWithHeading
+		demoteLongHeadingAt={20}
+		minHeight="120px"
+	/>
+</Story>
+
 <!-- The "/" slash menu is opt-in via the `slashMenu` prop. -->
 <Story name="Slash Menu (Defaults)">
 	<Wysiwyg value="" placeholder="Type / to see the menu..." slashMenu />

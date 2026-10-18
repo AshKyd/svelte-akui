@@ -30,6 +30,10 @@
 		slashMenu?: boolean | SlashMenuConfig;
 		/** Move ticked task items to a collapsible "completed" section at the end of their list. Read once on load. */
 		groupCompletedTasks?: boolean;
+		/** Start an empty editor with an empty H1 rather than a paragraph, and focus it. */
+		startWithHeading?: boolean;
+		/** Turn a first-line H1 longer than this many characters into a paragraph, once. Read once on load. */
+		demoteLongHeadingAt?: number;
 	}
 
 	let {
@@ -43,7 +47,9 @@
 		transformPastedText,
 		handlePaste,
 		slashMenu = false,
-		groupCompletedTasks = false
+		groupCompletedTasks = false,
+		startWithHeading = false,
+		demoteLongHeadingAt
 	}: Props = $props();
 
 	// Svelte components mounted inside the editor (e.g. task checkboxes) are outside this tree,
@@ -60,6 +66,8 @@
 			handlePaste,
 			slashMenu,
 			groupCompletedTasks,
+			startWithHeading,
+			demoteLongHeadingAt,
 			context
 		})),
 		(markdown) => {
@@ -77,6 +85,8 @@
 			handlePaste,
 			slashMenu,
 			groupCompletedTasks,
+			startWithHeading,
+			demoteLongHeadingAt,
 			context
 		});
 	});
@@ -94,6 +104,11 @@
 	/** Places the cursor at (approximately) the Nth word of the document and focuses it. */
 	export async function focusAtWordIndex(index: number) {
 		return editor.focusAtWordIndex(index);
+	}
+
+	/** Places the cursor `offset` characters into the first-line heading and focuses it. */
+	export async function focusHeadingAt(offset: number) {
+		return editor.focusHeadingAt(offset);
 	}
 </script>
 
@@ -346,7 +361,7 @@
 	}
 
 	/* Placeholder (Tiptap marks the empty first node) */
-	.akui-wysiwyg-container :global(.tiptap p.is-editor-empty:first-child::before) {
+	.akui-wysiwyg-container :global(.tiptap .is-editor-empty:first-child::before) {
 		content: attr(data-placeholder);
 		float: left;
 		height: 0;

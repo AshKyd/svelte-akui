@@ -49,6 +49,7 @@ export function tightenChecklists(markdown) {
 }
 /** Markdown as it should be loaded into the editor. */
 const prepareMarkdown = (markdown) => tightenChecklists(preserveEmptyChecklistItems(markdown));
+const EMPTY_HEADING_DOC = { type: 'doc', content: [{ type: 'heading', attrs: { level: 1 } }] };
 /**
  * Controller class to manage the lifecycle and state of the Tiptap WYSIWYG editor.
  * Notes are stored as markdown, so content goes in and out through `@tiptap/markdown`.
@@ -99,7 +100,20 @@ export class WysiwygEditorController {
         if (this.#value === newValue)
             return;
         this.#value = newValue;
-        this.#editor?.commands.setContent(prepareMarkdown(newValue), {
+        if (!this.#editor)
+            return;
+        this.#setDocument(this.#editor, newValue);
+    }
+    /**
+     * Replaces the document without emitting an update. An empty value becomes an empty H1 when
+     * `startWithHeading` is on, because empty markdown has no way to say "heading".
+     */
+    #setDocument(editor, markdown) {
+        if (!markdown && this.#options.startWithHeading) {
+            editor.commands.setContent(EMPTY_HEADING_DOC, { emitUpdate: false });
+            return;
+        }
+        editor.commands.setContent(prepareMarkdown(markdown), {
             contentType: 'markdown',
             emitUpdate: false
         });
@@ -135,12 +149,13 @@ export class WysiwygEditorController {
             ]);
             if (this.#node !== node)
                 return; // Guard against rapid re-initialization
-            const { slashMenu, placeholder, groupCompletedTasks } = this.#options;
+            const { slashMenu, placeholder, groupCompletedTasks, demoteLongHeadingAt } = this.#options;
             const extensions = [
                 StarterKit.configure({
                     // Underline has no markdown form, so it would be lost on save.
                     underline: false,
-                    link: { openOnClick: false, autolink: true }
+                    // Clicking opens the link; to edit one, move the cursor into it with the keyboard.
+                    link: { openOnClick: true, autolink: true }
                 }),
                 Markdown,
                 TaskList,
@@ -153,6 +168,10 @@ export class WysiwygEditorController {
             ];
             if (placeholder)
                 extensions.push(Placeholder.configure({ placeholder }));
+            if (demoteLongHeadingAt !== undefined) {
+                const { HeadingAutoDemote } = await import('./extensions/HeadingAutoDemote');
+                extensions.push(HeadingAutoDemote.configure({ maxLength: demoteLongHeadingAt }));
+            }
             if (slashMenu) {
                 const { SlashCommand } = await import('./extensions/SlashCommand');
                 extensions.push(SlashCommand.configure({
@@ -198,6 +217,9 @@ export class WysiwygEditorController {
                     this.#onChange(markdown);
                 }
             });
+            // The constructor content is markdown, which can't express an empty heading.
+            if (!this.#value)
+                this.#setDocument(this.#editor, this.#value);
             if (slashMenu)
                 this.#registerVisualViewportReflow();
             this.loading = false;
@@ -233,6 +255,23 @@ export class WysiwygEditorController {
         const pos = docPositionForWordIndex(editor.state.doc, index);
         if (pos === null)
             return false;
+        const applied = editor.chain().focus(null, { scrollIntoView: false }).setTextSelection(pos).run();
+        if (applied)
+            this.#scrollCaretIntoViewVertically(editor, pos);
+        return applied;
+    }
+    /**
+     * Places the cursor `offset` characters into the first-line heading (clamped to its length)
+     * and focuses the editor. Does nothing if the first line is not a heading.
+     */
+    async focusHeadingAt(offset) {
+        await this.#ready;
+        const editor = this.#editor;
+        const first = editor?.state.doc.firstChild;
+        if (!editor || first?.type.name !== 'heading')
+            return false;
+        // Position 0 is before the heading node, so its text starts at 1.
+        const pos = 1 + Math.max(0, Math.min(offset, first.content.size));
         const applied = editor.chain().focus(null, { scrollIntoView: false }).setTextSelection(pos).run();
         if (applied)
             this.#scrollCaretIntoViewVertically(editor, pos);

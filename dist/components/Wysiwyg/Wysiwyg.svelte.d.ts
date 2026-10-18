@@ -25,10 +25,15 @@ interface Props {
     slashMenu?: boolean | SlashMenuConfig;
     /** Move ticked task items to a collapsible "completed" section at the end of their list. Read once on load. */
     groupCompletedTasks?: boolean;
+    /** Start an empty editor with an empty H1 rather than a paragraph, and focus it. */
+    startWithHeading?: boolean;
+    /** Turn a first-line H1 longer than this many characters into a paragraph, once. Read once on load. */
+    demoteLongHeadingAt?: number;
 }
 declare const Wysiwyg: import("svelte").Component<Props, {
     focus: (collapseToStart?: boolean) => boolean;
     focusAtWordIndex: (index: number) => Promise<boolean>;
+    focusHeadingAt: (offset: number) => Promise<boolean>;
 }, "value">;
 type Wysiwyg = ReturnType<typeof Wysiwyg>;
 export default Wysiwyg;
