@@ -348,7 +348,7 @@ To set up standard lists of items, wrap your `ControlItemText`, `ControlItemExpa
 
 ### 7. Masonry Layout
 
-The `Masonry` component is used to arrange elements in columns of equal width, packing them tightly by placing each item into the currently shortest column. Visual placements are updated using absolute positioning to maintain a correct DOM tab-focus order. All standard HTML attributes (such as `class`, `role`, or `aria-label`) are forwarded directly to the container element.
+The `Masonry` component is used to arrange elements in columns of equal width, packing them tightly by placing each item into the currently shortest column. Visual placements are updated using absolute positioning to maintain a correct DOM tab-focus order. With `animate`, items glide to their new slots using the View Transitions API (instant where it is unsupported, with Reduced Motion on, on resize, and on the first layout). `transitionDuration` and `transitionEasing` set the timing. All standard HTML attributes (such as `class`, `role`, or `aria-label`) are forwarded directly to the container element.
 
 It supports an optional `allowResize` boolean prop (defaulting to `true`). Setting this to `false` temporarily pauses layout calculations during layout transition animations (e.g. sidebar sliding, pane resizing) to prevent layout thrashing and maintain 60fps animations. When toggled back to `true`, the grid automatically snaps to the final target width.
 

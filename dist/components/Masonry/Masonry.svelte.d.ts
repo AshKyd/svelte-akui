@@ -3,6 +3,8 @@
      * A lightweight, height-balanced masonry grid component for Svelte 5.
      * Packs grid items dynamically by placing each new item into the currently shortest column
      * to maintain a logical reading and tab focus order.
+     * Reflow is animated with a View Transition (see `reflowTransition.ts`) rather than CSS
+     * transitions on `left`/`top`, so no layout runs per frame.
      * Layout only — dragging and reordering are a consumer concern: wrap items in `<Draggable>`
      * and add `<DropTarget>`s (or `dropTarget()` attachments) to build reorder or move behaviour.
      */
@@ -28,11 +30,11 @@ declare function $$render<T = any>(): {
         refreshLayout?: () => Promise<void>;
         /** Allow the layout to recalculate on resize. Defaults to true. */
         allowResize?: boolean;
-        /** Enable smooth slide transitions when items change position. Defaults to false. */
+        /** Animate items gliding to their new positions with a view transition. Defaults to false. */
         animate?: boolean;
-        /** Duration of the slide transition animation */
+        /** Duration of the reflow animation */
         transitionDuration?: string;
-        /** Easing function of the slide transition animation */
+        /** Easing function of the reflow animation */
         transitionEasing?: string;
     };
     exports: {};

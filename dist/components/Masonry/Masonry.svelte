@@ -4,20 +4,15 @@
 	 * A lightweight, height-balanced masonry grid component for Svelte 5.
 	 * Packs grid items dynamically by placing each new item into the currently shortest column
 	 * to maintain a logical reading and tab focus order.
+	 * Reflow is animated with a View Transition (see `reflowTransition.ts`) rather than CSS
+	 * transitions on `left`/`top`, so no layout runs per frame.
 	 * Layout only — dragging and reordering are a consumer concern: wrap items in `<Draggable>`
 	 * and add `<DropTarget>`s (or `dropTarget()` attachments) to build reorder or move behaviour.
 	 */
 
-	import { onMount, tick, type Snippet } from 'svelte';
+	import { tick, type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
-
-	interface GridInfo {
-		_el: HTMLElement;
-		gap: number;
-		items: HTMLElement[];
-		ncol: number;
-		mod: number;
-	}
+	import { animateReflow, canAnimateReflow } from '../../utils/reflowTransition.js';
 
 	interface Props extends HTMLAttributes<HTMLDivElement> {
 		/** Spacing between grid items */
@@ -38,11 +33,11 @@
 		refreshLayout?: () => Promise<void>;
 		/** Allow the layout to recalculate on resize. Defaults to true. */
 		allowResize?: boolean;
-		/** Enable smooth slide transitions when items change position. Defaults to false. */
+		/** Animate items gliding to their new positions with a view transition. Defaults to false. */
 		animate?: boolean;
-		/** Duration of the slide transition animation */
+		/** Duration of the reflow animation */
 		transitionDuration?: string;
-		/** Easing function of the slide transition animation */
+		/** Easing function of the reflow animation */
 		transitionEasing?: string;
 	}
 
@@ -62,143 +57,148 @@
 		...restProps
 	}: Props = $props();
 
-	let grids: GridInfo[] = [];
 	let masonryElement: HTMLElement | undefined = $state();
 	let containerWidth = $state(0);
-	let hasCalculated = $state(false);
+	/** The first layout has no previous positions to animate from. */
+	let hasCalculated = false;
 
-	/**
-	 * Returns real grid item elements (excluding internal helper elements).
-	 */
-	function getDirectGridItems(): HTMLElement[] {
-		if (!masonryElement) return [];
-		return Array.from(masonryElement.childNodes).filter(
-			(c): c is HTMLElement =>
-				c.nodeType === 1 && Number(getComputedStyle(c as HTMLElement).gridColumnEnd) !== -1
+	/** Returns real grid item elements (excluding internal helper elements). */
+	const getDirectGridItems = (grid: HTMLElement) =>
+		Array.from(grid.children).filter(
+			(child): child is HTMLElement =>
+				child instanceof HTMLElement && Number(getComputedStyle(child).gridColumnEnd) !== -1
 		);
-	}
 
 	/**
-	 * Calculates and applies column-packed positions for an ordered array of items.
+	 * Packs the items into columns, then writes the positions, inside a view transition when
+	 * `animated` so the browser tweens each card from its old slot.
 	 */
-	const applyLayoutToItems = async (grid: GridInfo, itemsToLayout: HTMLElement[]) => {
-		const style = getComputedStyle(grid._el);
-		const gap = parseFloat(style.gridRowGap || style.gap || '0');
-		const cols = style.gridTemplateColumns.split(' ');
-		const ncol = cols.length;
-		const colWidthVal = parseFloat(cols[0]);
+	const pack = async (grid: HTMLElement, animated: boolean) => {
+		const style = getComputedStyle(grid);
+		// Native `grid-template-rows: masonry` lays itself out.
+		if (style.gridTemplateRows === 'masonry') return;
 
-		if (!ncol || isNaN(ncol) || itemsToLayout.length === 0) {
-			grid._el.style.removeProperty('height');
+		const gridItems = getDirectGridItems(grid);
+		const gap = parseFloat(style.gridRowGap || style.gap || '0');
+		const columnWidths = style.gridTemplateColumns.split(' ');
+		const columnCount = columnWidths.length;
+		const columnWidth = parseFloat(columnWidths[0]);
+
+		if (!columnCount || isNaN(columnWidth) || gridItems.length === 0) {
+			grid.style.removeProperty('height');
 			return;
 		}
 
-		const containerWidthVal = grid._el.getBoundingClientRect().width;
-		const paddingLeft = parseFloat(style.paddingLeft || '0');
-		const paddingRight = parseFloat(style.paddingRight || '0');
-		const paddingTop = parseFloat(style.paddingTop || '0');
-		const paddingBottom = parseFloat(style.paddingBottom || '0');
-
-		const contentWidth = containerWidthVal - paddingLeft - paddingRight;
-		const totalGridWidth = ncol * colWidthVal + (ncol - 1) * gap;
-		const remainingSpace = Math.max(0, contentWidth - totalGridWidth);
+		// Spare width is shared out the way `justify-content` would
+		const contentWidth =
+			grid.getBoundingClientRect().width -
+			parseFloat(style.paddingLeft || '0') -
+			parseFloat(style.paddingRight || '0');
+		const spareWidth = Math.max(
+			0,
+			contentWidth - (columnCount * columnWidth + (columnCount - 1) * gap)
+		);
 		const justifyContent = style.justifyContent || 'center';
-
 		const leftOffset = justifyContent.includes('center')
-			? remainingSpace / 2
+			? spareWidth / 2
 			: justifyContent.includes('end') || justifyContent.includes('right')
-				? remainingSpace
+				? spareWidth
 				: 0;
 
-		// Set width on all items first so they wrap content at the correct column width
-		itemsToLayout.forEach((item) => {
-			item.style.width = `${colWidthVal}px`;
-		});
-
-		// Wait for layout to apply widths before measuring heights
+		// Items take the column width before measuring so their text wraps at the right height
+		gridItems.forEach((item) => (item.style.width = `${columnWidth}px`));
 		await tick();
-		void grid._el.offsetHeight;
 
-		// Layout items in memory by assigning each to the shortest column
-		const colHeights = new Array(ncol).fill(0);
-		const placements = itemsToLayout.map((item) => {
-			let minCol = 0;
-			let minHeight = colHeights[0];
-			for (let col = 1; col < ncol; col++) {
-				if (colHeights[col] < minHeight) {
-					minHeight = colHeights[col];
-					minCol = col;
-				}
-			}
-
-			const height = item.getBoundingClientRect().height || item.offsetHeight;
-			const left = leftOffset + minCol * (colWidthVal + gap);
-			const top = colHeights[minCol];
-
-			colHeights[minCol] = top + height + gap;
-
-			return { item, left, top, width: colWidthVal, height };
+		// Each item goes in the shortest column so far
+		const columnHeights = new Array<number>(columnCount).fill(0);
+		const placements = gridItems.map((item) => {
+			const column = columnHeights.indexOf(Math.min(...columnHeights));
+			const top = columnHeights[column];
+			columnHeights[column] = top + item.getBoundingClientRect().height + gap;
+			return { item, left: leftOffset + column * (columnWidth + gap), top };
 		});
+		const height =
+			Math.max(0, Math.max(...columnHeights) - gap) +
+			parseFloat(style.paddingTop || '0') +
+			parseFloat(style.paddingBottom || '0');
 
-		// Write calculated destination positions to DOM
-		placements.forEach(({ item, left, top }) => {
-			item.style.left = `${left}px`;
-			item.style.top = `${top}px`;
-		});
+		const write = () => {
+			placements.forEach(({ item, left, top }) => {
+				item.style.left = `${left}px`;
+				item.style.top = `${top}px`;
+			});
+			grid.style.height = `${height}px`;
+		};
 
-		// Constrain container height to match the tallest column
-		const maxColHeight = Math.max(...colHeights);
-		const containerHeight = Math.max(0, maxColHeight - gap) + paddingTop + paddingBottom;
-		grid._el.style.height = `${containerHeight}px`;
+		// Image decodes re-pack to identical positions; don't start an empty transition.
+		const hasChanged =
+			grid.style.height !== `${height}px` ||
+			placements.some(
+				({ item, left, top }) => item.style.left !== `${left}px` || item.style.top !== `${top}px`
+			);
 
+		if (hasChanged && animated && animate && hasCalculated && canAnimateReflow()) {
+			await animateReflow({
+				items: gridItems,
+				write,
+				duration: transitionDuration,
+				easing: transitionEasing
+			});
+		} else if (hasChanged) {
+			write();
+		}
 		hasCalculated = true;
 	};
 
-	const refresh = async () => {
-		if (masonryElement && getComputedStyle(masonryElement).gridTemplateRows !== 'masonry') {
-			grids = [
-				{
-					_el: masonryElement,
-					gap: parseFloat(getComputedStyle(masonryElement).gridRowGap || '0'),
-					items: getDirectGridItems(),
-					ncol: 0,
-					mod: 0
-				}
-			];
-		}
-
-		await Promise.all(
-			grids.map(async (grid) => {
-				await applyLayoutToItems(grid, grid.items);
-			})
-		);
-
-		// Heights are measured once per pass. Anything that grows an item *after* that —
-		// async image decode, web-font swap, late-arriving content — has to trigger another
-		// pass or the columns keep the stale heights and overlap.
-		observeItemSizes();
-	};
+	let isPacking = false;
+	/** A refresh requested mid-pass; `true` if any of the requests wanted animation. */
+	let queuedAnimated: boolean | null = null;
 
 	/**
-	 * Watches each grid item's rendered box and re-packs when one changes size after layout.
-	 * The most common cause is multiple images in a card finishing decode at different times.
+	 * Re-packs the grid, one pass at a time. A drop fires several refreshes at once (Svelte effect,
+	 * MutationObserver), and packing concurrently would write positions from stale measurements.
+	 * Extra requests collapse into a single follow-up pass.
+	 */
+	const refresh = async (animated = false): Promise<void> => {
+		if (!masonryElement) return;
+		if (isPacking) {
+			queuedAnimated = (queuedAnimated ?? false) || animated;
+			return;
+		}
+
+		isPacking = true;
+		await pack(masonryElement, animated).finally(() => (isPacking = false));
+		observeItemSizes();
+
+		if (queuedAnimated === null) return;
+		const followUpAnimated = queuedAnimated;
+		queuedAnimated = null;
+		await refresh(followUpAnimated);
+	};
+
+	// Parents call this after content changes (items added, removed, reordered or grown).
+	refreshLayout = () => refresh(true);
+
+	/**
+	 * Heights are measured once per pass. Anything that grows an item *after* that — async image
+	 * decode, web-font swap, late-arriving content — has to trigger another pass or the columns
+	 * keep the stale heights and overlap. The usual cause is images in a card decoding at
+	 * different times, so bursts are debounced into one instant re-pack.
 	 */
 	let itemResizeObserver: ResizeObserver | undefined;
-	let pendingItemResizeRefresh: ReturnType<typeof setTimeout> | undefined;
 	const observedItems = new WeakSet<HTMLElement>();
 
 	const observeItemSizes = () => {
-		if (typeof ResizeObserver === 'undefined') return;
+		if (!masonryElement || typeof ResizeObserver === 'undefined') return;
 
-		// Debounced so a burst of image loads collapses into a single re-pack.
+		let timer: ReturnType<typeof setTimeout>;
 		itemResizeObserver ??= new ResizeObserver(() => {
-			clearTimeout(pendingItemResizeRefresh);
-			pendingItemResizeRefresh = setTimeout(refresh, 60);
+			clearTimeout(timer);
+			timer = setTimeout(() => refresh(), 60);
 		});
 
-		// Observe only items not already tracked: re-observing would re-fire the initial
-		// callback for every item on every pass and never settle.
-		getDirectGridItems()
+		// Observe only new items: re-observing would re-fire every item's initial callback each pass.
+		getDirectGridItems(masonryElement)
 			.filter((item) => !observedItems.has(item))
 			.forEach((item) => {
 				observedItems.add(item);
@@ -206,67 +206,27 @@
 			});
 	};
 
-	// Expose the layout refresh function to parents
-	refreshLayout = refresh;
-
-	const calcGrid = async (masonryArr: HTMLElement[]) => {
-		await tick();
-		if (masonryArr.length && getComputedStyle(masonryArr[0]).gridTemplateRows !== 'masonry') {
-			grids = masonryArr.map((grid) => ({
-				_el: grid,
-				gap: parseFloat(getComputedStyle(grid).gridRowGap || '0'),
-				items: getDirectGridItems(),
-				ncol: 0,
-				mod: 0
-			}));
-			refresh();
-		}
-	};
-
-	// Re-initialize layout when container reference is set
+	// First layout, and every time children are added or removed
 	$effect(() => {
-		if (masonryElement) {
-			calcGrid([masonryElement]);
-		}
-	});
+		if (!masonryElement) return;
+		tick().then(() => refresh(true));
 
-	// Reactively trigger layout updates whenever container width changes (e.g. sidebar toggles)
-	$effect(() => {
-		if (containerWidth > 0 && allowResize) {
-			refresh();
-		}
-	});
-
-	// Trigger layout refresh when resizing is re-enabled to snap immediately to final width
-	$effect(() => {
-		if (allowResize) {
-			refresh();
-		}
-	});
-
-	onMount(() => {
-		let mutationObserver: MutationObserver | null = null;
-
-		if (masonryElement) {
-			mutationObserver = new MutationObserver(() => {
-				calcGrid([masonryElement!]);
-			});
-			mutationObserver.observe(masonryElement, {
-				childList: true
-			});
-		}
-
+		const mutationObserver = new MutationObserver(() => refresh(true));
+		mutationObserver.observe(masonryElement, { childList: true });
 		return () => {
-			if (mutationObserver) {
-				mutationObserver.disconnect();
-			}
+			mutationObserver.disconnect();
 			itemResizeObserver?.disconnect();
-			clearTimeout(pendingItemResizeRefresh);
 		};
 	});
-</script>
 
-<svelte:window onresize={refresh} />
+	// Width changes (window resize, sidebar toggle) re-pack once they settle: a drag-resize fires
+	// continuously, and a view transition started mid-resize would be cancelled by the next event.
+	$effect(() => {
+		if (!allowResize || containerWidth <= 0) return;
+		const timer = setTimeout(() => refresh(true), 150);
+		return () => clearTimeout(timer);
+	});
+</script>
 
 <div
 	bind:this={masonryElement}
@@ -276,7 +236,6 @@
       --masonry-grid-gap: ${gridGap};
       --masonry-padding: ${padding};
       --masonry-col-width: ${colWidth};
-      ${animate && hasCalculated ? `--masonry-transition: left ${transitionDuration} ${transitionEasing}, top ${transitionDuration} ${transitionEasing}, width ${transitionDuration} ${transitionEasing};` : ''}
      `}
 	{...restProps}
 >
@@ -302,6 +261,18 @@
 	.akui-masonry > :global(*) {
 		position: absolute;
 		box-sizing: border-box;
-		transition: var(--masonry-transition, none);
+	}
+
+	/* `animateReflow` sets the attribute and variables while a reflow runs. Cards take the timing;
+	   the page-wide `root` snapshot is frozen so the rest of the UI doesn't crossfade. */
+	:global(html[data-akui-masonry-vt]::view-transition-group(*)),
+	:global(html[data-akui-masonry-vt]::view-transition-old(*)),
+	:global(html[data-akui-masonry-vt]::view-transition-new(*)) {
+		animation-duration: var(--akui-masonry-vt-duration, 0.25s);
+		animation-timing-function: var(--akui-masonry-vt-easing, ease);
+	}
+	:global(html[data-akui-masonry-vt]::view-transition-old(root)),
+	:global(html[data-akui-masonry-vt]::view-transition-new(root)) {
+		animation: none;
 	}
 </style>
