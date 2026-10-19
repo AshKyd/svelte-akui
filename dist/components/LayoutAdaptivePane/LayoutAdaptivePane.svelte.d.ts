@@ -38,6 +38,14 @@ interface Props {
      * Not drawn when stacked, where the pane stays opaque. Content inside should not paint its own solid background.
      */
     nestedBackdrop?: Snippet;
+    /** 'over' mode on desktop only: the nested pane covers the full container width and the divider is hidden. Defaults to false. */
+    focusNested?: boolean;
+    /**
+     * The app morphs the nested pane in and out with a view transition (see `morphTransition`) whenever it
+     * is full screen, i.e. stacked or `focusNested`. The pane's own enter and exit animations are skipped
+     * then, so the two don't fight. The pane is found with `[data-akui-nested-pane]`. Defaults to false.
+     */
+    viewTransition?: boolean;
 }
 declare const LayoutAdaptivePane: import("svelte").Component<Props, {}, "mainPaneWidth">;
 type LayoutAdaptivePane = ReturnType<typeof LayoutAdaptivePane>;

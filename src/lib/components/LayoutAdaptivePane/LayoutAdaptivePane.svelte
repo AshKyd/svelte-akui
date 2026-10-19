@@ -43,6 +43,12 @@
 		nestedBackdrop?: Snippet;
 		/** 'over' mode on desktop only: the nested pane covers the full container width and the divider is hidden. Defaults to false. */
 		focusNested?: boolean;
+		/**
+		 * The app morphs the nested pane in and out with a view transition (see `morphTransition`) whenever it
+		 * is full screen, i.e. stacked or `focusNested`. The pane's own enter and exit animations are skipped
+		 * then, so the two don't fight. The pane is found with `[data-akui-nested-pane]`. Defaults to false.
+		 */
+		viewTransition?: boolean;
 	}
 
 	let {
@@ -60,7 +66,8 @@
 		minNestedPaneWidth = 400,
 		surface,
 		nestedBackdrop,
-		focusNested = false
+		focusNested = false,
+		viewTransition = false
 	}: Props = $props();
 
 	let containerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -91,6 +98,9 @@
 
 	/** Focus only changes the overlay; stacked already shows one full-width pane. */
 	let isFocus = $derived(isOverlay && focusNested);
+
+	/** Full-screen opens and closes belong to the view transition, not the pane's own animations. */
+	let skipPaneTransitions = $derived(viewTransition && (isStacked || isFocus));
 
 	let hasNestedBackdrop = $derived(!!nestedBackdrop && !isStacked);
 
@@ -202,10 +212,10 @@
 	 */
 	function stackedNestedFade(
 		_node: Element,
-		{ reducedMotion = false }: { reducedMotion?: boolean }
+		{ reducedMotion = false, skip = false }: { reducedMotion?: boolean; skip?: boolean }
 	) {
 		return {
-			duration: reducedMotion ? 120 : 250,
+			duration: skip ? 0 : reducedMotion ? 120 : 250,
 			easing: cubicOut,
 			css: (t: number) =>
 				reducedMotion
@@ -238,6 +248,7 @@
 	class:is-stacked={isStacked}
 	class:is-overlay={isOverlay}
 	class:is-focus={isFocus}
+	class:skip-pane-transitions={skipPaneTransitions}
 	class:hide-nested={shouldHideNested}
 	class:is-ready={isLayoutReady}
 	class:is-dragging={isDragging}
@@ -260,6 +271,7 @@
 	<div
 		class="akui-pane-nested"
 		bind:this={nestedEl}
+		data-akui-nested-pane
 		class:active={!isBaseRoute}
 		class:has-backdrop={hasNestedBackdrop}
 		inert={(isStacked && isBaseRoute) || shouldHideNested ? true : undefined}
@@ -284,10 +296,12 @@
 			{#key currentRouteId}
 				<div
 					class="akui-pane-nested-transition-wrapper"
-					in:fly={prefersReducedMotion
+					in:fly={prefersReducedMotion || skipPaneTransitions
 						? { duration: 0 }
 						: { x: -50, duration: 250, easing: cubicOut }}
-					out:fade={prefersReducedMotion ? { duration: 0 } : { duration: 150 }}
+					out:fade={prefersReducedMotion || skipPaneTransitions
+						? { duration: 0 }
+						: { duration: 150 }}
 				>
 					{@render nestedPane?.({ isStacked })}
 				</div>
@@ -301,7 +315,7 @@
 			{#key currentRouteId}
 				<div
 					class="akui-pane-nested-transition-wrapper"
-					transition:stackedNestedFade|global={{ reducedMotion: prefersReducedMotion }}
+					transition:stackedNestedFade|global={{ reducedMotion: prefersReducedMotion, skip: skipPaneTransitions }}
 				>
 					{@render nestedPane?.({ isStacked })}
 				</div>
@@ -519,6 +533,15 @@
 		left: 0;
 		width: 0;
 		z-index: 20;
+	}
+
+	/* The view transition takes its new snapshot as soon as the pane's state flips. If the pane's own CSS
+	   transitions (slide, opacity) were still running, the snapshot would catch it part way, off screen or
+	   transparent, and the full-screen pane would only appear once they finished. Selectors repeat
+	   `.is-ready` and the mode class to outrank the transition rules above. */
+	.akui-layout-adaptive-pane.is-ready.is-overlay.skip-pane-transitions .akui-pane-nested,
+	.akui-layout-adaptive-pane.is-ready.is-stacked.skip-pane-transitions .akui-pane-nested {
+		transition: none;
 	}
 
 	/* While dragging, the seam has to track the pointer frame for frame — easing

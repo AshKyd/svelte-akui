@@ -509,6 +509,43 @@ html.transition-forward ::view-transition-new(page) {
 	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
 }
 
+/* Shared-element morph (see morphTransition and LayoutAdaptivePane's sharedElementName). The group
+   moves and resizes the box; the old picture is gone quickly so it isn't stretched to the new shape,
+   and the new content crossfades in as it arrives. */
+::view-transition-group(akui-note-open) {
+	animation-duration: 0.3s;
+	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	z-index: 20;
+}
+::view-transition-old(akui-note-open) {
+	animation: akui-morph-out 0.12s ease-out both;
+	height: 100%;
+	object-fit: cover;
+}
+::view-transition-new(akui-note-open) {
+	animation: akui-morph-in 0.2s ease-in 0.1s both;
+	height: 100%;
+	object-fit: cover;
+}
+html[data-reduced-motion='true'] ::view-transition-group(akui-note-open),
+html[data-reduced-motion='true'] ::view-transition-old(akui-note-open),
+html[data-reduced-motion='true'] ::view-transition-new(akui-note-open) {
+	animation-duration: 0.01s;
+	animation-delay: 0s;
+}
+
+@keyframes akui-morph-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes akui-morph-in {
+	from {
+		opacity: 0;
+	}
+}
+
 @keyframes akui-slide-in {
 	from {
 		transform: translateX(100%);

@@ -509,6 +509,68 @@ html.transition-forward ::view-transition-new(page) {
 	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
 }
 
+/* Shared-element morph (see morphTransition and LayoutAdaptivePane's viewTransition).
+   The group moves and resizes the box; the old picture (the card) rides in it, then the new picture
+   (the note) crossfades over it as the box nears its final size.
+   All three layers share one duration, so they can't drift apart. The two fades are linear and
+   overlap exactly: the browser adds the layers together (plus-lighter), so the box is always fully
+   covered. Fading the old one out before the new one fades in leaves it empty part way through. */
+:root {
+	--akui-morph-duration: 0.3s;
+}
+::view-transition-group(akui-note-open) {
+	animation-duration: var(--akui-morph-duration);
+	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	z-index: 20;
+}
+::view-transition-old(akui-note-open),
+::view-transition-new(akui-note-open) {
+	animation-duration: var(--akui-morph-duration);
+	animation-timing-function: linear;
+	animation-fill-mode: both;
+	/* Crop to the box from the top-left rather than squashing, so the title stays where it started. */
+	height: 100%;
+	object-fit: cover;
+	object-position: top left;
+}
+::view-transition-old(akui-note-open) {
+	animation-name: akui-morph-out;
+}
+::view-transition-new(akui-note-open) {
+	animation-name: akui-morph-in;
+}
+/* Reduced Motion: no shared element (see morphTransition), just a short crossfade of the page. */
+html.akui-morph-reduced::view-transition-old(root),
+html.akui-morph-reduced::view-transition-new(root) {
+	animation-duration: 0.15s;
+	animation-timing-function: ease-out;
+}
+
+/* The card is scaled up with the box, so its text gets huge if it stays visible. The crossfade is
+   therefore done by 60% of the morph; the rest of the growth is only the note, which scales up from
+   a small copy of itself towards its natural size. */
+@keyframes akui-morph-out {
+	0%,
+	15% {
+		opacity: 1;
+	}
+	60%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes akui-morph-in {
+	0%,
+	15% {
+		opacity: 0;
+	}
+	60%,
+	100% {
+		opacity: 1;
+	}
+}
+
 @keyframes akui-slide-in {
 	from {
 		transform: translateX(100%);
