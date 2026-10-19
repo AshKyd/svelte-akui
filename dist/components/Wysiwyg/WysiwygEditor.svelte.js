@@ -233,6 +233,10 @@ export class WysiwygEditorController {
             this.#resolveReady?.();
         }
     }
+    /** Resolves once the editor has loaded (or failed to), i.e. its content is on screen. */
+    whenReady() {
+        return this.#ready;
+    }
     /**
      * Focuses the editor, with the cursor at the start or end of the document.
      */

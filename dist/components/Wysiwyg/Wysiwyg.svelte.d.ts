@@ -31,6 +31,7 @@ interface Props {
     demoteLongHeadingAt?: number;
 }
 declare const Wysiwyg: import("svelte").Component<Props, {
+    whenReady: () => Promise<void>;
     focus: (collapseToStart?: boolean) => boolean;
     focusAtWordIndex: (index: number) => Promise<boolean>;
     focusHeadingAt: (offset: number) => Promise<boolean>;

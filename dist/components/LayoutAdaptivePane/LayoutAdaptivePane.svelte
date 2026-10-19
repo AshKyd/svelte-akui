@@ -248,6 +248,7 @@
 	class:is-stacked={isStacked}
 	class:is-overlay={isOverlay}
 	class:is-focus={isFocus}
+	class:skip-pane-transitions={skipPaneTransitions}
 	class:hide-nested={shouldHideNested}
 	class:is-ready={isLayoutReady}
 	class:is-dragging={isDragging}
@@ -532,6 +533,15 @@
 		left: 0;
 		width: 0;
 		z-index: 20;
+	}
+
+	/* The view transition takes its new snapshot as soon as the pane's state flips. If the pane's own CSS
+	   transitions (slide, opacity) were still running, the snapshot would catch it part way, off screen or
+	   transparent, and the full-screen pane would only appear once they finished. Selectors repeat
+	   `.is-ready` and the mode class to outrank the transition rules above. */
+	.akui-layout-adaptive-pane.is-ready.is-overlay.skip-pane-transitions .akui-pane-nested,
+	.akui-layout-adaptive-pane.is-ready.is-stacked.skip-pane-transitions .akui-pane-nested {
+		transition: none;
 	}
 
 	/* While dragging, the seam has to track the pointer frame for frame — easing

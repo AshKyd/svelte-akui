@@ -71,6 +71,8 @@ export declare class WysiwygEditorController {
      * Retries the editor initialization process.
      */
     retry(): void;
+    /** Resolves once the editor has loaded (or failed to), i.e. its content is on screen. */
+    whenReady(): Promise<void>;
     /**
      * Focuses the editor, with the cursor at the start or end of the document.
      */

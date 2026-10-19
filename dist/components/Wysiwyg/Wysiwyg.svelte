@@ -96,6 +96,11 @@
 		editor.updateValue(value);
 	});
 
+	/** Resolves once the editor has loaded, e.g. so a view transition can wait for its content. */
+	export function whenReady() {
+		return editor.whenReady();
+	}
+
 	/** Focuses the editor element. */
 	export function focus(collapseToStart = true) {
 		return editor.focus(collapseToStart);
