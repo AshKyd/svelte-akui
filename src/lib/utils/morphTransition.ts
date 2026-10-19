@@ -10,6 +10,11 @@ interface MorphTransitionOptions {
 	 * e.g. the card to return to when closing. When it finds nothing the browser plain-crossfades.
 	 */
 	toElement: () => Element | null;
+	/**
+	 * 'open' hands over from the small element to the big one early; 'close' hands over late, so the
+	 * big element shrinks before the small one appears. Defaults to 'open'.
+	 */
+	direction?: 'open' | 'close';
 	/** Resolves once the page has changed, e.g. SvelteKit's `navigation.complete`. The new snapshot is taken after it. */
 	update: () => Promise<unknown>;
 }
@@ -39,6 +44,7 @@ export function morphTransition({
 	name,
 	fromElement,
 	toElement,
+	direction = 'open',
 	update
 }: MorphTransitionOptions): Promise<void> {
 	if (!fromElement || !document.startViewTransition) return Promise.resolve();
@@ -50,7 +56,10 @@ export function morphTransition({
 
 	return new Promise((resolve) => {
 		if (isReduced) root.classList.add('akui-morph-reduced');
-		else setName(fromElement, name);
+		else {
+			setName(fromElement, name);
+			root.classList.toggle('akui-morph-close', direction === 'close');
+		}
 
 		const transition = document.startViewTransition(async () => {
 			resolve();
@@ -69,7 +78,7 @@ export function morphTransition({
 		transition.finished
 			.catch(() => {})
 			.finally(() => {
-				root.classList.remove('akui-morph-reduced');
+				root.classList.remove('akui-morph-reduced', 'akui-morph-close');
 				clearName(fromElement);
 				clearName(toElement());
 				resolve();

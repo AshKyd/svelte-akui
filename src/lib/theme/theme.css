@@ -546,26 +546,54 @@ html.akui-morph-reduced::view-transition-new(root) {
 	animation-timing-function: ease-out;
 }
 
-/* The card is scaled up with the box, so its text gets huge if it stays visible. The crossfade is
-   therefore done by 60% of the morph; the rest of the growth is only the note, which scales up from
-   a small copy of itself towards its natural size. */
+/* The card is scaled up with the box, so its text gets huge and busy if it stays visible, and two
+   sets of text overlapping looks messy. The crossfade is therefore done by 20% of the morph; the rest
+   of the growth is only the note, which scales up from a small copy of itself towards its natural size. */
 @keyframes akui-morph-out {
-	0%,
-	15% {
+	0% {
 		opacity: 1;
 	}
-	60%,
+	50%,
 	100% {
 		opacity: 0;
 	}
 }
 
 @keyframes akui-morph-in {
-	0%,
-	15% {
+	0% {
 		opacity: 0;
 	}
-	60%,
+	50%,
+	100% {
+		opacity: 1;
+	}
+}
+
+/* Closing runs the same morph backwards: the big note is the old layer and the small card the new one.
+   The handover is late (80%) so the note has shrunk before the card appears, rather than the card's
+   text being scaled up huge at the start. */
+html.akui-morph-close::view-transition-old(akui-note-open) {
+	animation-name: akui-morph-out-late;
+}
+html.akui-morph-close::view-transition-new(akui-note-open) {
+	animation-name: akui-morph-in-late;
+}
+
+@keyframes akui-morph-out-late {
+	0%,
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes akui-morph-in-late {
+	0%,
+	50% {
+		opacity: 0;
+	}
 	100% {
 		opacity: 1;
 	}
