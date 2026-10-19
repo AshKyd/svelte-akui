@@ -41,6 +41,8 @@
 		 * Not drawn when stacked, where the pane stays opaque. Content inside should not paint its own solid background.
 		 */
 		nestedBackdrop?: Snippet;
+		/** 'over' mode on desktop only: the nested pane covers the full container width and the divider is hidden. Defaults to false. */
+		focusNested?: boolean;
 	}
 
 	let {
@@ -57,7 +59,8 @@
 		maxMainPaneWidth = Infinity,
 		minNestedPaneWidth = 400,
 		surface,
-		nestedBackdrop
+		nestedBackdrop,
+		focusNested = false
 	}: Props = $props();
 
 	let containerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 0);
@@ -86,6 +89,9 @@
 	 */
 	let isOverlay = $derived(paneMode === 'over' && !isStacked);
 
+	/** Focus only changes the overlay; stacked already shows one full-width pane. */
+	let isFocus = $derived(isOverlay && focusNested);
+
 	let hasNestedBackdrop = $derived(!!nestedBackdrop && !isStacked);
 
 	/**
@@ -97,10 +103,12 @@
 	let backdropStyle = $state('');
 	$effect(() => {
 		// Re-run when anything that can move or resize the container changes.
-		void [containerWidth, mainPaneWidth, windowWidth, windowHeight];
+		void [containerWidth, mainPaneWidth, windowWidth, windowHeight, isFocus];
 		if (!containerEl || !hasNestedBackdrop) return;
 		const { left, top } = containerEl.getBoundingClientRect();
-		backdropStyle = `left: ${-(left + mainPaneWidth)}px; top: ${-top}px; width: ${windowWidth}px; height: ${windowHeight}px;`;
+		// In focus the pane is fixed to the viewport's top-left, so the backdrop needs no offset.
+		const [offsetLeft, offsetTop] = isFocus ? [0, 0] : [left + mainPaneWidth, top];
+		backdropStyle = `left: ${-offsetLeft}px; top: ${-offsetTop}px; width: ${windowWidth}px; height: ${windowHeight}px;`;
 	});
 
 	/**
@@ -229,6 +237,7 @@
 	bind:this={containerEl}
 	class:is-stacked={isStacked}
 	class:is-overlay={isOverlay}
+	class:is-focus={isFocus}
 	class:hide-nested={shouldHideNested}
 	class:is-ready={isLayoutReady}
 	class:is-dragging={isDragging}
@@ -264,7 +273,7 @@
 			</div>
 		{/if}
 
-		{#if isOverlay && !isStacked}
+		{#if isOverlay && !isStacked && !isFocus}
 			<!-- Floated on the leading edge of the overlay pane so it animates in and out with it. -->
 			<div class="akui-pane-divider-overlay" bind:this={dividerEl}>
 				{@render divider()}
@@ -470,6 +479,16 @@
 		box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
 		transform: translate3d(0, 0, 0);
 		overflow: visible;
+	}
+
+	/* Focus: fixed to the viewport so it also covers whatever sits beside the container (e.g. a
+	   sidebar), with no seam, border or shadow to show. Stays below modal sidebars (z-index 99+). */
+	.akui-layout-adaptive-pane.is-overlay.is-focus .akui-pane-nested {
+		position: fixed;
+		inset: 0;
+		z-index: 50;
+		border-left: none;
+		box-shadow: none;
 	}
 
 	:global([data-theme='dark']) .akui-layout-adaptive-pane.is-overlay .akui-pane-nested {
