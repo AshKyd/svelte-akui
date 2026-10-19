@@ -522,16 +522,18 @@ html.transition-forward ::view-transition-new(page) {
 	animation-duration: var(--akui-morph-duration);
 	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	z-index: 20;
+	overflow: clip;
 }
 ::view-transition-old(akui-note-open),
 ::view-transition-new(akui-note-open) {
 	animation-duration: var(--akui-morph-duration);
 	animation-timing-function: linear;
 	animation-fill-mode: both;
-	/* Crop to the box from the top-left rather than squashing, so the title stays where it started. */
-	height: 100%;
-	object-fit: cover;
-	object-position: top left;
+	/* Scale by width only and anchor to the top (the browser default), cropping the bottom with the
+	   group's `overflow`. Filling the height instead (`object-fit: cover`) blows a wide, short source
+	   like a journal row up by the ratio of heights, so its text balloons towards the centre of the
+	   screen while the note's text starts at the top. */
+	height: auto;
 }
 ::view-transition-old(akui-note-open) {
 	animation-name: akui-morph-out;
