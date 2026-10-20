@@ -29,6 +29,7 @@ export * from './components/LayoutContentWidth/index.js';
 export * from './components/InfoBox/index.js';
 export * from './components/NotificationArea/index.js';
 export * from './components/Tree/index.js';
+export * from './components/DrawingFreehand/index.js';
 export * from './components/FeedItemRow/index.js';
 export * from './components/DynamicImage/index.js';
 export * from './components/SwipeAction/index.js';
