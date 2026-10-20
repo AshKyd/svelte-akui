@@ -443,6 +443,9 @@
 		touch-action: none;
 		user-select: none;
 		-webkit-user-select: none;
+		/* iPadOS: no callout or highlight flash when the Pencil or a finger presses and holds. */
+		-webkit-touch-callout: none;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	.layer {

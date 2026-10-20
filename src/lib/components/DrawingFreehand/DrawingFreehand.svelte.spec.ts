@@ -12,23 +12,34 @@ function firePointer(
 		x,
 		y,
 		pointerType = 'mouse',
-		altKey = false
-	}: { id?: number; x: number; y: number; pointerType?: string; altKey?: boolean }
+		altKey = false,
+		width = 1
+	}: {
+		id?: number;
+		x: number;
+		y: number;
+		pointerType?: string;
+		altKey?: boolean;
+		width?: number;
+	}
 ) {
 	const rect = viewport.getBoundingClientRect();
-	viewport.dispatchEvent(
-		new PointerEvent(type, {
-			pointerId: id,
-			pointerType,
-			clientX: rect.left + x,
-			clientY: rect.top + y,
-			button: 0,
-			buttons: type === 'pointerup' ? 0 : 1,
-			pressure: 0.5,
-			altKey,
-			bubbles: true
-		})
-	);
+	const event = new PointerEvent(type, {
+		pointerId: id,
+		pointerType,
+		clientX: rect.left + x,
+		clientY: rect.top + y,
+		button: 0,
+		buttons: type === 'pointerup' ? 0 : 1,
+		pressure: 0.5,
+		width,
+		height: width,
+		altKey,
+		bubbles: true,
+		cancelable: true
+	});
+	viewport.dispatchEvent(event);
+	return event;
 }
 
 /** Draws a diagonal line of several samples so perfect-freehand has enough points. */
@@ -322,6 +333,51 @@ describe('DrawingFreehand', () => {
 
 		await new Promise((resolve) => setTimeout(resolve, 50));
 		expect(viewport.querySelectorAll('svg.layer path').length).toBe(0);
+	});
+
+	it('prevents the default on pen and touch presses so Safari starts no selection drag', () => {
+		const { viewport } = mount();
+		expect(
+			firePointer(viewport, 'pointerdown', { id: 30, x: 50, y: 50, pointerType: 'pen' })
+				.defaultPrevented
+		).toBe(true);
+		firePointer(viewport, 'pointerup', { id: 30, x: 50, y: 50, pointerType: 'pen' });
+	});
+
+	it('ignores a palm-sized touch contact', async () => {
+		const { viewport } = mount();
+		firePointer(viewport, 'pointerdown', { id: 40, x: 100, y: 100, pointerType: 'touch', width: 90 });
+		firePointer(viewport, 'pointermove', { id: 40, x: 160, y: 140, pointerType: 'touch', width: 90 });
+		firePointer(viewport, 'pointerup', { id: 40, x: 160, y: 140, pointerType: 'touch', width: 90 });
+
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		expect(viewport.querySelectorAll('svg.layer path').length).toBe(0);
+	});
+
+	it('keeps a pen stroke going while two palm touches land', async () => {
+		const { viewport } = mount();
+		firePointer(viewport, 'pointerdown', { id: 50, x: 100, y: 100, pointerType: 'pen' });
+		firePointer(viewport, 'pointerdown', { id: 51, x: 300, y: 200, pointerType: 'touch' });
+		firePointer(viewport, 'pointerdown', { id: 52, x: 320, y: 210, pointerType: 'touch' });
+		Array.from({ length: 12 }, (_, i) => i + 1).forEach((i) =>
+			firePointer(viewport, 'pointermove', {
+				id: 50,
+				x: 100 + i * 10,
+				y: 100 + i * 6,
+				pointerType: 'pen'
+			})
+		);
+		firePointer(viewport, 'pointerup', { id: 50, x: 220, y: 172, pointerType: 'pen' });
+
+		await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
+	});
+
+	it('lets the pen take over from a stroke a finger had started', async () => {
+		const { viewport } = mount();
+		firePointer(viewport, 'pointerdown', { id: 60, x: 300, y: 200, pointerType: 'touch' });
+		drawLine(viewport, 61, 'pen');
+
+		await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
 	});
 
 	it('loads a saved SVG and writes one back', async () => {
