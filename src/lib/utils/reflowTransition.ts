@@ -12,9 +12,12 @@ interface Reflow {
 
 let batch: Reflow[] = [];
 
-/** False without the View Transitions API, or with Reduced Motion on. */
+/** True while `morphBetweenGrids` waits for its update; reflows must write directly then. */
+let isHoldingReflow = false;
+
+/** False without the View Transitions API, with Reduced Motion on, or during a grid-to-grid morph. */
 export const canAnimateReflow = () =>
-	typeof document.startViewTransition === 'function' && !reducedMotion.value;
+	typeof document.startViewTransition === 'function' && !reducedMotion.value && !isHoldingReflow;
 
 /** True while any view transition (ours, or e.g. `morphTransition`) is animating. */
 const isViewTransitionRunning = () =>
@@ -51,6 +54,44 @@ const play = async (reflows: Reflow[]) => {
 	root.style.removeProperty('--akui-masonry-vt-duration');
 	root.style.removeProperty('--akui-masonry-vt-easing');
 	reflows.forEach((reflow) => reflow.resolve());
+};
+
+/**
+ * Runs `update` inside a view transition so an item that leaves one grid and joins another glides
+ * between them. The caller gives the moving item (in both grids) the same `view-transition-name`
+ * while `update` runs; the browser pairs the old and new elements by name.
+ *
+ * `update` must leave both grids fully packed: reflows are written directly (not animated) until it
+ * resolves, because a reflow's own transition would cancel this one and its animation frame never
+ * fires while the page is frozen for the snapshot. Falls back to plain `update()` when animation
+ * isn't possible.
+ */
+export const morphBetweenGrids = async ({
+	update,
+	duration = '0.35s',
+	easing = 'cubic-bezier(0.2, 0, 0, 1)'
+}: {
+	update: () => Promise<void>;
+	duration?: string;
+	easing?: string;
+}) => {
+	if (!canAnimateReflow() || isViewTransitionRunning()) return update();
+
+	const root = document.documentElement;
+	isHoldingReflow = true;
+	root.dataset.akuiMasonryVt = '';
+	root.style.setProperty('--akui-masonry-vt-duration', duration);
+	root.style.setProperty('--akui-masonry-vt-easing', easing);
+
+	const transition = document.startViewTransition(() => update().catch(() => {}));
+	transition.ready.catch(() => {});
+	await transition.updateCallbackDone.catch(() => {});
+	isHoldingReflow = false;
+	await transition.finished.catch(() => {});
+
+	delete root.dataset.akuiMasonryVt;
+	root.style.removeProperty('--akui-masonry-vt-duration');
+	root.style.removeProperty('--akui-masonry-vt-easing');
 };
 
 /**
