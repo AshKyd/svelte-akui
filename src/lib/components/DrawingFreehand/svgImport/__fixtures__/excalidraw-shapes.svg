@@ -1,0 +1,17 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+  <!-- Shaped like Excalidraw's SVG export (see its renderer in excalidraw-wc): one top-level node per element. -->
+  <defs>
+    <style class="style-fonts">@font-face { font-family: "Virgil"; src: url("https://excalidraw.com/Virgil.woff2"); }</style>
+  </defs>
+  <g transform="translate(10 10) rotate(0 30 15)" stroke="none">
+    <path fill="#1e1e1e" d="M 0 0 Q 10 5 20 10 T 40 20 60 30 Z"></path>
+  </g>
+  <g stroke-linecap="round" transform="translate(40 60) rotate(0 50 30)">
+    <path d="M0.5 0.2 C30 -0.3, 70 0.4, 100 0 C100.4 20, 99.6 40, 100 60 C70 60.3, 30 59.8, 0 60 C0.3 40, -0.2 20, 0 0" stroke="#1e1e1e" stroke-width="2" fill="none"></path>
+  </g>
+  <g stroke-linecap="round">
+    <g transform="translate(200 100) rotate(0 40 0)">
+      <path d="M0 0 C27 0.2, 54 -0.1, 80 0" stroke="#e03131" stroke-width="2" fill="none" stroke-dasharray="8 10"></path>
+    </g>
+  </g>
+</svg>

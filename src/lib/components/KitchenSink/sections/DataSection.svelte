@@ -10,6 +10,7 @@
 		SwipeAction,
 		Padding,
 		Avatar,
+		DrawingFreehand,
 		Thread,
 		ThreadItem,
 		Message,
@@ -140,6 +141,13 @@
 					{/snippet}
 				</ThreadItem>
 			</Thread>
+		</div>
+	</div>
+
+	<h3>Drawing</h3>
+	<div class="demo-row">
+		<div class="demo-cell" style="height: 20rem;">
+			<DrawingFreehand />
 		</div>
 	</div>
 
