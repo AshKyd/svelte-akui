@@ -17,7 +17,12 @@ export const screenToWorld = ({ x, y, k }: View, [sx, sy]: Point): Point => [
 	(sy - y) / k
 ];
 
-export const panBy = (view: View, dx: number, dy: number): View => ({
+export const worldToScreen = ({ x, y, k }: View, [wx, wy]: Point): Point => [
+	wx * k + x,
+	wy * k + y
+];
+
+export const panBy =(view: View, dx: number, dy: number): View => ({
 	...view,
 	x: view.x + dx,
 	y: view.y + dy

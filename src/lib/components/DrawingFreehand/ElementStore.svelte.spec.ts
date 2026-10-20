@@ -15,7 +15,15 @@ const dotKind: ElementKind<any> = {
 	tagNames: ['circle'],
 	toSvgMarkup: ({ id }: DotElement) => `<circle id="${id}"/>`,
 	fromSvgNode: () => null,
-	hitTest: (element: DotElement, { from }) => from[0] === element.bounds.minX
+	hitTest: (element: DotElement, { from }) => from[0] === element.bounds.minX,
+	transform: (element: DotElement, { e }) => ({
+		...element,
+		bounds: {
+			...element.bounds,
+			minX: element.bounds.minX + e,
+			maxX: element.bounds.maxX + e
+		}
+	})
 };
 registerElementKind(dotKind);
 
@@ -52,6 +60,23 @@ describe('ElementStore', () => {
 		store.add(asElement(dot('b', 2)));
 		expect(store.canRedo).toBe(false);
 		expect(store.canUndo).toBe(true);
+	});
+
+	it('replaces an element in place and undoes and redoes it', () => {
+		const store = new ElementStore();
+		store.add(asElement(dot('a', 1)));
+		store.add(asElement(dot('b', 2)));
+
+		store.replace(asElement(dot('a', 9)));
+		expect(store.elements.map((e) => [e.id, e.bounds.minX])).toEqual([
+			['a', 9],
+			['b', 2]
+		]);
+
+		store.undo();
+		expect(store.get('a')?.bounds.minX).toBe(1);
+		store.redo();
+		expect(store.get('a')?.bounds.minX).toBe(9);
 	});
 
 	it('finds hits through the registered kind', () => {

@@ -1,5 +1,7 @@
 import type { ElementStore } from '../ElementStore.svelte';
+import type { Matrix } from '../elements/matrix';
 import type { Point } from '../elements/types';
+import type { HandleId } from './selectionHandles';
 
 /** One input sample, already converted to world coordinates. */
 export interface PointerSample {
@@ -21,8 +23,12 @@ export interface ToolContext {
 	/** Marks elements the eraser will remove on release, so they can be shown faded. */
 	setPendingErase(ids: ReadonlySet<string>): void;
 	requestRedraw(): void;
-	/** Called after a committed change (element added or removed). */
+	/** Called after a committed change (element added, removed, moved or resized). */
 	notifyChange(): void;
+	getSelectedId(): string | undefined;
+	setSelectedId(id: string | undefined): void;
+	/** Shows an element under a temporary matrix while it is dragged; null clears it. */
+	setPreview(preview: { id: string; matrix: Matrix; handle?: HandleId } | null): void;
 }
 
 /**
@@ -39,4 +45,4 @@ export interface Tool {
 	draw(context: CanvasRenderingContext2D): void;
 }
 
-export type ToolId = 'pen' | 'erase';
+export type ToolId = 'pen' | 'erase' | 'pointer';

@@ -5,7 +5,7 @@ import {
 	segmentTouchesPolygon
 } from '../geometry';
 import type { ElementKind, StrokeElement } from '../types';
-import { elementFromPath } from './strokePath';
+import { elementFromPath, transformStrokePath } from './strokePath';
 
 export const strokeKind: ElementKind<StrokeElement> = {
 	type: 'stroke',
@@ -33,5 +33,16 @@ export const strokeKind: ElementKind<StrokeElement> = {
 		const reach = inflateBounds(boundsOfSegment(segment), radius);
 		if (!boundsIntersect(reach, element.bounds)) return false;
 		return segmentTouchesPolygon(segment, element.polygon, radius);
+	},
+
+	transform(element, matrix) {
+		// Rebuilt from the mapped path so `polygon` and `bounds` can't drift from `d`.
+		return (
+			elementFromPath(
+				transformStrokePath(element.d, matrix),
+				element.id,
+				element.colour
+			) ?? element
+		);
 	}
 };

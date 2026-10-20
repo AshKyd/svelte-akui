@@ -70,6 +70,72 @@ describe('DrawingFreehand', () => {
 		await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
 	});
 
+	it('moves a selected stroke, undoes the move, and erases it where it now sits', async () => {
+		const { screen, viewport } = mount();
+		drawLine(viewport);
+		const strokePath = () => viewport.querySelector('svg.layer path')?.getAttribute('d');
+		await vi.waitFor(() => expect(strokePath()).toBeTruthy());
+		const originalPath = strokePath();
+
+		// Press on the line (160, 136), drag it 200px down.
+		await screen.getByRole('button', { name: 'Select' }).click();
+		firePointer(viewport, 'pointerdown', { id: 2, x: 160, y: 136 });
+		firePointer(viewport, 'pointermove', { id: 2, x: 160, y: 336 });
+		firePointer(viewport, 'pointerup', { id: 2, x: 160, y: 336 });
+		await vi.waitFor(() => expect(strokePath()).not.toBe(originalPath));
+		expect(viewport.querySelectorAll('svg.selection rect.handle').length).toBe(8);
+
+		await screen.getByRole('button', { name: 'Undo' }).click();
+		await vi.waitFor(() => expect(strokePath()).toBe(originalPath));
+		await screen.getByRole('button', { name: 'Redo' }).click();
+		await vi.waitFor(() => expect(strokePath()).not.toBe(originalPath));
+
+		// The old spot is empty now; the new one erases.
+		await screen.getByRole('button', { name: 'Eraser' }).click();
+		firePointer(viewport, 'pointerdown', { id: 3, x: 160, y: 100 });
+		firePointer(viewport, 'pointermove', { id: 3, x: 160, y: 170 });
+		firePointer(viewport, 'pointerup', { id: 3, x: 160, y: 170 });
+		expect(viewport.querySelectorAll('svg.layer path').length).toBe(1);
+
+		firePointer(viewport, 'pointerdown', { id: 4, x: 160, y: 300 });
+		firePointer(viewport, 'pointermove', { id: 4, x: 160, y: 370 });
+		firePointer(viewport, 'pointerup', { id: 4, x: 160, y: 370 });
+		await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(0));
+	});
+
+	it('moves and resizes the selection from the keyboard, one undo step each', async () => {
+		const { screen, viewport } = mount();
+		drawLine(viewport);
+		const strokePath = () => viewport.querySelector('svg.layer path')?.getAttribute('d');
+		await vi.waitFor(() => expect(strokePath()).toBeTruthy());
+		const originalPath = strokePath();
+
+		await screen.getByRole('button', { name: 'Select' }).click();
+		firePointer(viewport, 'pointerdown', { id: 2, x: 160, y: 136 });
+		firePointer(viewport, 'pointerup', { id: 2, x: 160, y: 136 });
+		await vi.waitFor(() =>
+			expect(viewport.querySelectorAll('svg.selection rect.handle').length).toBe(8)
+		);
+
+		// Handles are tabbable and labelled.
+		const edge = viewport.querySelector<SVGElement>('[aria-label="Stretch right edge"]')!;
+		expect(edge.getAttribute('tabindex')).toBe('0');
+		edge.focus();
+		edge.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+		await vi.waitFor(() => expect(strokePath()).not.toBe(originalPath));
+		const stretchedPath = strokePath();
+
+		const box = viewport.querySelector<SVGElement>('svg.selection rect.box')!;
+		box.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+		await vi.waitFor(() => expect(strokePath()).not.toBe(stretchedPath));
+
+		await screen.getByRole('button', { name: 'Undo' }).click();
+		await vi.waitFor(() => expect(strokePath()).toBe(stretchedPath));
+
+		box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+		await vi.waitFor(() => expect(viewport.querySelector('svg.selection')).toBeNull());
+	});
+
 	it('opens a brush size menu when the pen is selected and picks a size', async () => {
 		const { screen, viewport } = mount();
 		expect(viewport.querySelector('[aria-label="Brush size"]')).toBeNull();
@@ -157,34 +223,38 @@ describe('DrawingFreehand', () => {
 		await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
 	});
 
-	it('selects the pen with 1 and the eraser with 2', async () => {
+	it('selects the pointer with 1, the pen with 2 and the eraser with 3', async () => {
 		const { screen } = mount();
 		const pressed = (name: string) =>
 			screen.getByRole('button', { name, exact: true }).element().getAttribute('aria-pressed');
 		const press = (key: string, init: KeyboardEventInit = {}) =>
 			window.dispatchEvent(new KeyboardEvent('keydown', { key, ...init }));
 
-		press('2');
+		press('3');
 		await vi.waitFor(() => expect(pressed('Eraser')).toBe('true'));
 		expect(pressed('Pen')).toBe('false');
 
 		press('1');
-		await vi.waitFor(() => expect(pressed('Pen')).toBe('true'));
+		await vi.waitFor(() => expect(pressed('Select')).toBe('true'));
 		expect(pressed('Eraser')).toBe('false');
+
+		press('2');
+		await vi.waitFor(() => expect(pressed('Pen')).toBe('true'));
+		expect(pressed('Select')).toBe('false');
 	});
 
-	it('ignores 1 and 2 with a modifier, while repeating, or when typing in a field', async () => {
+	it('ignores tool keys with a modifier, while repeating, or when typing in a field', async () => {
 		const { screen } = mount();
 		const pressed = (name: string) =>
 			screen.getByRole('button', { name, exact: true }).element().getAttribute('aria-pressed');
 
-		window.dispatchEvent(new KeyboardEvent('keydown', { key: '2', metaKey: true }));
-		window.dispatchEvent(new KeyboardEvent('keydown', { key: '2', altKey: true }));
-		window.dispatchEvent(new KeyboardEvent('keydown', { key: '2', repeat: true }));
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '3', metaKey: true }));
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '3', altKey: true }));
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: '3', repeat: true }));
 
 		const field = document.createElement('input');
 		document.body.append(field);
-		field.dispatchEvent(new KeyboardEvent('keydown', { key: '2', bubbles: true }));
+		field.dispatchEvent(new KeyboardEvent('keydown', { key: '3', bubbles: true }));
 		field.remove();
 
 		await new Promise((resolve) => setTimeout(resolve, 30));

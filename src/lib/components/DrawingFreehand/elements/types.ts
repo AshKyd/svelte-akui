@@ -1,3 +1,5 @@
+import type { Matrix } from './matrix';
+
 /** A point in world coordinates (or screen coordinates where stated). */
 export type Point = [number, number];
 
@@ -66,4 +68,9 @@ export interface ElementKind<E extends DrawingElement = DrawingElement> {
 	fromSvgNode(node: Element): E | null;
 	/** True when the eraser segment, widened by `radius`, touches the element. */
 	hitTest(element: E, segment: Segment, radius: number): boolean;
+	/**
+	 * A copy of the element with `matrix` applied to its real geometry (markup, hit data and
+	 * bounds), so the eraser and the saved SVG see it where it now sits.
+	 */
+	transform(element: E, matrix: Matrix): E;
 }

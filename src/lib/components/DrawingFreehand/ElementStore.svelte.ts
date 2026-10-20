@@ -8,7 +8,10 @@ interface PlacedElement {
 }
 
 type HistoryStep =
-	{ kind: 'add'; placed: PlacedElement[] } | { kind: 'remove'; placed: PlacedElement[] };
+	| { kind: 'add'; placed: PlacedElement[] }
+	| { kind: 'remove'; placed: PlacedElement[] }
+	/** Same id and stacking position, new geometry (moved or resized). */
+	| { kind: 'replace'; before: DrawingElement; after: DrawingElement };
 
 /**
  * The drawing's elements plus undo/redo. Knows nothing about specific element types: erasing
@@ -56,6 +59,18 @@ export class ElementStore {
 		this.remove(this.elements.map((element) => element.id));
 	}
 
+	get(id: string): DrawingElement | undefined {
+		return this.elements.find((element) => element.id === id);
+	}
+
+	/** Swaps in a changed copy of an element (matched by id) as one undoable step. */
+	replace(next: DrawingElement) {
+		const before = this.get(next.id);
+		if (!before) return;
+		this.#swap(next);
+		this.#record({ kind: 'replace', before, after: next });
+	}
+
 	/** Ids of elements the (widened) segment touches. */
 	findHits(segment: Segment, radius: number): string[] {
 		return this.elements
@@ -66,7 +81,8 @@ export class ElementStore {
 	undo() {
 		const step = this.#undoSteps.pop();
 		if (!step) return;
-		if (step.kind === 'add') this.#delete(step.placed);
+		if (step.kind === 'replace') this.#swap(step.before);
+		else if (step.kind === 'add') this.#delete(step.placed);
 		else this.#insert(step.placed);
 		this.#redoSteps.push(step);
 		this.#syncFlags();
@@ -75,7 +91,8 @@ export class ElementStore {
 	redo() {
 		const step = this.#redoSteps.pop();
 		if (!step) return;
-		if (step.kind === 'add') this.#insert(step.placed);
+		if (step.kind === 'replace') this.#swap(step.after);
+		else if (step.kind === 'add') this.#insert(step.placed);
 		else this.#delete(step.placed);
 		this.#undoSteps.push(step);
 		this.#syncFlags();
@@ -93,6 +110,10 @@ export class ElementStore {
 	#delete(placed: PlacedElement[]) {
 		const ids = new Set(placed.map(({ element }) => element.id));
 		this.elements = this.elements.filter((element) => !ids.has(element.id));
+	}
+
+	#swap(next: DrawingElement) {
+		this.elements = this.elements.map((element) => (element.id === next.id ? next : element));
 	}
 
 	#record(step: HistoryStep) {

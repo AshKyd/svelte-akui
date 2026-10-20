@@ -1,14 +1,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { scale } from 'svelte/transition';
+	import { cubicOut } from 'svelte/easing';
+	import { motion } from '../../hooks/reducedMotion.svelte.js';
 	import Button from '../Button/Button.svelte';
 	import Glow from '../Glow/Glow.svelte';
 	import { ElementStore } from './ElementStore.svelte';
-	import { toSvgMarkup } from './elements/registry';
+	import { getElementKind, toSvgMarkup } from './elements/registry';
 	import { unionBounds } from './elements/geometry';
 	import { createPointerGestures } from './pointerGestures';
 	import { elementsToSvg, svgToElements } from './svgDocument';
+	import { applyMatrixToBounds, matrixToSvg, type Matrix } from './elements/matrix';
 	import { createEraseTool } from './tools/eraseTool';
 	import { createPenTool } from './tools/penTool';
+	import { createPointerTool, MIN_SIZE_PX } from './tools/pointerTool';
+	import SelectionHandles from './SelectionHandles/SelectionHandles.svelte';
+	import type { HandleId } from './tools/selectionHandles';
 	import { DEFAULT_CUSTOM_COLOUR, PEN_COLOURS } from './penColours';
 	import type { ToolContext, ToolId } from './tools/types';
 	import { fitView, IDENTITY_VIEW, type View } from './viewTransform';
@@ -32,7 +39,7 @@
 		svg = '',
 		tool = $bindable('pen'),
 		penSize = $bindable(3),
-		penSizes = [3, 6, 12],
+		penSizes = [3, 6, 12, 24],
 		penColour = $bindable(),
 		onchange
 	}: Props = $props();
@@ -46,10 +53,12 @@
 	/** Eraser radius on screen, so it feels the same at any zoom. */
 	const ERASER_RADIUS_PX = 12;
 
-	/** Opened by choosing the pen, closed by choosing another tool or the pen again. */
-	let isSizeMenuOpen = $state(false);
+
+	/** Open whenever the pen becomes the tool, including at start. Closed by another tool or the pen button again. */
+	let isSizeMenuOpen = $state(true);
 	const showSizeMenu = $derived(tool === 'pen' && isSizeMenuOpen);
 
+	/** The pen button: opens the menu, or closes it if the pen was already chosen. */
 	function selectPen() {
 		isSizeMenuOpen = tool === 'pen' ? !isSizeMenuOpen : true;
 		tool = 'pen';
@@ -60,8 +69,16 @@
 		tool = 'erase';
 	}
 
-	/** Dot diameter in px for a size button, so the choices read as small to large. */
-	const dotDiameter = (size: number) => Math.round(4 + size * 1.5);
+	function selectPointer() {
+		isSizeMenuOpen = false;
+		tool = 'pointer';
+	}
+
+	/**
+	 * Dot diameter in px for a size button. Each size is double the last, so the dot grows by a fixed
+	 * step per doubling (log scale) and the largest still fits inside its button.
+	 */
+	const dotDiameter = (size: number) => Math.round(6 + 5 * Math.log2(size / 3));
 
 	const store = new ElementStore();
 
@@ -69,6 +86,36 @@
 	let viewportWidth = $state(0);
 	let viewportHeight = $state(0);
 	let pendingErase = $state<ReadonlySet<string>>(new Set());
+
+	// ---- Selection (pointer tool) ----
+
+	let selectedId = $state<string>();
+	/** The selected element's matrix while it is being dragged. Baked into the element on release. */
+	let preview = $state<{ id: string; matrix: Matrix; handle?: HandleId } | null>(null);
+
+	const selectedElement = $derived(
+		selectedId ? store.elements.find((element) => element.id === selectedId) : undefined
+	);
+	/** Where the selection box is drawn, following the drag preview. */
+	const selectionBounds = $derived(
+		selectedElement && tool === 'pointer'
+			? preview?.id === selectedElement.id
+				? applyMatrixToBounds(preview.matrix, selectedElement.bounds)
+				: selectedElement.bounds
+			: undefined
+	);
+
+	/** Applies a keyboard move or resize as one undo step, like a finished drag. */
+	function commitSelectionTransform(matrix: Matrix) {
+		if (!selectedElement) return;
+		store.replace(getElementKind(selectedElement.type).transform(selectedElement, matrix));
+		onchange?.();
+	}
+
+	// The selection goes when another tool is chosen or its element is erased or undone away.
+	$effect(() => {
+		if (tool !== 'pointer' || (selectedId && !selectedElement)) selectedId = undefined;
+	});
 
 	let viewportElement = $state<HTMLElement>();
 	let canvasElement = $state<HTMLCanvasElement>();
@@ -151,12 +198,16 @@
 		eraserRadiusPx: ERASER_RADIUS_PX,
 		setPendingErase: (ids) => (pendingErase = ids),
 		requestRedraw,
-		notifyChange: () => onchange?.()
+		notifyChange: () => onchange?.(),
+		getSelectedId: () => selectedId,
+		setSelectedId: (id) => (selectedId = id),
+		setPreview: (nextPreview) => (preview = nextPreview)
 	};
 
 	const tools = {
 		pen: createPenTool(toolContext),
-		erase: createEraseTool(toolContext)
+		erase: createEraseTool(toolContext),
+		pointer: createPointerTool(toolContext)
 	};
 
 	const gestures = createPointerGestures({
@@ -210,11 +261,19 @@
 			return;
 		}
 
-		// 1 and 2 pick the tools in toolbar order. Plain keys only, so browser shortcuts such as
+		// 1, 2 and 3 pick the tools in toolbar order. Plain keys only, so browser shortcuts such as
 		// Cmd+1 (switch tab) and Alt+1 are left alone, and a held key doesn't repeat the choice.
 		if (hasCommandKey || event.altKey || event.repeat) return;
-		if (event.key === '1') tool = 'pen';
-		else if (event.key === '2') selectEraser();
+		if (event.key === '1') selectPointer();
+		else if (event.key === '2') {
+			tool = 'pen';
+			isSizeMenuOpen = true;
+		} else if (event.key === '3') selectEraser();
+		else if ((event.key === 'Delete' || event.key === 'Backspace') && selectedId) {
+			event.preventDefault();
+			store.remove([selectedId]);
+			onchange?.();
+		}
 	}
 </script>
 
@@ -235,7 +294,10 @@
 	<svg class="layer" role="img" aria-label="Drawing">
 		<g transform="translate({view.x} {view.y}) scale({view.k})">
 			{#each store.elements as element (element.id)}
-				<g class={['element', pendingErase.has(element.id) && 'pending']}>
+				<g
+					class={['element', pendingErase.has(element.id) && 'pending']}
+					transform={preview?.id === element.id ? matrixToSvg(preview.matrix) : undefined}
+				>
 					{@html toSvgMarkup(element)}
 				</g>
 			{/each}
@@ -243,10 +305,24 @@
 	</svg>
 	<canvas class="layer" bind:this={canvasElement}></canvas>
 
+	{#if selectionBounds}
+		<SelectionHandles
+			bounds={selectionBounds}
+			{view}
+			activeHandle={preview?.handle}
+			minSizePx={MIN_SIZE_PX}
+			ontransform={commitSelectionTransform}
+			ondeselect={() => (selectedId = undefined)}
+		/>
+	{/if}
+
 	<!-- The gesture handlers ignore presses inside data-gesture-ignore, so a click doesn't draw a dot. -->
 	<div class="controls" data-gesture-ignore>
 		{#if showSizeMenu}
-			<div class="panel pen-options">
+			<div
+				class="panel pen-options"
+				transition:scale={motion({ start: 0.92, duration: 150, easing: cubicOut })}
+			>
 				<div class="row" role="group" aria-label="Brush size">
 					{#each penSizes as size (size)}
 						<Button
@@ -302,6 +378,14 @@
 		{/if}
 
 		<div class="panel" role="toolbar" aria-label="Drawing tools">
+			<Button
+				variant={activeToolId === 'pointer' ? 'accent' : 'ghost'}
+				icon="cursor"
+				iconPosition="only"
+				aria-label="Select"
+				aria-pressed={tool === 'pointer'}
+				onclick={selectPointer}
+			/>
 			<Button
 				variant={activeToolId === 'pen' ? 'accent' : 'ghost'}
 				icon="pencil"
@@ -403,6 +487,8 @@
 	}
 
 	.pen-options {
+		/* The menu grows out of the pen button below it. */
+		transform-origin: bottom center;
 		align-items: center;
 		gap: var(--akui-space-s);
 	}
@@ -436,7 +522,18 @@
 	}
 
 	.swatch.custom {
-		background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+		/* White fades out from the centre to 60% of the radius, over the rainbow. */
+		background:
+			radial-gradient(circle closest-side, white, transparent 60%),
+			conic-gradient(
+			hsl(0 85% 70%),
+			hsl(50 85% 68%),
+			hsl(120 70% 68%),
+			hsl(180 75% 68%),
+			hsl(230 85% 72%),
+			hsl(300 70% 72%),
+			hsl(0 85% 70%)
+			);
 	}
 
 	.swatch input[type='color'] {

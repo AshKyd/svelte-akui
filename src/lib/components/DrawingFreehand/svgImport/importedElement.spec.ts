@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { scaleAboutMatrix, translateMatrix } from '../elements/matrix';
 import type { ImportedElement, Outline } from '../elements/types';
 import { importedKind } from './importedElement';
 
@@ -54,6 +55,30 @@ describe('importedKind.hitTest', () => {
 	it('hits a single-point outline', () => {
 		const dot = elementOf({ points: [[10, 10]], closed: false, filled: false, halfStroke: 2 });
 		expect(importedKind.hitTest(dot, { from: [11, 10], to: [12, 10] }, 1)).toBe(true);
+	});
+
+	it('moves its hit data, bounds and markup with a transform', () => {
+		const filled = elementOf({ points: square, closed: true, filled: true, halfStroke: 1 });
+		const moved = importedKind.transform(filled, translateMatrix(500, 0));
+
+		expect(moved.markup).toBe('<path transform="matrix(1 0 0 1 500 0)"/>');
+		expect(moved.bounds.minX).toBe(499);
+		expect(importedKind.hitTest(moved, { from: [540, 40], to: [560, 60] }, 2)).toBe(true);
+		expect(importedKind.hitTest(moved, { from: [40, 40], to: [60, 60] }, 2)).toBe(false);
+	});
+
+	it('puts the new matrix outside an existing transform and scales the stroke reach', () => {
+		const element = {
+			...elementOf({ points: square, closed: true, filled: false, halfStroke: 2 }),
+			markup: '<rect transform="matrix(1 0 0 1 5 5)" stroke-width="4"/>'
+		};
+		const scaled = importedKind.transform(element, scaleAboutMatrix(3, 3, [0, 0]));
+
+		expect(scaled.markup).toBe(
+			'<rect transform="matrix(3 0 0 3 0 0) matrix(1 0 0 1 5 5)" stroke-width="4"/>'
+		);
+		expect(scaled.outlines[0].halfStroke).toBe(6);
+		expect(scaled.outlines[0].points[2]).toEqual([300, 300]);
 	});
 
 	it('is the same markup out as in', () => {
