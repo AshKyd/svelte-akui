@@ -1,6 +1,10 @@
 import { panBy, screenToWorld, zoomAbout } from './viewTransform';
 /** Multiplier on trackpad pinch deltas (reported as ctrl+wheel). */
 const WHEEL_ZOOM_SPEED = 0.01;
+/** A touch contact wider than this (CSS px) is a palm or fist, not a fingertip. */
+const PALM_CONTACT_PX = 40;
+/** The palm often lands as the pen lifts, so touches this soon after a pen release are ignored. */
+const PALM_AFTER_PEN_MS = 300;
 /**
  * Decides what each pointer does:
  * - one pointer (mouse, pen or touch) runs the active tool;
@@ -15,6 +19,9 @@ export function createPointerGestures({ getTool, getView, setView }) {
     const pointers = new Map();
     let mode = 'idle';
     let activeId = -1;
+    /** The `pointerType` running the tool, so touches can't interrupt a pen stroke. */
+    let activeType = '';
+    let lastPenUpAt = -Infinity;
     let hasSeenPen = false;
     let isSpaceHeld = false;
     let lastPinch = null;
@@ -41,11 +48,29 @@ export function createPointerGestures({ getTool, getView, setView }) {
                 distance: Math.hypot(a[0] - b[0], a[1] - b[1])
             };
         };
+        /** A touch is dropped before it is even tracked when it is a resting palm, not a fingertip. */
+        const isPalm = (event) => event.width > PALM_CONTACT_PX ||
+            event.height > PALM_CONTACT_PX ||
+            event.timeStamp - lastPenUpAt < PALM_AFTER_PEN_MS;
         const onPointerDown = (event) => {
             // Controls laid over the canvas (toolbar, size menu) keep their own clicks. Svelte's
             // delegated `onpointerdown` fires too late to stop propagation, so the check lives here.
             if (event.target instanceof Element && event.target.closest('[data-gesture-ignore]'))
                 return;
+            // Stops Safari following up with mouse events, which start a text selection drag.
+            if (event.pointerType !== 'mouse')
+                event.preventDefault();
+            const isPenStroke = mode === 'tool' && activeType === 'pen';
+            if (event.pointerType === 'touch' && (isPenStroke || isPalm(event)))
+                return;
+            // A pen beats anything a palm or finger started before it landed.
+            if (event.pointerType === 'pen' && mode !== 'idle') {
+                if (mode === 'tool')
+                    activeTool?.cancel();
+                activeTool = null;
+                pointers.clear();
+                mode = 'idle';
+            }
             // A fresh touch sequence can't be a leftover of the last one.
             if (pointers.size === 0)
                 mode = 'idle';
@@ -83,6 +108,7 @@ export function createPointerGestures({ getTool, getView, setView }) {
                 return;
             mode = 'tool';
             activeId = event.pointerId;
+            activeType = event.pointerType;
             activeTool = getTool(event.altKey);
             activeTool.start(toSample(event));
         };
@@ -114,6 +140,8 @@ export function createPointerGestures({ getTool, getView, setView }) {
         const onPointerEnd = (event) => {
             if (!pointers.delete(event.pointerId))
                 return;
+            if (event.pointerType === 'pen')
+                lastPenUpAt = event.timeStamp;
             if (mode === 'tool' && event.pointerId === activeId) {
                 if (event.type === 'pointercancel')
                     activeTool?.cancel();
@@ -154,7 +182,10 @@ export function createPointerGestures({ getTool, getView, setView }) {
             if (event.code === 'Space')
                 isSpaceHeld = false;
         };
+        // Context menu, text selection, drags and Safari's own pinch would all steal a pen or touch drag.
         const onContextMenu = (event) => event.preventDefault();
+        const blockedEvents = ['selectstart', 'dragstart', 'gesturestart', 'gesturechange'];
+        blockedEvents.forEach((type) => node.addEventListener(type, onContextMenu));
         node.addEventListener('pointerdown', onPointerDown);
         node.addEventListener('pointermove', onPointerMove);
         node.addEventListener('pointerup', onPointerEnd);
@@ -170,6 +201,7 @@ export function createPointerGestures({ getTool, getView, setView }) {
             node.removeEventListener('pointercancel', onPointerEnd);
             node.removeEventListener('wheel', onWheel);
             node.removeEventListener('contextmenu', onContextMenu);
+            blockedEvents.forEach((type) => node.removeEventListener(type, onContextMenu));
             window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
         };

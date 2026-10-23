@@ -15,6 +15,9 @@ export declare class ElementStore {
     /** Removes elements by id as one undoable step. Returns how many were removed. */
     remove(ids: Iterable<string>): number;
     clear(): void;
+    get(id: string): DrawingElement | undefined;
+    /** Swaps in a changed copy of an element (matched by id) as one undoable step. */
+    replace(next: DrawingElement): void;
     /** Ids of elements the (widened) segment touches. */
     findHits(segment: Segment, radius: number): string[];
     undo(): void;

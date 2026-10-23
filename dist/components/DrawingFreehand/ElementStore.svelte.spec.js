@@ -6,7 +6,15 @@ const dotKind = {
     tagNames: ['circle'],
     toSvgMarkup: ({ id }) => `<circle id="${id}"/>`,
     fromSvgNode: () => null,
-    hitTest: (element, { from }) => from[0] === element.bounds.minX
+    hitTest: (element, { from }) => from[0] === element.bounds.minX,
+    transform: (element, { e }) => ({
+        ...element,
+        bounds: {
+            ...element.bounds,
+            minX: element.bounds.minX + e,
+            maxX: element.bounds.maxX + e
+        }
+    })
 };
 registerElementKind(dotKind);
 const dot = (id, x) => ({
@@ -36,6 +44,20 @@ describe('ElementStore', () => {
         store.add(asElement(dot('b', 2)));
         expect(store.canRedo).toBe(false);
         expect(store.canUndo).toBe(true);
+    });
+    it('replaces an element in place and undoes and redoes it', () => {
+        const store = new ElementStore();
+        store.add(asElement(dot('a', 1)));
+        store.add(asElement(dot('b', 2)));
+        store.replace(asElement(dot('a', 9)));
+        expect(store.elements.map((e) => [e.id, e.bounds.minX])).toEqual([
+            ['a', 9],
+            ['b', 2]
+        ]);
+        store.undo();
+        expect(store.get('a')?.bounds.minX).toBe(1);
+        store.redo();
+        expect(store.get('a')?.bounds.minX).toBe(9);
     });
     it('finds hits through the registered kind', () => {
         const store = new ElementStore([asElement(dot('a', 1)), asElement(dot('b', 2))]);

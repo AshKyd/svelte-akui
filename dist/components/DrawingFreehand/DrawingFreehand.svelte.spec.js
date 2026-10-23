@@ -3,9 +3,9 @@ import { render } from 'vitest-browser-svelte';
 import DrawingFreehand from './DrawingFreehand.svelte';
 import excalidrawSvg from './svgImport/__fixtures__/excalidraw-shapes.svg?raw';
 /** Dispatches a synthetic pointer event at a point inside the viewport. */
-function firePointer(viewport, type, { id = 1, x, y, pointerType = 'mouse', altKey = false }) {
+function firePointer(viewport, type, { id = 1, x, y, pointerType = 'mouse', altKey = false, width = 1 }) {
     const rect = viewport.getBoundingClientRect();
-    viewport.dispatchEvent(new PointerEvent(type, {
+    const event = new PointerEvent(type, {
         pointerId: id,
         pointerType,
         clientX: rect.left + x,
@@ -13,9 +13,14 @@ function firePointer(viewport, type, { id = 1, x, y, pointerType = 'mouse', altK
         button: 0,
         buttons: type === 'pointerup' ? 0 : 1,
         pressure: 0.5,
+        width,
+        height: width,
         altKey,
-        bubbles: true
-    }));
+        bubbles: true,
+        cancelable: true
+    });
+    viewport.dispatchEvent(event);
+    return event;
 }
 /** Draws a diagonal line of several samples so perfect-freehand has enough points. */
 function drawLine(viewport, id = 1, pointerType = 'mouse') {
@@ -47,6 +52,59 @@ describe('DrawingFreehand', () => {
         await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(0));
         await screen.getByRole('button', { name: 'Undo' }).click();
         await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
+    });
+    it('moves a selected stroke, undoes the move, and erases it where it now sits', async () => {
+        const { screen, viewport } = mount();
+        drawLine(viewport);
+        const strokePath = () => viewport.querySelector('svg.layer path')?.getAttribute('d');
+        await vi.waitFor(() => expect(strokePath()).toBeTruthy());
+        const originalPath = strokePath();
+        // Press on the line (160, 136), drag it 200px down.
+        await screen.getByRole('button', { name: 'Select' }).click();
+        firePointer(viewport, 'pointerdown', { id: 2, x: 160, y: 136 });
+        firePointer(viewport, 'pointermove', { id: 2, x: 160, y: 336 });
+        firePointer(viewport, 'pointerup', { id: 2, x: 160, y: 336 });
+        await vi.waitFor(() => expect(strokePath()).not.toBe(originalPath));
+        expect(viewport.querySelectorAll('svg.selection rect.handle').length).toBe(8);
+        await screen.getByRole('button', { name: 'Undo' }).click();
+        await vi.waitFor(() => expect(strokePath()).toBe(originalPath));
+        await screen.getByRole('button', { name: 'Redo' }).click();
+        await vi.waitFor(() => expect(strokePath()).not.toBe(originalPath));
+        // The old spot is empty now; the new one erases.
+        await screen.getByRole('button', { name: 'Eraser' }).click();
+        firePointer(viewport, 'pointerdown', { id: 3, x: 160, y: 100 });
+        firePointer(viewport, 'pointermove', { id: 3, x: 160, y: 170 });
+        firePointer(viewport, 'pointerup', { id: 3, x: 160, y: 170 });
+        expect(viewport.querySelectorAll('svg.layer path').length).toBe(1);
+        firePointer(viewport, 'pointerdown', { id: 4, x: 160, y: 300 });
+        firePointer(viewport, 'pointermove', { id: 4, x: 160, y: 370 });
+        firePointer(viewport, 'pointerup', { id: 4, x: 160, y: 370 });
+        await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(0));
+    });
+    it('moves and resizes the selection from the keyboard, one undo step each', async () => {
+        const { screen, viewport } = mount();
+        drawLine(viewport);
+        const strokePath = () => viewport.querySelector('svg.layer path')?.getAttribute('d');
+        await vi.waitFor(() => expect(strokePath()).toBeTruthy());
+        const originalPath = strokePath();
+        await screen.getByRole('button', { name: 'Select' }).click();
+        firePointer(viewport, 'pointerdown', { id: 2, x: 160, y: 136 });
+        firePointer(viewport, 'pointerup', { id: 2, x: 160, y: 136 });
+        await vi.waitFor(() => expect(viewport.querySelectorAll('svg.selection rect.handle').length).toBe(8));
+        // Handles are tabbable and labelled.
+        const edge = viewport.querySelector('[aria-label="Stretch right edge"]');
+        expect(edge.getAttribute('tabindex')).toBe('0');
+        edge.focus();
+        edge.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+        await vi.waitFor(() => expect(strokePath()).not.toBe(originalPath));
+        const stretchedPath = strokePath();
+        const box = viewport.querySelector('svg.selection rect.box');
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        await vi.waitFor(() => expect(strokePath()).not.toBe(stretchedPath));
+        await screen.getByRole('button', { name: 'Undo' }).click();
+        await vi.waitFor(() => expect(strokePath()).toBe(stretchedPath));
+        box.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await vi.waitFor(() => expect(viewport.querySelector('svg.selection')).toBeNull());
     });
     it('opens a brush size menu when the pen is selected and picks a size', async () => {
         const { screen, viewport } = mount();
@@ -114,26 +172,29 @@ describe('DrawingFreehand', () => {
         firePointer(viewport, 'pointerup', { id: 1, x: 220, y: 172, altKey: true });
         await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
     });
-    it('selects the pen with 1 and the eraser with 2', async () => {
+    it('selects the pointer with 1, the pen with 2 and the eraser with 3', async () => {
         const { screen } = mount();
         const pressed = (name) => screen.getByRole('button', { name, exact: true }).element().getAttribute('aria-pressed');
         const press = (key, init = {}) => window.dispatchEvent(new KeyboardEvent('keydown', { key, ...init }));
-        press('2');
+        press('3');
         await vi.waitFor(() => expect(pressed('Eraser')).toBe('true'));
         expect(pressed('Pen')).toBe('false');
         press('1');
-        await vi.waitFor(() => expect(pressed('Pen')).toBe('true'));
+        await vi.waitFor(() => expect(pressed('Select')).toBe('true'));
         expect(pressed('Eraser')).toBe('false');
+        press('2');
+        await vi.waitFor(() => expect(pressed('Pen')).toBe('true'));
+        expect(pressed('Select')).toBe('false');
     });
-    it('ignores 1 and 2 with a modifier, while repeating, or when typing in a field', async () => {
+    it('ignores tool keys with a modifier, while repeating, or when typing in a field', async () => {
         const { screen } = mount();
         const pressed = (name) => screen.getByRole('button', { name, exact: true }).element().getAttribute('aria-pressed');
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: '2', metaKey: true }));
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: '2', altKey: true }));
-        window.dispatchEvent(new KeyboardEvent('keydown', { key: '2', repeat: true }));
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: '3', metaKey: true }));
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: '3', altKey: true }));
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: '3', repeat: true }));
         const field = document.createElement('input');
         document.body.append(field);
-        field.dispatchEvent(new KeyboardEvent('keydown', { key: '2', bubbles: true }));
+        field.dispatchEvent(new KeyboardEvent('keydown', { key: '3', bubbles: true }));
         field.remove();
         await new Promise((resolve) => setTimeout(resolve, 30));
         expect(pressed('Pen')).toBe('true');
@@ -185,6 +246,40 @@ describe('DrawingFreehand', () => {
         firePointer(viewport, 'pointerup', { id: 21, x: 200, y: 100, pointerType: 'touch' });
         await new Promise((resolve) => setTimeout(resolve, 50));
         expect(viewport.querySelectorAll('svg.layer path').length).toBe(0);
+    });
+    it('prevents the default on pen and touch presses so Safari starts no selection drag', () => {
+        const { viewport } = mount();
+        expect(firePointer(viewport, 'pointerdown', { id: 30, x: 50, y: 50, pointerType: 'pen' })
+            .defaultPrevented).toBe(true);
+        firePointer(viewport, 'pointerup', { id: 30, x: 50, y: 50, pointerType: 'pen' });
+    });
+    it('ignores a palm-sized touch contact', async () => {
+        const { viewport } = mount();
+        firePointer(viewport, 'pointerdown', { id: 40, x: 100, y: 100, pointerType: 'touch', width: 90 });
+        firePointer(viewport, 'pointermove', { id: 40, x: 160, y: 140, pointerType: 'touch', width: 90 });
+        firePointer(viewport, 'pointerup', { id: 40, x: 160, y: 140, pointerType: 'touch', width: 90 });
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        expect(viewport.querySelectorAll('svg.layer path').length).toBe(0);
+    });
+    it('keeps a pen stroke going while two palm touches land', async () => {
+        const { viewport } = mount();
+        firePointer(viewport, 'pointerdown', { id: 50, x: 100, y: 100, pointerType: 'pen' });
+        firePointer(viewport, 'pointerdown', { id: 51, x: 300, y: 200, pointerType: 'touch' });
+        firePointer(viewport, 'pointerdown', { id: 52, x: 320, y: 210, pointerType: 'touch' });
+        Array.from({ length: 12 }, (_, i) => i + 1).forEach((i) => firePointer(viewport, 'pointermove', {
+            id: 50,
+            x: 100 + i * 10,
+            y: 100 + i * 6,
+            pointerType: 'pen'
+        }));
+        firePointer(viewport, 'pointerup', { id: 50, x: 220, y: 172, pointerType: 'pen' });
+        await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
+    });
+    it('lets the pen take over from a stroke a finger had started', async () => {
+        const { viewport } = mount();
+        firePointer(viewport, 'pointerdown', { id: 60, x: 300, y: 200, pointerType: 'touch' });
+        drawLine(viewport, 61, 'pen');
+        await vi.waitFor(() => expect(viewport.querySelectorAll('svg.layer path').length).toBe(1));
     });
     it('loads a saved SVG and writes one back', async () => {
         const first = mount();

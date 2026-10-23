@@ -1,5 +1,7 @@
 import { getStroke } from 'perfect-freehand';
 import { boundsOfPoints } from '../geometry';
+import { applyMatrixToPoint } from '../matrix';
+const NUMBER = /-?\d*\.?\d+/g;
 const average = (a, b) => (a + b) / 2;
 /**
  * Turns `getStroke` outline points into SVG path data. From the perfect-freehand README (the
@@ -26,7 +28,7 @@ export function getSvgPathFromStroke(points) {
  * eraser radius easily covers.
  */
 export function parseStrokePath(d) {
-    const numbers = (d.match(/-?\d*\.?\d+/g) ?? []).map(Number);
+    const numbers = (d.match(NUMBER) ?? []).map(Number);
     const pairs = Array.from({ length: Math.floor(numbers.length / 2) }, (_, i) => [
         numbers[i * 2],
         numbers[i * 2 + 1]
@@ -35,6 +37,17 @@ export function parseStrokePath(d) {
         return [];
     const [start, , firstCurveEnd, ...rest] = pairs;
     return [start, firstCurveEnd, ...rest];
+}
+/**
+ * Maps every coordinate pair in stroke path data through `matrix`. Safe because the path only
+ * has absolute M, Q, T and Z commands: an affine map takes Bézier control points to the
+ * control points of the mapped curve.
+ */
+export function transformStrokePath(d, matrix) {
+    const numbers = (d.match(NUMBER) ?? []).map(Number);
+    const mapped = Array.from({ length: Math.floor(numbers.length / 2) }, (_, i) => applyMatrixToPoint(matrix, [numbers[i * 2], numbers[i * 2 + 1]])).flat();
+    let index = 0;
+    return d.replace(NUMBER, () => (mapped[index++] ?? 0).toFixed(2));
 }
 /** Builds a stroke element from a finished set of input points, or null if it's too small to draw. */
 export function buildStrokeElement(inputPoints, options, id = crypto.randomUUID(), colour) {

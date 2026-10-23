@@ -5,6 +5,10 @@ export const screenToWorld = ({ x, y, k }, [sx, sy]) => [
     (sx - x) / k,
     (sy - y) / k
 ];
+export const worldToScreen = ({ x, y, k }, [wx, wy]) => [
+    wx * k + x,
+    wy * k + y
+];
 export const panBy = (view, dx, dy) => ({
     ...view,
     x: view.x + dx,

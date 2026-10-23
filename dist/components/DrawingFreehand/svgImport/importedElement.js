@@ -1,4 +1,5 @@
 import { boundsIntersect, boundsOfSegment, inflateBounds, pointInPolygon, segmentDistance } from '../elements/geometry';
+import { applyMatrixToBounds, applyMatrixToPoint, matrixToSvg, meanScale } from '../elements/matrix';
 /** True when the eraser segment, widened by `radius`, reaches this outline. */
 function outlineTouchesSegment(outline, segment, radius) {
     const { points, closed, filled, halfStroke } = outline;
@@ -18,6 +19,19 @@ function outlineTouchesSegment(outline, segment, radius) {
         to: points[(index + 1) % points.length]
     })).some((edge) => segmentDistance(segment, edge) <= reach);
 }
+const TRANSFORM_ATTRIBUTE = /(\stransform=")([^"]*)"/;
+/**
+ * Adds `matrix` on the outside of the node's own transform. A transform list is applied
+ * right to left, so putting ours first runs it last, in world coordinates. `outerHTML` always
+ * quotes attributes with double quotes.
+ */
+function prependTransform(markup, matrix) {
+    const prefix = matrixToSvg(matrix);
+    if (TRANSFORM_ATTRIBUTE.test(markup)) {
+        return markup.replace(TRANSFORM_ATTRIBUTE, (_, start, existing) => `${start}${prefix} ${existing}"`);
+    }
+    return markup.replace(/^<([a-z]+)/i, `<$1 transform="${prefix}"`);
+}
 /**
  * A shape from another SVG. These are never built from a single node: they need their
  * ancestors' transforms and paint, so `importSvg` creates them for a whole document.
@@ -32,5 +46,18 @@ export const importedKind = {
         if (!boundsIntersect(reach, element.bounds))
             return false;
         return element.outlines.some((outline) => outlineTouchesSegment(outline, segment, radius));
+    },
+    transform(element, matrix) {
+        const scale = meanScale(matrix);
+        return {
+            ...element,
+            markup: prependTransform(element.markup, matrix),
+            bounds: applyMatrixToBounds(matrix, element.bounds),
+            outlines: element.outlines.map((outline) => ({
+                ...outline,
+                points: outline.points.map((point) => applyMatrixToPoint(matrix, point)),
+                halfStroke: outline.halfStroke * scale
+            }))
+        };
     }
 };

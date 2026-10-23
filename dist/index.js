@@ -41,6 +41,7 @@ export * from './components/ProgressChecks/index.js';
 export * from './components/ReaderTypography/index.js';
 export * from './components/MarkdownContent/index.js';
 export * from './components/Table/index.js';
+export * from './components/DetailsTable/index.js';
 export * from './components/LayoutFocusShell/index.js';
 export * from './components/RelativeTime/index.js';
 export * from './components/ImageMosaic/index.js';

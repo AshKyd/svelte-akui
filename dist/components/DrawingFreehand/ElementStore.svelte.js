@@ -37,6 +37,17 @@ export class ElementStore {
     clear() {
         this.remove(this.elements.map((element) => element.id));
     }
+    get(id) {
+        return this.elements.find((element) => element.id === id);
+    }
+    /** Swaps in a changed copy of an element (matched by id) as one undoable step. */
+    replace(next) {
+        const before = this.get(next.id);
+        if (!before)
+            return;
+        this.#swap(next);
+        this.#record({ kind: 'replace', before, after: next });
+    }
     /** Ids of elements the (widened) segment touches. */
     findHits(segment, radius) {
         return this.elements
@@ -47,7 +58,9 @@ export class ElementStore {
         const step = this.#undoSteps.pop();
         if (!step)
             return;
-        if (step.kind === 'add')
+        if (step.kind === 'replace')
+            this.#swap(step.before);
+        else if (step.kind === 'add')
             this.#delete(step.placed);
         else
             this.#insert(step.placed);
@@ -58,7 +71,9 @@ export class ElementStore {
         const step = this.#redoSteps.pop();
         if (!step)
             return;
-        if (step.kind === 'add')
+        if (step.kind === 'replace')
+            this.#swap(step.after);
+        else if (step.kind === 'add')
             this.#insert(step.placed);
         else
             this.#delete(step.placed);
@@ -76,6 +91,9 @@ export class ElementStore {
     #delete(placed) {
         const ids = new Set(placed.map(({ element }) => element.id));
         this.elements = this.elements.filter((element) => !ids.has(element.id));
+    }
+    #swap(next) {
+        this.elements = this.elements.map((element) => (element.id === next.id ? next : element));
     }
     #record(step) {
         this.#undoSteps.push(step);

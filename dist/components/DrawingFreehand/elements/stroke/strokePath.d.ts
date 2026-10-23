@@ -1,4 +1,5 @@
 import { type StrokeOptions } from 'perfect-freehand';
+import { type Matrix } from '../matrix';
 import type { Point, StrokeElement } from '../types';
 /**
  * Turns `getStroke` outline points into SVG path data. From the perfect-freehand README (the
@@ -12,6 +13,12 @@ export declare function getSvgPathFromStroke(points: Point[]): string;
  * eraser radius easily covers.
  */
 export declare function parseStrokePath(d: string): Point[];
+/**
+ * Maps every coordinate pair in stroke path data through `matrix`. Safe because the path only
+ * has absolute M, Q, T and Z commands: an affine map takes Bézier control points to the
+ * control points of the mapped curve.
+ */
+export declare function transformStrokePath(d: string, matrix: Matrix): string;
 /** Builds a stroke element from a finished set of input points, or null if it's too small to draw. */
 export declare function buildStrokeElement(inputPoints: number[][], options: StrokeOptions, id?: string, colour?: string): StrokeElement | null;
 /**

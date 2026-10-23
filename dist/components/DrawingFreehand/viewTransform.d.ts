@@ -9,6 +9,7 @@ export declare const MIN_SCALE = 0.1;
 export declare const MAX_SCALE = 10;
 export declare const IDENTITY_VIEW: View;
 export declare const screenToWorld: ({ x, y, k }: View, [sx, sy]: Point) => Point;
+export declare const worldToScreen: ({ x, y, k }: View, [wx, wy]: Point) => Point;
 export declare const panBy: (view: View, dx: number, dy: number) => View;
 /** Scales by `factor` while keeping the world point under `screenPoint` where it is. */
 export declare function zoomAbout(view: View, [sx, sy]: Point, factor: number): View;
