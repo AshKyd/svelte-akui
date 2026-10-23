@@ -60,6 +60,13 @@
 		{ key: 'kettles', label: 'Kettles', sortable: true, align: 'right', width: '6rem' }
 	];
 
+	/** Values with no break points, to prove long content can't stretch a row. */
+	const longRows: Spell[] = makeSpells(1, 6).map((spell) => ({
+		...spell,
+		name: `${spell.name}-${'supercalifragilistic'.repeat(6)}`,
+		caster: 'Archmagister-Thistlewick-Underhill-Cobblewick-of-the-Seven-Hollows'
+	}));
+
 	/** Static, locally sorted. */
 	const smallRows = makeSpells(1, 12);
 
@@ -262,6 +269,30 @@
 				]}
 				rowKey={(row) => row.id}
 				height="26rem"
+			/>
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="Long values">
+	{#snippet children()}
+		<p>Long unbroken values are cut off with an ellipsis; they never widen a row.</p>
+		<div style="display: flex;">
+			<DetailsTable
+				rows={longRows}
+				{columns}
+				rowKey={(row) => row.id}
+				height="16rem"
+				layout="table"
+			/>
+		</div>
+		<div style="max-width: 20rem; margin-top: 1rem;">
+			<DetailsTable
+				rows={longRows}
+				{columns}
+				rowKey={(row) => row.id}
+				height="20rem"
+				layout="list"
 			/>
 		</div>
 	{/snippet}
