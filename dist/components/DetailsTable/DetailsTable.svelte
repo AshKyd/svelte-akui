@@ -533,7 +533,7 @@
 		box-sizing: border-box;
 		color: var(--akui-fg, #333);
 		font-size: 0.875rem;
-		background-color: var(--akui-bg-input, #fff);
+		/* No background: the parent's shows through, so the table can sit on any surface. */
 		border: 1px solid var(--akui-border-input, #e0e0e0);
 		border-radius: var(--akui-radius-m, 8px);
 		box-shadow: var(--akui-shadow-sunken);
