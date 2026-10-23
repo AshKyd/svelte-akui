@@ -14,6 +14,8 @@
 		type DetailsTableSort
 	} from './DetailsTable.svelte';
 	import { Badge } from '../Badge/index.js';
+	import { Button } from '../Button/index.js';
+	import ProgressBar from '../ProgressBar/ProgressBar.svelte';
 
 	interface Spell {
 		id: string;
@@ -147,6 +149,130 @@
 	{/snippet}
 </Story>
 
+<Story name="Buttons and progress">
+	{#snippet children()}
+		<p>Fixed-width columns keep the buttons and bars the same size on every row.</p>
+		<DetailsTable
+			rows={smallRows}
+			columns={[
+				{ key: 'name', label: 'Name', sortable: true, width: 'minmax(12rem, 3fr)' },
+				{
+					key: 'kettles',
+					label: 'Kettles',
+					sortable: true,
+					width: '10rem',
+					listWidth: '8rem',
+					cell: kettleCell
+				},
+				{
+					key: 'action',
+					label: 'Actions',
+					align: 'right',
+					width: '7rem',
+					listWidth: '6rem',
+					cell: brewCell
+				}
+			]}
+			rowKey={(row) => row.id}
+			height="20rem"
+			layout="table"
+		/>
+	{/snippet}
+</Story>
+
+<Story name="List layout">
+	{#snippet children()}
+		<p>Forced list layout: each row is a card, and sorting is in the menu.</p>
+		<div style="max-width: 24rem;">
+			<DetailsTable
+				rows={pagedRows}
+				columns={[
+					{ key: 'name', label: 'Name', sortable: true },
+					{ key: 'caster', label: 'Caster', sortable: true },
+					{ key: 'mood', label: 'Mood', sortable: true, cell: moodCell },
+					{
+						key: 'kettles',
+						label: 'Kettles',
+						sortable: true,
+						listWidth: '8rem',
+						cell: kettleCell
+					},
+					{ key: 'action', label: 'Actions', listWidth: '6rem', cell: brewCell }
+				]}
+				rowKey={(row) => row.id}
+				height="30rem"
+				layout="list"
+				aria-label="Spells, list"
+				hasMore={pagedRows.length < totalSpells}
+				{isLoading}
+				onloadmore={loadMore}
+				bind:sort={pagedSort}
+				onsortchange={handleSortChange}
+			/>
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="List without labels">
+	{#snippet children()}
+		<div style="max-width: 24rem;">
+			<DetailsTable
+				rows={smallRows}
+				columns={[
+					{ key: 'name', label: 'Name', sortable: true },
+					{ key: 'caster', label: 'Caster', sortable: true },
+					{ key: 'kettles', label: 'Kettles', sortable: true, hideInList: true }
+				]}
+				rowKey={(row) => row.id}
+				height="24rem"
+				layout="list"
+				listLabels={false}
+			/>
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="Responsive">
+	{#snippet children()}
+		<p>Drag the corner to resize. Below 640px wide the table becomes a list.</p>
+		<div
+			style="width: 48rem; max-width: 100%; min-width: 16rem; resize: horizontal; overflow: hidden; padding-bottom: 0.5rem;"
+		>
+			<DetailsTable
+				rows={smallRows}
+				columns={[
+					{ key: 'name', label: 'Name', sortable: true, width: 'minmax(10rem, 3fr)' },
+					{ key: 'mood', label: 'Mood', sortable: true, width: '8rem', cell: moodCell },
+					{
+						key: 'kettles',
+						label: 'Kettles',
+						sortable: true,
+						width: '10rem',
+						listWidth: '8rem',
+						cell: kettleCell
+					},
+					{
+						key: 'action',
+						label: 'Actions',
+						align: 'right',
+						width: '7rem',
+						listWidth: '6rem',
+						cell: brewCell
+					}
+				]}
+				rowKey={(row) => row.id}
+				height="26rem"
+			/>
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="Large">
+	{#snippet children()}
+		<DetailsTable rows={smallRows} {columns} rowKey={(row) => row.id} height="26rem" size="large" />
+	{/snippet}
+</Story>
+
 <Story name="Without lines">
 	{#snippet children()}
 		<DetailsTable
@@ -169,8 +295,28 @@
 	{/snippet}
 </Story>
 
+{#snippet kettleCell(row: Spell)}
+	<!-- Width 100% of the fixed column, so every bar is the same length. -->
+	<ProgressBar value={row.kettles} max={100} size="small" />
+{/snippet}
+
+{#snippet brewCell(row: Spell)}
+	<!-- A grid wrapper stretches the inline button to the column width, so every button matches. -->
+	<div class="fill-cell">
+		<Button size="small" label="Brew" onclick={() => alert(`Brewing ${row.name}`)} />
+	</div>
+{/snippet}
+
 {#snippet moodCell(row: Spell)}
 	<Badge colour={row.mood === 'Cosy' ? 'green' : row.mood === 'Sleepy' ? 'orange' : 'amber'}>
 		{row.mood}
 	</Badge>
 {/snippet}
+
+<style>
+	/* Grid stretches the button to the (fixed-width) column. */
+	.fill-cell {
+		display: grid;
+		width: 100%;
+	}
+</style>

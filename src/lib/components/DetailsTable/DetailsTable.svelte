@@ -26,6 +26,10 @@
 		cell?: Snippet<[T, number]>;
 		/** Renders this column's header content. Overrides the label. */
 		header?: Snippet<[DetailsTableColumn<T>, DetailsTableSort | null]>;
+		/** Leave this column out of the list layout (used on narrow screens). */
+		hideInList?: boolean;
+		/** CSS width of this column's value in the list layout, so buttons and bars match on every card. */
+		listWidth?: string;
 	}
 </script>
 
@@ -33,6 +37,7 @@
 	import { Icon } from '../Icon/index.js';
 	import { observeInfiniteScroll } from '../../utils/infiniteScroll.js';
 	import { windowRows } from './windowRows.js';
+	import DetailsTableSortMenu from './DetailsTableSortMenu.svelte';
 
 	interface Props {
 		/** Rows loaded so far. */
@@ -41,8 +46,23 @@
 		columns: DetailsTableColumn<T>[];
 		/** Stable unique key per row, so cell state survives scrolling and re-sorting. */
 		rowKey: (row: T) => string;
-		/** Fixed row height in px. Every row must be this height so rows can be windowed. */
+		/** Text and row size, matching `Tree`. */
+		size?: 'small' | 'large';
+		/** Fixed row height in px, overriding the `size` default. Every row must be this height so rows can be windowed. Table layout only. */
 		rowHeight?: number;
+		/**
+		 * `table` is a grid with column headers; `list` is one card per row with sorting in a menu.
+		 * `auto` uses the list when the component is narrower than `stackBelow`.
+		 */
+		layout?: 'auto' | 'table' | 'list';
+		/** Width in px below which `layout="auto"` switches to the list. Measured on the component, not the window. */
+		stackBelow?: number;
+		/** Column shown as the card title in the list layout. Defaults to the first column. */
+		titleKey?: string;
+		/** Show each column's label beside its value in the list layout. */
+		listLabels?: boolean;
+		/** Height in px of each line of a list card, overriding the `size` default. Raise it for tall controls. */
+		listLineHeight?: number;
 		/** Extra rows rendered above and below the viewport. */
 		overscan?: number;
 		/** CSS height of the scroll area. Omit to fill the parent. */
@@ -83,7 +103,13 @@
 		rows,
 		columns,
 		rowKey,
-		rowHeight = 32,
+		size = 'small',
+		rowHeight: rowHeightOverride,
+		layout = 'auto',
+		stackBelow = 640,
+		titleKey,
+		listLabels = true,
+		listLineHeight: listLineHeightOverride,
 		overscan = 6,
 		height,
 		sort = $bindable(null),
@@ -104,6 +130,30 @@
 	}: Props = $props();
 
 	const tableId = $props.id();
+
+	let containerWidth = $state(0);
+
+	// Zero is the width before the first measure; staying in the table avoids a flash of the list.
+	const isList = $derived(
+		layout === 'list' || (layout === 'auto' && containerWidth > 0 && containerWidth < stackBelow)
+	);
+
+	const titleColumn = $derived(columns.find((column) => column.key === titleKey) ?? columns[0]);
+	const listValueColumns = $derived(
+		columns.filter((column) => column !== titleColumn && !column.hideInList)
+	);
+	const sortableColumns = $derived(columns.filter((column) => column.sortable));
+
+	/** Large rows are touch-friendly, so they get a bigger default hit area. */
+	const tableRowHeight = $derived(rowHeightOverride ?? (size === 'large' ? 44 : 32));
+
+	// A card is the title line plus one line per value, each truncated rather than wrapped. Windowing
+	// needs every row the same height, and the lines are the only thing that varies it.
+	const listLineHeight = $derived(listLineHeightOverride ?? (size === 'large' ? 34 : 26));
+	const listPadding = $derived(size === 'large' ? 10 : 8);
+	const listRowHeight = $derived(listPadding * 2 + (1 + listValueColumns.length) * listLineHeight);
+
+	const rowHeight = $derived(isList ? listRowHeight : tableRowHeight);
 
 	let scroller = $state<HTMLElement | null>(null);
 	let sentinel = $state<HTMLElement | null>(null);
@@ -183,15 +233,20 @@
 		return value ?? '';
 	}
 
+	function applySort(nextSort: DetailsTableSort) {
+		sort = nextSort;
+		onsortchange?.(nextSort);
+		// A new order makes the old scroll position meaningless.
+		if (scroller) scroller.scrollTop = 0;
+		activeIndex = -1;
+	}
+
+	/** Clicking the sorted column flips its direction; any other column starts ascending. */
 	function handleSortClick(column: DetailsTableColumn<T>) {
 		if (!column.sortable) return;
 		const direction: DetailsTableSortDirection =
 			sort?.key === column.key && sort.direction === 'asc' ? 'desc' : 'asc';
-		sort = { key: column.key, direction };
-		onsortchange?.(sort);
-		// A new order makes the old scroll position meaningless.
-		if (scroller) scroller.scrollTop = 0;
-		activeIndex = -1;
+		applySort({ key: column.key, direction });
 	}
 
 	function selectRow(row: T, index: number, { ctrl = false, shift = false } = {}) {
@@ -217,6 +272,10 @@
 	}
 
 	function handleRowClick(row: T, index: number, event: MouseEvent) {
+		// A button or link in a cell does its own job; it shouldn't also select or open the row.
+		const target = event.target as HTMLElement;
+		if (target.closest('button, a, input, select, textarea, [data-no-row-click]')) return;
+
 		activeIndex = index;
 		selectRow(row, index, { ctrl: event.ctrlKey || event.metaKey, shift: event.shiftKey });
 		onrowclick?.(row, event);
@@ -238,6 +297,13 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
+		// Keys on a button, link, input or the sort bar belong to that control, not to row navigation.
+		const target = event.target as HTMLElement;
+		if (
+			target !== event.currentTarget &&
+			target.closest('.akui-details-header, button, a, input, select, textarea')
+		)
+			return;
 		if (displayRows.length === 0) return;
 		const lastIndex = displayRows.length - 1;
 		const pageSize = Math.max(1, Math.floor(viewportHeight / rowHeight) - 1);
@@ -279,14 +345,29 @@
 	);
 </script>
 
+{#snippet cellContent(row: T, column: DetailsTableColumn<T>, index: number)}
+	{#if column.cell}
+		{@render column.cell(row, index)}
+	{:else if cell}
+		{@render cell(row, column, index)}
+	{:else}
+		{readCellValue(row, column)}
+	{/if}
+{/snippet}
+
 <div
 	bind:this={scroller}
 	bind:clientHeight={viewportHeight}
+	bind:clientWidth={containerWidth}
 	class="akui-details-table {className}"
+	class:large={size === 'large'}
 	class:no-lines={!showLines}
+	class:list={isList}
 	style:height
 	style:--akui-details-columns={gridTemplateColumns}
 	style:--akui-details-row-height="{rowHeight}px"
+	style:--akui-details-line-height="{listLineHeight}px"
+	style:--akui-details-list-padding="{listPadding}px"
 	role="grid"
 	tabindex="0"
 	aria-label={ariaLabel}
@@ -296,40 +377,62 @@
 	onscroll={(event) => (scrollTop = event.currentTarget.scrollTop)}
 	onkeydown={handleKeydown}
 >
-	<div class="akui-details-header" role="row" aria-rowindex={1}>
-		{#each columns as column (column.key)}
-			{@const isSorted = sort?.key === column.key}
+	{#if isList}
+		<!-- Columns can't sit side by side here, so sorting moves into a menu. -->
+		<div class="akui-details-header sort-bar" role="row" aria-rowindex={1}>
 			<div
-				class="akui-details-head-cell"
-				class:sortable={column.sortable}
-				style:text-align={column.align ?? 'left'}
 				role="columnheader"
-				aria-sort={isSorted ? (sort?.direction === 'asc' ? 'ascending' : 'descending') : undefined}
-				tabindex={column.sortable ? 0 : undefined}
-				onclick={() => handleSortClick(column)}
-				onkeydown={(event) => {
-					if (!column.sortable || (event.key !== 'Enter' && event.key !== ' ')) return;
-					event.preventDefault();
-					event.stopPropagation();
-					handleSortClick(column);
-				}}
+				aria-sort={sort ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
 			>
-				<span class="head-content">
-					{#if column.header}
-						{@render column.header(column, sort)}
-					{:else}
-						{column.label}
-					{/if}
-					{#if isSorted}
-						<Icon
-							name={sort?.direction === 'asc' ? 'caret-up-fill' : 'caret-down-fill'}
-							size={10}
-						/>
-					{/if}
-				</span>
+				{#if sortableColumns.length > 0}
+					<DetailsTableSortMenu
+						columns={sortableColumns}
+						{sort}
+						onpick={(key) => handleSortClick(sortableColumns.find((column) => column.key === key)!)}
+					/>
+				{/if}
 			</div>
-		{/each}
-	</div>
+		</div>
+	{:else}
+		<div class="akui-details-header" role="row" aria-rowindex={1}>
+			{#each columns as column (column.key)}
+				{@const isSorted = sort?.key === column.key}
+				<div
+					class="akui-details-head-cell"
+					class:sortable={column.sortable}
+					style:text-align={column.align ?? 'left'}
+					role="columnheader"
+					aria-sort={isSorted
+						? sort?.direction === 'asc'
+							? 'ascending'
+							: 'descending'
+						: undefined}
+					tabindex={column.sortable ? 0 : undefined}
+					onclick={() => handleSortClick(column)}
+					onkeydown={(event) => {
+						if (!column.sortable || (event.key !== 'Enter' && event.key !== ' ')) return;
+						event.preventDefault();
+						event.stopPropagation();
+						handleSortClick(column);
+					}}
+				>
+					<span class="head-content">
+						{#if column.header}
+							{@render column.header(column, sort)}
+						{:else}
+							{column.label}
+						{/if}
+						{#if isSorted}
+							<Icon
+								name={sort?.direction === 'asc' ? 'caret-up-fill' : 'caret-down-fill'}
+								size={size === 'large' ? 12 : 10}
+							/>
+						{/if}
+					</span>
+				</div>
+			{/each}
+		</div>
+	{/if}
 
 	{#if displayRows.length === 0 && !isLoading}
 		<div class="akui-details-empty">
@@ -353,6 +456,7 @@
 				<div
 					id="{tableId}-row-{rowKey(row)}"
 					class="akui-details-row {rowClass?.(row) ?? ''}"
+					class:list-card={isList}
 					class:selected={selected.has(rowKey(row))}
 					class:active={index === activeIndex}
 					role="row"
@@ -362,21 +466,39 @@
 					onclick={(event) => handleRowClick(row, index, event)}
 					onkeydown={null}
 				>
-					{#each columns as column (column.key)}
-						<div
-							class="akui-details-cell"
-							style:text-align={column.align ?? 'left'}
-							role="gridcell"
-						>
-							{#if column.cell}
-								{@render column.cell(row, index)}
-							{:else if cell}
-								{@render cell(row, column, index)}
-							{:else}
-								{readCellValue(row, column)}
-							{/if}
+					{#if isList}
+						<div class="list-title" role="gridcell" aria-label={titleColumn.label}>
+							{@render cellContent(row, titleColumn, index)}
 						</div>
-					{/each}
+						{#each listValueColumns as column (column.key)}
+							<div class="list-line">
+								{#if listLabels}
+									<span class="list-label" aria-hidden="true">{column.label}</span>
+								{/if}
+								<div
+									class="list-value"
+									class:labelled={listLabels}
+									style:width={column.listWidth}
+									style:flex={column.listWidth ? 'none' : undefined}
+									style:text-align={listLabels ? undefined : (column.align ?? 'left')}
+									role="gridcell"
+									aria-label={column.label}
+								>
+									{@render cellContent(row, column, index)}
+								</div>
+							</div>
+						{/each}
+					{:else}
+						{#each columns as column (column.key)}
+							<div
+								class="akui-details-cell"
+								style:text-align={column.align ?? 'left'}
+								role="gridcell"
+							>
+								{@render cellContent(row, column, index)}
+							</div>
+						{/each}
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -403,7 +525,7 @@
 		height: 100%;
 		box-sizing: border-box;
 		color: var(--akui-fg, #333);
-		font-size: 0.9375rem;
+		font-size: 0.875rem;
 		background-color: var(--akui-bg-input, #fff);
 		border: 1px solid var(--akui-border-input, #e0e0e0);
 		border-radius: var(--akui-radius-m, 8px);
@@ -442,6 +564,15 @@
 		white-space: nowrap;
 	}
 
+	.akui-details-table.large {
+		font-size: 0.95rem;
+	}
+
+	.large .akui-details-head-cell,
+	.large .akui-details-cell {
+		padding-inline: 1rem;
+	}
+
 	.akui-details-head-cell {
 		padding-block: 0.5rem;
 		border-left: 1px solid var(--akui-border-input, #e0e0e0);
@@ -471,6 +602,8 @@
 	}
 
 	.akui-details-row {
+		/* Border-box, or each row's border adds 1px and the windowing arithmetic drifts. */
+		box-sizing: border-box;
 		height: var(--akui-details-row-height);
 		align-items: center;
 		cursor: default;
@@ -488,6 +621,61 @@
 	.akui-details-row.active {
 		outline: 1px solid var(--akui-bg-accent, #3b82f6);
 		outline-offset: -1px;
+	}
+
+	/* List layout: one card per row, in the style of a ControlGroup item. */
+	.akui-details-header.sort-bar {
+		display: flex;
+		align-items: center;
+		min-width: 0;
+		padding: 0.25rem 0.5rem;
+	}
+
+	.akui-details-row.list-card {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: stretch;
+		min-width: 0;
+		padding-inline: 0.75rem;
+		padding-block: var(--akui-details-list-padding);
+	}
+
+	.list-title,
+	.list-line {
+		display: flex;
+		align-items: center;
+		height: var(--akui-details-line-height);
+		min-width: 0;
+	}
+
+	.list-title {
+		font-weight: 600;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.list-line {
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.list-label {
+		flex: none;
+		color: var(--akui-fg-secondary, #666);
+	}
+
+	.list-value {
+		flex: 1;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.list-value.labelled {
+		text-align: right;
 	}
 
 	.akui-details-empty,
