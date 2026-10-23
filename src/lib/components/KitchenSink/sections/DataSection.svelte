@@ -14,9 +14,17 @@
 		Thread,
 		ThreadItem,
 		Message,
+		DetailsTable,
+		type DetailsTableColumn,
 		type TableColumn,
 		type TreeItemData
 	} from '$lib/index.js';
+
+	const detailsColumns: DetailsTableColumn<{ id: string; name: string; role: string; count: number }>[] = [
+		{ key: 'name', label: 'Name', sortable: true },
+		{ key: 'role', label: 'Role' },
+		{ key: 'count', label: 'Count', align: 'right', sortable: true }
+	];
 
 	const columns: TableColumn[] = [
 		{ key: 'name', label: 'Name', sortable: true },
@@ -58,6 +66,19 @@
 	<div class="demo-row">
 		<div class="demo-cell"><Table data={rows} {columns} /></div>
 		<div class="demo-cell"><Tree items={treeItems} {expanded} /></div>
+	</div>
+
+	<h3>Details table</h3>
+	<div class="demo-row">
+		<div class="demo-cell">
+			<DetailsTable
+				rows={rows.map((row, index) => ({ ...row, id: String(index) }))}
+				columns={detailsColumns}
+				rowKey={(row) => row.id}
+				height="10rem"
+				selected={new Set(['1'])}
+			/>
+		</div>
 	</div>
 
 	<h3>Feed rows</h3>
