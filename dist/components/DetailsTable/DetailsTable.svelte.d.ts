@@ -62,6 +62,8 @@ declare function $$render<T>(): {
         onsortchange?: (sort: DetailsTableSort) => void;
         /** Start loading the next page when this many rows remain below the visible ones. */
         loadAheadRows?: number;
+        /** Draw the outer border, corner radius and sunken shadow. Turn off to sit flush in an existing panel. */
+        border?: boolean;
         /** Draw lines between rows and between header columns. Turn off for a cleaner list. */
         showLines?: boolean;
         /** Whether more rows can be loaded. */

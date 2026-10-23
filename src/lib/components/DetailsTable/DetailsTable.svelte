@@ -73,6 +73,8 @@
 		onsortchange?: (sort: DetailsTableSort) => void;
 		/** Start loading the next page when this many rows remain below the visible ones. */
 		loadAheadRows?: number;
+		/** Draw the outer border, corner radius and sunken shadow. Turn off to sit flush in an existing panel. */
+		border?: boolean;
 		/** Draw lines between rows and between header columns. Turn off for a cleaner list. */
 		showLines?: boolean;
 		/** Whether more rows can be loaded. */
@@ -115,6 +117,7 @@
 		sort = $bindable(null),
 		onsortchange,
 		loadAheadRows = 60,
+		border = true,
 		showLines = true,
 		hasMore = false,
 		isLoading = false,
@@ -362,6 +365,7 @@
 	class="akui-details-table {className}"
 	class:large={size === 'large'}
 	class:no-lines={!showLines}
+	class:borderless={!border}
 	class:list={isList}
 	style:height
 	style:--akui-details-columns={gridTemplateColumns}
@@ -533,6 +537,13 @@
 		border: 1px solid var(--akui-border-input, #e0e0e0);
 		border-radius: var(--akui-radius-m, 8px);
 		box-shadow: var(--akui-shadow-sunken);
+	}
+
+	/* Flush: the surrounding panel supplies the edge, so the table adds none of its own. */
+	.akui-details-table.borderless {
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
 	}
 
 	.akui-details-table:focus-visible {

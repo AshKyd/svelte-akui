@@ -304,6 +304,23 @@
 	{/snippet}
 </Story>
 
+<Story name="Borderless">
+	{#snippet children()}
+		<p>Flush with its container: no border, radius or shadow.</p>
+		<div
+			style="border: 1px solid var(--akui-border-input); border-radius: var(--akui-radius-m); overflow: hidden;"
+		>
+			<DetailsTable
+				rows={smallRows}
+				{columns}
+				rowKey={(row) => row.id}
+				height="16rem"
+				border={false}
+			/>
+		</div>
+	{/snippet}
+</Story>
+
 <Story name="Without lines">
 	{#snippet children()}
 		<DetailsTable
