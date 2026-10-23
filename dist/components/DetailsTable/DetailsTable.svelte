@@ -522,6 +522,9 @@
 		position: relative;
 		overflow: auto;
 		width: 100%;
+		/* Inside a flex or grid parent, auto min-width would let wide content stretch the table. */
+		min-width: 0;
+		max-width: 100%;
 		height: 100%;
 		box-sizing: border-box;
 		color: var(--akui-fg, #333);
@@ -542,7 +545,15 @@
 	.akui-details-row {
 		display: grid;
 		grid-template-columns: var(--akui-details-columns);
-		min-width: max-content;
+		/*
+		 * Never max-content: that sizes the row to its longest cell, so one long value stretches the
+		 * row past the header and the columns stop lining up. min-content is only the fixed tracks
+		 * (flexible ones start at 0), so header and rows always get the same width, and a table with
+		 * fixed columns wider than its container scrolls sideways instead of breaking the grid.
+		 */
+		width: 100%;
+		min-width: min-content;
+		box-sizing: border-box;
 	}
 
 	.akui-details-header {
@@ -556,8 +567,11 @@
 		user-select: none;
 	}
 
+	/* A grid item defaults to min-width: auto, which lets long content push its track wider. */
 	.akui-details-head-cell,
 	.akui-details-cell {
+		min-width: 0;
+		max-width: 100%;
 		padding: 0 0.75rem;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -594,6 +608,9 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.35rem;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.no-lines .akui-details-row,
@@ -643,13 +660,18 @@
 
 	.list-title,
 	.list-line {
-		display: flex;
-		align-items: center;
 		height: var(--akui-details-line-height);
 		min-width: 0;
 	}
 
+	.list-line {
+		display: flex;
+		align-items: center;
+	}
+
+	/* A block, not a flex container, so text-overflow can ellipsise a bare text node. */
 	.list-title {
+		line-height: var(--akui-details-line-height);
 		font-weight: 600;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -661,8 +683,13 @@
 		gap: 0.75rem;
 	}
 
+	/* Capped so a long label can't squeeze the value to nothing. */
 	.list-label {
 		flex: none;
+		max-width: 50%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 		color: var(--akui-fg-secondary, #666);
 	}
 
