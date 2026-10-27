@@ -30,6 +30,13 @@
 
 	const themeStore = setThemeStore(new ThemeStore(() => themes));
 
+	// Apply an explicit `mode` straight away as well as in the effect below. Effects don't run during
+	// SSR or prerendering, so without this the static HTML is light (the OS default) until hydration,
+	// which shows as a flash of light mode on a dark-only site.
+	untrack(() => {
+		if (mode) themeStore.select(mode === 'dark' ? DARK_THEME : LIGHT_THEME, { persist: false });
+	});
+
 	$effect(() => themeStore.listenToSystemScheme());
 
 	// An explicit `mode` (e.g. the Storybook toolbar) drives the store without being persisted, so it
