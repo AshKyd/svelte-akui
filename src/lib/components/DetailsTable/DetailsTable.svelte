@@ -30,6 +30,12 @@
 		hideInList?: boolean;
 		/** CSS width of this column's value in the list layout, so buttons and bars match on every card. */
 		listWidth?: string;
+		/** Lets the user drag the header's right edge (or use arrow keys on it) to resize this column. */
+		resizable?: boolean;
+		/** Smallest width in px this column can be resized to. Defaults to 48. */
+		minWidth?: number;
+		/** Largest width in px this column can be resized to. */
+		maxWidth?: number;
 	}
 </script>
 
@@ -71,6 +77,10 @@
 		sort?: DetailsTableSort | null;
 		/** Called when a header is clicked. Use this when `rows` is paged, since a locally sorted page is wrong. */
 		onsortchange?: (sort: DetailsTableSort) => void;
+		/** Widths in px the user has dragged resizable columns to, by column `key`. Save and restore it to remember them. */
+		columnWidths?: Record<string, number>;
+		/** Called when a column is resized, with its key and new width in px, or `null` when reset to its default. */
+		oncolumnresize?: (key: string, width: number | null) => void;
 		/** Start loading the next page when this many rows remain below the visible ones. */
 		loadAheadRows?: number;
 		/** Draw the outer border, corner radius and sunken shadow. Turn off to sit flush in an existing panel. */
@@ -117,6 +127,8 @@
 		sort = $bindable(null),
 		onsortchange,
 		loadAheadRows = 60,
+		columnWidths = $bindable({}),
+		oncolumnresize,
 		border = true,
 		showLines = true,
 		hasMore = false,
@@ -199,9 +211,74 @@
 	);
 	const visibleRows = $derived(displayRows.slice(visible.start, visible.end));
 
+	// A dragged width wins over the column's own `width`.
 	const gridTemplateColumns = $derived(
-		columns.map((column) => column.width ?? 'minmax(0, 1fr)').join(' ')
+		columns
+			.map((column) =>
+				columnWidths[column.key] !== undefined
+					? `${columnWidths[column.key]}px`
+					: (column.width ?? 'minmax(0, 1fr)')
+			)
+			.join(' ')
 	);
+
+	const DEFAULT_MIN_COLUMN_WIDTH = 48;
+	const KEYBOARD_RESIZE_STEP = 16;
+
+	function setColumnWidth(column: DetailsTableColumn<T>, requestedWidth: number) {
+		const minWidth = column.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH;
+		const width = Math.round(
+			Math.min(column.maxWidth ?? Infinity, Math.max(minWidth, requestedWidth))
+		);
+		if (columnWidths[column.key] === width) return;
+		columnWidths = { ...columnWidths, [column.key]: width };
+		oncolumnresize?.(column.key, width);
+	}
+
+	/** Back to the column's own `width`. */
+	function resetColumnWidth(column: DetailsTableColumn<T>) {
+		if (columnWidths[column.key] === undefined) return;
+		columnWidths = Object.fromEntries(
+			Object.entries(columnWidths).filter(([key]) => key !== column.key)
+		);
+		oncolumnresize?.(column.key, null);
+	}
+
+	/**
+	 * Drags from the header cell's current rendered width, since a `fr` or `minmax` column has no
+	 * pixel width until it is measured. Pointer capture keeps the drag going outside the handle.
+	 */
+	function startResize(event: PointerEvent, column: DetailsTableColumn<T>) {
+		if (event.button !== 0) return;
+		event.preventDefault();
+		const handle = event.currentTarget as HTMLElement;
+		const startX = event.clientX;
+		const startWidth = (handle.parentElement as HTMLElement).getBoundingClientRect().width;
+		handle.setPointerCapture(event.pointerId);
+
+		const move = (moveEvent: PointerEvent) =>
+			setColumnWidth(column, startWidth + moveEvent.clientX - startX);
+		const end = () => {
+			handle.removeEventListener('pointermove', move);
+			handle.removeEventListener('pointerup', end);
+			handle.removeEventListener('pointercancel', end);
+		};
+		handle.addEventListener('pointermove', move);
+		handle.addEventListener('pointerup', end);
+		handle.addEventListener('pointercancel', end);
+	}
+
+	function handleResizeKeydown(event: KeyboardEvent, column: DetailsTableColumn<T>) {
+		// Keys here belong to the handle, not the sortable header cell around it.
+		event.stopPropagation();
+		const direction = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+		if (direction === 0) return;
+		event.preventDefault();
+		const currentWidth = (event.currentTarget as HTMLElement).parentElement!.getBoundingClientRect()
+			.width;
+		const step = event.shiftKey ? KEYBOARD_RESIZE_STEP * 4 : KEYBOARD_RESIZE_STEP;
+		setColumnWidth(column, currentWidth + direction * step);
+	}
 
 	// Not reactive: stops the prefetch effect and the sentinel both loading the same page.
 	let isRequestingMore = false;
@@ -433,6 +510,24 @@
 							/>
 						{/if}
 					</span>
+					{#if column.resizable}
+						<!-- A focusable separator is an interactive widget (ARIA window splitter); Svelte only knows it as a separator. -->
+						<!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_no_noninteractive_tabindex -->
+						<div
+							class="resize-handle"
+							role="separator"
+							aria-orientation="vertical"
+							aria-label="Resize {column.label} column"
+							aria-valuenow={columnWidths[column.key]}
+							aria-valuemin={column.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH}
+							aria-valuemax={column.maxWidth}
+							tabindex="0"
+							onpointerdown={(event) => startResize(event, column)}
+							onkeydown={(event) => handleResizeKeydown(event, column)}
+							ondblclick={() => resetColumnWidth(column)}
+							onclick={(event) => event.stopPropagation()}
+						></div>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -598,7 +693,41 @@
 		padding-inline: 1rem;
 	}
 
+	/* A thin grab area on the cell's right edge. The line only shows on hover or focus. */
+	.resize-handle {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: 8px;
+		cursor: col-resize;
+		touch-action: none;
+	}
+
+	.resize-handle::after {
+		content: '';
+		position: absolute;
+		top: 25%;
+		bottom: 25%;
+		right: 3px;
+		width: 2px;
+		border-radius: 1px;
+		background-color: var(--akui-bg-accent, #3b82f6);
+		opacity: 0;
+		transition: opacity 0.15s;
+	}
+
+	.resize-handle:hover::after,
+	.resize-handle:focus-visible::after {
+		opacity: 1;
+	}
+
+	.resize-handle:focus-visible {
+		outline: none;
+	}
+
 	.akui-details-head-cell {
+		position: relative;
 		padding-block: 0.5rem;
 		border-left: 1px solid var(--akui-border-input, #e0e0e0);
 	}

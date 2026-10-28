@@ -97,6 +97,7 @@
 	}
 
 	let selected = $state(new Set<string>());
+	let columnWidths = $state<Record<string, number>>({});
 </script>
 
 <Story name="Default">
@@ -271,6 +272,44 @@
 				height="26rem"
 			/>
 		</div>
+	{/snippet}
+</Story>
+
+<Story name="Resizable columns">
+	{#snippet children()}
+		<p>
+			Drag a header's right edge, or focus it and use the arrow keys (shift for bigger steps).
+			Double-click to reset. Mood is not resizable.
+		</p>
+		<DetailsTable
+			rows={smallRows}
+			columns={[
+				{
+					key: 'name',
+					label: 'Name',
+					sortable: true,
+					width: '14rem',
+					resizable: true,
+					minWidth: 96
+				},
+				{ key: 'caster', label: 'Caster', sortable: true, resizable: true },
+				{ key: 'mood', label: 'Mood', sortable: true, width: '8rem' },
+				{
+					key: 'kettles',
+					label: 'Kettles',
+					sortable: true,
+					align: 'right',
+					width: '8rem',
+					resizable: true,
+					maxWidth: 240
+				}
+			]}
+			rowKey={(row) => row.id}
+			height="20rem"
+			layout="table"
+			bind:columnWidths
+		/>
+		<p><code>columnWidths</code>: {JSON.stringify(columnWidths)}</p>
 	{/snippet}
 </Story>
 

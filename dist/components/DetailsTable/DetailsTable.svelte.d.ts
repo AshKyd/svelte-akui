@@ -26,6 +26,12 @@ export interface DetailsTableColumn<T> {
     hideInList?: boolean;
     /** CSS width of this column's value in the list layout, so buttons and bars match on every card. */
     listWidth?: string;
+    /** Lets the user drag the header's right edge (or use arrow keys on it) to resize this column. */
+    resizable?: boolean;
+    /** Smallest width in px this column can be resized to. Defaults to 48. */
+    minWidth?: number;
+    /** Largest width in px this column can be resized to. */
+    maxWidth?: number;
 }
 declare function $$render<T>(): {
     props: {
@@ -60,6 +66,10 @@ declare function $$render<T>(): {
         sort?: DetailsTableSort | null;
         /** Called when a header is clicked. Use this when `rows` is paged, since a locally sorted page is wrong. */
         onsortchange?: (sort: DetailsTableSort) => void;
+        /** Widths in px the user has dragged resizable columns to, by column `key`. Save and restore it to remember them. */
+        columnWidths?: Record<string, number>;
+        /** Called when a column is resized, with its key and new width in px, or `null` when reset to its default. */
+        oncolumnresize?: (key: string, width: number | null) => void;
         /** Start loading the next page when this many rows remain below the visible ones. */
         loadAheadRows?: number;
         /** Draw the outer border, corner radius and sunken shadow. Turn off to sit flush in an existing panel. */
@@ -90,7 +100,7 @@ declare function $$render<T>(): {
         'aria-label'?: string;
     };
     exports: {};
-    bindings: "sort" | "selected";
+    bindings: "sort" | "selected" | "columnWidths";
     slots: {};
     events: {};
 };
@@ -98,7 +108,7 @@ declare class __sveltets_Render<T> {
     props(): ReturnType<typeof $$render<T>>['props'];
     events(): ReturnType<typeof $$render<T>>['events'];
     slots(): ReturnType<typeof $$render<T>>['slots'];
-    bindings(): "sort" | "selected";
+    bindings(): "sort" | "selected" | "columnWidths";
     exports(): {};
 }
 interface $$IsomorphicComponent {
