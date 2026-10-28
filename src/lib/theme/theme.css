@@ -145,7 +145,8 @@
 	/* Derived from `--akui-hue`, `--akui-chroma` and `--akui-tint`: see the light block. */
 	color-scheme: dark;
 	--akui-bg: oklch(0.17 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg: oklch(0.985 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	/* Off-white rather than near-white: bright text on a dark surface halates (appears to bleed). */
+	--akui-fg: oklch(0.93 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
 	--akui-bg-secondary: oklch(0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263));
 	--akui-fg-secondary: oklch(0.72 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
 	--akui-bg-accent: oklch(0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263));
