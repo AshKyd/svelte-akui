@@ -2,6 +2,16 @@ import { getContext, setContext } from 'svelte';
 
 export type ThemeScheme = 'light' | 'dark';
 
+/** The one-colour input to a theme. `theme.css` derives every other colour from it. */
+export interface AkuiColour {
+	/** oklch hue angle, 0-360. */
+	hue: number;
+	/** Accent punch (oklch chroma). 0 is greyscale; default 0.21. */
+	chroma?: number;
+	/** How much of the hue tints backgrounds and text. 0 is neutral; default 1. */
+	tint?: number;
+}
+
 export interface AkuiTheme {
 	/** Unique id, stored in localStorage and exposed as `data-akui-theme`. */
 	id: string;
@@ -11,11 +21,14 @@ export interface AkuiTheme {
 	group?: string;
 	/** Which built-in `[data-theme]` rules the theme builds on, so existing dark/light styles keep working. */
 	scheme: ThemeScheme;
-	/** `--akui-*` overrides applied inline on `.akui-root`. */
+	/** Colour the theme derives from. Replaced by the user's accent (`ThemeStore.accent`) when set. */
+	colour?: AkuiColour;
+	/** `--akui-*` overrides applied inline on `.akui-root`, after the derived colours. */
 	tokens?: Record<`--akui-${string}`, string>;
 }
 
 const STORAGE_KEY = 'akui-theme';
+const ACCENT_STORAGE_KEY = 'akui-accent';
 // `Symbol.for`, not `Symbol()`: the key must be the same across module copies. HMR or a duplicated
 // bundle reloads this module separately for `UIRoot` and `ThemePicker`, and a plain symbol would
 // then differ between them, so the picker couldn't find the root's store.
@@ -47,6 +60,21 @@ function readStoredTheme(): AkuiTheme | null {
 	try {
 		const parsed: unknown = JSON.parse(stored);
 		return isTheme(parsed) ? parsed : null;
+	} catch {
+		return null;
+	}
+}
+
+/** Reads the persisted accent, or `null` when missing or invalid. */
+function readStoredAccent(): AkuiColour | null {
+	if (typeof localStorage === 'undefined') return null;
+	try {
+		const parsed: unknown = JSON.parse(localStorage.getItem(ACCENT_STORAGE_KEY) ?? 'null');
+		const { hue, chroma, tint } = (parsed ?? {}) as Record<string, unknown>;
+		const isOptionalNumber = (value: unknown) => value === undefined || typeof value === 'number';
+		return typeof hue === 'number' && isOptionalNumber(chroma) && isOptionalNumber(tint)
+			? (parsed as AkuiColour)
+			: null;
 	} catch {
 		return null;
 	}
@@ -106,6 +134,36 @@ export class ThemeStore {
 	tokens = $derived(
 		(this.selected ?? this.themes.find(({ id }) => id === this.systemScheme))?.tokens ?? {}
 	);
+
+	/**
+	 * The user's chosen accent, or `null` to use the theme's own `colour`. Kept apart from the
+	 * selected theme so the accent survives switching between Light, Dark and System.
+	 */
+	accent = $state<AkuiColour | null>(readStoredAccent());
+
+	/** The colour actually applied: the user's accent, otherwise the active theme's `colour`. */
+	colour = $derived<AkuiColour | undefined>(
+		this.accent ??
+			(this.selected ?? this.themes.find(({ id }) => id === this.systemScheme))?.colour
+	);
+
+	/** The `--akui-hue`, `--akui-chroma` and `--akui-tint` inputs for `colour`. */
+	colourTokens = $derived.by(() => {
+		const { hue, chroma, tint } = this.colour ?? {};
+		return {
+			...(hue === undefined ? {} : { '--akui-hue': String(hue) }),
+			...(chroma === undefined ? {} : { '--akui-chroma': String(chroma) }),
+			...(tint === undefined ? {} : { '--akui-tint': String(tint) })
+		};
+	});
+
+	/** Sets the accent colour (`null` = back to the theme's own). Pass `persist: false` for previews. */
+	setAccent(accent: AkuiColour | null, { persist = true } = {}): void {
+		this.accent = accent;
+		if (!persist || typeof localStorage === 'undefined') return;
+		if (accent) localStorage.setItem(ACCENT_STORAGE_KEY, JSON.stringify(accent));
+		else localStorage.removeItem(ACCENT_STORAGE_KEY);
+	}
 
 	/** Tracks the OS colour scheme. Call from an `$effect`; the returned cleanup removes the listener. */
 	listenToSystemScheme(): () => void {

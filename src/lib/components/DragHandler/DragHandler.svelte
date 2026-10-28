@@ -202,7 +202,7 @@
 	.akui-drag-handler.dragging .akui-drag-visual-bar {
 		opacity: 1;
 		background-color: var(--akui-bg-accent, #2563eb);
-		box-shadow: 0 0 12px var(--akui-bg-accent-glow, rgba(37, 99, 235, 0.8)), 0 0 4px var(--akui-bg-accent-glow, rgba(37, 99, 235, 0.6));
+		box-shadow: 0 0 12px var(--akui-bg-accent-glow, color-mix(in oklch, var(--akui-bg-accent) 80%, transparent)), 0 0 4px var(--akui-bg-accent-glow, color-mix(in oklch, var(--akui-bg-accent) 60%, transparent));
 	}
 
 	/* Draggable knob affordance - hidden by default */
@@ -249,7 +249,7 @@
 		opacity: 1;
 		border-color: var(--akui-bg-accent-hover, #1d4ed8);
 		transform: scale(0.96);
-		box-shadow: 0 0 12px rgba(37, 99, 235, 0.5), inset 0 2px 4px rgba(0, 0, 0, 0.1), var(--akui-shadow-sunken, inset 0 1px 0 rgba(0, 0, 0, 0.05)), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+		box-shadow: 0 0 12px color-mix(in oklch, var(--akui-bg-accent) 50%, transparent), inset 0 2px 4px rgba(0, 0, 0, 0.1), var(--akui-shadow-sunken, inset 0 1px 0 rgba(0, 0, 0, 0.05)), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 	}
 
 	/* Little dots on the knob */

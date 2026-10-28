@@ -83,7 +83,7 @@
 	}
 
 	.akui-settings-nav-item.selected {
-		background-color: rgba(var(--akui-bg-accent-rgb), 0.1);
+		background-color: color-mix(in oklch, var(--akui-bg-accent) 10%, transparent);
 		color: var(--akui-bg-accent);
 	}
 

@@ -52,7 +52,11 @@
 			{#each [LIGHT_THEME, DARK_THEME] as fallback (fallback.id)}
 				<!-- Use the app's own Light/Dark definitions, which may be re-branded. -->
 				{@const half = store.themes.find(({ id }) => id === fallback.id) ?? fallback}
-				<span class="sample half" style={themeScopeStyle(half)}></span>
+				<span
+						class="sample half"
+						data-theme={half.scheme}
+						style={themeScopeStyle(half, store.accent)}
+					></span>
 			{/each}
 		</span>
 	{/if}
@@ -67,7 +71,8 @@
 			<!-- The inline style scopes the whole card to the theme: its background, text and border. -->
 			<SelectableItem
 				class="option"
-				style={themeScopeStyle(cardTheme)}
+				scheme={cardTheme.scheme}
+					style={themeScopeStyle(cardTheme, store.accent)}
 				{name}
 				value={option.id}
 				group={store.selectedId}

@@ -62,7 +62,8 @@
 	});
 
 	const tokenStyle = $derived(
-		Object.entries(themeStore.tokens)
+		// Colour inputs first, then the theme's tokens, so a pinned token beats the derived value.
+		Object.entries({ ...themeStore.colourTokens, ...themeStore.tokens })
 			.map(([name, value]) => `${name}:${value}`)
 			.join(';')
 	);

@@ -294,7 +294,7 @@
 
 	/* outline is not clipped by overflow:hidden, so the ring reliably appears */
 	.reader-typography :global(.kg-bookmark-container:focus-visible) {
-		outline-color: var(--akui-ring-focus, rgba(37, 99, 235, 0.4));
+		outline-color: var(--akui-ring-focus);
 		box-shadow:
 			var(--akui-glow-top, inset 0 1px 0 rgba(255, 255, 255, 0.4)),
 			var(--akui-glow-bottom, inset 0 -1px 0 rgba(0, 0, 0, 0.05)),

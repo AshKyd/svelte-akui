@@ -22,7 +22,7 @@ There is no test runner. Storybook stories are the verification surface.
 
 - `src/lib/components/Name/` — `Name.svelte`, `Name.stories.svelte`, `index.ts`; sub-components sit in
   the same folder (`Tree/TreeItem.svelte`).
-- `src/lib/theme/theme.css` — HSL colour tokens, applied by `UIRoot`.
+- `src/lib/theme/theme.css` — colour tokens derived in oklch from `--akui-hue` (see `devdocs/themes.md` in the app repo), applied by `UIRoot`.
 - `src/lib/hooks/` — `theme.svelte.ts` (read-only `getTheme()`), `themeStore.svelte.ts` (the `ThemeStore` owned by `UIRoot`: selected theme, system scheme, persistence), `keyboardNavigation.ts`.
 - `src/lib/index.ts` — the public entry point; every exported component must be listed here.
 
