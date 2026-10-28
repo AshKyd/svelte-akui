@@ -158,6 +158,9 @@
 		position: fixed;
 		z-index: 1000;
 		pointer-events: none;
+		/* Its own static View Transition group (see theme.css), so a note open/close transition doesn't
+		   bake the stack into the page snapshot where it crossfades, jumps or sits under the overlay. */
+		view-transition-name: akui-notification-area;
 	}
 
 	.akui-notification-area:not(.inline) li {

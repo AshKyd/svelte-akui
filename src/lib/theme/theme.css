@@ -509,6 +509,30 @@ html.transition-forward ::view-transition-new(page) {
 	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
 }
 
+/* Fixed overlays (notifications, mobile menu) have their own View Transition groups. Unnamed, they are
+   part of the `root` snapshot, which the browser paints above the live page (top layer included) for
+   the whole transition: they freeze, crossfade with the page, then jump when it ends. A named group is
+   captured separately, stays put and keeps its stacking above the morphing note. */
+::view-transition-group(akui-notification-area),
+::view-transition-old(akui-notification-area),
+::view-transition-new(akui-notification-area),
+::view-transition-group(akui-menu-backdrop),
+::view-transition-old(akui-menu-backdrop),
+::view-transition-new(akui-menu-backdrop),
+::view-transition-group(akui-menu-layer),
+::view-transition-old(akui-menu-layer),
+::view-transition-new(akui-menu-layer) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+::view-transition-group(akui-notification-area),
+::view-transition-group(akui-menu-backdrop) {
+	z-index: 1000;
+}
+::view-transition-group(akui-menu-layer) {
+	z-index: 1001;
+}
+
 /* Shared-element morph (see morphTransition and LayoutAdaptivePane's viewTransition).
    The group moves and resizes the box; the old picture (the card) rides in it, then the new picture
    (the note) crossfades over it as the box nears its final size.
