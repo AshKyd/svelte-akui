@@ -85,6 +85,7 @@
 		"msrand": "^2.1.0",
 		"ngeohash": "^0.6.4",
 		"perfect-freehand": "^1.2.3",
+		"svelte-akui": "github:ashkyd/svelte-akui",
 		"svelte-bootstrap-icons": "^3.3.0"
 	}
 }
