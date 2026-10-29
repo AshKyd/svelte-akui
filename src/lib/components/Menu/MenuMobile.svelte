@@ -92,6 +92,10 @@
 		view-transition-name: akui-menu-layer;
 	}
 
+	:global(html[data-reduced-motion='true']) .akui-mobile-menu-layer {
+		animation: none;
+	}
+
 	.akui-mobile-menu-content {
 		position: relative;
 		background: var(--akui-bg, #ffffff);

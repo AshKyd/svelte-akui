@@ -553,7 +553,11 @@
 		transition: none;
 	}
 
-	/* Keyed off the `reducedMotion` store (see UIRoot), which also stops the transitions themselves. */
+	/* Keyed off the `reducedMotion` store (see UIRoot). The overlay pane fades rather than sliding. */
+	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-ready.is-overlay .akui-pane-nested {
+		transition: opacity 0.12s ease;
+	}
+
 	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-stacked .akui-pane-main,
 	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
 		transform: none !important;

@@ -132,23 +132,11 @@
 		}
 
 		/*
-		 * Reduced motion, from the `reducedMotion` store (the settings toggle, defaulting to the OS
-		 * setting). Stops every CSS transition and keyframe animation, including inline `style`
-		 * transitions such as Draggable's settle and Masonry's reflow, which `!important` overrides.
-		 * Durations are near zero rather than `none` so `transitionend`/`animationend` still fire.
-		 * Delays are cleared too, so staggered entrances (e.g. menu items) don't sit hidden first.
-		 * Svelte `transition:` directives aren't CSS — they use `motion()` from the same store.
+		 * There is deliberately no blanket reduced-motion rule here. Small feedback (a toggle thumb sliding,
+		 * a hover fade) isn't an accessibility problem, and a global override also broke it. Each component
+		 * that has large or travelling motion checks `html[data-reduced-motion='true']` (CSS) or
+		 * `reducedMotion` / `motion()` (JS) itself.
 		 */
-		html[data-reduced-motion='true'] *,
-		html[data-reduced-motion='true'] *::before,
-		html[data-reduced-motion='true'] *::after {
-			animation-duration: 0.01ms !important;
-			animation-iteration-count: 1 !important;
-			animation-delay: 0s !important;
-			transition-duration: 0.01ms !important;
-			transition-delay: 0s !important;
-			scroll-behavior: auto !important;
-		}
 
 		body {
 			/* 4. Increase line-height */

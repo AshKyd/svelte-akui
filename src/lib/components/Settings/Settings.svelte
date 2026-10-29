@@ -284,7 +284,7 @@
 		margin-inline: auto;
 	}
 
-	/* Mobile: layered drill-down. The global reduced-motion rule zeroes these transitions. */
+	/* Mobile: layered drill-down. With reduced motion the layers fade instead of sliding (see the end of this block). */
 	.akui-settings-layer {
 		position: absolute;
 		inset: 0;

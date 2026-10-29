@@ -249,6 +249,10 @@
 		transform: translateX(0);
 	}
 
+	:global(html[data-reduced-motion='true']) .akui-sidebar.mode-modal {
+		transition: none;
+	}
+
 	/* Scrim */
 	.akui-sidebar-scrim {
 		position: fixed;

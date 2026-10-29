@@ -530,6 +530,12 @@ html.transition-forward ::view-transition-new(page) {
 	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
 }
 
+/* No page slide with reduced motion: the pages swap at once. */
+html[data-reduced-motion='true'] ::view-transition-old(page),
+html[data-reduced-motion='true'] ::view-transition-new(page) {
+	animation: none;
+}
+
 /* Fixed overlays (notifications, mobile menu) have their own View Transition groups. Unnamed, they are
    part of the `root` snapshot, which the browser paints above the live page (top layer included) for
    the whole transition: they freeze, crossfade with the page, then jump when it ends. A named group is
