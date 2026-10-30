@@ -1,4 +1,13 @@
 export type ThemeScheme = 'light' | 'dark';
+/** The one-colour input to a theme. `theme.css` derives every other colour from it. */
+export interface AkuiColour {
+    /** oklch hue angle, 0-360. */
+    hue: number;
+    /** Accent punch (oklch chroma). 0 is greyscale; default 0.21. */
+    chroma?: number;
+    /** How much of the hue tints backgrounds and text. 0 is neutral; default 1. */
+    tint?: number;
+}
 export interface AkuiTheme {
     /** Unique id, stored in localStorage and exposed as `data-akui-theme`. */
     id: string;
@@ -8,7 +17,9 @@ export interface AkuiTheme {
     group?: string;
     /** Which built-in `[data-theme]` rules the theme builds on, so existing dark/light styles keep working. */
     scheme: ThemeScheme;
-    /** `--akui-*` overrides applied inline on `.akui-root`. */
+    /** Colour the theme derives from. Replaced by the user's accent (`ThemeStore.accent`) when set. */
+    colour?: AkuiColour;
+    /** `--akui-*` overrides applied inline on `.akui-root`, after the derived colours. */
     tokens?: Record<`--akui-${string}`, string>;
 }
 export declare const SYSTEM_THEME_ID = "system";
@@ -49,6 +60,23 @@ export declare class ThemeStore {
      * current OS scheme, so a re-branded default still applies under "System".
      */
     tokens: Record<`--akui-${string}`, string>;
+    /**
+     * The user's chosen accent, or `null` to use the theme's own `colour`. Kept apart from the
+     * selected theme so the accent survives switching between Light, Dark and System.
+     */
+    accent: AkuiColour | null;
+    /** The colour actually applied: the user's accent, otherwise the active theme's `colour`. */
+    colour: AkuiColour | undefined;
+    /** The `--akui-hue`, `--akui-chroma` and `--akui-tint` inputs for `colour`. */
+    colourTokens: {
+        '--akui-tint'?: string | undefined;
+        '--akui-chroma'?: string | undefined;
+        '--akui-hue'?: string | undefined;
+    };
+    /** Sets the accent colour (`null` = back to the theme's own). Pass `persist: false` for previews. */
+    setAccent(accent: AkuiColour | null, { persist }?: {
+        persist?: boolean | undefined;
+    }): void;
     /** Tracks the OS colour scheme. Call from an `$effect`; the returned cleanup removes the listener. */
     listenToSystemScheme(): () => void;
     /** Selects a theme (`null` = follow the system). Pass `persist: false` for externally driven changes. */

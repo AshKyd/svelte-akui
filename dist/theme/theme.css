@@ -8,42 +8,59 @@
 	--akui-thread-dot: 0.5rem;
 	--akui-thread-font-size: 0.875rem;
 
+	/*
+	 * Derived colours. A theme is one number, `--akui-hue` (0-360, set inline on `.akui-root` by
+	 * `UIRoot`); every colour below is computed from it in oklch, so the accent, the tinted
+	 * backgrounds, borders, glows and rings all follow. Optional knobs:
+	 *  - `--akui-chroma`: how punchy the accent is (0 = greyscale, default 0.21).
+	 *  - `--akui-tint`: how much of the hue bleeds into backgrounds and text (0 = neutral, default 1).
+	 * With none set, the hue falls back to the original blue. Any token can still be pinned by setting
+	 * it inline (`tokens`), which beats these rules; tokens that reference others (`-alpha`, ring,
+	 * hover) follow the pinned value automatically.
+	 */
 	color-scheme: light;
-	--akui-bg: #ffffff;
+	--akui-bg: oklch(0.995 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg: oklch(0.21 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-secondary: oklch(0.965 calc(0.006 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg-secondary: oklch(0.45 calc(0.025 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-accent: oklch(0.55 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+	/* Text on the accent: white, or near-black when the accent is light (yellows, greens). */
+	--akui-fg-accent: oklch(from var(--akui-bg-accent) clamp(0.15, (0.68 - l) * 1000, 1) 0 0);
+	--akui-bg-hover: color-mix(in oklch, var(--akui-fg) 6%, transparent);
+
+	--akui-bg-button: oklch(0.925 calc(0.01 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg-button: oklch(0.15 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-button-hover: oklch(0.87 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-button-focus: oklch(0.75 calc(0.015 * var(--akui-tint, 1)) var(--akui-hue, 263));
+
+	--akui-bg-accent-hover: oklch(0.49 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+	--akui-bg-accent-focus: oklch(0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+
+	/*
+	 * Deprecated: comma-separated sRGB twins for `rgba(var(--x-rgb), a)`. CSS can't derive them from
+	 * oklch, so they no longer follow the hue. Use `color-mix(in oklch, var(--akui-bg-accent) 20%, transparent)`.
+	 */
 	--akui-bg-rgb: 255, 255, 255;
-	--akui-fg: #111827;
 	--akui-fg-rgb: 17, 24, 39;
-	--akui-bg-secondary: #f3f4f6;
-	--akui-fg-secondary: #4b5563;
-	--akui-bg-accent: #2563eb;
 	--akui-bg-accent-rgb: 37, 99, 235;
-	--akui-fg-accent: #ffffff;
-	--akui-bg-hover: rgba(0, 0, 0, 0.05);
-
-	--akui-bg-button: #e5e7eb;
-	--akui-fg-button: #000000;
-	--akui-bg-button-hover: #d1d5db;
-	--akui-bg-button-focus: #9ca3af;
-
-	--akui-bg-accent-hover: #1d4ed8;
-	--akui-bg-accent-focus: #3b82f6;
 
 	/*
 	 * Translucent backgrounds: each opaque background above at 25% alpha. Use these when a surface
-	 * should let what is behind it show through. Keep in step with the opaque values.
+	 * should let what is behind it show through. They reference the opaque tokens, so a pinned
+	 * `--akui-bg` carries through.
 	 */
-	--akui-bg-alpha: rgba(255, 255, 255, 0.25);
-	--akui-bg-secondary-alpha: rgba(243, 244, 246, 0.25);
-	--akui-bg-input-alpha: rgba(249, 250, 251, 0.25);
-	--akui-bg-button-alpha: rgba(229, 231, 235, 0.25);
-	--akui-bg-accent-alpha: rgba(37, 99, 235, 0.25);
+	--akui-bg-alpha: color-mix(in oklch, var(--akui-bg) 25%, transparent);
+	--akui-bg-secondary-alpha: color-mix(in oklch, var(--akui-bg-secondary) 25%, transparent);
+	--akui-bg-input-alpha: color-mix(in oklch, var(--akui-bg-input) 25%, transparent);
+	--akui-bg-button-alpha: color-mix(in oklch, var(--akui-bg-button) 25%, transparent);
+	--akui-bg-accent-alpha: color-mix(in oklch, var(--akui-bg-accent) 25%, transparent);
 
 	/* Form Controls */
-	--akui-bg-input: #f9fafb;
-	--akui-fg-input: #111827;
-	--akui-fg-placeholder: #9ca3af;
-	--akui-border-input: #d1d5db;
-	--akui-ring-focus: rgba(37, 99, 235, 0.4);
+	--akui-bg-input: oklch(0.98 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg-input: var(--akui-fg);
+	--akui-fg-placeholder: oklch(0.72 calc(0.015 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-border-input: oklch(0.88 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-ring-focus: color-mix(in oklch, var(--akui-bg-accent) 40%, transparent);
 
 	/* Spacing / Padding */
 	--akui-space-none: 0;
@@ -60,11 +77,11 @@
 	--akui-radius-l: 12px;
 
 	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 rgba(215, 215, 215, 0.4);
-	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.05);
-	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
-	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--akui-glow-top: inset 0 1px 0 oklch(0.9 0.01 var(--akui-hue, 263) / 0.4);
+	--akui-glow-bottom: inset 0 -1px 0 oklch(0.2 0.05 var(--akui-hue, 263) / 0.1);
+	--akui-glow-inset-top: inset 0 1px 0 oklch(0.2 0.05 var(--akui-hue, 263) / 0.05);
+	--akui-glow-inset-bottom: inset 0 -1px 0 oklch(1 0 0 / 0.4);
+	--akui-shadow-subtle: 0 1px 2px oklch(0.2 0.05 var(--akui-hue, 263) / 0.05);
 	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
 	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
 	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
@@ -125,39 +142,43 @@
 }
 
 [data-theme='dark'] {
+	/* Derived from `--akui-hue`, `--akui-chroma` and `--akui-tint`: see the light block. */
 	color-scheme: dark;
-	--akui-bg: #0d0f14;
+	--akui-bg: oklch(0.17 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	/* Off-white rather than near-white: bright text on a dark surface halates (appears to bleed). */
+	--akui-fg: oklch(0.93 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-secondary: oklch(0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg-secondary: oklch(0.72 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-accent: oklch(0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+	--akui-fg-accent: oklch(from var(--akui-bg-accent) clamp(0.15, (0.68 - l) * 1000, 1) 0 0);
+	--akui-bg-hover: color-mix(in oklch, var(--akui-fg) 10%, transparent);
+
+	--akui-bg-button: oklch(0.27 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg-button: var(--akui-fg);
+	--akui-bg-button-hover: oklch(0.37 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-bg-button-focus: oklch(0.44 calc(0.04 * var(--akui-tint, 1)) var(--akui-hue, 263));
+
+	--akui-bg-accent-hover: oklch(0.55 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+	--akui-bg-accent-focus: oklch(0.48 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+
+	/* Deprecated sRGB twins: see the light block. */
 	--akui-bg-rgb: 13, 15, 20;
-	--akui-fg: #ffffff;
 	--akui-fg-rgb: 255, 255, 255;
-	--akui-bg-secondary: #161920;
-	--akui-fg-secondary: #9ca3af;
-	--akui-bg-accent: #3b82f6;
 	--akui-bg-accent-rgb: 59, 130, 246;
-	--akui-fg-accent: #ffffff;
-	--akui-bg-hover: rgba(255, 255, 255, 0.1);
-
-	--akui-bg-button: #232731;
-	--akui-fg-button: #ffffff;
-	--akui-bg-button-hover: #393f4e;
-	--akui-bg-button-focus: #4d556a;
-
-	--akui-bg-accent-hover: #2563eb;
-	--akui-bg-accent-focus: #1d4ed8;
 
 	/* Translucent backgrounds: see the light block. */
-	--akui-bg-alpha: rgba(13, 15, 20, 0.25);
-	--akui-bg-secondary-alpha: rgba(22, 25, 32, 0.25);
-	--akui-bg-input-alpha: rgba(22, 25, 32, 0.25);
-	--akui-bg-button-alpha: rgba(35, 39, 49, 0.25);
-	--akui-bg-accent-alpha: rgba(59, 130, 246, 0.25);
+	--akui-bg-alpha: color-mix(in oklch, var(--akui-bg) 25%, transparent);
+	--akui-bg-secondary-alpha: color-mix(in oklch, var(--akui-bg-secondary) 25%, transparent);
+	--akui-bg-input-alpha: color-mix(in oklch, var(--akui-bg-input) 25%, transparent);
+	--akui-bg-button-alpha: color-mix(in oklch, var(--akui-bg-button) 25%, transparent);
+	--akui-bg-accent-alpha: color-mix(in oklch, var(--akui-bg-accent) 25%, transparent);
 
 	/* Form Controls */
-	--akui-bg-input: #161920;
-	--akui-fg-input: #ffffff;
-	--akui-fg-placeholder: #4b5563;
-	--akui-border-input: #39404e;
-	--akui-ring-focus: rgba(59, 130, 246, 0.4);
+	--akui-bg-input: oklch(0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-fg-input: var(--akui-fg);
+	--akui-fg-placeholder: oklch(0.52 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-border-input: oklch(0.37 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
+	--akui-ring-focus: color-mix(in oklch, var(--akui-bg-accent) 40%, transparent);
 
 	/* Spacing / Padding */
 	--akui-space-none: 0;
@@ -507,6 +528,36 @@ html.transition-forward ::view-transition-old(page) {
 }
 html.transition-forward ::view-transition-new(page) {
 	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+}
+
+/* No page slide with reduced motion: the pages swap at once. */
+html[data-reduced-motion='true'] ::view-transition-old(page),
+html[data-reduced-motion='true'] ::view-transition-new(page) {
+	animation: none;
+}
+
+/* Fixed overlays (notifications, mobile menu) have their own View Transition groups. Unnamed, they are
+   part of the `root` snapshot, which the browser paints above the live page (top layer included) for
+   the whole transition: they freeze, crossfade with the page, then jump when it ends. A named group is
+   captured separately, stays put and keeps its stacking above the morphing note. */
+::view-transition-group(akui-notification-area),
+::view-transition-old(akui-notification-area),
+::view-transition-new(akui-notification-area),
+::view-transition-group(akui-menu-backdrop),
+::view-transition-old(akui-menu-backdrop),
+::view-transition-new(akui-menu-backdrop),
+::view-transition-group(akui-menu-layer),
+::view-transition-old(akui-menu-layer),
+::view-transition-new(akui-menu-layer) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+::view-transition-group(akui-notification-area),
+::view-transition-group(akui-menu-backdrop) {
+	z-index: 1000;
+}
+::view-transition-group(akui-menu-layer) {
+	z-index: 1001;
 }
 
 /* Shared-element morph (see morphTransition and LayoutAdaptivePane's viewTransition).

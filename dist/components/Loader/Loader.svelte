@@ -76,8 +76,8 @@
 	}
 
 	/*
-	 * Exempt from the reduced-motion override in UIRoot: a spinner that stops looks like a frozen
-	 * app. A slower spin keeps the "working" signal with less motion.
+	 * A spinner that stops looks like a frozen app, so with reduced motion it spins more slowly
+	 * instead of stopping.
 	 */
 	:global(html[data-reduced-motion='true']) .akui-loader {
 		animation-duration: 1.5s !important;

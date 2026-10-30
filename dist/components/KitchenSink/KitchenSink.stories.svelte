@@ -10,7 +10,7 @@
 </script>
 
 <script lang="ts">
-	import { ThemePicker, Divider } from '../../index.js';
+	import { ThemePicker, AccentPicker, Divider } from '../../index.js';
 	import ButtonsSection from './sections/ButtonsSection.svelte';
 	import BadgesSection from './sections/BadgesSection.svelte';
 	import FormsSection from './sections/FormsSection.svelte';
@@ -27,6 +27,7 @@
 			<header class="kitchen-sink__bar">
 				<strong>akui kitchen sink</strong>
 				<ThemePicker includeSystem />
+				<AccentPicker />
 			</header>
 
 			<main class="kitchen-sink__main">

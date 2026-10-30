@@ -14,6 +14,7 @@
 		type DragMoveDetail,
 		type DragPayload
 	} from '../../hooks/dnd/index.js';
+	import { reducedMotion } from '../../hooks/reducedMotion.svelte.js';
 
 	interface Props extends Omit<
 		HTMLAttributes<HTMLDivElement>,
@@ -140,7 +141,7 @@
 		source.isDragging || settling ? `${settleOrigin.x}px ${settleOrigin.y}px` : undefined
 	);
 	const transitionValue = $derived(
-		settling ? 'transform 150ms cubic-bezier(0.2, 0, 0, 1)' : undefined
+		settling && !reducedMotion.value ? 'transform 150ms cubic-bezier(0.2, 0, 0, 1)' : undefined
 	);
 </script>
 

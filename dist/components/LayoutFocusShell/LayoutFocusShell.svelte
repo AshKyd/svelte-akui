@@ -430,6 +430,19 @@
 		pointer-events: none;
 	}
 
+	/* Steps cross-fade in place (the JS slide is already swapped for a fade); no sliding or height animation. */
+	:global(html[data-reduced-motion='true']) .akui-layout-focus-shell__panel-content-wrapper {
+		transition: none;
+	}
+
+	:global(html[data-reduced-motion='true']) .akui-layout-focus-shell__step-content {
+		transition: opacity 0.12s ease;
+	}
+
+	:global(html[data-reduced-motion='true']) .akui-layout-focus-shell__step-content--loading {
+		transform: none;
+	}
+
 	.akui-layout-focus-shell__loading-overlay {
 		position: absolute;
 		inset: 0;

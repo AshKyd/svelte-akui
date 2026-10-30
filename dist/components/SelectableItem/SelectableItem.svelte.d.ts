@@ -28,6 +28,8 @@ interface Props {
     class?: string;
     /** Inline style for the outer element, e.g. to scope it to a theme's colour variables. */
     style?: string;
+    /** Sets `data-theme` on the outer element, so it takes that scheme's `theme.css` colours. */
+    scheme?: 'light' | 'dark';
     /** The item's contents. */
     children: Snippet;
     /** Spread onto the underlying input (e.g. `aria-label`, `required`, `form`). */

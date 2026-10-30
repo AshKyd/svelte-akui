@@ -71,7 +71,7 @@
 	/>
 	<span class="akui-choice-box">
 		<span class="dot"></span>
-		<!-- Sunken while empty, raised once selected. -->
+
 		<Glow inset={!isSelected} />
 	</span>
 	{#if children}
@@ -84,6 +84,10 @@
 <style>
 	.radio {
 		--akui-choice-radius: 50%;
+	}
+
+	.akui-choice-input:not(:checked) + .akui-choice-box {
+		background-color: transparent;
 	}
 
 	.dot {

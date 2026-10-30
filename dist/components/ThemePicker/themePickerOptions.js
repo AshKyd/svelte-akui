@@ -1,34 +1,18 @@
 import { SYSTEM_THEME_ID } from '../../hooks/themeStore.svelte.js';
 /**
- * The surface and text values `theme.css` gives each built-in scheme. A picker card sets these
- * (plus the theme's own tokens) inline, so it shows the theme's colours without depending on the
- * cascade: the page's active theme can't leak in. There is no way to read a CSS custom property
- * for another scheme at runtime, so keep these in step with `theme.css` by hand.
+ * Inline `style` that scopes an element to a theme. The element also needs `data-theme` set to the
+ * theme's scheme (`SelectableItem`'s `scheme` prop); `theme.css` then derives the surface and text
+ * colours from the hue given here, so nothing is copied by hand. The accent colour in effect
+ * (`accent`, the user's pick) replaces the theme's own `colour`; the theme's `tokens` still win.
  */
-const SCHEME_SURFACES = {
-    light: {
-        '--akui-bg': '#ffffff',
-        '--akui-fg': '#111827',
-        '--akui-bg-secondary': '#f3f4f6',
-        '--akui-fg-secondary': '#4b5563',
-        '--akui-bg-accent': '#2563eb',
-        '--akui-border-input': '#d1d5db'
-    },
-    dark: {
-        '--akui-bg': '#0d0f14',
-        '--akui-fg': '#ffffff',
-        '--akui-bg-secondary': '#161920',
-        '--akui-fg-secondary': '#9ca3af',
-        '--akui-bg-accent': '#3b82f6',
-        '--akui-border-input': '#39404e'
-    }
-};
-/**
- * Inline `style` that scopes an element to a theme: the scheme's base surface values, overridden
- * by the theme's own `tokens`.
- */
-export function themeScopeStyle(theme) {
-    return Object.entries({ ...SCHEME_SURFACES[theme.scheme], ...theme.tokens })
+export function themeScopeStyle(theme, accent = null) {
+    const { hue, chroma, tint } = accent ?? theme.colour ?? {};
+    return Object.entries({
+        ...(hue === undefined ? {} : { '--akui-hue': hue }),
+        ...(chroma === undefined ? {} : { '--akui-chroma': chroma }),
+        ...(tint === undefined ? {} : { '--akui-tint': tint }),
+        ...theme.tokens
+    })
         .map(([name, value]) => `${name}:${value}`)
         .join(';');
 }

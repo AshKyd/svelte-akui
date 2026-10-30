@@ -1,4 +1,4 @@
-import { type AkuiTheme } from '../../hooks/themeStore.svelte.js';
+import { type AkuiColour, type AkuiTheme } from '../../hooks/themeStore.svelte.js';
 export interface ThemeOption {
     id: string;
     label: string;
@@ -6,10 +6,12 @@ export interface ThemeOption {
     theme: AkuiTheme | null;
 }
 /**
- * Inline `style` that scopes an element to a theme: the scheme's base surface values, overridden
- * by the theme's own `tokens`.
+ * Inline `style` that scopes an element to a theme. The element also needs `data-theme` set to the
+ * theme's scheme (`SelectableItem`'s `scheme` prop); `theme.css` then derives the surface and text
+ * colours from the hue given here, so nothing is copied by hand. The accent colour in effect
+ * (`accent`, the user's pick) replaces the theme's own `colour`; the theme's `tokens` still win.
  */
-export declare function themeScopeStyle(theme: AkuiTheme): string;
+export declare function themeScopeStyle(theme: AkuiTheme, accent?: AkuiColour | null): string;
 export type ThemeGroupBy = 'none' | 'scheme' | 'group';
 export interface ThemeOptionGroup {
     /** Heading for the group, or `null` for options shown without one. */

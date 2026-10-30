@@ -53,6 +53,8 @@ export * from './hooks/keyboardNavigation.js';
 export * from './hooks/theme.svelte.js';
 export * from './hooks/themeStore.svelte.js';
 export * from './components/ThemePicker/index.js';
+export * from './components/AccentPicker/index.js';
+export * from './utils/colour.js';
 export * from './hooks/reducedMotion.svelte.js';
 export * from './hooks/dnd/index.js';
 export * from './hooks/clickOutside.js';

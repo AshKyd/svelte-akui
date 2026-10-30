@@ -246,6 +246,12 @@
 		);
 	}
 
+	/* No staggered slide-in. Items and surface appear at once (the dialog itself still fades via `motion()`). */
+	:global(html[data-reduced-motion='true']) .akui-menu-dialog :global(.akui-menu-surface),
+	:global(html[data-reduced-motion='true']) .akui-menu-dialog :global(.akui-menu-surface [role='menu'] > *) {
+		animation: none;
+	}
+
 	@keyframes -global-akui-menu-item-in {
 		from {
 			opacity: 0;

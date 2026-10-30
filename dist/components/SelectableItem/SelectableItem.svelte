@@ -31,6 +31,8 @@
 		class?: string;
 		/** Inline style for the outer element, e.g. to scope it to a theme's colour variables. */
 		style?: string;
+		/** Sets `data-theme` on the outer element, so it takes that scheme's `theme.css` colours. */
+		scheme?: 'light' | 'dark';
 		/** The item's contents. */
 		children: Snippet;
 		/** Spread onto the underlying input (e.g. `aria-label`, `required`, `form`). */
@@ -47,6 +49,7 @@
 		onchange,
 		class: className = '',
 		style,
+		scheme,
 		children,
 		...rest
 	}: Props = $props();
@@ -54,7 +57,13 @@
 	const isChecked = $derived(type === 'radio' ? group === value : checked);
 </script>
 
-<label class="akui-selectable {className}" class:disabled data-checked={isChecked} {style}>
+<label
+	class="akui-selectable {className}"
+	class:disabled
+	data-checked={isChecked}
+	data-theme={scheme}
+	{style}
+>
 	<!-- Two branches: Svelte needs a static `type` on an input that uses two-way binding. -->
 	{#if type === 'radio'}
 		<input type="radio" bind:group {value} {name} {disabled} {onchange} {...rest} />
@@ -133,7 +142,7 @@
 	.akui-selectable[data-checked='true'] :global(.akui-glow) {
 		box-shadow:
 			inset 0 2px 4px rgba(0, 0, 0, 0.1),
-			inset 0 0 6px 0.5px rgba(var(--akui-bg-accent-rgb), 0.55);
+			inset 0 0 6px 0.5px color-mix(in oklch, var(--akui-bg-accent) 55%, transparent);
 	}
 
 	.akui-selectable:has(input:focus-visible) {

@@ -111,7 +111,7 @@
 	}
 
 	.akui-nav-bar-item.active .akui-nav-bar-item-indicator {
-		background-color: rgba(var(--akui-bg-accent-rgb), 0.12);
+		background-color: color-mix(in oklch, var(--akui-bg-accent) 12%, transparent);
 		color: var(--akui-bg-accent);
 		transform: scale(1.05);
 	}

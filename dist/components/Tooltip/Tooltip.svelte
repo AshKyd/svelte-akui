@@ -160,7 +160,7 @@
 
 <style>
 	.akui-tooltip {
-		background: rgba(var(--akui-bg-rgb), 0.7);
+		background: color-mix(in oklch, var(--akui-bg) 70%, transparent);
 		backdrop-filter: blur(12px);
 		-webkit-backdrop-filter: blur(12px);
 		border-radius: var(--akui-tooltip-radius);
@@ -168,7 +168,7 @@
 			var(--akui-shadow-shiny),
 			0 4px 12px rgba(0, 0, 0, 0.1);
 		color: var(--akui-fg);
-		border: 1px solid rgba(var(--akui-fg-rgb, 0, 0, 0), 0.1);
+		border: 1px solid color-mix(in oklch, var(--akui-fg) 10%, transparent);
 		max-width: 90vw; /* Limit width on mobile */
 	}
 

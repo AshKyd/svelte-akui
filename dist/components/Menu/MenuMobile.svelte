@@ -77,6 +77,8 @@
 		backdrop-filter: blur(4px);
 		z-index: 1000;
 		pointer-events: auto;
+		/* Static View Transition group, so it isn't baked into the page snapshot (see theme.css). */
+		view-transition-name: akui-menu-backdrop;
 	}
 
 	.akui-mobile-menu-layer {
@@ -87,6 +89,11 @@
 		z-index: 1001;
 		pointer-events: none;
 		animation: slideUp 0.25s ease-out;
+		view-transition-name: akui-menu-layer;
+	}
+
+	:global(html[data-reduced-motion='true']) .akui-mobile-menu-layer {
+		animation: none;
 	}
 
 	.akui-mobile-menu-content {

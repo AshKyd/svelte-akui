@@ -237,4 +237,9 @@
 	.akui-swipe-action-content.dragging {
 		transition: none;
 	}
+
+	/* Snaps back instead of gliding */
+	:global(html[data-reduced-motion='true']) .akui-swipe-action-content {
+		transition: none;
+	}
 </style>
