@@ -80,6 +80,7 @@
 		"@tiptap/starter-kit": "^3.10.0",
 		"@tiptap/suggestion": "^3.10.0",
 		"browser-geocoder-geonames": "^0.0.2",
+		"dompurify": "^3.4.17",
 		"maplibre-gl": "^6.11.2",
 		"marked": "^18.0.5",
 		"msrand": "^2.1.0",
