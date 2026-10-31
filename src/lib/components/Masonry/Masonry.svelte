@@ -29,8 +29,8 @@
 		itemSnippet?: Snippet<[T, number]>;
 		/** Optional key derivation function for `items` loop. Defaults to item.id or index. */
 		getKey?: (item: T, index: number) => any;
-		/** Bindable function to manually trigger a relayout */
-		refreshLayout?: () => Promise<void>;
+		/** Bindable function to manually trigger a relayout; pass `false` to move items instantly. */
+		refreshLayout?: (animated?: boolean) => Promise<void>;
 		/** Allow the layout to recalculate on resize. Defaults to true. */
 		allowResize?: boolean;
 		/** Animate items gliding to their new positions with a view transition. Defaults to false. */
@@ -137,9 +137,21 @@
 				({ item, left, top }) => item.style.left !== `${left}px` || item.style.top !== `${top}px`
 			);
 
-		if (hasChanged && animated && animate && hasCalculated && canAnimateReflow()) {
+		// Only items that already had a slot and now sit elsewhere are named for the transition. New
+		// items have nothing to glide from, and a named item is lifted out of the page's stacking
+		// order, so naming idle cards makes them paint over popovers and menus.
+		const movingItems = placements
+			.filter(
+				({ item, left, top }) =>
+					item.style.left !== '' &&
+					item.style.top !== '' &&
+					(item.style.left !== `${left}px` || item.style.top !== `${top}px`)
+			)
+			.map(({ item }) => item);
+
+		if (movingItems.length > 0 && animated && animate && hasCalculated && canAnimateReflow()) {
 			await animateReflow({
-				items: gridItems,
+				items: movingItems,
 				write,
 				duration: transitionDuration,
 				easing: transitionEasing
@@ -177,7 +189,7 @@
 	};
 
 	// Parents call this after content changes (items added, removed, reordered or grown).
-	refreshLayout = () => refresh(true);
+	refreshLayout = (animated = true) => refresh(animated);
 
 	/**
 	 * Heights are measured once per pass. Anything that grows an item *after* that — async image

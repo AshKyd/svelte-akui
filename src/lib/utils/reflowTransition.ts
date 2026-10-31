@@ -1,7 +1,7 @@
 import { reducedMotion } from '../hooks/reducedMotion.svelte.js';
 
 interface Reflow {
-	/** The grid's items; they are named so the browser can tween each one. */
+	/** Only the items that change position; they are named so the browser can tween each one. */
 	items: HTMLElement[];
 	/** Applies the grid's new positions. Runs inside the view transition. */
 	write: () => void;
@@ -30,8 +30,11 @@ const isViewTransitionRunning = () =>
 const play = async (reflows: Reflow[]) => {
 	const writeAll = () => reflows.forEach((reflow) => reflow.write());
 
-	// Starting ours would cancel a running card morph, so just place the cards.
-	if (isViewTransitionRunning()) {
+	const hasMovingItems = reflows.some((reflow) => reflow.items.length > 0);
+
+	// Nothing is moving (e.g. only the grid height changed), so there is nothing to tween.
+	// Starting ours would also cancel a running card morph, so just place the cards.
+	if (!hasMovingItems || isViewTransitionRunning()) {
 		writeAll();
 		return reflows.forEach((reflow) => reflow.resolve());
 	}
