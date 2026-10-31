@@ -1,5 +1,5 @@
 interface Reflow {
-    /** The grid's items; they are named so the browser can tween each one. */
+    /** Only the items that change position; they are named so the browser can tween each one. */
     items: HTMLElement[];
     /** Applies the grid's new positions. Runs inside the view transition. */
     write: () => void;

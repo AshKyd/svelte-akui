@@ -10,8 +10,10 @@ const isViewTransitionRunning = () => document
     .some((animation) => animation.effect?.pseudoElement?.startsWith('::view-transition'));
 const play = async (reflows) => {
     const writeAll = () => reflows.forEach((reflow) => reflow.write());
-    // Starting ours would cancel a running card morph, so just place the cards.
-    if (isViewTransitionRunning()) {
+    const hasMovingItems = reflows.some((reflow) => reflow.items.length > 0);
+    // Nothing is moving (e.g. only the grid height changed), so there is nothing to tween.
+    // Starting ours would also cancel a running card morph, so just place the cards.
+    if (!hasMovingItems || isViewTransitionRunning()) {
         writeAll();
         return reflows.forEach((reflow) => reflow.resolve());
     }

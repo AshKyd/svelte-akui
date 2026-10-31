@@ -26,8 +26,8 @@ declare function $$render<T = any>(): {
         itemSnippet?: Snippet<[T, number]>;
         /** Optional key derivation function for `items` loop. Defaults to item.id or index. */
         getKey?: (item: T, index: number) => any;
-        /** Bindable function to manually trigger a relayout */
-        refreshLayout?: () => Promise<void>;
+        /** Bindable function to manually trigger a relayout; pass `false` to move items instantly. */
+        refreshLayout?: (animated?: boolean) => Promise<void>;
         /** Allow the layout to recalculate on resize. Defaults to true. */
         allowResize?: boolean;
         /** Animate items gliding to their new positions with a view transition. Defaults to false. */
