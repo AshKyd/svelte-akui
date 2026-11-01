@@ -1,3 +1,5 @@
+import { safeLocalStorage } from '../utils/safeStorage.js';
+
 const STORAGE_KEY = 'akui-reduced-motion';
 
 /**
@@ -16,9 +18,9 @@ class ReducedMotionState {
 	isOverridden = $derived(this.override !== null);
 
 	constructor() {
-		if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
+		if (typeof window === 'undefined') return;
 
-		const stored = localStorage.getItem(STORAGE_KEY);
+		const stored = safeLocalStorage.getItem(STORAGE_KEY);
 		if (stored !== null) this.override = stored === 'true';
 
 		const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -32,11 +34,11 @@ class ReducedMotionState {
 	set(next: boolean): void {
 		if (next === this.systemPrefers) {
 			this.override = null;
-			if (typeof localStorage !== 'undefined') localStorage.removeItem(STORAGE_KEY);
+			safeLocalStorage.removeItem(STORAGE_KEY);
 			return;
 		}
 		this.override = next;
-		if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, String(next));
+		safeLocalStorage.setItem(STORAGE_KEY, String(next));
 	}
 
 	/** Toggles the effective preference. */
