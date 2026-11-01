@@ -184,7 +184,13 @@
 
 	const rowHeight = $derived(isList ? listRowHeight : tableRowHeight);
 
+	/** The whole component. The header and the scroll area are its children. */
+	let tableEl = $state<HTMLElement | null>(null);
+	let headEl = $state<HTMLElement | null>(null);
 	let scroller = $state<HTMLElement | null>(null);
+	let scrollerOuterWidth = $state(0);
+	/** Width of the body's vertical scrollbar, which the header leaves room for. */
+	const scrollbarWidth = $derived(Math.max(0, scrollerOuterWidth - containerWidth));
 	let sentinel = $state<HTMLElement | null>(null);
 	let scrollTop = $state(0);
 	let viewportHeight = $state(0);
@@ -283,7 +289,7 @@
 	// columns would jitter as rows scroll in and out. Content width doesn't depend on the track, so
 	// this settles after one pass.
 	$effect(() => {
-		if (!autoFit || isList || !scroller) return;
+		if (!autoFit || isList || !tableEl) return;
 		// Re-measure when new rows render or the header changes (e.g. the sort arrow appears).
 		void [visibleRows, columns, sort];
 		if (rows.length === 0) {
@@ -291,7 +297,7 @@
 			return;
 		}
 
-		const root = scroller;
+		const root = tableEl;
 		const measured = new Map<string, number>();
 		const widen = (column: DetailsTableColumn<T>, width: number) =>
 			measured.set(column.key, Math.max(measured.get(column.key) ?? 0, width));
@@ -469,16 +475,18 @@
 	/** Keeps the keyboard-active row on screen. Rows are fixed height, so this is plain arithmetic. */
 	function scrollIndexIntoView(index: number) {
 		if (!scroller) return;
-		// The sticky header covers the top of the scroller.
-		const headerHeight =
-			scroller.querySelector<HTMLElement>('.akui-details-header')?.offsetHeight ?? 0;
 		const rowTop = index * rowHeight;
 		const rowBottom = rowTop + rowHeight;
 		const visibleTop = scroller.scrollTop;
-		const visibleBottom = visibleTop + scroller.clientHeight - headerHeight;
+		const visibleBottom = visibleTop + scroller.clientHeight;
 		if (rowTop < visibleTop) scroller.scrollTop = rowTop;
-		else if (rowBottom > visibleBottom)
-			scroller.scrollTop = rowBottom - scroller.clientHeight + headerHeight;
+		else if (rowBottom > visibleBottom) scroller.scrollTop = rowBottom - scroller.clientHeight;
+	}
+
+	function handleBodyScroll(event: Event & { currentTarget: HTMLElement }) {
+		scrollTop = event.currentTarget.scrollTop;
+		// The header doesn't scroll itself, so it follows the body sideways.
+		if (headEl) headEl.scrollLeft = event.currentTarget.scrollLeft;
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -541,9 +549,7 @@
 {/snippet}
 
 <div
-	bind:this={scroller}
-	bind:clientHeight={viewportHeight}
-	bind:clientWidth={containerWidth}
+	bind:this={tableEl}
 	class="akui-details-table {className}"
 	class:large={size === 'large'}
 	class:no-lines={!showLines}
@@ -560,171 +566,195 @@
 	aria-rowcount={hasMore ? -1 : displayRows.length + 1}
 	aria-multiselectable="true"
 	aria-activedescendant={activeRowId}
-	onscroll={(event) => (scrollTop = event.currentTarget.scrollTop)}
 	onkeydown={handleKeydown}
 >
-	{#if isList}
-		<!-- Columns can't sit side by side here, so sorting moves into a menu. -->
-		<div class="akui-details-header sort-bar" role="row" aria-rowindex={1}>
-			<div
-				role="columnheader"
-				aria-sort={sort ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
-			>
-				{#if sortableColumns.length > 0}
-					<DetailsTableSortMenu
-						columns={sortableColumns}
-						{sort}
-						onpick={(key) => handleSortClick(sortableColumns.find((column) => column.key === key)!)}
-					/>
-				{/if}
-			</div>
-		</div>
-	{:else}
-		<div class="akui-details-header" role="row" aria-rowindex={1}>
-			{#each columns as column (column.key)}
-				{@const isSorted = sort?.key === column.key}
+	<!--
+		The header sits above the scroll area, not sticky inside it, so rows can never pass under it and
+		the header can have a translucent background. `scrollbarWidth` keeps its columns aligned with
+		the body's, and `handleBodyScroll` mirrors the sideways scroll.
+	-->
+	<div
+		bind:this={headEl}
+		class="akui-details-head"
+		role="rowgroup"
+		style:padding-right="{scrollbarWidth}px"
+	>
+		{#if isList}
+			<!-- Columns can't sit side by side here, so sorting moves into a menu. -->
+			<div class="akui-details-header sort-bar" role="row" aria-rowindex={1}>
 				<div
-					class="akui-details-head-cell"
-					class:sortable={column.sortable}
-					style:text-align={column.align ?? 'left'}
 					role="columnheader"
-					aria-sort={isSorted
-						? sort?.direction === 'asc'
-							? 'ascending'
-							: 'descending'
-						: undefined}
-					tabindex={column.sortable ? 0 : undefined}
-					onclick={() => handleSortClick(column)}
-					onkeydown={(event) => {
-						if (!column.sortable || (event.key !== 'Enter' && event.key !== ' ')) return;
-						event.preventDefault();
-						event.stopPropagation();
-						handleSortClick(column);
-					}}
+					aria-sort={sort ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
 				>
-					<span class="head-content">
-						{#if column.header}
-							{@render column.header(column, sort)}
-						{:else}
-							{column.label}
-						{/if}
-						{#if isSorted}
-							<Icon
-								name={sort?.direction === 'asc' ? 'caret-up-fill' : 'caret-down-fill'}
-								size={size === 'large' ? 12 : 10}
-							/>
-						{/if}
-					</span>
-					{#if column.resizable}
-						<!-- A focusable separator is an interactive widget (ARIA window splitter); Svelte only knows it as a separator. -->
-						<!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_no_noninteractive_tabindex -->
-						<div
-							class="resize-handle"
-							role="separator"
-							aria-orientation="vertical"
-							aria-label="Resize {column.label} column"
-							aria-valuenow={columnWidths[column.key]}
-							aria-valuemin={column.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH}
-							aria-valuemax={column.maxWidth}
-							tabindex="0"
-							onpointerdown={(event) => startResize(event, column)}
-							onkeydown={(event) => handleResizeKeydown(event, column)}
-							ondblclick={() => resetColumnWidth(column)}
-							onclick={(event) => event.stopPropagation()}
-						></div>
+					{#if sortableColumns.length > 0}
+						<DetailsTableSortMenu
+							columns={sortableColumns}
+							{sort}
+							onpick={(key) =>
+								handleSortClick(sortableColumns.find((column) => column.key === key)!)}
+						/>
 					{/if}
 				</div>
-			{/each}
-		</div>
-	{/if}
+			</div>
+		{:else}
+			<div class="akui-details-header" role="row" aria-rowindex={1}>
+				{#each columns as column (column.key)}
+					{@const isSorted = sort?.key === column.key}
+					<div
+						class="akui-details-head-cell"
+						class:sortable={column.sortable}
+						style:text-align={column.align ?? 'left'}
+						role="columnheader"
+						aria-sort={isSorted
+							? sort?.direction === 'asc'
+								? 'ascending'
+								: 'descending'
+							: undefined}
+						tabindex={column.sortable ? 0 : undefined}
+						onclick={() => handleSortClick(column)}
+						onkeydown={(event) => {
+							if (!column.sortable || (event.key !== 'Enter' && event.key !== ' ')) return;
+							event.preventDefault();
+							event.stopPropagation();
+							handleSortClick(column);
+						}}
+					>
+						<span class="head-content">
+							{#if column.header}
+								{@render column.header(column, sort)}
+							{:else}
+								{column.label}
+							{/if}
+							{#if isSorted}
+								<Icon
+									name={sort?.direction === 'asc' ? 'caret-up-fill' : 'caret-down-fill'}
+									size={size === 'large' ? 12 : 10}
+								/>
+							{/if}
+						</span>
+						{#if column.resizable}
+							<!-- A focusable separator is an interactive widget (ARIA window splitter); Svelte only knows it as a separator. -->
+							<!-- svelte-ignore a11y_no_noninteractive_element_interactions, a11y_no_noninteractive_tabindex -->
+							<div
+								class="resize-handle"
+								role="separator"
+								aria-orientation="vertical"
+								aria-label="Resize {column.label} column"
+								aria-valuenow={columnWidths[column.key]}
+								aria-valuemin={column.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH}
+								aria-valuemax={column.maxWidth}
+								tabindex="0"
+								onpointerdown={(event) => startResize(event, column)}
+								onkeydown={(event) => handleResizeKeydown(event, column)}
+								ondblclick={() => resetColumnWidth(column)}
+								onclick={(event) => event.stopPropagation()}
+							></div>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</div>
 
-	{#if displayRows.length === 0 && !isLoading}
-		<div class="akui-details-empty">
-			{#if emptyState}
-				{@render emptyState()}
-			{:else}
-				No data available
-			{/if}
-		</div>
-	{:else}
-		<!-- Padding stands in for the rows that aren't rendered, so the scrollbar spans the whole list. -->
-		<div
-			class="akui-details-body"
-			role="rowgroup"
-			style:padding-top="{visible.start * rowHeight}px"
-			style:padding-bottom="{(displayRows.length - visible.end) * rowHeight}px"
-		>
-			{#each visibleRows as row, offset (rowKey(row))}
-				{@const index = visible.start + offset}
-				<!-- Keyboard use is handled once on the grid (arrow keys move `activeIndex`). -->
-				<div
-					id="{tableId}-row-{rowKey(row)}"
-					class="akui-details-row {rowClass?.(row) ?? ''}"
-					class:list-card={isList}
-					class:selected={selected.has(rowKey(row))}
-					class:active={index === activeIndex}
-					role="row"
-					aria-rowindex={index + 2}
-					aria-selected={selected.has(rowKey(row))}
-					tabindex="-1"
-					onclick={(event) => handleRowClick(row, index, event)}
-					onkeydown={null}
-				>
-					{#if isList}
-						<div class="list-title" role="gridcell" aria-label={titleColumn.label}>
-							{@render cellContent(row, titleColumn, index)}
-						</div>
-						{#each listValueColumns as column (column.key)}
-							<div class="list-line">
-								{#if listLabels}
-									<span class="list-label" aria-hidden="true">{column.label}</span>
-								{/if}
+	<div
+		bind:this={scroller}
+		bind:clientHeight={viewportHeight}
+		bind:clientWidth={containerWidth}
+		bind:offsetWidth={scrollerOuterWidth}
+		class="akui-details-scroller"
+		onscroll={handleBodyScroll}
+	>
+		{#if displayRows.length === 0 && !isLoading}
+			<div class="akui-details-empty">
+				{#if emptyState}
+					{@render emptyState()}
+				{:else}
+					No data available
+				{/if}
+			</div>
+		{:else}
+			<!-- Padding stands in for the rows that aren't rendered, so the scrollbar spans the whole list. -->
+			<div
+				class="akui-details-body"
+				role="rowgroup"
+				style:padding-top="{visible.start * rowHeight}px"
+				style:padding-bottom="{(displayRows.length - visible.end) * rowHeight}px"
+			>
+				{#each visibleRows as row, offset (rowKey(row))}
+					{@const index = visible.start + offset}
+					<!-- Keyboard use is handled once on the grid (arrow keys move `activeIndex`). -->
+					<div
+						id="{tableId}-row-{rowKey(row)}"
+						class="akui-details-row {rowClass?.(row) ?? ''}"
+						class:list-card={isList}
+						class:selected={selected.has(rowKey(row))}
+						class:active={index === activeIndex}
+						role="row"
+						aria-rowindex={index + 2}
+						aria-selected={selected.has(rowKey(row))}
+						tabindex="-1"
+						onclick={(event) => handleRowClick(row, index, event)}
+						onkeydown={null}
+					>
+						{#if isList}
+							<div class="list-title" role="gridcell" aria-label={titleColumn.label}>
+								{@render cellContent(row, titleColumn, index)}
+							</div>
+							{#each listValueColumns as column (column.key)}
+								<div class="list-line">
+									{#if listLabels}
+										<span class="list-label" aria-hidden="true">{column.label}</span>
+									{/if}
+									<div
+										class="list-value"
+										class:labelled={listLabels}
+										style:width={column.listWidth}
+										style:flex={column.listWidth ? 'none' : undefined}
+										style:text-align={listLabels ? undefined : (column.align ?? 'left')}
+										role="gridcell"
+										aria-label={column.label}
+									>
+										{@render cellContent(row, column, index)}
+									</div>
+								</div>
+							{/each}
+						{:else}
+							{#each columns as column (column.key)}
 								<div
-									class="list-value"
-									class:labelled={listLabels}
-									style:width={column.listWidth}
-									style:flex={column.listWidth ? 'none' : undefined}
-									style:text-align={listLabels ? undefined : (column.align ?? 'left')}
+									class="akui-details-cell"
+									style:text-align={column.align ?? 'left'}
 									role="gridcell"
-									aria-label={column.label}
 								>
 									{@render cellContent(row, column, index)}
 								</div>
-							</div>
-						{/each}
-					{:else}
-						{#each columns as column (column.key)}
-							<div
-								class="akui-details-cell"
-								style:text-align={column.align ?? 'left'}
-								role="gridcell"
-							>
-								{@render cellContent(row, column, index)}
-							</div>
-						{/each}
-					{/if}
-				</div>
-			{/each}
-		</div>
-	{/if}
+							{/each}
+						{/if}
+					</div>
+				{/each}
+			</div>
+		{/if}
 
-	{#if isLoading}
-		<div class="akui-details-loading">
-			{#if loadingRow}
-				{@render loadingRow()}
-			{:else}
-				Loading…
-			{/if}
-		</div>
-	{/if}
+		{#if isLoading}
+			<div class="akui-details-loading">
+				{#if loadingRow}
+					{@render loadingRow()}
+				{:else}
+					Loading…
+				{/if}
+			</div>
+		{/if}
 
-	<div bind:this={sentinel} class="akui-details-sentinel" aria-hidden="true"></div>
+		<div bind:this={sentinel} class="akui-details-sentinel" aria-hidden="true"></div>
+	</div>
 </div>
 
 <style>
 	.akui-details-table {
 		position: relative;
-		overflow: auto;
+		display: flex;
+		flex-direction: column;
+		/* Clips the corners; scrolling happens in `.akui-details-scroller`. */
+		overflow: hidden;
 		width: 100%;
 		/* Inside a flex or grid parent, auto min-width would let wide content stretch the table. */
 		min-width: 0;
@@ -767,15 +797,27 @@
 		box-sizing: border-box;
 	}
 
-	.akui-details-header {
-		position: sticky;
-		top: 0;
-		z-index: 1;
+	/*
+	 * The header is a sibling above the scroll area, not sticky inside it, so no row can ever sit
+	 * behind it. That is what lets its background be translucent. It clips its own overflow and is
+	 * moved sideways by script to follow the body.
+	 */
+	.akui-details-head {
+		flex: none;
+		overflow: hidden;
+		box-sizing: border-box;
 		font-weight: 700;
-		background-color: var(--akui-bg-button, #e5e7eb);
+		/* Set `--akui-details-head-bg` on the table or a parent to restyle it, e.g. translucent. */
+		background-color: var(--akui-details-head-bg, var(--akui-bg-button, #e5e7eb));
 		border-bottom: 1px solid var(--akui-border-input, #e0e0e0);
 		box-shadow: var(--akui-shadow-shiny);
 		user-select: none;
+	}
+
+	.akui-details-scroller {
+		flex: 1 1 0;
+		min-height: 0;
+		overflow: auto;
 	}
 
 	/* A grid item defaults to min-width: auto, which lets long content push its track wider. */

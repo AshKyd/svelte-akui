@@ -488,6 +488,27 @@
 	{/snippet}
 </Story>
 
+<Story name="Transparent header">
+	{#snippet children()}
+		<p>
+			The header sits above the scroll area, so rows never pass under it. Set
+			<code>--akui-details-head-bg</code> to a translucent colour and only the panel behind shows through.
+		</p>
+		<div
+			style="padding: 1rem; border-radius: var(--akui-radius-m); background: linear-gradient(135deg, var(--akui-bg-accent), var(--akui-bg-secondary)); --akui-details-head-bg: color-mix(in srgb, var(--akui-bg) 35%, transparent);"
+		>
+			<DetailsTable
+				rows={makeSpells(1, 40)}
+				{columns}
+				rowKey={(row) => row.id}
+				height="16rem"
+				layout="table"
+				border={false}
+			/>
+		</div>
+	{/snippet}
+</Story>
+
 <Story name="Without lines">
 	{#snippet children()}
 		<DetailsTable
