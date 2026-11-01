@@ -15,6 +15,7 @@
 	} from './DetailsTable.svelte';
 	import { Badge } from '../Badge/index.js';
 	import { Button } from '../Button/index.js';
+	import { Icon } from '../Icon/index.js';
 	import ProgressBar from '../ProgressBar/ProgressBar.svelte';
 
 	interface Spell {
@@ -52,6 +53,56 @@
 				kettles: (number * 37) % 101
 			};
 		});
+
+	interface Track {
+		id: string;
+		number: number;
+		artist: string;
+		title: string;
+		/** Length in seconds. */
+		seconds: number;
+	}
+
+	const trackListing: Track[] = [
+		{ number: 1, artist: 'The Hollow Hill Hedgehogs', title: 'Teapot Waltz', seconds: 187 },
+		{ number: 2, artist: 'Marigold Thistle', title: 'Ode to a Warm Scone', seconds: 242 },
+		{
+			number: 3,
+			artist: 'Bram Underhill & the Mossy Fiddlers',
+			title: 'Mending Socks by Moonlight',
+			seconds: 215
+		},
+		{ number: 4, artist: 'Pip', title: 'Lost Spoon Blues', seconds: 158 },
+		{
+			number: 5,
+			artist: 'Dame Hazel Cobblewick',
+			title: 'The Geese Have Opinions About the Parish Council',
+			seconds: 331
+		},
+		{ number: 6, artist: 'Old Nettle', title: 'Lullaby for a Sleepy Kettle', seconds: 276 }
+	].map((track) => ({ ...track, id: `track-${track.number}` }));
+
+	/** The row that shows the play icon. */
+	const nowPlayingId = 'track-2';
+
+	const formatDuration = (seconds: number) =>
+		`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+
+	const trackColumns: DetailsTableColumn<Track>[] = [
+		// No label: the column only holds the play icon, so it stays narrow and fixed.
+		{ key: 'playing', label: '', width: '2.5rem', align: 'center' },
+		{ key: 'number', label: '#', sortable: true, align: 'right' },
+		// Artist and title take the spare width in a 1 : 2 split; the rest stay at content width.
+		{ key: 'artist', label: 'Artist', sortable: true, fitFlex: 1 },
+		{ key: 'title', label: 'Title', sortable: true, fitFlex: 2 },
+		{
+			key: 'seconds',
+			label: 'Duration',
+			sortable: true,
+			align: 'right',
+			value: (track) => track.seconds
+		}
+	];
 
 	const columns: DetailsTableColumn<Spell>[] = [
 		{ key: 'name', label: 'Name', sortable: true, width: 'minmax(12rem, 3fr)' },
@@ -310,6 +361,83 @@
 			bind:columnWidths
 		/>
 		<p><code>columnWidths</code>: {JSON.stringify(columnWidths)}</p>
+	{/snippet}
+</Story>
+
+<Story name="Auto fit">
+	{#snippet children()}
+		<p>
+			<code>autoFit</code> sizes each column to its longest rendered value, so short columns stay tight
+			and long ones get the space. Narrow the pane and the widest columns clip first.
+		</p>
+		<DetailsTable
+			rows={smallRows}
+			columns={[
+				{ key: 'name', label: 'Name', sortable: true, maxWidth: 360 },
+				{ key: 'caster', label: 'Caster', sortable: true },
+				{ key: 'mood', label: 'Mood', sortable: true },
+				{ key: 'kettles', label: 'Kettles', sortable: true, align: 'right' }
+			]}
+			rowKey={(row) => row.id}
+			height="20rem"
+			layout="table"
+			autoFit
+		/>
+		<p>
+			With <code>fitFlex</code> the spare width is shared in proportion (Name 2 : Caster 1), so the table
+			fills its container.
+		</p>
+		<DetailsTable
+			rows={smallRows}
+			columns={[
+				{ key: 'name', label: 'Name', sortable: true, fitFlex: 2 },
+				{ key: 'caster', label: 'Caster', sortable: true, fitFlex: 1 },
+				{ key: 'mood', label: 'Mood', sortable: true },
+				{ key: 'kettles', label: 'Kettles', sortable: true, align: 'right' }
+			]}
+			rowKey={(row) => row.id}
+			height="20rem"
+			layout="table"
+			autoFit
+		/>
+	{/snippet}
+</Story>
+
+<Story name="Auto fit track listing">
+	{#snippet children()}
+		<p>
+			A CD track listing. The unlabelled first column is a fixed width and shows a play icon on the
+			playing track. The number and duration fit their content; artist and title share the spare
+			width 1 : 2.
+		</p>
+		<DetailsTable
+			rows={trackListing}
+			columns={trackColumns}
+			rowKey={(track) => track.id}
+			layout="table"
+			autoFit
+			aria-label="Track listing"
+		>
+			{#snippet cell(track, column)}
+				{#if column.key === 'playing'}
+					{#if track.id === nowPlayingId}
+						<!--
+							To centre non-text content (icons, buttons, badges) in a cell, wrap it in a
+							`display: grid; place-items: center` element. Bare inline content sits on the text
+							baseline, so it looks too high. The wrapper takes it out of the text line, and the
+							row centres the cell.
+						-->
+						<span style="display: grid; place-items: center;">
+							<Icon name="play-fill" alt="Now playing" />
+						</span>
+					{/if}
+				{:else if column.key === 'seconds'}
+					{formatDuration(track.seconds)}
+				{:else}
+					{track[column.key as 'number' | 'artist' | 'title']}
+				{/if}
+			{/snippet}
+		</DetailsTable>
 	{/snippet}
 </Story>
 

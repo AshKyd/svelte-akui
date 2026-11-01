@@ -36,13 +36,21 @@
 		minWidth?: number;
 		/** Largest width in px this column can be resized to. */
 		maxWidth?: number;
+		/**
+		 * With `autoFit`, this column's share of the spare width after every column has its content
+		 * width, so the table still reaches 100%. Shares are relative: `2` gets twice the space of `1`.
+		 * Omit or 0 to leave the column at its content width. Other columns should use px/rem `width`s.
+		 */
+		fitFlex?: number;
 	}
 </script>
 
 <script lang="ts" generics="T">
 	import { Icon } from '../Icon/index.js';
 	import { observeInfiniteScroll } from '../../utils/infiniteScroll.js';
+	import { untrack } from 'svelte';
 	import { windowRows } from './windowRows.js';
+	import { measureContentWidth } from './measureContentWidth.js';
 	import DetailsTableSortMenu from './DetailsTableSortMenu.svelte';
 
 	interface Props {
@@ -77,6 +85,11 @@
 		sort?: DetailsTableSort | null;
 		/** Called when a header is clicked. Use this when `rows` is paged, since a locally sorted page is wrong. */
 		onsortchange?: (sort: DetailsTableSort) => void;
+		/**
+		 * Size columns without a `width` to their content, capped at it, so nothing is clipped while
+		 * there is room. Measures the rendered rows and header, and only ever grows as rows scroll in.
+		 */
+		autoFit?: boolean;
 		/** Widths in px the user has dragged resizable columns to, by column `key`. Save and restore it to remember them. */
 		columnWidths?: Record<string, number>;
 		/** Called when a column is resized, with its key and new width in px, or `null` when reset to its default. */
@@ -127,6 +140,7 @@
 		sort = $bindable(null),
 		onsortchange,
 		loadAheadRows = 60,
+		autoFit = false,
 		columnWidths = $bindable({}),
 		oncolumnresize,
 		border = true,
@@ -211,19 +225,110 @@
 	);
 	const visibleRows = $derived(displayRows.slice(visible.start, visible.end));
 
-	// A dragged width wins over the column's own `width`.
+	const DEFAULT_MIN_COLUMN_WIDTH = 48;
+	const KEYBOARD_RESIZE_STEP = 16;
+
+	/** Content widths in px by column `key`, measured from the rendered rows when `autoFit` is on. */
+	let fittedWidths = $state<Record<string, number>>({});
+
+	/** Rendered px widths of columns with their own `width`, needed to work out the spare space. */
+	let fixedWidths = $state<Record<string, number>>({});
+
+	/**
+	 * Extra px per column from `fitFlex`: the width left after fixed and fitted columns, split in
+	 * proportion to each column's share. Empty until every column is measured, or when the content
+	 * already fills the table (the tracks then shrink instead).
+	 */
+	const flexExtraWidths = $derived.by((): Record<string, number> => {
+		if (!autoFit || containerWidth === 0) return {};
+		const flexColumns = columns.filter(
+			(column) => (column.fitFlex ?? 0) > 0 && fittedWidths[column.key] !== undefined
+		);
+		const totalFlex = flexColumns.reduce((sum, column) => sum + (column.fitFlex ?? 0), 0);
+		if (totalFlex === 0) return {};
+
+		const usedWidths = columns.map((column) => {
+			if (columnWidths[column.key] !== undefined) return columnWidths[column.key];
+			if (column.width) return fixedWidths[column.key];
+			return fittedWidths[column.key];
+		});
+		// An unmeasured column has no known width yet, so the spare space can't be worked out.
+		if (usedWidths.some((width) => width === undefined)) return {};
+
+		const spare = containerWidth - usedWidths.reduce((sum, width) => sum + width, 0);
+		if (spare <= 0) return {};
+		return Object.fromEntries(
+			flexColumns.map((column) => [column.key, (spare * (column.fitFlex ?? 0)) / totalFlex])
+		);
+	});
+
+	// Precedence: dragged width, then the column's own `width`, then (with `autoFit`) the measured
+	// content width plus its `fitFlex` share, then an equal share. The fitted track is `minmax(0, N)`,
+	// not a fixed `N`: it can grow to its content but also shrinks when the table is narrow, so
+	// there's no sideways scroll and short columns keep their full text while long ones give way.
 	const gridTemplateColumns = $derived(
 		columns
-			.map((column) =>
-				columnWidths[column.key] !== undefined
-					? `${columnWidths[column.key]}px`
-					: (column.width ?? 'minmax(0, 1fr)')
-			)
+			.map((column) => {
+				if (columnWidths[column.key] !== undefined) return `${columnWidths[column.key]}px`;
+				if (column.width) return column.width;
+				const fittedWidth = fittedWidths[column.key];
+				if (!autoFit || fittedWidth === undefined) return 'minmax(0, 1fr)';
+				const width = fittedWidth + (flexExtraWidths[column.key] ?? 0);
+				return `minmax(0, ${width.toFixed(2)}px)`;
+			})
 			.join(' ')
 	);
 
-	const DEFAULT_MIN_COLUMN_WIDTH = 48;
-	const KEYBOARD_RESIZE_STEP = 16;
+	// Rows are windowed, so only the rendered ones can be measured. Widths only grow, otherwise
+	// columns would jitter as rows scroll in and out. Content width doesn't depend on the track, so
+	// this settles after one pass.
+	$effect(() => {
+		if (!autoFit || isList || !scroller) return;
+		// Re-measure when new rows render or the header changes (e.g. the sort arrow appears).
+		void [visibleRows, columns, sort];
+		if (rows.length === 0) {
+			fittedWidths = {};
+			return;
+		}
+
+		const root = scroller;
+		const measured = new Map<string, number>();
+		const widen = (column: DetailsTableColumn<T>, width: number) =>
+			measured.set(column.key, Math.max(measured.get(column.key) ?? 0, width));
+
+		root.querySelectorAll<HTMLElement>('.akui-details-head-cell').forEach((headCell, index) => {
+			const content = headCell.querySelector<HTMLElement>('.head-content');
+			if (content && columns[index]) widen(columns[index], measureContentWidth(content, headCell));
+		});
+		root.querySelectorAll<HTMLElement>('.akui-details-row .akui-details-cell').forEach((cell) => {
+			const index = Array.prototype.indexOf.call(cell.parentElement!.children, cell);
+			if (columns[index]) widen(columns[index], measureContentWidth(cell));
+		});
+
+		// Columns with their own `width` aren't fitted, but `fitFlex` needs their size to find the spare space.
+		const changedFixed = columns.flatMap((column, index) => {
+			const headCell = root.querySelectorAll<HTMLElement>('.akui-details-head-cell')[index];
+			if (!column.width || columnWidths[column.key] !== undefined || !headCell) return [];
+			const width = headCell.getBoundingClientRect().width;
+			return Math.abs(width - (untrack(() => fixedWidths)[column.key] ?? 0)) > 0.5
+				? [[column.key, width] as const]
+				: [];
+		});
+		if (changedFixed.length > 0)
+			fixedWidths = { ...untrack(() => fixedWidths), ...Object.fromEntries(changedFixed) };
+
+		const previous = untrack(() => fittedWidths);
+		const grown = columns.flatMap((column) => {
+			const measuredWidth = measured.get(column.key);
+			if (measuredWidth === undefined) return [];
+			const width = Math.min(
+				column.maxWidth ?? Infinity,
+				Math.max(column.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH, measuredWidth)
+			);
+			return width > (previous[column.key] ?? 0) ? [[column.key, width] as const] : [];
+		});
+		if (grown.length > 0) fittedWidths = { ...previous, ...Object.fromEntries(grown) };
+	});
 
 	function setColumnWidth(column: DetailsTableColumn<T>, requestedWidth: number) {
 		const minWidth = column.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH;
