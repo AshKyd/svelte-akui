@@ -32,6 +32,12 @@ export interface DetailsTableColumn<T> {
     minWidth?: number;
     /** Largest width in px this column can be resized to. */
     maxWidth?: number;
+    /**
+     * With `autoFit`, this column's share of the spare width after every column has its content
+     * width, so the table still reaches 100%. Shares are relative: `2` gets twice the space of `1`.
+     * Omit or 0 to leave the column at its content width. Other columns should use px/rem `width`s.
+     */
+    fitFlex?: number;
 }
 declare function $$render<T>(): {
     props: {
@@ -66,6 +72,11 @@ declare function $$render<T>(): {
         sort?: DetailsTableSort | null;
         /** Called when a header is clicked. Use this when `rows` is paged, since a locally sorted page is wrong. */
         onsortchange?: (sort: DetailsTableSort) => void;
+        /**
+         * Size columns without a `width` to their content, capped at it, so nothing is clipped while
+         * there is room. Measures the rendered rows and header, and only ever grows as rows scroll in.
+         */
+        autoFit?: boolean;
         /** Widths in px the user has dragged resizable columns to, by column `key`. Save and restore it to remember them. */
         columnWidths?: Record<string, number>;
         /** Called when a column is resized, with its key and new width in px, or `null` when reset to its default. */
