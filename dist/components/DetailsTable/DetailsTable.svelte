@@ -483,6 +483,44 @@
 		else if (rowBottom > visibleBottom) scroller.scrollTop = rowBottom - scroller.clientHeight;
 	}
 
+	/**
+	 * Scrolls the row with this key into view, smoothly by default. Rows are a fixed height, so the
+	 * target offset is plain arithmetic and works even while the row is not rendered (windowed out).
+	 * Returns false when the row isn't in the loaded rows.
+	 */
+	export function scrollToRow(
+		key: string,
+		{
+			behavior = 'smooth',
+			align = 'nearest'
+		}: { behavior?: ScrollBehavior; align?: 'start' | 'centre' | 'end' | 'nearest' } = {}
+	): boolean {
+		const index = displayRows.findIndex((row) => rowKey(row) === key);
+		if (index === -1 || !scroller) return false;
+
+		const rowTop = index * rowHeight;
+		const rowBottom = rowTop + rowHeight;
+		const { scrollTop: visibleTop, clientHeight } = scroller;
+		const topByAlign = {
+			start: rowTop,
+			centre: rowTop - (clientHeight - rowHeight) / 2,
+			end: rowBottom - clientHeight,
+			nearest:
+				rowTop < visibleTop
+					? rowTop
+					: rowBottom > visibleTop + clientHeight
+						? rowBottom - clientHeight
+						: visibleTop
+		};
+		// Users who asked for less motion get an instant jump instead of the animation.
+		const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		scroller.scrollTo({
+			top: Math.max(0, topByAlign[align]),
+			behavior: prefersReducedMotion ? 'instant' : behavior
+		});
+		return true;
+	}
+
 	function handleBodyScroll(event: Event & { currentTarget: HTMLElement }) {
 		scrollTop = event.currentTarget.scrollTop;
 		// The header doesn't scroll itself, so it follows the body sideways.

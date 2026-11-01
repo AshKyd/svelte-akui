@@ -110,7 +110,12 @@ declare function $$render<T>(): {
         /** Accessible name for the table. */
         'aria-label'?: string;
     };
-    exports: {};
+    exports: {
+        scrollToRow: (key: string, { behavior, align }?: {
+            behavior?: ScrollBehavior;
+            align?: "start" | "centre" | "end" | "nearest";
+        }) => boolean;
+    };
     bindings: "sort" | "selected" | "columnWidths";
     slots: {};
     events: {};
@@ -120,7 +125,12 @@ declare class __sveltets_Render<T> {
     events(): ReturnType<typeof $$render<T>>['events'];
     slots(): ReturnType<typeof $$render<T>>['slots'];
     bindings(): "sort" | "selected" | "columnWidths";
-    exports(): {};
+    exports(): {
+        scrollToRow: (key: string, { behavior, align }?: {
+            behavior?: ScrollBehavior;
+            align?: "start" | "centre" | "end" | "nearest";
+        }) => boolean;
+    };
 }
 interface $$IsomorphicComponent {
     new <T>(options: import('svelte').ComponentConstructorOptions<ReturnType<__sveltets_Render<T>['props']>>): import('svelte').SvelteComponent<ReturnType<__sveltets_Render<T>['props']>, ReturnType<__sveltets_Render<T>['events']>, ReturnType<__sveltets_Render<T>['slots']>> & {
