@@ -21,7 +21,20 @@
 	const alphaTokens = ['bg', 'bg-secondary', 'bg-input', 'bg-button', 'bg-accent'] as const;
 
 	const hoverTooltip = createTooltip({ position: 'top' });
-	const clickTooltip = createTooltip({ position: 'bottom', trigger: 'click' });
+	// `createTooltip` only does hover and focus. A click tooltip sets `trigger="click"` on `Tooltip`
+	// and positions itself from the clicked element.
+	let isClickTooltipVisible = $state(false);
+	let clickTooltipX = $state(0);
+	let clickTooltipY = $state(0);
+
+	function toggleClickTooltip(event: MouseEvent) {
+		const { left, width, bottom } = (event.currentTarget as HTMLElement).getBoundingClientRect();
+		clickTooltipX = left + width / 2;
+		clickTooltipY = bottom + 8;
+		isClickTooltipVisible = !isClickTooltipVisible;
+		// Stop the window click handler from closing it straight away.
+		event.stopPropagation();
+	}
 
 	let searchQuery = $state('');
 	let isSearching = $state(false);
@@ -68,12 +81,13 @@
 		>
 			<Padding size="s">Hover tooltip</Padding>
 		</Tooltip>
-		<Button {...clickTooltip.handlers}>Click for tooltip</Button>
+		<Button onclick={toggleClickTooltip}>Click for tooltip</Button>
 		<Tooltip
-			visible={clickTooltip.visible}
-			x={clickTooltip.x}
-			y={clickTooltip.y}
-			position={clickTooltip.position}
+			bind:visible={isClickTooltipVisible}
+			x={clickTooltipX}
+			y={clickTooltipY}
+			position="bottom"
+			trigger="click"
 		>
 			<Padding size="s">Click tooltip</Padding>
 		</Tooltip>

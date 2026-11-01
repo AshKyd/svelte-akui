@@ -97,7 +97,6 @@
 <section
 	bind:this={region}
 	class="akui-notification-area {position} {className}"
-	role="region"
 	aria-label={label}
 	tabindex="-1"
 	onpointerenter={() => (hovering = true)}
