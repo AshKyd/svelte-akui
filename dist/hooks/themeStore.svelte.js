@@ -1,4 +1,5 @@
 import { getContext, setContext } from 'svelte';
+import { safeLocalStorage } from '../utils/safeStorage.js';
 const STORAGE_KEY = 'akui-theme';
 const ACCENT_STORAGE_KEY = 'akui-accent';
 // `Symbol.for`, not `Symbol()`: the key must be the same across module copies. HMR or a duplicated
@@ -20,11 +21,16 @@ function isTheme(value) {
         (scheme === 'light' || scheme === 'dark') &&
         (tokens === undefined || (typeof tokens === 'object' && tokens !== null)));
 }
+/** Saves or removes a value; a `null` value removes it. */
+function writeStored(key, value) {
+    if (value === null)
+        safeLocalStorage.removeItem(key);
+    else
+        safeLocalStorage.setItem(key, value);
+}
 /** Reads the persisted theme, or `null` (follow the system) when missing, unparseable or invalid. */
 function readStoredTheme() {
-    if (typeof localStorage === 'undefined')
-        return null;
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = safeLocalStorage.getItem(STORAGE_KEY);
     if (!stored)
         return null;
     try {
@@ -37,10 +43,8 @@ function readStoredTheme() {
 }
 /** Reads the persisted accent, or `null` when missing or invalid. */
 function readStoredAccent() {
-    if (typeof localStorage === 'undefined')
-        return null;
     try {
-        const parsed = JSON.parse(localStorage.getItem(ACCENT_STORAGE_KEY) ?? 'null');
+        const parsed = JSON.parse(safeLocalStorage.getItem(ACCENT_STORAGE_KEY) ?? 'null');
         const { hue, chroma, tint } = (parsed ?? {});
         const isOptionalNumber = (value) => value === undefined || typeof value === 'number';
         return typeof hue === 'number' && isOptionalNumber(chroma) && isOptionalNumber(tint)
@@ -114,12 +118,9 @@ export class ThemeStore {
     /** Sets the accent colour (`null` = back to the theme's own). Pass `persist: false` for previews. */
     setAccent(accent, { persist = true } = {}) {
         this.accent = accent;
-        if (!persist || typeof localStorage === 'undefined')
+        if (!persist)
             return;
-        if (accent)
-            localStorage.setItem(ACCENT_STORAGE_KEY, JSON.stringify(accent));
-        else
-            localStorage.removeItem(ACCENT_STORAGE_KEY);
+        writeStored(ACCENT_STORAGE_KEY, accent ? JSON.stringify(accent) : null);
     }
     /** Tracks the OS colour scheme. Call from an `$effect`; the returned cleanup removes the listener. */
     listenToSystemScheme() {
@@ -136,12 +137,9 @@ export class ThemeStore {
     /** Selects a theme (`null` = follow the system). Pass `persist: false` for externally driven changes. */
     select(theme, { persist = true } = {}) {
         this.#chosen = theme;
-        if (!persist || typeof localStorage === 'undefined')
+        if (!persist)
             return;
-        if (theme)
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(theme));
-        else
-            localStorage.removeItem(STORAGE_KEY);
+        writeStored(STORAGE_KEY, theme ? JSON.stringify(theme) : null);
     }
 }
 export function setThemeStore(store) {
