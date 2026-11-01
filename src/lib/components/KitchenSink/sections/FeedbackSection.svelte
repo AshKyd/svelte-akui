@@ -33,7 +33,8 @@
 		dismissible: false
 	}));
 
-	const infoBoxItems = variants.map((variant) => ({
+	// InfoBoxes has no 'message' variant.
+	const infoBoxItems = variants.filter((variant) => variant !== 'message').map((variant) => ({
 		id: variant,
 		variant,
 		title: `${variant} item`,

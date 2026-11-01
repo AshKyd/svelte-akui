@@ -54,6 +54,9 @@
 
 	const mosaicItems = Array.from({ length: 6 }, (_, index) => ({
 		id: index,
+		// ImageMosaic lays items out by aspect ratio, so each needs a size.
+		width: 160 + (index % 3) * 40,
+		height: 120,
 		colour: `hsl(${index * 55} 60% 55%)`
 	}));
 
@@ -175,9 +178,9 @@
 	<h3>Mosaic</h3>
 	<div class="demo-row">
 		<div class="demo-cell">
-			<ImageMosaic items={mosaicItems} minWidth="5rem" gap="0.5rem">
+			<ImageMosaic items={mosaicItems} minWidth={80} gap={8}>
 				{#snippet children(item)}
-					<div style="background: {item.colour}; height: 5rem; border-radius: var(--akui-radius-m);"></div>
+					<div style="background: {item.colour}; height: 100%; border-radius: var(--akui-radius-m);"></div>
 				{/snippet}
 			</ImageMosaic>
 		</div>
