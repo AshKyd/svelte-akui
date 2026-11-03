@@ -319,6 +319,35 @@ button:not(.bespoke):not(.bespoke *):focus-visible {
 	background-color: var(--akui-bg-hover);
 }
 
+/* Disabled (and loading, which disables the button). Anchors can't be disabled, so aria-disabled is styled too.
+   Listed after the variant hover/active rules, with matching specificity, so they win. */
+.akui-btn:is(:disabled, [aria-disabled='true']):is(.regular, .accent, .ghost) {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: auto;
+	transform: none;
+}
+
+.akui-btn.regular:is(:disabled, [aria-disabled='true']) {
+	background-color: var(--akui-bg-button);
+	box-shadow: none;
+}
+
+.akui-btn.accent:is(:disabled, [aria-disabled='true']) {
+	background-color: var(--akui-bg-accent);
+	box-shadow: none;
+}
+
+.akui-btn.ghost:is(:disabled, [aria-disabled='true']) {
+	background-color: transparent;
+}
+
+/* A loading button already shows a spinner, so keep it fully opaque. */
+.akui-btn.loading:disabled {
+	opacity: 1;
+	cursor: progress;
+}
+
 .akui-btn.small {
 	padding: 0.25rem 0.5rem;
 	font-size: 0.8rem;
