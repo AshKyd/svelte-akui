@@ -5,7 +5,7 @@
      */
 import type { Snippet } from 'svelte';
 import type { HTMLInputAttributes } from 'svelte/elements';
-import type { SliderFillColour, SliderSegment } from './types.js';
+import type { SliderFillColour, SliderSegment, SliderTick } from './types.js';
 /** What a custom `thumb` snippet is given. */
 export interface ThumbState {
     /** Current value. */
@@ -53,6 +53,14 @@ export interface Props extends Omit<HTMLInputAttributes, 'value' | 'min' | 'max'
     joined?: boolean;
     /** Replaces the scrubber's face. It is centred on the scrubber, which keeps its position, bounce and fade. */
     thumb?: Snippet<[ThumbState]>;
+    /** Tick marks under the bar. A number is an unlabelled tick; `{ value, label }` adds a label. */
+    ticks?: (number | SliderTick)[];
+    /** Adds an unlabelled tick every this many units from `min`. `ticks` can relabel any of them. */
+    tickStep?: number;
+    /** `edges` left-aligns the first tick label and right-aligns the last so they stay inside the slider; `centre` centres every label under its mark. */
+    tickLabelAlign?: 'edges' | 'centre';
+    /** Snaps the value to the nearest tick (from `ticks` or `tickStep`). The arrow, Home and End keys jump tick to tick. */
+    snap?: boolean;
     /** `circle` is a round handle; `rect` is a tall, narrow handle with lightly rounded corners. */
     thumbShape?: 'circle' | 'rect';
     /** Scrubber height (and width, for `circle`). A number is px; a string is any CSS length. Defaults to a size based on `height`. */

@@ -7,7 +7,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import Glow from '../Glow/Glow.svelte';
-	import type { SliderFillColour, SliderSegment } from './types.js';
+	import type { SliderFillColour, SliderSegment, SliderTick } from './types.js';
 
 	export interface Props extends Omit<
 		HTMLInputAttributes,
@@ -48,6 +48,14 @@
 		joined?: boolean;
 		/** Replaces the scrubber's face. It is centred on the scrubber, which keeps its position, bounce and fade. */
 		thumb?: Snippet<[ThumbState]>;
+		/** Tick marks under the bar. A number is an unlabelled tick; `{ value, label }` adds a label. */
+		ticks?: (number | SliderTick)[];
+		/** Adds an unlabelled tick every this many units from `min`. `ticks` can relabel any of them. */
+		tickStep?: number;
+		/** `edges` left-aligns the first tick label and right-aligns the last so they stay inside the slider; `centre` centres every label under its mark. */
+		tickLabelAlign?: 'edges' | 'centre';
+		/** Snaps the value to the nearest tick (from `ticks` or `tickStep`). The arrow, Home and End keys jump tick to tick. */
+		snap?: boolean;
 		/** `circle` is a round handle; `rect` is a tall, narrow handle with lightly rounded corners. */
 		thumbShape?: 'circle' | 'rect';
 		/** Scrubber height (and width, for `circle`). A number is px; a string is any CSS length. Defaults to a size based on `height`. */
@@ -86,6 +94,12 @@
 		thumb,
 		thumbSize,
 		thumbShape = 'circle',
+		ticks = [],
+		tickStep,
+		tickLabelAlign = 'edges',
+		snap = false,
+		oninput,
+		onkeydown,
 		class: className = '',
 		...rest
 	}: Props = $props();
@@ -162,6 +176,81 @@
 		};
 	};
 
+	// ── Ticks ──────────────────────────────────────────────────────────────────
+
+	/** Explicit ticks win over generated ones at the same value, so a `tickStep` row can be relabelled. */
+	const tickList = $derived.by(() => {
+		const generated =
+			tickStep && tickStep > 0
+				? Array.from({ length: Math.floor((max - min) / tickStep) + 1 }, (_, index) => ({
+						value: min + index * tickStep
+					}))
+				: [];
+		const explicit = ticks.map((tick) => (typeof tick === 'number' ? { value: tick } : tick));
+		const byValue = new Map<number, SliderTick>(
+			[...generated, ...explicit].map((tick) => [tick.value, tick])
+		);
+		return [...byValue.values()];
+	});
+	const firstTickValue = $derived(Math.min(...tickList.map((tick) => tick.value)));
+	const lastTickValue = $derived(Math.max(...tickList.map((tick) => tick.value)));
+	/** Edge alignment needs two or more ticks; with one, "first" and "last" are the same label. */
+	const alignTickEdges = $derived(tickLabelAlign === 'edges' && tickList.length > 1);
+	const hasTickLabels = $derived(tickList.some((tick) => tick.label !== undefined));
+
+	// ── Snapping ───────────────────────────────────────────────────────────────
+	// The native input only knows a regular `step`, so snapping to irregular ticks is done here.
+
+	/** Tick values inside the range, ascending. */
+	const snapPoints = $derived(
+		tickList
+			.map((tick) => tick.value)
+			.filter((tickValue) => tickValue >= min && tickValue <= max)
+			.sort((first, second) => first - second)
+	);
+	const isSnapping = $derived(snap && snapPoints.length > 0);
+
+	const nearestSnapPoint = (target: number) =>
+		snapPoints.reduce((best, point) =>
+			Math.abs(point - target) < Math.abs(best - target) ? point : best
+		);
+
+	function handleInput(event: Event & { currentTarget: HTMLInputElement }) {
+		if (isSnapping) {
+			const snapped = nearestSnapPoint(event.currentTarget.valueAsNumber);
+			event.currentTarget.value = String(snapped);
+			value = snapped;
+		}
+		oninput?.(event);
+	}
+
+	/** Arrow keys on a snapping slider move one tick, since a native step would land back on the same tick. */
+	function handleKeydown(event: KeyboardEvent & { currentTarget: HTMLInputElement }) {
+		onkeydown?.(event);
+		if (!isSnapping || event.defaultPrevented) return;
+		const direction = { ArrowRight: 1, ArrowUp: 1, PageUp: 1, ArrowLeft: -1, ArrowDown: -1, PageDown: -1 }[
+			event.key
+		];
+		const target =
+			event.key === 'Home'
+				? snapPoints[0]
+				: event.key === 'End'
+					? snapPoints.at(-1)
+					: direction === undefined
+						? undefined
+						: direction > 0
+							? snapPoints.find((point) => point > value)
+							: snapPoints.findLast((point) => point < value);
+		const handled = ['Home', 'End'].includes(event.key) || direction !== undefined;
+		if (!handled) return;
+		event.preventDefault();
+		if (target === undefined) return;
+		event.currentTarget.value = String(target);
+		value = target;
+		// Keeps listeners (forms, `oninput`) in the loop, as a native key press would.
+		event.currentTarget.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+
 	let dragging = $state(false);
 
 	// ── Segment-change bounce ──────────────────────────────────────────────────
@@ -204,6 +293,7 @@
 	class:loading
 	class:dragging
 	class:joined
+	class:snapping={isSnapping}
 	class:rect={thumbShape === 'rect'}
 	role={isRange ? undefined : 'progressbar'}
 	aria-label={isRange ? undefined : label}
@@ -263,10 +353,29 @@
 			aria-label={label}
 			aria-valuetext={valueText}
 			aria-busy={loading || undefined}
+			oninput={handleInput}
+			onkeydown={handleKeydown}
 			{...rest}
 		/>
 	{/if}
 	</div>
+
+	{#if tickList.length}
+		<!-- Decorative: the value is already exposed by the input or progressbar. -->
+		<div class="ticks" class:labelled={hasTickLabels} aria-hidden="true">
+			{#each tickList as tick (tick.value)}
+				<div
+					class="tick"
+					class:first={alignTickEdges && tick.value === firstTickValue}
+					class:last={alignTickEdges && tick.value === lastTickValue}
+					style="--tick-x: calc{barX(toFraction(tick.value))};"
+				>
+					<span class="tick-mark"></span>
+					{#if tick.label !== undefined}<span class="tick-label">{tick.label}</span>{/if}
+				</div>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -301,8 +410,16 @@
 		--thumb-gap: 4px;
 		--seg-gap: 3px;
 		--bar-h: var(--h);
-		height: var(--thumb);
 		min-width: 0;
+	}
+
+	/* Thumb width in range mode, none in progress mode. On the root so the tick row can use it too. */
+	.akui-slider.range {
+		--tw: var(--thumb-w);
+	}
+
+	.akui-slider.progress {
+		--tw: 0px;
 	}
 
 	.akui-slider.rect {
@@ -317,7 +434,7 @@
 	.surface {
 		position: relative;
 		width: 100%;
-		height: 100%;
+		height: var(--thumb);
 		/** 1 when the bar is split around the scrubber; 0 when it is one continuous bar. */
 		--split: 1;
 		transition:
@@ -328,18 +445,13 @@
 	}
 
 	.range .surface {
-		--tw: var(--thumb-w);
 		/* Where the filled part stops and the empty part starts, either side of the scrubber. */
 		--fill-to: calc(var(--c) - (var(--tw) / 2 + var(--thumb-gap)) * var(--split));
 		--track-from: calc((var(--c) + (var(--tw) / 2 + var(--thumb-gap))) * var(--split));
 	}
 
-	.progress {
-		height: var(--bar-h);
-	}
-
 	.progress .surface {
-		--tw: 0px;
+		height: var(--bar-h);
 		--fill-to: var(--c);
 		--track-from: 0px;
 	}
@@ -348,9 +460,77 @@
 		--split: 0;
 	}
 
-	/* Following the pointer must be instant. */
-	.dragging .surface {
+	/* ── Ticks ───────────────────────────────────────────────────────────────── */
+
+	.ticks {
+		position: relative;
+		height: 6px;
+		margin-top: 2px;
+	}
+
+	.ticks.labelled {
+		height: calc(6px + 1.3em);
+		font-size: 0.75rem;
+	}
+
+	/* Zero-width anchor at the tick's x-position; the mark and label hang off it. */
+	.tick {
+		position: absolute;
+		top: 0;
+		left: var(--tick-x);
+		width: 0;
+		color: var(--akui-fg-secondary);
+	}
+
+	.tick-mark {
+		position: absolute;
+		top: 0;
+		left: -0.5px;
+		width: 1px;
+		height: 4px;
+		background-color: currentColor;
+		opacity: 0.6;
+	}
+
+	/* Centred under its mark. */
+	.tick-label {
+		position: absolute;
+		top: 6px;
+		left: 0;
+		white-space: nowrap;
+		line-height: 1.2;
+		translate: -50% 0;
+	}
+
+	/*
+	 * With `tickLabelAlign="edges"` the first label sits flush with the slider's left edge and the
+	 * last flush with its right edge, so they can't overflow. The marks stay on their ticks.
+	 */
+	.tick.first .tick-label {
+		left: calc(-1 * var(--tick-x));
+		translate: none;
+	}
+
+	.tick.last .tick-label {
+		left: auto;
+		right: calc(var(--tick-x) - 100cqw);
+		translate: none;
+	}
+
+	.disabled .ticks {
+		opacity: 0.5;
+	}
+
+	/* Following the pointer must be instant, unless snapping: then the scrubber glides tick to tick. */
+	.dragging:not(.snapping) .surface {
 		transition: none;
+	}
+
+	/* A shorter glide while snapping, so the scrubber keeps up with the pointer. */
+	.dragging.snapping .surface {
+		transition:
+			--f 0.1s ease-out,
+			--split 0.25s ease;
 	}
 
 	.akui-slider.disabled {
