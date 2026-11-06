@@ -7,7 +7,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import Glow from '../Glow/Glow.svelte';
-	import type { SliderColour, SliderSegment } from './types.js';
+	import type { SliderFillColour, SliderSegment } from './types.js';
 
 	export interface Props extends Omit<
 		HTMLInputAttributes,
@@ -25,8 +25,15 @@
 		mode?: 'range' | 'progress';
 		/** Bar thickness. A number is px; a string is any CSS length. */
 		height?: number | string;
-		/** Default fill colour, and the colour of any segment without its own. */
-		colour?: SliderColour;
+		/** Fill colour before the value, and for any segment without its own. `none` leaves it empty track. */
+		colour?: SliderFillColour;
+		/**
+		 * Fill colour after the value. Default `none` (empty track). For a ratio of two things set a
+		 * different colour on each side; set both the same for an all-one-colour bar; set both `none`
+		 * for an all-empty track with just the scrubber. `segment` keeps every segment in its own
+		 * colour on both sides, so the whole bar shows all the stages.
+		 */
+		afterColour?: SliderFillColour | 'segment';
 		/** Splits the bar into separate coloured stages. Each ends at `to`; the last runs to `max`. */
 		segments?: SliderSegment[];
 		/** Turns the bar into a loader: the scrubber fades out and the fill becomes a candy cane. */
@@ -69,6 +76,7 @@
 		mode = 'range',
 		height = 6,
 		colour = 'accent',
+		afterColour = 'none',
 		segments = [],
 		loading = false,
 		disabled = false,
@@ -93,8 +101,12 @@
 	};
 	const valueFraction = $derived(toFraction(value));
 
-	const colourToCss = (name: SliderColour) =>
-		name === 'accent' ? 'var(--akui-bg-accent)' : `var(--akui-color-${name}-solid)`;
+	/** CSS colour for a fill, or undefined for `none` (nothing is drawn). */
+	const colourToCss = (name: SliderFillColour) => {
+		if (name === 'none') return undefined;
+		return name === 'accent' ? 'var(--akui-bg-accent)' : `var(--akui-color-${name}-solid)`;
+	};
+	const afterColourCss = $derived(afterColour === 'segment' ? undefined : colourToCss(afterColour));
 
 	/**
 	 * Bar x-position (CSS) for a fraction. In range mode the scrubber's centre never reaches the ends
@@ -125,10 +137,10 @@
 		});
 	});
 
-	/** The segment the value sits in; its colour tints the scrubber. */
+	/** The segment the value sits in; its colour tints the scrubber. Accent when that segment has no fill. */
 	const activeColour = $derived(
 		(layout.find((segment) => valueFraction <= segment.endFraction) ?? layout.at(-1))?.colour ??
-			colourToCss(colour)
+			'var(--akui-bg-accent)'
 	);
 
 	/**
@@ -211,12 +223,22 @@
 		{#each layout as segment, index (index)}
 			<!-- `display: contents` lets each piece position itself against the bar while sharing the segment's edges. -->
 			{@const radii = cornerRadii(segment, index)}
+			{@const afterCss = afterColour === 'segment' ? segment.colour : afterColourCss}
 			<div
 				class="segment"
-				style="--seg-left: {segment.left}; --seg-right: {segment.right}; --seg-colour: {segment.colour}; --fill-radius: {radii.fill}; --track-radius: {radii.track};"
+				style="--seg-left: {segment.left}; --seg-right: {segment.right}; --seg-colour: {segment.colour}; --after-colour: {afterCss}; --fill-radius: {radii.fill}; --track-radius: {radii.track};"
 			>
 				<div class="track" title={segment.label}><Glow inset /></div>
-				<div class="fill"><Glow /></div>
+				{#if afterCss}
+					<!-- Same shape as the track: the part after the value, coloured instead of empty. -->
+					<div class="after"><Glow /></div>
+				{/if}
+				{#if segment.colour}
+					<div class="fill"><Glow /></div>
+				{:else}
+					<!-- No fill colour: the part before the value is empty track too, so the bar has no hole. -->
+					<div class="fill empty"><Glow inset /></div>
+				{/if}
 			</div>
 		{/each}
 	</div>
@@ -350,17 +372,27 @@
 	}
 
 	.track,
+	.after,
 	.fill {
 		position: absolute;
 		top: 0;
 		height: 100%;
 	}
 
-	.track {
+	/* `.after` covers the same span as the track, so the empty side can be coloured instead. */
+	.track,
+	.after {
 		border-radius: var(--track-radius);
-		background-color: var(--akui-bg-secondary);
 		left: max(var(--seg-left), var(--track-from));
 		width: max(0px, calc(var(--seg-right) - max(var(--seg-left), var(--track-from))));
+	}
+
+	.track {
+		background-color: var(--akui-bg-secondary);
+	}
+
+	.after {
+		background-color: var(--after-colour);
 	}
 
 	.fill {
@@ -370,11 +402,17 @@
 		width: max(0px, calc(min(var(--seg-right), var(--fill-to)) - var(--seg-left)));
 	}
 
-	.disabled .track {
+	.fill.empty {
+		background-color: var(--akui-bg-secondary);
+	}
+
+	.disabled .track,
+	.disabled .fill.empty {
 		opacity: 0.6;
 	}
 
-	.disabled .fill {
+	.disabled .fill:not(.empty),
+	.disabled .after {
 		opacity: 0.45;
 		filter: saturate(0.5);
 	}
@@ -468,7 +506,8 @@
 
 	/* ── Loading: candy cane ─────────────────────────────────────────────────── */
 
-	.loading .fill {
+	.loading .fill:not(.empty),
+	.loading .after {
 		background-image: linear-gradient(
 			135deg,
 			rgb(255 255 255 / 0.5) 25%,
@@ -492,12 +531,14 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.loading .fill {
+		.loading .fill,
+		.loading .after {
 			animation: none;
 		}
 	}
 
-	:global(html[data-reduced-motion='true']) .loading .fill {
+	:global(html[data-reduced-motion='true']) .loading .fill,
+	:global(html[data-reduced-motion='true']) .loading .after {
 		animation: none;
 	}
 </style>

@@ -67,6 +67,22 @@
 	{/snippet}
 </Story>
 
+<Story name="Ratio and fill modes">
+	{#snippet children()}
+		<div style="width: 360px; display: grid; gap: 24px;">
+			<!-- Two colours: a ratio of two things. -->
+			<Slider bind:value={broomSpeed} colour="purple" afterColour="amber" label="Ratio" />
+			<!-- One colour on both sides. -->
+			<Slider bind:value={broomSpeed} colour="green" afterColour="green" label="All one colour" />
+			<!-- Every segment in full colour on both sides. -->
+			<Slider bind:value={broomSpeed} segments={bakeOffStages} afterColour="segment" label="Full segments" />
+			<!-- All empty track, just the scrubber. -->
+			<Slider bind:value={broomSpeed} colour="none" label="Empty track" />
+			<Slider mode="progress" value={broomSpeed} colour="blue" afterColour="orange" height={10} />
+		</div>
+	{/snippet}
+</Story>
+
 <Story name="Segments">
 	{#snippet children()}
 		<div style="width: 360px; display: grid; gap: 24px;">
