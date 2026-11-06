@@ -8,7 +8,9 @@
 		ProgressBar,
 		ProgressXmasTree,
 		ProgressChecks,
+		Slider,
 		Button,
+		type SliderSegment,
 		type NotificationItem,
 		type ProgressCheckStep
 	} from '../../../index.js';
@@ -19,6 +21,13 @@
 		{ id: 'warning', label: 'Skipped some', status: 'warning', skipped: 3, message: '3 empty' },
 		{ id: 'error', label: 'Failed', status: 'error', value: 4, max: 12, failed: 8, message: 'Connection lost' },
 		{ id: 'pending', label: 'Pending' }
+	];
+
+	let sinkSlider = $state(55);
+	const sliderStages: SliderSegment[] = [
+		{ to: 30, colour: 'orange' },
+		{ to: 70, colour: 'blue' },
+		{ to: 100, colour: 'green' }
 	];
 
 	const variants = ['info', 'success', 'warning', 'error', 'message'] as const;
@@ -102,6 +111,18 @@
 		<div style="width: 100%; max-width: 300px;">
 			<ProgressXmasTree items={xmasItems} colour="purple" />
 		</div>
+	</div>
+
+	<h3>Slider</h3>
+	<div class="demo-row">
+		<div class="demo-cell"><Slider bind:value={sinkSlider} label="Range" /></div>
+		<div class="demo-cell"><Slider bind:value={sinkSlider} height={12} colour="purple" label="Thick" /></div>
+		<div class="demo-cell"><Slider bind:value={sinkSlider} segments={sliderStages} label="Segments" /></div>
+		<div class="demo-cell"><Slider value={50} disabled label="Disabled" /></div>
+		<div class="demo-cell"><Slider value={50} loading label="Loading" /></div>
+		<div class="demo-cell"><Slider mode="progress" value={50} colour="green" /></div>
+		<div class="demo-cell"><Slider mode="progress" value={50} segments={sliderStages} loading /></div>
+		<div class="demo-cell"><Slider mode="progress" value={50} disabled /></div>
 	</div>
 
 	<h3>ProgressChecks</h3>
