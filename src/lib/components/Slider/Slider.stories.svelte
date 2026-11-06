@@ -92,6 +92,39 @@
 	{/snippet}
 </Story>
 
+<Story name="Ticks">
+	{#snippet children()}
+		<div style="width: 360px; display: grid; gap: 28px;">
+			<Slider bind:value={broomSpeed} tickStep={10} label="Unlabelled ticks" />
+			<Slider
+				bind:value={broomSpeed}
+				ticks={[0, { value: 25, label: 'Dawdle' }, { value: 50, label: 'Trot' }, { value: 100, label: 'Gallop' }]}
+				label="Labelled ticks"
+			/>
+			<Slider
+				mode="progress"
+				value={broomSpeed}
+				segments={bakeOffStages}
+				ticks={[{ value: 30, label: 'Flour' }, { value: 70, label: 'Dough' }, { value: 100, label: 'Cooled' }]}
+			/>
+		</div>
+	{/snippet}
+</Story>
+
+<Story name="Snap to ticks">
+	{#snippet children()}
+		<div style="width: 360px; display: grid; gap: 28px;">
+			<Slider bind:value={broomSpeed} tickStep={25} snap label="Snap every 25" />
+			<Slider
+				bind:value={broomSpeed}
+				snap
+				ticks={[{ value: 0, label: 'Idle' }, { value: 20, label: 'Dawdle' }, { value: 60, label: 'Trot' }, { value: 100, label: 'Gallop' }]}
+				label="Snap to labelled ticks"
+			/>
+		</div>
+	{/snippet}
+</Story>
+
 <Story name="Joined segments">
 	{#snippet children()}
 		<div style="width: 360px; display: grid; gap: 24px;">
