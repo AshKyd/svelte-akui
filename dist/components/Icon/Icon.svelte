@@ -4,6 +4,10 @@
 	 * A component for rendering Bootstrap Icons with automatic code splitting.
 	 */
 
+	import { loadIconSvg } from './iconSource.js';
+
+	const FALLBACK_ICON = 'exclamation-triangle';
+
 	interface Props {
 		/** The name of the Bootstrap Icon (e.g. "trash", "search") */
 		name: string;
@@ -32,40 +36,25 @@
 		...rest
 	}: Props = $props();
 
-	// Use a glob to ensure Vite knows which icons to bundle.
-	// Root-relative path is resolved from the project root in Vite.
-	const iconModules = import.meta.glob<string>('/node_modules/bootstrap-icons/icons/*.svg', {
-		query: '?raw',
-		import: 'default'
-	});
-
 	let svgContent = $state<string | null>(null);
 
+	// Icons are fetched from the folder set by `configureIcons` (see iconSource.ts), so no bundler is involved.
 	$effect(() => {
-		if (name) {
-			const path = `/node_modules/bootstrap-icons/icons/${name}.svg`;
-			const fallbackPath = '/node_modules/bootstrap-icons/icons/exclamation-triangle.svg';
-			let loader = iconModules[path];
-
-			if (!loader) {
-				console.error(`[Akui] Icon "${name}" not found. Falling back to exclamation-triangle.`);
-				loader = iconModules[fallbackPath];
-			}
-
-			if (loader) {
-				(loader() as Promise<string>)
-					.then((content) => {
-						svgContent = content;
-					})
-					.catch((err) => {
-						console.error(`[Akui] Error loading icon "${name}":`, err);
-						svgContent = null;
-					});
-			} else {
-				console.error(`[Akui] Critical: Default fallback icon not found at ${fallbackPath}`);
+		if (!name) return;
+		const requestedName = name;
+		loadIconSvg(requestedName)
+			.catch(() => {
+				console.error(`[Akui] Icon "${requestedName}" not found. Falling back to ${FALLBACK_ICON}.`);
+				return loadIconSvg(FALLBACK_ICON);
+			})
+			.then((content) => {
+				// Ignore a slow load that finished after the name changed.
+				if (requestedName === name) svgContent = content;
+			})
+			.catch((err) => {
+				console.error(`[Akui] Error loading icon "${requestedName}":`, err);
 				svgContent = null;
-			}
-		}
+			});
 	});
 
 	// Normalize size to include units if it's a number

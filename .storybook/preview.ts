@@ -2,6 +2,10 @@ import type { Preview } from '@storybook/sveltekit'
 import { withThemeByDataAttribute } from '@storybook/addon-themes'
 import type { AkuiTheme } from '../src/lib/hooks/themeStore.svelte.js'
 import StorybookDecorator from '../src/lib/components/StorybookDecorator.svelte'
+import { configureIcons } from '../src/lib/components/Icon/iconSource.js'
+
+// `npm run icons` publishes the icons into static/bootstrap-icons, which Storybook serves.
+configureIcons({ baseUrl: '/bootstrap-icons' })
 
 const preview: Preview = {
   parameters: {

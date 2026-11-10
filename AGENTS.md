@@ -11,6 +11,7 @@ not reach `aknotes` until they are pushed and reinstalled.
 - `npm run dev` / `npm run storybook` — port 6006, `--ci` so it doesn't open a browser
 - `npm run dev:watch` — `svelte-package --watch`, for editing against a linked consumer
 - `npm run build` — `svelte-kit sync && svelte-package`, builds the library into `dist/`
+- `npm run icons` — copies the Bootstrap Icons into `static/bootstrap-icons` (git-ignored) for Storybook; `storybook` and the build scripts run it first
 - `npm run build:storybook` (or `build-storybook`) — Storybook build
 - `npm run prepack` — `svelte-kit sync && svelte-package && publint`
 - `npm run check` / `check:watch` — svelte-check

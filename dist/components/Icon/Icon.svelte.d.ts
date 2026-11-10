@@ -1,7 +1,3 @@
-/**
- * @component Icon
- * A component for rendering Bootstrap Icons with automatic code splitting.
- */
 interface Props {
     /** The name of the Bootstrap Icon (e.g. "trash", "search") */
     name: string;

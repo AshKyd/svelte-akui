@@ -25,3 +25,6 @@ vite.config.ts.timestamp-*
 
 *storybook.log
 storybook-static
+
+# Published Bootstrap Icons for Storybook (`npm run icons`)
+static/bootstrap-icons
