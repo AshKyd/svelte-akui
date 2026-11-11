@@ -1,7 +1,4 @@
-<script lang="ts">
-  import { type Snippet } from "svelte";
-  import { Icon } from "../Icon/index.js";
-
+<script module lang="ts">
   export interface TableColumn {
     /** Unique key matching a property name in the row data. */
     key: string;
@@ -14,14 +11,19 @@
     /** Optional width of the column. */
     width?: string;
   }
+</script>
+
+<script lang="ts" generics="T extends object">
+  import { type Snippet } from "svelte";
+  import { Icon } from "../Icon/index.js";
 
   interface Props {
     /** Array of row data objects. */
-    data: any[];
+    data: T[];
     /** Array of column configurations. */
     columns: TableColumn[];
     /** A snippet to customise cell rendering. Takes the row object and the column configuration. */
-    cell?: Snippet<[any, TableColumn]>;
+    cell?: Snippet<[T, TableColumn]>;
     /** Additional CSS classes. */
     class?: string;
     /** Spread remaining attributes. */
@@ -36,6 +38,10 @@
     ...rest
   }: Props = $props();
 
+  /** Reads a cell by column key. Rows are arbitrary objects, so the value is treated as a plain scalar. */
+  const cellValue = (row: T, key: string) =>
+    (row as Record<string, string | number | null | undefined>)[key];
+
   let sortKey = $state<string | null>(null);
   let sortDirection = $state<"asc" | "desc">("asc");
 
@@ -43,8 +49,8 @@
     if (!sortKey) return data;
 
     return [...data].sort((a, b) => {
-      const valA = a[sortKey!];
-      const valB = b[sortKey!];
+      const valA = cellValue(a, sortKey!);
+      const valB = cellValue(b, sortKey!);
 
       if (valA === undefined || valA === null)
         return sortDirection === "asc" ? 1 : -1;
@@ -126,7 +132,7 @@
                 {#if cell}
                   {@render cell(row, column)}
                 {:else}
-                  {row[column.key] ?? ""}
+                  {cellValue(row, column.key) ?? ""}
                 {/if}
               </td>
             {/each}

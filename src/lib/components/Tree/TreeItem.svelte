@@ -14,7 +14,7 @@
     status?: string;
     children?: TreeItemData[];
     isFolder?: boolean;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   interface Props {

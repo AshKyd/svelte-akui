@@ -1,4 +1,4 @@
-<script lang="ts" generics="T = any">
+<script lang="ts" generics="T = unknown">
   /**
    * @file
    * A lightweight, height-balanced masonry grid component for Svelte 5.
@@ -31,7 +31,7 @@
     /** Optional custom snippet for rendering each data item when `items` is provided */
     itemSnippet?: Snippet<[T, number]>;
     /** Optional key derivation function for `items` loop. Defaults to item.id or index. */
-    getKey?: (item: T, index: number) => any;
+    getKey?: (item: T, index: number) => unknown;
     /** Bindable function to manually trigger a relayout; pass `false` to move items instantly. */
     refreshLayout?: (animated?: boolean) => Promise<void>;
     /** Allow the layout to recalculate on resize. Defaults to true. */
@@ -51,7 +51,8 @@
     children,
     items = $bindable(),
     itemSnippet,
-    getKey = (item: any, index: number) => item?.id ?? index,
+    getKey = (item: T, index: number) =>
+      (item as { id?: unknown } | null)?.id ?? index,
     refreshLayout = $bindable(),
     allowResize = true,
     animate = false,

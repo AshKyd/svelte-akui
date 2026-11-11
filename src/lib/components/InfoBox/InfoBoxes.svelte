@@ -9,7 +9,7 @@
     message: string | Snippet;
     icon?: string;
     onClose?: () => void;
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   interface Props {
