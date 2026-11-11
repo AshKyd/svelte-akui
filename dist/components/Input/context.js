@@ -1,1 +1,0 @@
-export const INPUT_GROUP_CONTEXT = Symbol('INPUT_GROUP_CONTEXT');
