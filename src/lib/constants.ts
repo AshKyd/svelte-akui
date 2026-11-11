@@ -119,7 +119,7 @@ export function sanitizeHtml(html: string): string {
   const fragmentMatch = html.match(
     /<!--StartFragment-->([\s\S]*?)<!--EndFragment-->/i,
   );
-  let rawHtml = fragmentMatch ? fragmentMatch[1] : html;
+  const rawHtml = fragmentMatch ? fragmentMatch[1] : html;
 
   let processedHtml = rawHtml;
   if (typeof DOMParser !== "undefined") {

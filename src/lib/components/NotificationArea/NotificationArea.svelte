@@ -47,6 +47,7 @@
   // (WCAG 4.1.3). It is separate from the interactive list, which live regions expose poorly.
   let politeMessage = $state("");
   let assertiveMessage = $state("");
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
   let seen = new Set<string>();
   let clearTimer: ReturnType<typeof setTimeout> | undefined;
 

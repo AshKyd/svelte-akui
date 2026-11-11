@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { type Snippet } from "svelte";
   import { fade } from "svelte/transition";
   import { motion } from "../../hooks/reducedMotion.svelte.js";
 
@@ -22,7 +21,7 @@
     /** Loading handler */
     onload?: (dims: { width: number; height: number; ratio: number }) => void;
     /** Error handler */
-    onerror?: (err: any) => void;
+    onerror?: (err: Event) => void;
     /** Additional CSS classes */
     class?: string;
     /** Style overrides */
@@ -78,7 +77,7 @@
     });
   }
 
-  function handleError(err: any) {
+  function handleError(err: Event) {
     error = true;
     isLoaded = false;
     onerror?.(err);

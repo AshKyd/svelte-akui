@@ -100,7 +100,7 @@
 
   // Capture the current height before the DOM updates to the new viewState
   $effect.pre(() => {
-    const _ = viewState;
+    void viewState;
     if (wrapperEl) {
       oldHeight = wrapperEl.getBoundingClientRect().height;
     }
@@ -108,7 +108,7 @@
 
   // Apply the height transition after the DOM has updated
   $effect(() => {
-    const _ = viewState;
+    void viewState;
     if (wrapperEl && oldHeight > 0) {
       wrapperEl.style.height = `${oldHeight}px`;
 

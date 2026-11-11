@@ -49,8 +49,8 @@
   $effect(() => {
     if (autosize && inputEl) {
       // Create a reactive dependency on value and clientWidth
-      const _ = value;
-      const __ = clientWidth;
+      void value;
+      void clientWidth;
 
       inputEl.style.height = "auto";
       inputEl.style.height = `${inputEl.scrollHeight}px`;

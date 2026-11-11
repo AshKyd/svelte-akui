@@ -104,7 +104,7 @@
           await result;
           internalStatus = "success";
           status = "success";
-        } catch (err) {
+        } catch {
           internalStatus = "error";
           status = "error";
         } finally {

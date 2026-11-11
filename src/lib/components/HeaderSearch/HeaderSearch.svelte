@@ -53,12 +53,8 @@
   );
 
   let inputElement = $state<HTMLInputElement | null>(null);
-  let localValue = $state(searchQuery);
+  let localValue = $derived(searchQuery);
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-
-  $effect(() => {
-    localValue = searchQuery;
-  });
 
   function handleInput(event: Event) {
     const target = event.target as HTMLInputElement;

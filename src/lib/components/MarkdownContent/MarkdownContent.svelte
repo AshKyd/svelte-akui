@@ -49,7 +49,7 @@
    * Each host keeps `data-task-checkbox` so layout CSS can target it in place of the input.
    */
   $effect(() => {
-    html;
+    void html;
     const target = container;
     if (!target || untrack(() => checkboxes) !== "graphic") return;
     const size = untrack(() => checkboxSize);
@@ -72,6 +72,7 @@
 </script>
 
 <div class="akui-markdown-content {className}" bind:this={container}>
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -- sanitised by sanitizeHtml (DOMPurify) in `html` -->
   {@html html}
 </div>
 

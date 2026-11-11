@@ -9,7 +9,7 @@ declare global {
     // interface Platform {}
   }
   interface Window {
-    maplibregl?: any;
+    maplibregl?: typeof import("maplibre-gl");
   }
 }
 

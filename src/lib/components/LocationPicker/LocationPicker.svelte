@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { getContext, onMount } from "svelte";
+  import { getContext } from "svelte";
+  import type {
+    Map as MaplibreMap,
+    MapMouseEvent,
+    Marker as MaplibreMarker,
+  } from "maplibre-gl";
   import ControlGroup from "../ControlGroup/ControlGroup.svelte";
   import ControlItemText from "../ControlGroup/ControlItemText/ControlItemText.svelte";
   import ControlItemExpanded from "../ControlGroup/ControlItemExpanded/ControlItemExpanded.svelte";
@@ -113,8 +118,10 @@
   });
 
   let mapContainer = $state<HTMLDivElement>();
-  let map = $state<any>();
-  let marker = $state<any>();
+  type MaplibreModule = typeof import("maplibre-gl");
+
+  let map = $state<MaplibreMap>();
+  let marker = $state<MaplibreMarker>();
 
   // Search state
   let searchQuery = $state("");
@@ -131,7 +138,7 @@
   /**
    * Dynamically loads MapLibre CSS and JS bundles from CDN.
    */
-  function loadMapLibreCDN(): Promise<any> {
+  function loadMapLibreCDN(): Promise<MaplibreModule> {
     if (typeof window === "undefined") return Promise.reject();
 
     if (window.maplibregl) {
@@ -160,7 +167,9 @@
         resolve(window.maplibregl);
         return;
       }
-      script.addEventListener("load", () => resolve(window.maplibregl));
+      script.addEventListener("load", () =>
+        resolve(window.maplibregl as MaplibreModule),
+      );
       script.addEventListener("error", (err) => reject(err));
     });
   }
@@ -248,7 +257,7 @@
           isMouseDown = false;
         });
 
-        instance.on("click", (e: any) => {
+        instance.on("click", (e: MapMouseEvent) => {
           if (readonly || isMapMoved) return;
           longitude = Number(e.lngLat.lng.toFixed(6));
           latitude = Number(e.lngLat.lat.toFixed(6));
@@ -361,8 +370,8 @@
             .slice(0, 5);
           isSearching = false;
         }
-      } catch (err: any) {
-        if (!signal.aborted && err?.name !== "AbortError") {
+      } catch (err) {
+        if (!signal.aborted && (err as Error)?.name !== "AbortError") {
           console.error("GeoNames search error:", err);
           isSearching = false;
         }
@@ -417,45 +426,43 @@
   <ControlGroup border={false}>
     {#if !readonly}
       <ControlItemText icon="search" role="search">
-        {#snippet children()}
-          <div class="akui-location-picker-search-bar" use:autofocus>
-            <ClearableInput
-              variant="ghost"
-              placeholder="Search location..."
-              bind:value={searchQuery}
-              onfocus={handleFocus}
-              class="akui-location-picker-clearable"
-            />
-            <div class="akui-location-picker-actions">
-              {#if ongeolocate}
-                <Button
-                  variant="ghost"
-                  small={true}
-                  icon="crosshair"
-                  iconPosition="only"
-                  onclick={(e) => {
-                    e.stopPropagation();
-                    ongeolocate();
-                  }}
-                  aria-label="Use current location"
-                />
-              {/if}
-              {#if onclear}
-                <Button
-                  variant="ghost"
-                  small={true}
-                  icon="trash"
-                  iconPosition="only"
-                  onclick={(e) => {
-                    e.stopPropagation();
-                    onclear();
-                  }}
-                  aria-label="Remove location"
-                />
-              {/if}
-            </div>
+        <div class="akui-location-picker-search-bar" use:autofocus>
+          <ClearableInput
+            variant="ghost"
+            placeholder="Search location..."
+            bind:value={searchQuery}
+            onfocus={handleFocus}
+            class="akui-location-picker-clearable"
+          />
+          <div class="akui-location-picker-actions">
+            {#if ongeolocate}
+              <Button
+                variant="ghost"
+                small={true}
+                icon="crosshair"
+                iconPosition="only"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  ongeolocate();
+                }}
+                aria-label="Use current location"
+              />
+            {/if}
+            {#if onclear}
+              <Button
+                variant="ghost"
+                small={true}
+                icon="trash"
+                iconPosition="only"
+                onclick={(e) => {
+                  e.stopPropagation();
+                  onclear();
+                }}
+                aria-label="Remove location"
+              />
+            {/if}
           </div>
-        {/snippet}
+        </div>
       </ControlItemText>
     {/if}
 
@@ -513,12 +520,10 @@
         <div class="akui-location-picker-results-container">
           {#if isSearching && searchResults.length === 0}
             <ControlItemText>
-              {#snippet children()}
-                <div class="akui-location-picker-status-row">
-                  <Loader size="1rem" />
-                  <span>Searching locations...</span>
-                </div>
-              {/snippet}
+              <div class="akui-location-picker-status-row">
+                <Loader size="1rem" />
+                <span>Searching locations...</span>
+              </div>
             </ControlItemText>
           {:else if searchResults.length === 0}
             <ControlItemText label="No locations found." />

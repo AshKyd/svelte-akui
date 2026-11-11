@@ -54,7 +54,7 @@
   style="--ak-mosaic-gap: {gap}px; {style}"
   bind:clientWidth={containerWidth}
 >
-  {#each layoutItems as { item, widthCalc, aspectRatio }}
+  {#each layoutItems as { item, widthCalc, aspectRatio }, index (index)}
     <div
       class="ak-mosaic-item"
       style="width: {widthCalc}; aspect-ratio: {aspectRatio};"

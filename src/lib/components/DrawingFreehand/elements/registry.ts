@@ -3,13 +3,13 @@ import { strokeKind } from "./stroke/strokeElement";
 import type { DrawingElement, ElementKind } from "./types";
 
 // Order matters when loading: our own strokes are claimed first, and anything else falls to the importer.
-const kindsByType = new Map<string, ElementKind<any>>([
+const kindsByType = new Map<string, ElementKind>([
   [strokeKind.type, strokeKind],
   [importedKind.type, importedKind],
 ]);
 
 /** Adds an element type. Built-ins are registered already; this is how new types (and tests) plug in. */
-export function registerElementKind(kind: ElementKind<any>) {
+export function registerElementKind(kind: ElementKind) {
   kindsByType.set(kind.type, kind);
 }
 

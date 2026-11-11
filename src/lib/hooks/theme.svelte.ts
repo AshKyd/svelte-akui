@@ -11,7 +11,7 @@ export interface ThemeContext {
 export function getTheme(): ThemeContext {
   try {
     return getContext<ThemeContext>("akui-theme") ?? { current: "light" };
-  } catch (e) {
+  } catch {
     return { current: "light" };
   }
 }

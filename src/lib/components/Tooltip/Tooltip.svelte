@@ -99,14 +99,14 @@
 
           edgeOffsets = { x: ox, y: oy };
         });
-      } catch (e) {
+      } catch {
         // Fallback
       }
     } else if (tooltipEl) {
       try {
         tooltipEl.hidePopover();
         edgeOffsets = { x: 0, y: 0 };
-      } catch (e) {
+      } catch {
         // Fallback
       }
     }

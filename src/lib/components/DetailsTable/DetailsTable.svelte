@@ -321,6 +321,7 @@
     }
 
     const root = tableEl;
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
     const measured = new Map<string, number>();
     const widen = (column: DetailsTableColumn<T>, width: number) =>
       measured.set(column.key, Math.max(measured.get(column.key) ?? 0, width));

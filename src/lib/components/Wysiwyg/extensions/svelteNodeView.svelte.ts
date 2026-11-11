@@ -127,6 +127,7 @@ export function svelteNodeView<
 
     // Mirror the node's rendered HTML attributes (e.g. `data-checked`) onto the root, and drop
     // the ones that stopped being rendered. Matches Tiptap's own node views.
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
     let renderedKeys = new Set<string>();
     const syncAttributes = (current: ProseNode) => {
       const rendered = getRenderedAttributes(
@@ -140,6 +141,7 @@ export function svelteNodeView<
         if (value === null || value === undefined) dom.removeAttribute(key);
         else dom.setAttribute(key, String(value));
       });
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
       renderedKeys = new Set(Object.keys(rendered));
     };
     syncAttributes(node);

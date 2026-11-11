@@ -45,6 +45,7 @@ export class ElementStore {
 
   /** Removes elements by id as one undoable step. Returns how many were removed. */
   remove(ids: Iterable<string>) {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
     const idSet = new Set(ids);
     const placed = this.elements.flatMap((element, index) =>
       idSet.has(element.id) ? [{ element, index }] : [],
@@ -112,6 +113,7 @@ export class ElementStore {
   }
 
   #delete(placed: PlacedElement[]) {
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
     const ids = new Set(placed.map(({ element }) => element.id));
     this.elements = this.elements.filter((element) => !ids.has(element.id));
   }

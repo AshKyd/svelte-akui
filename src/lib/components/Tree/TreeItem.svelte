@@ -22,7 +22,6 @@
     /** The array `item` belongs to (its parent's children, or the tree's items). Needed to reorder. */
     siblings?: TreeItemData[];
     depth?: number;
-    parentId?: string;
     expanded?: Set<string>;
     size?: "small" | "large";
     onToggle?: (id: string) => void;
@@ -39,7 +38,6 @@
     item,
     siblings = [],
     depth = 0,
-    parentId,
     expanded = new Set(),
     size = "small",
     onToggle,
@@ -205,7 +203,6 @@
           item={child}
           siblings={item.children}
           depth={depth + 1}
-          parentId={item.id}
           {expanded}
           {size}
           {onToggle}

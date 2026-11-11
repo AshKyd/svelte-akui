@@ -66,6 +66,7 @@
     } else {
       expanded.add(id);
     }
+    // eslint-disable-next-line svelte/prefer-svelte-reactivity -- plain collection, never read reactively
     expanded = new Set(expanded); // Trigger reactivity
     onToggle?.(id);
   }
@@ -142,7 +143,6 @@
   }
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <ul role="tree" class="akui-tree {className}" onkeydown={handleKeyDown}>
   {#each items as item (item.id)}
     <TreeItem

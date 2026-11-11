@@ -77,6 +77,7 @@
 >
   {#if svgContent}
     <!-- We trust the SVG content from bootstrap-icons -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- bootstrap-icons SVG, see above -->
     {@html svgContent}
   {/if}
 </span>
