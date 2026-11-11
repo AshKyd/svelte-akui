@@ -1,1 +1,1 @@
-export { default as ReaderTypography } from './ReaderTypography.svelte';
+export { default as ReaderTypography } from "./ReaderTypography.svelte";

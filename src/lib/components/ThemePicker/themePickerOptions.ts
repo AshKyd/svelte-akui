@@ -1,10 +1,14 @@
-import { SYSTEM_THEME_ID, type AkuiColour, type AkuiTheme } from '../../hooks/themeStore.svelte.js';
+import {
+  SYSTEM_THEME_ID,
+  type AkuiColour,
+  type AkuiTheme,
+} from "../../hooks/themeStore.svelte.js";
 
 export interface ThemeOption {
-	id: string;
-	label: string;
-	/** The theme to select, or `null` for "follow the system". */
-	theme: AkuiTheme | null;
+  id: string;
+  label: string;
+  /** The theme to select, or `null` for "follow the system". */
+  theme: AkuiTheme | null;
 }
 
 /**
@@ -13,27 +17,30 @@ export interface ThemeOption {
  * colours from the hue given here, so nothing is copied by hand. The accent colour in effect
  * (`accent`, the user's pick) replaces the theme's own `colour`; the theme's `tokens` still win.
  */
-export function themeScopeStyle(theme: AkuiTheme, accent: AkuiColour | null = null): string {
-	const { hue, chroma, tint } = accent ?? theme.colour ?? {};
-	return Object.entries({
-		...(hue === undefined ? {} : { '--akui-hue': hue }),
-		...(chroma === undefined ? {} : { '--akui-chroma': chroma }),
-		...(tint === undefined ? {} : { '--akui-tint': tint }),
-		...theme.tokens
-	})
-		.map(([name, value]) => `${name}:${value}`)
-		.join(';');
+export function themeScopeStyle(
+  theme: AkuiTheme,
+  accent: AkuiColour | null = null,
+): string {
+  const { hue, chroma, tint } = accent ?? theme.colour ?? {};
+  return Object.entries({
+    ...(hue === undefined ? {} : { "--akui-hue": hue }),
+    ...(chroma === undefined ? {} : { "--akui-chroma": chroma }),
+    ...(tint === undefined ? {} : { "--akui-tint": tint }),
+    ...theme.tokens,
+  })
+    .map(([name, value]) => `${name}:${value}`)
+    .join(";");
 }
 
-export type ThemeGroupBy = 'none' | 'scheme' | 'group';
+export type ThemeGroupBy = "none" | "scheme" | "group";
 
 export interface ThemeOptionGroup {
-	/** Heading for the group, or `null` for options shown without one. */
-	label: string | null;
-	options: ThemeOption[];
+  /** Heading for the group, or `null` for options shown without one. */
+  label: string | null;
+  options: ThemeOption[];
 }
 
-const SCHEME_LABELS = { light: 'Light themes', dark: 'Dark themes' } as const;
+const SCHEME_LABELS = { light: "Light themes", dark: "Dark themes" } as const;
 
 /**
  * Splits options into headed groups, keeping the original order within each.
@@ -41,39 +48,50 @@ const SCHEME_LABELS = { light: 'Light themes', dark: 'Dark themes' } as const;
  * Groups appear in the order they are first seen; with `scheme`, light always precedes dark.
  */
 export function groupThemeOptions(
-	options: ThemeOption[],
-	groupBy: ThemeGroupBy
+  options: ThemeOption[],
+  groupBy: ThemeGroupBy,
 ): ThemeOptionGroup[] {
-	if (groupBy === 'none') return [{ label: null, options }];
+  if (groupBy === "none") return [{ label: null, options }];
 
-	const labelFor = ({ theme }: ThemeOption): string | null => {
-		if (!theme) return null;
-		return groupBy === 'scheme' ? SCHEME_LABELS[theme.scheme] : (theme.group ?? null);
-	};
-	const labels = [
-		...new Set(options.map(labelFor).filter((label): label is string => label !== null))
-	];
-	const ordered =
-		groupBy === 'scheme' ? Object.values(SCHEME_LABELS).filter((l) => labels.includes(l)) : labels;
+  const labelFor = ({ theme }: ThemeOption): string | null => {
+    if (!theme) return null;
+    return groupBy === "scheme"
+      ? SCHEME_LABELS[theme.scheme]
+      : (theme.group ?? null);
+  };
+  const labels = [
+    ...new Set(
+      options.map(labelFor).filter((label): label is string => label !== null),
+    ),
+  ];
+  const ordered =
+    groupBy === "scheme"
+      ? Object.values(SCHEME_LABELS).filter((l) => labels.includes(l))
+      : labels;
 
-	return [null, ...ordered]
-		.map((label) => ({ label, options: options.filter((option) => labelFor(option) === label) }))
-		.filter(({ options: members }) => members.length > 0);
+  return [null, ...ordered]
+    .map((label) => ({
+      label,
+      options: options.filter((option) => labelFor(option) === label),
+    }))
+    .filter(({ options: members }) => members.length > 0);
 }
 
 interface BuildThemeOptionsArgs {
-	/** The themes the `UIRoot` offers (`ThemeStore.themes`). */
-	themes: AkuiTheme[];
-	includeSystem?: boolean;
+  /** The themes the `UIRoot` offers (`ThemeStore.themes`). */
+  themes: AkuiTheme[];
+  includeSystem?: boolean;
 }
 
 /** Builds the picker's option list: System (optional), then every theme the `UIRoot` offers. */
 export function buildThemeOptions({
-	themes,
-	includeSystem = true
+  themes,
+  includeSystem = true,
 }: BuildThemeOptionsArgs): ThemeOption[] {
-	return [
-		...(includeSystem ? [{ id: SYSTEM_THEME_ID, label: 'System', theme: null }] : []),
-		...themes.map((theme) => ({ id: theme.id, label: theme.label, theme }))
-	];
+  return [
+    ...(includeSystem
+      ? [{ id: SYSTEM_THEME_ID, label: "System", theme: null }]
+      : []),
+    ...themes.map((theme) => ({ id: theme.id, label: theme.label, theme })),
+  ];
 }

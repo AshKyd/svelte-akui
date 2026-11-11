@@ -1,565 +1,595 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { onMount } from 'svelte';
-	import { fade, fly } from 'svelte/transition';
-	import { cubicOut } from 'svelte/easing';
-	import DragHandler from '../DragHandler/DragHandler.svelte';
-	import { reducedMotion } from '../../hooks/reducedMotion.svelte.js';
-	import { surfaceStyle, type SurfaceStyle } from '../../utils/surface.js';
+  import type { Snippet } from "svelte";
+  import { onMount } from "svelte";
+  import { fade, fly } from "svelte/transition";
+  import { cubicOut } from "svelte/easing";
+  import DragHandler from "../DragHandler/DragHandler.svelte";
+  import { reducedMotion } from "../../hooks/reducedMotion.svelte.js";
+  import { surfaceStyle, type SurfaceStyle } from "../../utils/surface.js";
 
-	interface Props {
-		/** Minimum width (in pixels) for the container to show both panes. Defaults to 768. */
-		minWidth?: number;
-		/** The route ID that represents the root/list view. */
-		baseRouteId: string;
-		/** The currently active route ID to compare against baseRouteId. */
-		currentRouteId: string;
-		/** Whether to hide the nested pane on desktop when no item is selected (i.e. at base route). Defaults to false. */
-		hideNestedWhenEmpty?: boolean;
-		/** How the nested pane occupies space on desktop: 'resize' shrinks the main pane to make room, 'over' draws the nested pane on top of it. Defaults to 'resize'. */
-		paneMode?: 'resize' | 'over';
-		/** Called when a click lands outside the overlaid nested pane, in 'over' mode only. */
-		onDismiss?: () => void;
-		/** Snippet for the main pane (e.g. List). Passes transition state details. */
-		mainPane?: Snippet<[{ isStacked: boolean }]>;
-		/** Snippet for the nested pane (e.g. Detail/Reader). Passes transition state details. */
-		nestedPane?: Snippet<[{ isStacked: boolean }]>;
-		/** Bindable position (in pixels) of the divider on desktop. In 'resize' mode this is the main pane's width; in 'over' mode the main pane stays full width and this is where the nested pane's left edge sits. Defaults to 400. */
-		mainPaneWidth?: number;
-		/** Minimum allowed width for the main pane. Defaults to 400. */
-		minMainPaneWidth?: number;
-		/** Maximum allowed width for the main pane. Defaults to Infinity. */
-		maxMainPaneWidth?: number;
-		/** Minimum allowed width for the nested detail pane on desktop. Defaults to 400. */
-		minNestedPaneWidth?: number;
-		/** Overrides the background of the container and the main pane (e.g. 'transparent' to show an app background). The nested pane stays opaque so it covers the main pane in 'over' mode. */
-		surface?: SurfaceStyle;
-		/**
-		 * Page background drawn behind the nested pane on the desktop split, e.g. the same background the app uses.
-		 * It is sized to the whole window and offset so it lines up with the page behind at rest, and it is part of
-		 * the pane, so it slides with it and is composited once instead of blurring the list every frame.
-		 * Not drawn when stacked, where the pane stays opaque. Content inside should not paint its own solid background.
-		 */
-		nestedBackdrop?: Snippet;
-		/** 'over' mode on desktop only: the nested pane covers the full container width and the divider is hidden. Defaults to false. */
-		focusNested?: boolean;
-		/**
-		 * The app morphs the nested pane in and out with a view transition (see `morphTransition`) whenever it
-		 * is full screen, i.e. stacked or `focusNested`. The pane's own enter and exit animations are skipped
-		 * then, so the two don't fight. The pane is found with `[data-akui-nested-pane]`. Defaults to false.
-		 */
-		viewTransition?: boolean;
-	}
+  interface Props {
+    /** Minimum width (in pixels) for the container to show both panes. Defaults to 768. */
+    minWidth?: number;
+    /** The route ID that represents the root/list view. */
+    baseRouteId: string;
+    /** The currently active route ID to compare against baseRouteId. */
+    currentRouteId: string;
+    /** Whether to hide the nested pane on desktop when no item is selected (i.e. at base route). Defaults to false. */
+    hideNestedWhenEmpty?: boolean;
+    /** How the nested pane occupies space on desktop: 'resize' shrinks the main pane to make room, 'over' draws the nested pane on top of it. Defaults to 'resize'. */
+    paneMode?: "resize" | "over";
+    /** Called when a click lands outside the overlaid nested pane, in 'over' mode only. */
+    onDismiss?: () => void;
+    /** Snippet for the main pane (e.g. List). Passes transition state details. */
+    mainPane?: Snippet<[{ isStacked: boolean }]>;
+    /** Snippet for the nested pane (e.g. Detail/Reader). Passes transition state details. */
+    nestedPane?: Snippet<[{ isStacked: boolean }]>;
+    /** Bindable position (in pixels) of the divider on desktop. In 'resize' mode this is the main pane's width; in 'over' mode the main pane stays full width and this is where the nested pane's left edge sits. Defaults to 400. */
+    mainPaneWidth?: number;
+    /** Minimum allowed width for the main pane. Defaults to 400. */
+    minMainPaneWidth?: number;
+    /** Maximum allowed width for the main pane. Defaults to Infinity. */
+    maxMainPaneWidth?: number;
+    /** Minimum allowed width for the nested detail pane on desktop. Defaults to 400. */
+    minNestedPaneWidth?: number;
+    /** Overrides the background of the container and the main pane (e.g. 'transparent' to show an app background). The nested pane stays opaque so it covers the main pane in 'over' mode. */
+    surface?: SurfaceStyle;
+    /**
+     * Page background drawn behind the nested pane on the desktop split, e.g. the same background the app uses.
+     * It is sized to the whole window and offset so it lines up with the page behind at rest, and it is part of
+     * the pane, so it slides with it and is composited once instead of blurring the list every frame.
+     * Not drawn when stacked, where the pane stays opaque. Content inside should not paint its own solid background.
+     */
+    nestedBackdrop?: Snippet;
+    /** 'over' mode on desktop only: the nested pane covers the full container width and the divider is hidden. Defaults to false. */
+    focusNested?: boolean;
+    /**
+     * The app morphs the nested pane in and out with a view transition (see `morphTransition`) whenever it
+     * is full screen, i.e. stacked or `focusNested`. The pane's own enter and exit animations are skipped
+     * then, so the two don't fight. The pane is found with `[data-akui-nested-pane]`. Defaults to false.
+     */
+    viewTransition?: boolean;
+  }
 
-	let {
-		minWidth = 768,
-		baseRouteId,
-		currentRouteId,
-		hideNestedWhenEmpty = false,
-		paneMode = 'resize',
-		onDismiss,
-		mainPane,
-		nestedPane,
-		mainPaneWidth = $bindable(400),
-		minMainPaneWidth = 400,
-		maxMainPaneWidth = Infinity,
-		minNestedPaneWidth = 400,
-		surface,
-		nestedBackdrop,
-		focusNested = false,
-		viewTransition = false
-	}: Props = $props();
+  let {
+    minWidth = 768,
+    baseRouteId,
+    currentRouteId,
+    hideNestedWhenEmpty = false,
+    paneMode = "resize",
+    onDismiss,
+    mainPane,
+    nestedPane,
+    mainPaneWidth = $bindable(400),
+    minMainPaneWidth = 400,
+    maxMainPaneWidth = Infinity,
+    minNestedPaneWidth = 400,
+    surface,
+    nestedBackdrop,
+    focusNested = false,
+    viewTransition = false,
+  }: Props = $props();
 
-	let containerWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 0);
-	let containerEl = $state<HTMLElement | null>(null);
-	let windowWidth = $state(0);
-	let windowHeight = $state(0);
-	/** From the shared store rather than the media query, so the settings toggle applies here. */
-	const prefersReducedMotion = $derived(reducedMotion.value);
-	let isDragging = $state(false);
-	let isLayoutReady = $state(false);
+  let containerWidth = $state(
+    typeof window !== "undefined" ? window.innerWidth : 0,
+  );
+  let containerEl = $state<HTMLElement | null>(null);
+  let windowWidth = $state(0);
+  let windowHeight = $state(0);
+  /** From the shared store rather than the media query, so the settings toggle applies here. */
+  const prefersReducedMotion = $derived(reducedMotion.value);
+  let isDragging = $state(false);
+  let isLayoutReady = $state(false);
 
-	let isStacked = $derived(
-		containerWidth > 0
-			? containerWidth < minWidth
-			: typeof window !== 'undefined'
-				? window.innerWidth < minWidth
-				: false
-	);
-	let isBaseRoute = $derived(currentRouteId === baseRouteId);
+  let isStacked = $derived(
+    containerWidth > 0
+      ? containerWidth < minWidth
+      : typeof window !== "undefined"
+        ? window.innerWidth < minWidth
+        : false,
+  );
+  let isBaseRoute = $derived(currentRouteId === baseRouteId);
 
-	let shouldHideNested = $derived(!isStacked && hideNestedWhenEmpty && isBaseRoute);
+  let shouldHideNested = $derived(
+    !isStacked && hideNestedWhenEmpty && isBaseRoute,
+  );
 
-	/**
-	 * Overlaying only applies to the desktop split — the stacked layout already draws one full-screen
-	 * pane at a time, so there is nothing to lay over.
-	 */
-	let isOverlay = $derived(paneMode === 'over' && !isStacked);
+  /**
+   * Overlaying only applies to the desktop split — the stacked layout already draws one full-screen
+   * pane at a time, so there is nothing to lay over.
+   */
+  let isOverlay = $derived(paneMode === "over" && !isStacked);
 
-	/** Focus only changes the overlay; stacked already shows one full-width pane. */
-	let isFocus = $derived(isOverlay && focusNested);
+  /** Focus only changes the overlay; stacked already shows one full-width pane. */
+  let isFocus = $derived(isOverlay && focusNested);
 
-	/** Full-screen opens and closes belong to the view transition, not the pane's own animations. */
-	let skipPaneTransitions = $derived(viewTransition && (isStacked || isFocus));
+  /** Full-screen opens and closes belong to the view transition, not the pane's own animations. */
+  let skipPaneTransitions = $derived(viewTransition && (isStacked || isFocus));
 
-	let hasNestedBackdrop = $derived(!!nestedBackdrop && !isStacked);
+  let hasNestedBackdrop = $derived(!!nestedBackdrop && !isStacked);
 
-	/**
-	 * Places the backdrop so its window-sized box starts at the window's top-left, which is where the
-	 * page background behind the panes starts. The nested pane's own position is the container's
-	 * viewport offset plus the split, so the backdrop is shifted back by that much. Measured rather than
-	 * derived because the container's offset depends on the sidebar and header around it.
-	 */
-	let backdropStyle = $state('');
-	$effect(() => {
-		// Re-run when anything that can move or resize the container changes.
-		void [containerWidth, mainPaneWidth, windowWidth, windowHeight, isFocus];
-		if (!containerEl || !hasNestedBackdrop) return;
-		const { left, top } = containerEl.getBoundingClientRect();
-		// In focus the pane is fixed to the viewport's top-left, so the backdrop needs no offset.
-		const [offsetLeft, offsetTop] = isFocus ? [0, 0] : [left + mainPaneWidth, top];
-		backdropStyle = `left: ${-offsetLeft}px; top: ${-offsetTop}px; width: ${windowWidth}px; height: ${windowHeight}px;`;
-	});
+  /**
+   * Places the backdrop so its window-sized box starts at the window's top-left, which is where the
+   * page background behind the panes starts. The nested pane's own position is the container's
+   * viewport offset plus the split, so the backdrop is shifted back by that much. Measured rather than
+   * derived because the container's offset depends on the sidebar and header around it.
+   */
+  let backdropStyle = $state("");
+  $effect(() => {
+    // Re-run when anything that can move or resize the container changes.
+    void [containerWidth, mainPaneWidth, windowWidth, windowHeight, isFocus];
+    if (!containerEl || !hasNestedBackdrop) return;
+    const { left, top } = containerEl.getBoundingClientRect();
+    // In focus the pane is fixed to the viewport's top-left, so the backdrop needs no offset.
+    const [offsetLeft, offsetTop] = isFocus
+      ? [0, 0]
+      : [left + mainPaneWidth, top];
+    backdropStyle = `left: ${-offsetLeft}px; top: ${-offsetTop}px; width: ${windowWidth}px; height: ${windowHeight}px;`;
+  });
 
-	/**
-	 * In overlay mode the main pane always fills the container: keeping its width fixed is the whole
-	 * point, since anything narrower would reflow the content the nested pane is meant to cover.
-	 * mainPaneWidth still drives the divider, but as the nested pane's left edge rather than a width.
-	 */
-	let mainPaneStyle = $derived.by(() => {
-		if (isStacked) return '';
-		if (isOverlay) return 'width: 100%; max-width: none; min-width: 0; flex: 1 1 auto;';
+  /**
+   * In overlay mode the main pane always fills the container: keeping its width fixed is the whole
+   * point, since anything narrower would reflow the content the nested pane is meant to cover.
+   * mainPaneWidth still drives the divider, but as the nested pane's left edge rather than a width.
+   */
+  let mainPaneStyle = $derived.by(() => {
+    if (isStacked) return "";
+    if (isOverlay)
+      return "width: 100%; max-width: none; min-width: 0; flex: 1 1 auto;";
 
-		const width = shouldHideNested ? '100%' : `${mainPaneWidth}px`;
-		const minimum = shouldHideNested ? '0' : `${minMainPaneWidth}px`;
-		return `width: ${width}; max-width: none; min-width: ${minimum}; flex: 0 0 auto;`;
-	});
+    const width = shouldHideNested ? "100%" : `${mainPaneWidth}px`;
+    const minimum = shouldHideNested ? "0" : `${minMainPaneWidth}px`;
+    return `width: ${width}; max-width: none; min-width: ${minimum}; flex: 0 0 auto;`;
+  });
 
-	$effect(() => {
-		if (containerWidth > 0 && !isStacked && !shouldHideNested) {
-			const maxAllowedWidth = Math.min(maxMainPaneWidth, containerWidth - minNestedPaneWidth);
-			if (mainPaneWidth > maxAllowedWidth) {
-				mainPaneWidth = Math.max(minMainPaneWidth, maxAllowedWidth);
-			} else if (mainPaneWidth < minMainPaneWidth) {
-				mainPaneWidth = minMainPaneWidth;
-			}
-		}
-	});
+  $effect(() => {
+    if (containerWidth > 0 && !isStacked && !shouldHideNested) {
+      const maxAllowedWidth = Math.min(
+        maxMainPaneWidth,
+        containerWidth - minNestedPaneWidth,
+      );
+      if (mainPaneWidth > maxAllowedWidth) {
+        mainPaneWidth = Math.max(minMainPaneWidth, maxAllowedWidth);
+      } else if (mainPaneWidth < minMainPaneWidth) {
+        mainPaneWidth = minMainPaneWidth;
+      }
+    }
+  });
 
-	onMount(() => {
-		const timer = setTimeout(() => {
-			isLayoutReady = true;
-		}, 20);
+  onMount(() => {
+    const timer = setTimeout(() => {
+      isLayoutReady = true;
+    }, 20);
 
-		return () => clearTimeout(timer);
-	});
+    return () => clearTimeout(timer);
+  });
 
-	let nestedEl = $state<HTMLElement | null>(null);
-	let dividerEl = $state<HTMLElement | null>(null);
+  let nestedEl = $state<HTMLElement | null>(null);
+  let dividerEl = $state<HTMLElement | null>(null);
 
-	/**
-	 * Whether the click currently in flight should dismiss the overlay.
-	 *
-	 * Decided on pointerdown, in the capture phase, because both things it depends on have already
-	 * changed by the time a bubbled click arrives. The list item that opens the pane has run its own
-	 * handler, so the pane reads as open and the very click that opened it would close it again; and
-	 * a drag that selects text inside the pane but releases outside reports the outside element as
-	 * the click target.
-	 */
-	let gestureCanDismiss = false;
+  /**
+   * Whether the click currently in flight should dismiss the overlay.
+   *
+   * Decided on pointerdown, in the capture phase, because both things it depends on have already
+   * changed by the time a bubbled click arrives. The list item that opens the pane has run its own
+   * handler, so the pane reads as open and the very click that opened it would close it again; and
+   * a drag that selects text inside the pane but releases outside reports the outside element as
+   * the click target.
+   */
+  let gestureCanDismiss = false;
 
-	function handleWindowPointerDownCapture(event: PointerEvent) {
-		// composedPath is only meaningful during dispatch, and unlike contains() it still resolves
-		// for nodes this gesture goes on to remove from the DOM.
-		const path = event.composedPath();
-		gestureCanDismiss =
-			isOverlay &&
-			!isBaseRoute &&
-			!shouldHideNested &&
-			!(nestedEl && path.includes(nestedEl)) &&
-			!(dividerEl && path.includes(dividerEl));
-	}
+  function handleWindowPointerDownCapture(event: PointerEvent) {
+    // composedPath is only meaningful during dispatch, and unlike contains() it still resolves
+    // for nodes this gesture goes on to remove from the DOM.
+    const path = event.composedPath();
+    gestureCanDismiss =
+      isOverlay &&
+      !isBaseRoute &&
+      !shouldHideNested &&
+      !(nestedEl && path.includes(nestedEl)) &&
+      !(dividerEl && path.includes(dividerEl));
+  }
 
-	function handleWindowClick() {
-		const shouldDismiss = gestureCanDismiss;
-		// Keyboard-activated clicks arrive with no pointerdown before them, so clear the flag on every
-		// click or a stale gesture would dismiss on the next one.
-		gestureCanDismiss = false;
-		if (shouldDismiss) onDismiss?.();
-	}
+  function handleWindowClick() {
+    const shouldDismiss = gestureCanDismiss;
+    // Keyboard-activated clicks arrive with no pointerdown before them, so clear the flag on every
+    // click or a stale gesture would dismiss on the next one.
+    gestureCanDismiss = false;
+    if (shouldDismiss) onDismiss?.();
+  }
 
-	let dragStartWidth = 0;
+  let dragStartWidth = 0;
 
-	function handleDragStart() {
-		isDragging = true;
-		dragStartWidth = mainPaneWidth;
-	}
+  function handleDragStart() {
+    isDragging = true;
+    dragStartWidth = mainPaneWidth;
+  }
 
-	function handleDrag(detail: { offsetX: number }) {
-		const maxAllowedWidth = Math.min(maxMainPaneWidth, containerWidth - minNestedPaneWidth);
-		mainPaneWidth = Math.max(
-			minMainPaneWidth,
-			Math.min(maxAllowedWidth, dragStartWidth + detail.offsetX)
-		);
-	}
+  function handleDrag(detail: { offsetX: number }) {
+    const maxAllowedWidth = Math.min(
+      maxMainPaneWidth,
+      containerWidth - minNestedPaneWidth,
+    );
+    mainPaneWidth = Math.max(
+      minMainPaneWidth,
+      Math.min(maxAllowedWidth, dragStartWidth + detail.offsetX),
+    );
+  }
 
-	/**
-	 * Entrance/exit for the stacked (mobile) nested pane: a fade combined with a slight
-	 * upward slide and scale-up anchored to the bottom edge. Applied with `transition:`
-	 * so it plays in reverse on the way out. Driving this in JS rather than toggling a
-	 * CSS class is deliberate — the outgoing route's content stays frozen on screen
-	 * while it animates away, instead of snapping back to the empty base-route state.
-	 */
-	function stackedNestedFade(
-		_node: Element,
-		{ reducedMotion = false, skip = false }: { reducedMotion?: boolean; skip?: boolean }
-	) {
-		return {
-			duration: skip ? 0 : reducedMotion ? 120 : 250,
-			easing: cubicOut,
-			css: (t: number) =>
-				reducedMotion
-					? `opacity: ${t};`
-					: `opacity: ${t}; transform: translate3d(0, ${(1 - t) * 8}px, 0) scale(${0.98 + t * 0.02});`
-		};
-	}
+  /**
+   * Entrance/exit for the stacked (mobile) nested pane: a fade combined with a slight
+   * upward slide and scale-up anchored to the bottom edge. Applied with `transition:`
+   * so it plays in reverse on the way out. Driving this in JS rather than toggling a
+   * CSS class is deliberate — the outgoing route's content stays frozen on screen
+   * while it animates away, instead of snapping back to the empty base-route state.
+   */
+  function stackedNestedFade(
+    _node: Element,
+    {
+      reducedMotion = false,
+      skip = false,
+    }: { reducedMotion?: boolean; skip?: boolean },
+  ) {
+    return {
+      duration: skip ? 0 : reducedMotion ? 120 : 250,
+      easing: cubicOut,
+      css: (t: number) =>
+        reducedMotion
+          ? `opacity: ${t};`
+          : `opacity: ${t}; transform: translate3d(0, ${(1 - t) * 8}px, 0) scale(${0.98 + t * 0.02});`,
+    };
+  }
 </script>
 
 <svelte:window
-	bind:innerWidth={windowWidth}
-	bind:innerHeight={windowHeight}
-	onpointerdowncapture={onDismiss ? handleWindowPointerDownCapture : undefined}
-	onclick={onDismiss ? handleWindowClick : undefined}
+  bind:innerWidth={windowWidth}
+  bind:innerHeight={windowHeight}
+  onpointerdowncapture={onDismiss ? handleWindowPointerDownCapture : undefined}
+  onclick={onDismiss ? handleWindowClick : undefined}
 />
 
 {#snippet divider()}
-	<DragHandler
-		orientation="vertical"
-		onDrag={handleDrag}
-		onDragStart={handleDragStart}
-		onDragEnd={() => (isDragging = false)}
-	/>
+  <DragHandler
+    orientation="vertical"
+    onDrag={handleDrag}
+    onDragStart={handleDragStart}
+    onDragEnd={() => (isDragging = false)}
+  />
 {/snippet}
 
 <div
-	class="akui-layout-adaptive-pane"
-	bind:clientWidth={containerWidth}
-	bind:this={containerEl}
-	class:is-stacked={isStacked}
-	class:is-overlay={isOverlay}
-	class:is-focus={isFocus}
-	class:skip-pane-transitions={skipPaneTransitions}
-	class:hide-nested={shouldHideNested}
-	class:is-ready={isLayoutReady}
-	class:is-dragging={isDragging}
-	style={surfaceStyle('pane', surface)}
-	style:--akui-split="{mainPaneWidth}px"
+  class="akui-layout-adaptive-pane"
+  bind:clientWidth={containerWidth}
+  bind:this={containerEl}
+  class:is-stacked={isStacked}
+  class:is-overlay={isOverlay}
+  class:is-focus={isFocus}
+  class:skip-pane-transitions={skipPaneTransitions}
+  class:hide-nested={shouldHideNested}
+  class:is-ready={isLayoutReady}
+  class:is-dragging={isDragging}
+  style={surfaceStyle("pane", surface)}
+  style:--akui-split="{mainPaneWidth}px"
 >
-	<div
-		class="akui-pane-main"
-		class:active={isBaseRoute}
-		inert={isStacked && !isBaseRoute ? true : undefined}
-		style={mainPaneStyle}
-	>
-		{@render mainPane?.({ isStacked })}
-	</div>
+  <div
+    class="akui-pane-main"
+    class:active={isBaseRoute}
+    inert={isStacked && !isBaseRoute ? true : undefined}
+    style={mainPaneStyle}
+  >
+    {@render mainPane?.({ isStacked })}
+  </div>
 
-	{#if !isStacked && !isOverlay && !shouldHideNested}
-		{@render divider()}
-	{/if}
+  {#if !isStacked && !isOverlay && !shouldHideNested}
+    {@render divider()}
+  {/if}
 
-	<div
-		class="akui-pane-nested"
-		bind:this={nestedEl}
-		data-akui-nested-pane
-		class:active={!isBaseRoute}
-		class:has-backdrop={hasNestedBackdrop}
-		inert={(isStacked && isBaseRoute) || shouldHideNested ? true : undefined}
-	>
-		{#if hasNestedBackdrop}
-			<!-- Clipped to the pane; the snippet inside is window-sized and offset to line up with the page. -->
-			<div class="akui-pane-nested-backdrop" aria-hidden="true">
-				<div class="akui-pane-nested-backdrop-fill" style={backdropStyle}>
-					{@render nestedBackdrop?.()}
-				</div>
-			</div>
-		{/if}
+  <div
+    class="akui-pane-nested"
+    bind:this={nestedEl}
+    data-akui-nested-pane
+    class:active={!isBaseRoute}
+    class:has-backdrop={hasNestedBackdrop}
+    inert={(isStacked && isBaseRoute) || shouldHideNested ? true : undefined}
+  >
+    {#if hasNestedBackdrop}
+      <!-- Clipped to the pane; the snippet inside is window-sized and offset to line up with the page. -->
+      <div class="akui-pane-nested-backdrop" aria-hidden="true">
+        <div class="akui-pane-nested-backdrop-fill" style={backdropStyle}>
+          {@render nestedBackdrop?.()}
+        </div>
+      </div>
+    {/if}
 
-		{#if isOverlay && !isStacked && !isFocus}
-			<!-- Floated on the leading edge of the overlay pane so it animates in and out with it. -->
-			<div class="akui-pane-divider-overlay" bind:this={dividerEl}>
-				{@render divider()}
-			</div>
-		{/if}
+    {#if isOverlay && !isStacked && !isFocus}
+      <!-- Floated on the leading edge of the overlay pane so it animates in and out with it. -->
+      <div class="akui-pane-divider-overlay" bind:this={dividerEl}>
+        {@render divider()}
+      </div>
+    {/if}
 
-		{#if !isStacked}
-			{#key currentRouteId}
-				<div
-					class="akui-pane-nested-transition-wrapper"
-					in:fly={prefersReducedMotion || skipPaneTransitions
-						? { duration: 0 }
-						: { x: -50, duration: 250, easing: cubicOut }}
-					out:fade={prefersReducedMotion || skipPaneTransitions
-						? { duration: 0 }
-						: { duration: 150 }}
-				>
-					{@render nestedPane?.({ isStacked })}
-				</div>
-			{/key}
-		{:else if !isBaseRoute}
-			<!-- Mounted only while a non-base route is active. The key keeps each route's
+    {#if !isStacked}
+      {#key currentRouteId}
+        <div
+          class="akui-pane-nested-transition-wrapper"
+          in:fly={prefersReducedMotion || skipPaneTransitions
+            ? { duration: 0 }
+            : { x: -50, duration: 250, easing: cubicOut }}
+          out:fade={prefersReducedMotion || skipPaneTransitions
+            ? { duration: 0 }
+            : { duration: 150 }}
+        >
+          {@render nestedPane?.({ isStacked })}
+        </div>
+      {/key}
+    {:else if !isBaseRoute}
+      <!-- Mounted only while a non-base route is active. The key keeps each route's
 			     content on screen through its own out transition, so nothing snaps back
 			     to the empty base-route view mid-animation. The transition is `|global`
 			     so it still runs when this branch is toggled by the outer conditional,
 			     not only when the keyed block swaps between two non-base routes. -->
-			{#key currentRouteId}
-				<div
-					class="akui-pane-nested-transition-wrapper"
-					transition:stackedNestedFade|global={{ reducedMotion: prefersReducedMotion, skip: skipPaneTransitions }}
-				>
-					{@render nestedPane?.({ isStacked })}
-				</div>
-			{/key}
-		{/if}
-	</div>
+      {#key currentRouteId}
+        <div
+          class="akui-pane-nested-transition-wrapper"
+          transition:stackedNestedFade|global={{
+            reducedMotion: prefersReducedMotion,
+            skip: skipPaneTransitions,
+          }}
+        >
+          {@render nestedPane?.({ isStacked })}
+        </div>
+      {/key}
+    {/if}
+  </div>
 </div>
 
 <style>
-	.akui-layout-adaptive-pane {
-		display: flex;
-		width: 100%;
-		height: 100%;
-		overflow: hidden;
-		background-color: var(--akui-pane-bg, var(--akui-bg, #ffffff));
-		position: relative;
-	}
+  .akui-layout-adaptive-pane {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--akui-pane-bg, var(--akui-bg, #ffffff));
+    position: relative;
+  }
 
-	.akui-pane-main {
-		flex: 1 1 auto;
-		max-width: 400px;
-		min-width: 400px;
-		height: 100%;
-		overflow-y: auto;
-		border-right: 1px solid var(--akui-pane-border, var(--akui-border-input, #e5e7eb));
-		background-color: var(--akui-pane-bg, var(--akui-bg));
-		box-sizing: border-box;
-		transition: border-right-color 0.3s ease;
-	}
+  .akui-pane-main {
+    flex: 1 1 auto;
+    max-width: 400px;
+    min-width: 400px;
+    height: 100%;
+    overflow-y: auto;
+    border-right: 1px solid
+      var(--akui-pane-border, var(--akui-border-input, #e5e7eb));
+    background-color: var(--akui-pane-bg, var(--akui-bg));
+    box-sizing: border-box;
+    transition: border-right-color 0.3s ease;
+  }
 
-	.akui-layout-adaptive-pane.is-ready .akui-pane-main {
-		transition:
-			width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			border-right-color 0.3s ease;
-	}
+  .akui-layout-adaptive-pane.is-ready .akui-pane-main {
+    transition:
+      width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      border-right-color 0.3s ease;
+  }
 
-	.akui-pane-nested {
-		flex: 2 1 0%;
-		min-width: 0;
-		height: 100%;
-		overflow-y: auto;
-		background-color: var(--akui-bg);
-		box-sizing: border-box;
-		position: relative;
-	}
+  .akui-pane-nested {
+    flex: 2 1 0%;
+    min-width: 0;
+    height: 100%;
+    overflow-y: auto;
+    background-color: var(--akui-bg);
+    box-sizing: border-box;
+    position: relative;
+  }
 
-	.akui-layout-adaptive-pane.is-ready .akui-pane-nested {
-		transition:
-			flex 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	}
+  .akui-layout-adaptive-pane.is-ready .akui-pane-nested {
+    transition:
+      flex 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-	.akui-layout-adaptive-pane:not(.is-stacked) .akui-pane-nested {
-		display: grid;
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr;
-		overflow: hidden;
-	}
+  .akui-layout-adaptive-pane:not(.is-stacked) .akui-pane-nested {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+  }
 
-	.akui-pane-nested-transition-wrapper {
-		grid-column: 1;
-		grid-row: 1;
-		width: 100%;
-		height: 100%;
-		overflow-y: auto;
-		box-sizing: border-box;
-		background-color: var(--akui-bg);
-	}
+  .akui-pane-nested-transition-wrapper {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background-color: var(--akui-bg);
+  }
 
-	/* The backdrop is the pane's background, so the wrappers must let it show. */
-	.akui-pane-nested.has-backdrop,
-	.akui-pane-nested.has-backdrop .akui-pane-nested-transition-wrapper {
-		background-color: transparent;
-	}
+  /* The backdrop is the pane's background, so the wrappers must let it show. */
+  .akui-pane-nested.has-backdrop,
+  .akui-pane-nested.has-backdrop .akui-pane-nested-transition-wrapper {
+    background-color: transparent;
+  }
 
-	/* Own stacking context so the backdrop's z-index: -1 stays above the pane and below its content. */
-	.akui-pane-nested.has-backdrop {
-		isolation: isolate;
-	}
+  /* Own stacking context so the backdrop's z-index: -1 stays above the pane and below its content. */
+  .akui-pane-nested.has-backdrop {
+    isolation: isolate;
+  }
 
-	.akui-pane-nested-backdrop {
-		position: absolute;
-		inset: 0;
-		z-index: -1;
-		overflow: hidden;
-		pointer-events: none;
-	}
+  .akui-pane-nested-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
 
-	.akui-pane-nested-backdrop-fill {
-		position: absolute;
-	}
+  .akui-pane-nested-backdrop-fill {
+    position: absolute;
+  }
 
-	.akui-layout-adaptive-pane.hide-nested .akui-pane-main {
-		max-width: 100%;
-		border-right-color: transparent;
-	}
+  .akui-layout-adaptive-pane.hide-nested .akui-pane-main {
+    max-width: 100%;
+    border-right-color: transparent;
+  }
 
-	.akui-layout-adaptive-pane.hide-nested .akui-pane-nested {
-		flex: 0 0 0%;
-		opacity: 0;
-		pointer-events: none;
-		overflow: hidden;
-	}
+  .akui-layout-adaptive-pane.hide-nested .akui-pane-nested {
+    flex: 0 0 0%;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
 
-	.akui-layout-adaptive-pane.is-stacked {
-		display: grid;
-		grid-template-columns: 1fr;
-		grid-template-rows: 1fr;
-	}
+  .akui-layout-adaptive-pane.is-stacked {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
 
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-main,
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
-		grid-column: 1;
-		grid-row: 1;
-		width: 100%;
-		height: 100%;
-		max-width: none;
-		min-width: 0;
-		border-right: none;
-		will-change: transform, opacity;
-	}
+  .akui-layout-adaptive-pane.is-stacked .akui-pane-main,
+  .akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    min-width: 0;
+    border-right: none;
+    will-change: transform, opacity;
+  }
 
-	.akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-main,
-	.akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-nested {
-		transition:
-			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			opacity 0.3s ease;
-	}
+  .akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-main,
+  .akui-layout-adaptive-pane.is-ready.is-stacked .akui-pane-nested {
+    transition:
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s ease;
+  }
 
-	/* Stacked (mobile) has no drag handle to reposition the panes. The nested pane's
+  /* Stacked (mobile) has no drag handle to reposition the panes. The nested pane's
 	   content is mounted only while a non-base route is active (see template) and the
 	   `stackedNestedFade` transition fades it in over a stationary main pane with a
 	   slight upward slide and scale from the bottom edge, reversing on the way out.
 	   The main pane keeps its place and does not move — the content underneath must
 	   not shift while the nested pane comes and goes. */
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-main,
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-main.active {
-		transform: none;
-		opacity: 1;
-	}
+  .akui-layout-adaptive-pane.is-stacked .akui-pane-main,
+  .akui-layout-adaptive-pane.is-stacked .akui-pane-main.active {
+    transform: none;
+    opacity: 1;
+  }
 
-	/* Transparent, non-scrolling shell: the stationary main pane shows through
+  /* Transparent, non-scrolling shell: the stationary main pane shows through
 	   whenever the nested content is unmounted, and the transition wrapper inside
 	   carries its own opaque background and handles scrolling. */
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
-		background: transparent;
-		overflow: hidden;
-	}
+  .akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
+    background: transparent;
+    overflow: hidden;
+  }
 
-	.akui-layout-adaptive-pane.is-stacked .akui-pane-nested-transition-wrapper {
-		transform-origin: bottom center;
-	}
+  .akui-layout-adaptive-pane.is-stacked .akui-pane-nested-transition-wrapper {
+    transform-origin: bottom center;
+  }
 
-	/* --- Overlay mode --------------------------------------------------------
+  /* --- Overlay mode --------------------------------------------------------
 	   The nested pane leaves the flex flow and is drawn on top of the main pane,
 	   which keeps its full width. Everything below must come after the
 	   .hide-nested rules above: the two selectors have equal specificity, so
 	   source order is what lets the overlay slide out instead of collapsing. */
 
-	.akui-layout-adaptive-pane.is-overlay .akui-pane-main {
-		/* The seam belongs to the overlay's leading edge in this mode. */
-		border-right-color: transparent;
-	}
+  .akui-layout-adaptive-pane.is-overlay .akui-pane-main {
+    /* The seam belongs to the overlay's leading edge in this mode. */
+    border-right-color: transparent;
+  }
 
-	.akui-layout-adaptive-pane.is-overlay .akui-pane-nested {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		right: 0;
-		left: var(--akui-split);
-		z-index: 15;
-		flex: none;
-		border-left: 1px solid var(--akui-border-input, #e5e7eb);
-		box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
-		transform: translate3d(0, 0, 0);
-		overflow: visible;
-	}
+  .akui-layout-adaptive-pane.is-overlay .akui-pane-nested {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: var(--akui-split);
+    z-index: 15;
+    flex: none;
+    border-left: 1px solid var(--akui-border-input, #e5e7eb);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+    transform: translate3d(0, 0, 0);
+    overflow: visible;
+  }
 
-	/* Focus: fixed to the viewport so it also covers whatever sits beside the container (e.g. a
+  /* Focus: fixed to the viewport so it also covers whatever sits beside the container (e.g. a
 	   sidebar), with no seam, border or shadow to show. Stays below modal sidebars (z-index 99+). */
-	.akui-layout-adaptive-pane.is-overlay.is-focus .akui-pane-nested {
-		position: fixed;
-		inset: 0;
-		z-index: 50;
-		border-left: none;
-		box-shadow: none;
-	}
+  .akui-layout-adaptive-pane.is-overlay.is-focus .akui-pane-nested {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    border-left: none;
+    box-shadow: none;
+  }
 
-	:global([data-theme='dark']) .akui-layout-adaptive-pane.is-overlay .akui-pane-nested {
-		box-shadow: -8px 0 24px rgba(0, 0, 0, 0.5);
-	}
+  :global([data-theme="dark"])
+    .akui-layout-adaptive-pane.is-overlay
+    .akui-pane-nested {
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.5);
+  }
 
-	.akui-layout-adaptive-pane.is-ready.is-overlay .akui-pane-nested {
-		transition:
-			left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-			opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	}
+  .akui-layout-adaptive-pane.is-ready.is-overlay .akui-pane-nested {
+    transition:
+      left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-	/* Slides away to the right rather than collapsing, so the pane underneath never reflows. */
-	.akui-layout-adaptive-pane.is-overlay.hide-nested .akui-pane-nested {
-		transform: translate3d(100%, 0, 0);
-		opacity: 0;
-		pointer-events: none;
-	}
+  /* Slides away to the right rather than collapsing, so the pane underneath never reflows. */
+  .akui-layout-adaptive-pane.is-overlay.hide-nested .akui-pane-nested {
+    transform: translate3d(100%, 0, 0);
+    opacity: 0;
+    pointer-events: none;
+  }
 
-	/* A zero-width strip on the overlay pane's leading seam: the handle's own -8px
+  /* A zero-width strip on the overlay pane's leading seam: the handle's own -8px
 	   side margins straddle it. By sitting inside the nested pane, it travels with
 	   the slide transition instead of appearing statically at the resting split. */
-	.akui-pane-divider-overlay {
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		width: 0;
-		z-index: 20;
-	}
+  .akui-pane-divider-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    z-index: 20;
+  }
 
-	/* The view transition takes its new snapshot as soon as the pane's state flips. If the pane's own CSS
+  /* The view transition takes its new snapshot as soon as the pane's state flips. If the pane's own CSS
 	   transitions (slide, opacity) were still running, the snapshot would catch it part way, off screen or
 	   transparent, and the full-screen pane would only appear once they finished. Selectors repeat
 	   `.is-ready` and the mode class to outrank the transition rules above. */
-	.akui-layout-adaptive-pane.is-ready.is-overlay.skip-pane-transitions .akui-pane-nested,
-	.akui-layout-adaptive-pane.is-ready.is-stacked.skip-pane-transitions .akui-pane-nested {
-		transition: none;
-	}
+  .akui-layout-adaptive-pane.is-ready.is-overlay.skip-pane-transitions
+    .akui-pane-nested,
+  .akui-layout-adaptive-pane.is-ready.is-stacked.skip-pane-transitions
+    .akui-pane-nested {
+    transition: none;
+  }
 
-	/* While dragging, the seam has to track the pointer frame for frame — easing
+  /* While dragging, the seam has to track the pointer frame for frame — easing
 	   between positions reads as lag. `.is-ready` is repeated so these outrank the
 	   `.is-ready.is-overlay` transition on `left`, which otherwise eased the seam behind the pointer. */
-	.akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-main,
-	.akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-nested,
-	.akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-divider-overlay {
-		transition: none;
-	}
+  .akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-main,
+  .akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-nested,
+  .akui-layout-adaptive-pane.is-ready.is-dragging .akui-pane-divider-overlay {
+    transition: none;
+  }
 
-	/* Keyed off the `reducedMotion` store (see UIRoot). The overlay pane fades rather than sliding. */
-	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-ready.is-overlay .akui-pane-nested {
-		transition: opacity 0.12s ease;
-	}
+  /* Keyed off the `reducedMotion` store (see UIRoot). The overlay pane fades rather than sliding. */
+  :global(html[data-reduced-motion="true"])
+    .akui-layout-adaptive-pane.is-ready.is-overlay
+    .akui-pane-nested {
+    transition: opacity 0.12s ease;
+  }
 
-	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-stacked .akui-pane-main,
-	:global(html[data-reduced-motion='true']) .akui-layout-adaptive-pane.is-stacked .akui-pane-nested {
-		transform: none !important;
-	}
+  :global(html[data-reduced-motion="true"])
+    .akui-layout-adaptive-pane.is-stacked
+    .akui-pane-main,
+  :global(html[data-reduced-motion="true"])
+    .akui-layout-adaptive-pane.is-stacked
+    .akui-pane-nested {
+    transform: none !important;
+  }
 </style>

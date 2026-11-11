@@ -1,1 +1,1 @@
-export { default as HeaderSearch } from './HeaderSearch.svelte';
+export { default as HeaderSearch } from "./HeaderSearch.svelte";

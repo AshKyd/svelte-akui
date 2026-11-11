@@ -1,137 +1,143 @@
 <script lang="ts">
-	import { type Snippet } from 'svelte';
-	import { fade } from 'svelte/transition';
-	import { ANIMATION_DURATION, ANIMATION_EASING } from '../../constants.js';
-	import { motion } from '../../hooks/reducedMotion.svelte.js';
-	import { ControlGroup } from '../ControlGroup/index.js';
-	import { Glow } from '../Glow/index.js';
-	import { staggerMenuItems } from './staggerMenuItems.js';
-	import { menuKeyboardNavigation } from './menuKeyboardNavigation.js';
+  import { type Snippet } from "svelte";
+  import { fade } from "svelte/transition";
+  import { ANIMATION_DURATION, ANIMATION_EASING } from "../../constants.js";
+  import { motion } from "../../hooks/reducedMotion.svelte.js";
+  import { ControlGroup } from "../ControlGroup/index.js";
+  import { Glow } from "../Glow/index.js";
+  import { staggerMenuItems } from "./staggerMenuItems.js";
+  import { menuKeyboardNavigation } from "./menuKeyboardNavigation.js";
 
-	interface Props {
-		children: Snippet;
-		class?: string;
-		/** Accessible name for the menu. */
-		label?: string;
-	}
+  interface Props {
+    children: Snippet;
+    class?: string;
+    /** Accessible name for the menu. */
+    label?: string;
+  }
 
-	let { children, class: className = '', label = 'Menu' }: Props = $props();
+  let { children, class: className = "", label = "Menu" }: Props = $props();
 
-	// handleBackdropClick function removed as the backdrop div is removed.
-	// function handleBackdropClick(e: MouseEvent) {
-	// 	// Parent handles this now
-	// 	if (onClose) onClose();
-	// }
+  // handleBackdropClick function removed as the backdrop div is removed.
+  // function handleBackdropClick(e: MouseEvent) {
+  // 	// Parent handles this now
+  // 	if (onClose) onClose();
+  // }
 </script>
 
 <!-- Rendered side-by-side with the mobile menu content layer -->
 <div
-	class="akui-menu-mobile-backdrop"
-	transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
+  class="akui-menu-mobile-backdrop"
+  transition:fade={motion({
+    duration: ANIMATION_DURATION,
+    easing: ANIMATION_EASING,
+  })}
 ></div>
 
 <div
-	class="akui-mobile-menu-layer {className}"
-	role="presentation"
-	onclick={(e) => e.stopPropagation()}
+  class="akui-mobile-menu-layer {className}"
+  role="presentation"
+  onclick={(e) => e.stopPropagation()}
 >
-	<div
-		class="akui-mobile-menu-content akui-menu-surface"
-		{@attach staggerMenuItems}
-		{@attach menuKeyboardNavigation}
-		transition:fade={motion({ duration: ANIMATION_DURATION, easing: ANIMATION_EASING })}
-	>
-		<Glow />
-		<div class="akui-menu-mobile-handle" aria-hidden="true"></div>
-		<ControlGroup
-			role="menu"
-			aria-label={label}
-			aria-orientation="vertical"
-			border={false}
-			class="akui-menu-scroll-area"
-		>
-			{@render children()}
-		</ControlGroup>
-	</div>
+  <div
+    class="akui-mobile-menu-content akui-menu-surface"
+    {@attach staggerMenuItems}
+    {@attach menuKeyboardNavigation}
+    transition:fade={motion({
+      duration: ANIMATION_DURATION,
+      easing: ANIMATION_EASING,
+    })}
+  >
+    <Glow />
+    <div class="akui-menu-mobile-handle" aria-hidden="true"></div>
+    <ControlGroup
+      role="menu"
+      aria-label={label}
+      aria-orientation="vertical"
+      border={false}
+      class="akui-menu-scroll-area"
+    >
+      {@render children()}
+    </ControlGroup>
+  </div>
 </div>
 
 <style>
-	@keyframes slideUp {
-		from {
-			translate: 0 20px;
-			opacity: 0;
-		}
-		to {
-			translate: 0 0;
-			opacity: 1;
-		}
-	}
+  @keyframes slideUp {
+    from {
+      translate: 0 20px;
+      opacity: 0;
+    }
+    to {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
 
-	.akui-menu-mobile-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(0, 0, 0, 0.4);
-		backdrop-filter: blur(4px);
-		z-index: 1000;
-		pointer-events: auto;
-		/* Static View Transition group, so it isn't baked into the page snapshot (see theme.css). */
-		view-transition-name: akui-menu-backdrop;
-	}
+  .akui-menu-mobile-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    pointer-events: auto;
+    /* Static View Transition group, so it isn't baked into the page snapshot (see theme.css). */
+    view-transition-name: akui-menu-backdrop;
+  }
 
-	.akui-mobile-menu-layer {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		z-index: 1001;
-		pointer-events: none;
-		animation: slideUp 0.25s ease-out;
-		view-transition-name: akui-menu-layer;
-	}
+  .akui-mobile-menu-layer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    pointer-events: none;
+    animation: slideUp 0.25s ease-out;
+    view-transition-name: akui-menu-layer;
+  }
 
-	:global(html[data-reduced-motion='true']) .akui-mobile-menu-layer {
-		animation: none;
-	}
+  :global(html[data-reduced-motion="true"]) .akui-mobile-menu-layer {
+    animation: none;
+  }
 
-	.akui-mobile-menu-content {
-		position: relative;
-		background: var(--akui-bg, #ffffff);
-		color: var(--akui-fg, #000000);
-		border-top: 1px solid var(--akui-border, rgba(0, 0, 0, 0.1));
-		border-radius: 1rem 1rem 0 0;
-		padding-bottom: env(safe-area-inset-bottom);
-		box-shadow:
-			var(--akui-shadow-subtle),
-			0 -1px 3px rgba(0, 0, 0, 0.15);
-		display: flex;
-		flex-direction: column;
-		max-height: 90vh;
-		pointer-events: auto;
-		overflow: hidden;
-		width: 100%;	}
+  .akui-mobile-menu-content {
+    position: relative;
+    background: var(--akui-bg, #ffffff);
+    color: var(--akui-fg, #000000);
+    border-top: 1px solid var(--akui-border, rgba(0, 0, 0, 0.1));
+    border-radius: 1rem 1rem 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow:
+      var(--akui-shadow-subtle),
+      0 -1px 3px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    pointer-events: auto;
+    overflow: hidden;
+    width: 100%;
+  }
 
-	.akui-menu-mobile-handle {
-		width: 36px;
-		height: 4px;
-		background: var(--akui-bg-button-hover);
-		border-radius: 2px;
-		margin: 12px auto 4px auto;
-		flex-shrink: 0;
-		opacity: 0.5;
-	}
+  .akui-menu-mobile-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--akui-bg-button-hover);
+    border-radius: 2px;
+    margin: 12px auto 4px auto;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
 
-	.akui-menu-scroll-area {
-		flex: 1;
-		overflow-y: auto;
-		max-height: 70vh;
-		padding: 0;
-		margin: 0;
-		list-style: none;
-		display: flex;
-		flex-direction: column;
-	}
-
+  .akui-menu-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 70vh;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
 </style>

@@ -1,13 +1,13 @@
-import { reducedMotion } from '../hooks/reducedMotion.svelte.js';
+import { reducedMotion } from "../hooks/reducedMotion.svelte.js";
 
 interface Reflow {
-	/** Only the items that change position; they are named so the browser can tween each one. */
-	items: HTMLElement[];
-	/** Applies the grid's new positions. Runs inside the view transition. */
-	write: () => void;
-	duration: string;
-	easing: string;
-	resolve: () => void;
+  /** Only the items that change position; they are named so the browser can tween each one. */
+  items: HTMLElement[];
+  /** Applies the grid's new positions. Runs inside the view transition. */
+  write: () => void;
+  duration: string;
+  easing: string;
+  resolve: () => void;
 }
 
 let batch: Reflow[] = [];
@@ -17,46 +17,52 @@ let isHoldingReflow = false;
 
 /** False without the View Transitions API, with Reduced Motion on, or during a grid-to-grid morph. */
 export const canAnimateReflow = () =>
-	typeof document.startViewTransition === 'function' && !reducedMotion.value && !isHoldingReflow;
+  typeof document.startViewTransition === "function" &&
+  !reducedMotion.value &&
+  !isHoldingReflow;
 
 /** True while any view transition (ours, or e.g. `morphTransition`) is animating. */
 const isViewTransitionRunning = () =>
-	document
-		.getAnimations()
-		.some((animation) =>
-			(animation.effect as KeyframeEffect | null)?.pseudoElement?.startsWith('::view-transition')
-		);
+  document
+    .getAnimations()
+    .some((animation) =>
+      (animation.effect as KeyframeEffect | null)?.pseudoElement?.startsWith(
+        "::view-transition",
+      ),
+    );
 
 const play = async (reflows: Reflow[]) => {
-	const writeAll = () => reflows.forEach((reflow) => reflow.write());
+  const writeAll = () => reflows.forEach((reflow) => reflow.write());
 
-	const hasMovingItems = reflows.some((reflow) => reflow.items.length > 0);
+  const hasMovingItems = reflows.some((reflow) => reflow.items.length > 0);
 
-	// Nothing is moving (e.g. only the grid height changed), so there is nothing to tween.
-	// Starting ours would also cancel a running card morph, so just place the cards.
-	if (!hasMovingItems || isViewTransitionRunning()) {
-		writeAll();
-		return reflows.forEach((reflow) => reflow.resolve());
-	}
+  // Nothing is moving (e.g. only the grid height changed), so there is nothing to tween.
+  // Starting ours would also cancel a running card morph, so just place the cards.
+  if (!hasMovingItems || isViewTransitionRunning()) {
+    writeAll();
+    return reflows.forEach((reflow) => reflow.resolve());
+  }
 
-	const root = document.documentElement;
-	const items = reflows.flatMap((reflow) => reflow.items);
-	// Names only last for the transition: a permanent name gives every card its own compositor layer.
-	// Any name unique within the batch works, since old and new snapshots are of the same element.
-	items.forEach((item, index) => (item.style.viewTransitionName = `akui-masonry-${index}`));
-	root.dataset.akuiMasonryVt = '';
-	root.style.setProperty('--akui-masonry-vt-duration', reflows[0].duration);
-	root.style.setProperty('--akui-masonry-vt-easing', reflows[0].easing);
+  const root = document.documentElement;
+  const items = reflows.flatMap((reflow) => reflow.items);
+  // Names only last for the transition: a permanent name gives every card its own compositor layer.
+  // Any name unique within the batch works, since old and new snapshots are of the same element.
+  items.forEach(
+    (item, index) => (item.style.viewTransitionName = `akui-masonry-${index}`),
+  );
+  root.dataset.akuiMasonryVt = "";
+  root.style.setProperty("--akui-masonry-vt-duration", reflows[0].duration);
+  root.style.setProperty("--akui-masonry-vt-easing", reflows[0].easing);
 
-	const transition = document.startViewTransition(writeAll);
-	transition.ready.catch(() => {});
-	await transition.finished.catch(() => {});
+  const transition = document.startViewTransition(writeAll);
+  transition.ready.catch(() => {});
+  await transition.finished.catch(() => {});
 
-	items.forEach((item) => (item.style.viewTransitionName = ''));
-	delete root.dataset.akuiMasonryVt;
-	root.style.removeProperty('--akui-masonry-vt-duration');
-	root.style.removeProperty('--akui-masonry-vt-easing');
-	reflows.forEach((reflow) => reflow.resolve());
+  items.forEach((item) => (item.style.viewTransitionName = ""));
+  delete root.dataset.akuiMasonryVt;
+  root.style.removeProperty("--akui-masonry-vt-duration");
+  root.style.removeProperty("--akui-masonry-vt-easing");
+  reflows.forEach((reflow) => reflow.resolve());
 };
 
 /**
@@ -70,31 +76,33 @@ const play = async (reflows: Reflow[]) => {
  * isn't possible.
  */
 export const morphBetweenGrids = async ({
-	update,
-	duration = '0.35s',
-	easing = 'cubic-bezier(0.2, 0, 0, 1)'
+  update,
+  duration = "0.35s",
+  easing = "cubic-bezier(0.2, 0, 0, 1)",
 }: {
-	update: () => Promise<void>;
-	duration?: string;
-	easing?: string;
+  update: () => Promise<void>;
+  duration?: string;
+  easing?: string;
 }) => {
-	if (!canAnimateReflow() || isViewTransitionRunning()) return update();
+  if (!canAnimateReflow() || isViewTransitionRunning()) return update();
 
-	const root = document.documentElement;
-	isHoldingReflow = true;
-	root.dataset.akuiMasonryVt = '';
-	root.style.setProperty('--akui-masonry-vt-duration', duration);
-	root.style.setProperty('--akui-masonry-vt-easing', easing);
+  const root = document.documentElement;
+  isHoldingReflow = true;
+  root.dataset.akuiMasonryVt = "";
+  root.style.setProperty("--akui-masonry-vt-duration", duration);
+  root.style.setProperty("--akui-masonry-vt-easing", easing);
 
-	const transition = document.startViewTransition(() => update().catch(() => {}));
-	transition.ready.catch(() => {});
-	await transition.updateCallbackDone.catch(() => {});
-	isHoldingReflow = false;
-	await transition.finished.catch(() => {});
+  const transition = document.startViewTransition(() =>
+    update().catch(() => {}),
+  );
+  transition.ready.catch(() => {});
+  await transition.updateCallbackDone.catch(() => {});
+  isHoldingReflow = false;
+  await transition.finished.catch(() => {});
 
-	delete root.dataset.akuiMasonryVt;
-	root.style.removeProperty('--akui-masonry-vt-duration');
-	root.style.removeProperty('--akui-masonry-vt-easing');
+  delete root.dataset.akuiMasonryVt;
+  root.style.removeProperty("--akui-masonry-vt-duration");
+  root.style.removeProperty("--akui-masonry-vt-easing");
 };
 
 /**
@@ -104,14 +112,14 @@ export const morphBetweenGrids = async ({
  * browser runs only one at a time and a new one cancels the last. Without this, whichever of
  * Pinned and Others started first would snap instead of gliding.
  */
-export const animateReflow = (reflow: Omit<Reflow, 'resolve'>) =>
-	new Promise<void>((resolve) => {
-		batch.push({ ...reflow, resolve });
-		if (batch.length > 1) return;
+export const animateReflow = (reflow: Omit<Reflow, "resolve">) =>
+  new Promise<void>((resolve) => {
+    batch.push({ ...reflow, resolve });
+    if (batch.length > 1) return;
 
-		requestAnimationFrame(() => {
-			const reflows = batch;
-			batch = [];
-			play(reflows);
-		});
-	});
+    requestAnimationFrame(() => {
+      const reflows = batch;
+      batch = [];
+      play(reflows);
+    });
+  });

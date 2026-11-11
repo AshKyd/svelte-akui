@@ -1,7 +1,7 @@
-type StorageKind = 'localStorage' | 'sessionStorage';
+type StorageKind = "localStorage" | "sessionStorage";
 
 /** The `Storage` methods the app uses; every one is safe to call anywhere. */
-export type SafeStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+export type SafeStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
 /**
  * The usable browser storage, or `null` when there isn't one. Node 25+ defines a global
@@ -10,12 +10,12 @@ export type SafeStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
  * sandboxed iframes).
  */
 function resolveStorage(kind: StorageKind): Storage | null {
-	try {
-		const storage = globalThis[kind];
-		return typeof storage?.getItem === 'function' ? storage : null;
-	} catch {
-		return null;
-	}
+  try {
+    const storage = globalThis[kind];
+    return typeof storage?.getItem === "function" ? storage : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -25,29 +25,29 @@ function resolveStorage(kind: StorageKind): Storage | null {
  * Storage is looked up on every call, so it is safe to create at module level.
  */
 export function createSafeStorage(kind: StorageKind): SafeStorage {
-	return {
-		getItem(key) {
-			try {
-				return resolveStorage(kind)?.getItem(key) ?? null;
-			} catch {
-				return null;
-			}
-		},
-		setItem(key, value) {
-			try {
-				resolveStorage(kind)?.setItem(key, value);
-			} catch {
-				// Best-effort persistence.
-			}
-		},
-		removeItem(key) {
-			try {
-				resolveStorage(kind)?.removeItem(key);
-			} catch {
-				// Best-effort persistence.
-			}
-		}
-	};
+  return {
+    getItem(key) {
+      try {
+        return resolveStorage(kind)?.getItem(key) ?? null;
+      } catch {
+        return null;
+      }
+    },
+    setItem(key, value) {
+      try {
+        resolveStorage(kind)?.setItem(key, value);
+      } catch {
+        // Best-effort persistence.
+      }
+    },
+    removeItem(key) {
+      try {
+        resolveStorage(kind)?.removeItem(key);
+      } catch {
+        // Best-effort persistence.
+      }
+    },
+  };
 }
 
-export const safeLocalStorage = createSafeStorage('localStorage');
+export const safeLocalStorage = createSafeStorage("localStorage");

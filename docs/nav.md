@@ -33,9 +33,9 @@ Your idea of dividing this into a scrollable top and a fixed bottom is spot-on. 
 
 ```svelte
 <NavigationDrawer isOpen={ui.sidebarOpen} mode={ui.displayMode}>
-	{#snippet content()}{/snippet}
+  {#snippet content()}{/snippet}
 
-	{#snippet footer()}{/snippet}
+  {#snippet footer()}{/snippet}
 </NavigationDrawer>
 ```
 
@@ -76,26 +76,26 @@ You need a centralized global or context-based state driven by window media quer
 ```ts
 // uiState.svelte.ts
 export function createUIState() {
-	let width = $state(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  let width = $state(typeof window !== "undefined" ? window.innerWidth : 1024);
 
-	// Derived states based on MD3 breakpoints
-	let isMobile = $derived(width < 600);
-	let isTablet = $derived(width >= 600 && width < 840);
-	let isDesktop = $derived(width >= 840);
+  // Derived states based on MD3 breakpoints
+  let isMobile = $derived(width < 600);
+  let isTablet = $derived(width >= 600 && width < 840);
+  let isDesktop = $derived(width >= 840);
 
-	let sidebarOpen = $state(false);
+  let sidebarOpen = $state(false);
 
-	// Automatically close sidebar/modal when scaling up to desktop if desired
-	return {
-		get displayMode() {
-			return isMobile ? 'modal' : 'permanent';
-		},
-		get isMobile() {
-			return isMobile;
-		},
-		sidebarOpen,
-		toggleSidebar: () => (sidebarOpen = !sidebarOpen)
-	};
+  // Automatically close sidebar/modal when scaling up to desktop if desired
+  return {
+    get displayMode() {
+      return isMobile ? "modal" : "permanent";
+    },
+    get isMobile() {
+      return isMobile;
+    },
+    sidebarOpen,
+    toggleSidebar: () => (sidebarOpen = !sidebarOpen),
+  };
 }
 ```
 

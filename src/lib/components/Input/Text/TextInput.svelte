@@ -1,65 +1,74 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import { INPUT_GROUP_CONTEXT, type InputGroupContext } from '../context.ts';
-	import '../input.css';
+  import { getContext } from "svelte";
+  import { INPUT_GROUP_CONTEXT, type InputGroupContext } from "../context.ts";
+  import "../input.css";
 
-	export interface Props {
-		/** Type of input (text, email, password, tel, url, search, number, date, color). Defaults to 'text'. */
-		type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search' | 'number' | 'date' | 'color';
-		/** Value of the input. */
-		value?: string | number | null;
-		/** Placeholder text. */
-		placeholder?: string;
-		/** Optional size override. Falls back to group context. */
-		size?: 'small' | 'medium' | 'large';
-		/** Variant of the field. */
-		variant?: 'regular' | 'ghost';
-		/** Whether the field is required. */
-		required?: boolean;
-		/** Whether the field is readonly. */
-		readonly?: boolean;
-		/** Whether the field is disabled. */
-		disabled?: boolean;
-		/** Additional CSS classes for the input. */
-		class?: string;
-		/** Spread remaining attributes to the input element. */
-		[key: string]: unknown;
-	}
+  export interface Props {
+    /** Type of input (text, email, password, tel, url, search, number, date, color). Defaults to 'text'. */
+    type?:
+      | "text"
+      | "email"
+      | "password"
+      | "tel"
+      | "url"
+      | "search"
+      | "number"
+      | "date"
+      | "color";
+    /** Value of the input. */
+    value?: string | number | null;
+    /** Placeholder text. */
+    placeholder?: string;
+    /** Optional size override. Falls back to group context. */
+    size?: "small" | "medium" | "large";
+    /** Variant of the field. */
+    variant?: "regular" | "ghost";
+    /** Whether the field is required. */
+    required?: boolean;
+    /** Whether the field is readonly. */
+    readonly?: boolean;
+    /** Whether the field is disabled. */
+    disabled?: boolean;
+    /** Additional CSS classes for the input. */
+    class?: string;
+    /** Spread remaining attributes to the input element. */
+    [key: string]: unknown;
+  }
 
-	let {
-		type = 'text',
-		value = $bindable(),
-		placeholder,
-		size,
-		variant = 'regular',
-		required = false,
-		disabled = false,
-		readonly = false,
-		class: className = '',
-		...rest
-	}: Props = $props();
+  let {
+    type = "text",
+    value = $bindable(),
+    placeholder,
+    size,
+    variant = "regular",
+    required = false,
+    disabled = false,
+    readonly = false,
+    class: className = "",
+    ...rest
+  }: Props = $props();
 
-	const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
-	const inheritedSize = $derived.by(() => groupContext?.size ?? 'medium');
+  const groupContext = getContext<InputGroupContext>(INPUT_GROUP_CONTEXT);
+  const inheritedSize = $derived.by(() => groupContext?.size ?? "medium");
 
-	const effectiveSize = $derived.by(() => size ?? inheritedSize);
+  const effectiveSize = $derived.by(() => size ?? inheritedSize);
 
-	let inputEl = $state<HTMLInputElement>();
+  let inputEl = $state<HTMLInputElement>();
 
-	/** Focuses the input element. */
-	export function focus() {
-		inputEl?.focus();
-	}
+  /** Focuses the input element. */
+  export function focus() {
+    inputEl?.focus();
+  }
 </script>
 
 <input
-	bind:this={inputEl}
-	{type}
-	class="akui-input-base {effectiveSize} {variant} {className}"
-	{placeholder}
-	bind:value
-	{required}
-	{readonly}
-	{disabled}
-	{...rest}
+  bind:this={inputEl}
+  {type}
+  class="akui-input-base {effectiveSize} {variant} {className}"
+  {placeholder}
+  bind:value
+  {required}
+  {readonly}
+  {disabled}
+  {...rest}
 />

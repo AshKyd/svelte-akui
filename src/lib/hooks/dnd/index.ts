@@ -11,7 +11,7 @@
  *   provide one when you want an isolated drag scope.
  */
 
-export * from './types.js';
-export * from './manager.svelte.js';
-export * from './dragSource.svelte.js';
-export * from './dropTarget.svelte.js';
+export * from "./types.js";
+export * from "./manager.svelte.js";
+export * from "./dragSource.svelte.js";
+export * from "./dropTarget.svelte.js";

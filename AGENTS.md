@@ -83,24 +83,24 @@ screen, with no error.
 
 ```svelte
 <script module lang="ts">
-	import { defineMeta } from '@storybook/addon-svelte-csf';
+  import { defineMeta } from "@storybook/addon-svelte-csf";
 
-	// No `component` here: we render MyComponent ourselves below.
-	const { Story } = defineMeta({
-		title: 'Components/MyComponent'
-	});
+  // No `component` here: we render MyComponent ourselves below.
+  const { Story } = defineMeta({
+    title: "Components/MyComponent",
+  });
 </script>
 
 <script lang="ts">
-	import MyComponent from './MyComponent.svelte';
+  import MyComponent from "./MyComponent.svelte";
 </script>
 
 <Story name="Default">
-	{#snippet children()}
-		<div class="custom-layout-wrapper">
-			<MyComponent primary={true} />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div class="custom-layout-wrapper">
+      <MyComponent primary={true} />
+    </div>
+  {/snippet}
 </Story>
 ```
 

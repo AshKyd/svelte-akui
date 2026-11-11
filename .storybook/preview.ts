@@ -1,11 +1,11 @@
-import type { Preview } from '@storybook/sveltekit'
-import { withThemeByDataAttribute } from '@storybook/addon-themes'
-import type { AkuiTheme } from '../src/lib/hooks/themeStore.svelte.js'
-import StorybookDecorator from '../src/lib/components/StorybookDecorator.svelte'
-import { configureIcons } from '../src/lib/components/Icon/iconSource.js'
+import type { Preview } from "@storybook/sveltekit";
+import { withThemeByDataAttribute } from "@storybook/addon-themes";
+import type { AkuiTheme } from "../src/lib/hooks/themeStore.svelte.js";
+import StorybookDecorator from "../src/lib/components/StorybookDecorator.svelte";
+import { configureIcons } from "../src/lib/components/Icon/iconSource.js";
 
 // `npm run icons` publishes the icons into static/bootstrap-icons, which Storybook serves.
-configureIcons({ baseUrl: '/bootstrap-icons' })
+configureIcons({ baseUrl: "/bootstrap-icons" });
 
 const preview: Preview = {
   parameters: {
@@ -19,19 +19,20 @@ const preview: Preview = {
   decorators: [
     withThemeByDataAttribute({
       themes: {
-        light: 'light',
-        dark: 'dark',
+        light: "light",
+        dark: "dark",
       },
-      defaultTheme: 'light',
-      attributeName: 'data-theme',
+      defaultTheme: "light",
+      attributeName: "data-theme",
     }),
     (Story, { globals, parameters }) => {
       return {
         Component: StorybookDecorator,
         props: {
-          mode: globals.theme as 'light' | 'dark',
-          themes: parameters.akuiThemes as AkuiTheme[] | undefined,        },
-      }
+          mode: globals.theme as "light" | "dark",
+          themes: parameters.akuiThemes as AkuiTheme[] | undefined,
+        },
+      };
     },
   ],
 };

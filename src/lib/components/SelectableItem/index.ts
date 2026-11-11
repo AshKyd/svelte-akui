@@ -1,1 +1,1 @@
-export { default as SelectableItem } from './SelectableItem.svelte';
+export { default as SelectableItem } from "./SelectableItem.svelte";

@@ -1,1 +1,1 @@
-export { default as ProgressXmasTree } from './ProgressXmasTree.svelte';
+export { default as ProgressXmasTree } from "./ProgressXmasTree.svelte";

@@ -1,1 +1,1 @@
-export { default as FeedItemRow } from './FeedItemRow.svelte';
+export { default as FeedItemRow } from "./FeedItemRow.svelte";

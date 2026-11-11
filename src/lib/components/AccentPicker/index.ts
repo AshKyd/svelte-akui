@@ -1,1 +1,1 @@
-export { default as AccentPicker } from './AccentPicker.svelte';
+export { default as AccentPicker } from "./AccentPicker.svelte";

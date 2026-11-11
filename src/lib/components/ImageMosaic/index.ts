@@ -1,1 +1,1 @@
-export { default as ImageMosaic } from './ImageMosaic.svelte';
+export { default as ImageMosaic } from "./ImageMosaic.svelte";

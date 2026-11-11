@@ -1,185 +1,250 @@
 <script module lang="ts">
-	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import StorybookDecorator from '../StorybookDecorator.svelte';
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import StorybookDecorator from "../StorybookDecorator.svelte";
 
-	// No `component`: each story renders Slider itself.
-	const { Story } = defineMeta({
-		title: 'Components/Slider',
-		decorators: [() => StorybookDecorator]
-	});
+  // No `component`: each story renders Slider itself.
+  const { Story } = defineMeta({
+    title: "Components/Slider",
+    decorators: [() => StorybookDecorator],
+  });
 </script>
 
 <script lang="ts">
-	import Slider from './Slider.svelte';
-	import Toggle from '../Input/Toggle/Toggle.svelte';
-	import type { SliderSegment } from './types.js';
+  import Slider from "./Slider.svelte";
+  import Toggle from "../Input/Toggle/Toggle.svelte";
+  import type { SliderSegment } from "./types.js";
 
-	let broomSpeed = $state(35);
-	let kettleBuffer = $state(62);
-	let bellRehearsal = $state(40);
-	let isBuffering = $state(true);
+  let broomSpeed = $state(35);
+  let kettleBuffer = $state(62);
+  let bellRehearsal = $state(40);
+  let isBuffering = $state(true);
 
-	/** Stages of the village hall's morning bake-off set-up. */
-	const bakeOffStages: SliderSegment[] = [
-		{ to: 30, colour: 'orange', label: 'Fetching flour' },
-		{ to: 70, colour: 'blue', label: 'Proving dough' },
-		{ to: 100, colour: 'green', label: 'Cooling on the sill' }
-	];
+  /** Stages of the village hall's morning bake-off set-up. */
+  const bakeOffStages: SliderSegment[] = [
+    { to: 30, colour: "orange", label: "Fetching flour" },
+    { to: 70, colour: "blue", label: "Proving dough" },
+    { to: 100, colour: "green", label: "Cooling on the sill" },
+  ];
 </script>
 
 <Story name="Range">
-	{#snippet children()}
-		<div style="width: 320px; display: grid; gap: 8px;">
-			<Slider bind:value={broomSpeed} label="Broom speed" />
-			<span>Broom speed: {broomSpeed}</span>
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 320px; display: grid; gap: 8px;">
+      <Slider bind:value={broomSpeed} label="Broom speed" />
+      <span>Broom speed: {broomSpeed}</span>
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Progress">
-	{#snippet children()}
-		<div style="width: 320px; display: grid; gap: 20px;">
-			<Slider mode="progress" value={25} label="Kettle warming" />
-			<Slider mode="progress" value={60} colour="green" />
-			<Slider mode="progress" value={90} colour="purple" />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 320px; display: grid; gap: 20px;">
+      <Slider mode="progress" value={25} label="Kettle warming" />
+      <Slider mode="progress" value={60} colour="green" />
+      <Slider mode="progress" value={90} colour="purple" />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Heights">
-	{#snippet children()}
-		<div style="width: 320px; display: grid; gap: 20px;">
-			<Slider value={50} height={3} />
-			<Slider value={50} />
-			<Slider value={50} height={12} />
-			<Slider value={50} height="1.5rem" />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 320px; display: grid; gap: 20px;">
+      <Slider value={50} height={3} />
+      <Slider value={50} />
+      <Slider value={50} height={12} />
+      <Slider value={50} height="1.5rem" />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Colours">
-	{#snippet children()}
-		<div style="width: 320px; display: grid; gap: 20px;">
-			{#each ['accent', 'blue', 'green', 'orange', 'pink', 'purple', 'amber'] as const as colour (colour)}
-				<Slider {colour} value={55} label={colour} />
-			{/each}
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 320px; display: grid; gap: 20px;">
+      {#each ["accent", "blue", "green", "orange", "pink", "purple", "amber"] as const as colour (colour)}
+        <Slider {colour} value={55} label={colour} />
+      {/each}
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Ratio and fill modes">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 24px;">
-			<!-- Two colours: a ratio of two things. -->
-			<Slider bind:value={broomSpeed} colour="purple" afterColour="amber" label="Ratio" />
-			<!-- One colour on both sides. -->
-			<Slider bind:value={broomSpeed} colour="green" afterColour="green" label="All one colour" />
-			<!-- Every segment in full colour on both sides. -->
-			<Slider bind:value={broomSpeed} segments={bakeOffStages} afterColour="segment" label="Full segments" />
-			<!-- All empty track, just the scrubber. -->
-			<Slider bind:value={broomSpeed} colour="none" label="Empty track" />
-			<Slider mode="progress" value={broomSpeed} colour="blue" afterColour="orange" height={10} />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 24px;">
+      <!-- Two colours: a ratio of two things. -->
+      <Slider
+        bind:value={broomSpeed}
+        colour="purple"
+        afterColour="amber"
+        label="Ratio"
+      />
+      <!-- One colour on both sides. -->
+      <Slider
+        bind:value={broomSpeed}
+        colour="green"
+        afterColour="green"
+        label="All one colour"
+      />
+      <!-- Every segment in full colour on both sides. -->
+      <Slider
+        bind:value={broomSpeed}
+        segments={bakeOffStages}
+        afterColour="segment"
+        label="Full segments"
+      />
+      <!-- All empty track, just the scrubber. -->
+      <Slider bind:value={broomSpeed} colour="none" label="Empty track" />
+      <Slider
+        mode="progress"
+        value={broomSpeed}
+        colour="blue"
+        afterColour="orange"
+        height={10}
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Segments">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 24px;">
-			<Slider segments={bakeOffStages} bind:value={bellRehearsal} label="Bake-off set-up" />
-			<Slider mode="progress" segments={bakeOffStages} value={bellRehearsal} height={10} />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 24px;">
+      <Slider
+        segments={bakeOffStages}
+        bind:value={bellRehearsal}
+        label="Bake-off set-up"
+      />
+      <Slider
+        mode="progress"
+        segments={bakeOffStages}
+        value={bellRehearsal}
+        height={10}
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Ticks">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 28px;">
-			<Slider bind:value={broomSpeed} tickStep={10} label="Unlabelled ticks" />
-			<Slider
-				bind:value={broomSpeed}
-				ticks={[0, { value: 25, label: 'Dawdle' }, { value: 50, label: 'Trot' }, { value: 100, label: 'Gallop' }]}
-				label="Labelled ticks"
-			/>
-			<Slider
-				mode="progress"
-				value={broomSpeed}
-				segments={bakeOffStages}
-				ticks={[{ value: 30, label: 'Flour' }, { value: 70, label: 'Dough' }, { value: 100, label: 'Cooled' }]}
-			/>
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 28px;">
+      <Slider bind:value={broomSpeed} tickStep={10} label="Unlabelled ticks" />
+      <Slider
+        bind:value={broomSpeed}
+        ticks={[
+          0,
+          { value: 25, label: "Dawdle" },
+          { value: 50, label: "Trot" },
+          { value: 100, label: "Gallop" },
+        ]}
+        label="Labelled ticks"
+      />
+      <Slider
+        mode="progress"
+        value={broomSpeed}
+        segments={bakeOffStages}
+        ticks={[
+          { value: 30, label: "Flour" },
+          { value: 70, label: "Dough" },
+          { value: 100, label: "Cooled" },
+        ]}
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Snap to ticks">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 28px;">
-			<Slider bind:value={broomSpeed} tickStep={25} snap label="Snap every 25" />
-			<Slider
-				bind:value={broomSpeed}
-				snap
-				ticks={[{ value: 0, label: 'Idle' }, { value: 20, label: 'Dawdle' }, { value: 60, label: 'Trot' }, { value: 100, label: 'Gallop' }]}
-				label="Snap to labelled ticks"
-			/>
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 28px;">
+      <Slider
+        bind:value={broomSpeed}
+        tickStep={25}
+        snap
+        label="Snap every 25"
+      />
+      <Slider
+        bind:value={broomSpeed}
+        snap
+        ticks={[
+          { value: 0, label: "Idle" },
+          { value: 20, label: "Dawdle" },
+          { value: 60, label: "Trot" },
+          { value: 100, label: "Gallop" },
+        ]}
+        label="Snap to labelled ticks"
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Joined segments">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 24px;">
-			<Slider segments={bakeOffStages} joined bind:value={bellRehearsal} />
-			<Slider mode="progress" segments={bakeOffStages} joined value={bellRehearsal} height={10} />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 24px;">
+      <Slider segments={bakeOffStages} joined bind:value={bellRehearsal} />
+      <Slider
+        mode="progress"
+        segments={bakeOffStages}
+        joined
+        value={bellRehearsal}
+        height={10}
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Rectangle scrubber">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 24px;">
-			<Slider bind:value={broomSpeed} thumbShape="rect" />
-			<Slider bind:value={broomSpeed} thumbShape="rect" segments={bakeOffStages} joined height={10} />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 24px;">
+      <Slider bind:value={broomSpeed} thumbShape="rect" />
+      <Slider
+        bind:value={broomSpeed}
+        thumbShape="rect"
+        segments={bakeOffStages}
+        joined
+        height={10}
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Custom scrubber">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 24px;">
-			<Slider bind:value={broomSpeed} thumbSize={28} segments={bakeOffStages}>
-				{#snippet thumb({ colour })}
-					<span
-						style="display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: {colour}; font-size: 14px;"
-						>🧹</span
-					>
-				{/snippet}
-			</Slider>
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 24px;">
+      <Slider bind:value={broomSpeed} thumbSize={28} segments={bakeOffStages}>
+        {#snippet thumb({ colour })}
+          <span
+            style="display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: {colour}; font-size: 14px;"
+            >🧹</span
+          >
+        {/snippet}
+      </Slider>
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Loading">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 20px;">
-			<Toggle bind:checked={isBuffering} label="Waiting on the owl post" />
-			<Slider bind:value={kettleBuffer} loading={isBuffering} label="Parcel progress" />
-			<Slider
-				mode="progress"
-				value={kettleBuffer}
-				segments={bakeOffStages}
-				loading={isBuffering}
-				height={10}
-			/>
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 20px;">
+      <Toggle bind:checked={isBuffering} label="Waiting on the owl post" />
+      <Slider
+        bind:value={kettleBuffer}
+        loading={isBuffering}
+        label="Parcel progress"
+      />
+      <Slider
+        mode="progress"
+        value={kettleBuffer}
+        segments={bakeOffStages}
+        loading={isBuffering}
+        height={10}
+      />
+    </div>
+  {/snippet}
 </Story>
 
 <Story name="Disabled">
-	{#snippet children()}
-		<div style="width: 360px; display: grid; gap: 20px;">
-			<Slider value={45} disabled />
-			<Slider value={45} segments={bakeOffStages} disabled />
-			<Slider mode="progress" value={45} disabled />
-		</div>
-	{/snippet}
+  {#snippet children()}
+    <div style="width: 360px; display: grid; gap: 20px;">
+      <Slider value={45} disabled />
+      <Slider value={45} segments={bakeOffStages} disabled />
+      <Slider mode="progress" value={45} disabled />
+    </div>
+  {/snippet}
 </Story>

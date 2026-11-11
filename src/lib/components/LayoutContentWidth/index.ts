@@ -1,1 +1,1 @@
-export { default as LayoutContentWidth } from './LayoutContentWidth.svelte';
+export { default as LayoutContentWidth } from "./LayoutContentWidth.svelte";

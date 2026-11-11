@@ -1,1 +1,1 @@
-export { default as LayoutReadableWidthColumn } from './LayoutReadableWidthColumn.svelte';
+export { default as LayoutReadableWidthColumn } from "./LayoutReadableWidthColumn.svelte";

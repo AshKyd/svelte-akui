@@ -1,26 +1,21 @@
-import type { StorybookConfig } from '@storybook/sveltekit';
+import type { StorybookConfig } from "@storybook/sveltekit";
 
 const config: StorybookConfig = {
-  "stories": [
-    "../src/**/*.stories.@(js|ts|svelte)"
-  ],
-  "staticDirs": ["../static"],
-  "addons": [
-    "@storybook/addon-svelte-csf",
-    "@storybook/addon-themes"
-  ],
-  "framework": "@storybook/sveltekit",
-  "core": {
-    "disableTelemetry": true,
-    "disableWhatsNewNotifications": true
+  stories: ["../src/**/*.stories.@(js|ts|svelte)"],
+  staticDirs: ["../static"],
+  addons: ["@storybook/addon-svelte-csf", "@storybook/addon-themes"],
+  framework: "@storybook/sveltekit",
+  core: {
+    disableTelemetry: true,
+    disableWhatsNewNotifications: true,
   },
-  "features": {
-    "sidebarOnboardingChecklist": false
+  features: {
+    sidebarOnboardingChecklist: false,
   },
   async viteFinal(config) {
     return {
       ...config,
-            build: {
+      build: {
         ...config.build,
         reportCompressedSize: false,
       },

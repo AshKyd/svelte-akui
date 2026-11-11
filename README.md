@@ -8,11 +8,11 @@ You can optionally wrap your application in the `UIRoot` component to configure 
 
 ```svelte
 <script>
-	import { UIRoot } from 'svelte-akui';
+  import { UIRoot } from "svelte-akui";
 </script>
 
 <UIRoot>
-	<!-- Your application content here -->
+  <!-- Your application content here -->
 </UIRoot>
 ```
 
@@ -144,19 +144,19 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
   ```svelte
   <script>
-  	import { createTooltip, Tooltip, Button, Padding } from 'svelte-akui';
-  	const tooltip = createTooltip({ position: 'top' });
+    import { createTooltip, Tooltip, Button, Padding } from "svelte-akui";
+    const tooltip = createTooltip({ position: "top" });
   </script>
 
   <Button {...tooltip.handlers}>Hover me</Button>
   <Tooltip
-  	visible={tooltip.visible}
-  	x={tooltip.x}
-  	y={tooltip.y}
-  	position={tooltip.position}
-  	radius="m"
+    visible={tooltip.visible}
+    x={tooltip.x}
+    y={tooltip.y}
+    position={tooltip.position}
+    radius="m"
   >
-  	<Padding size="s">Tooltip Content</Padding>
+    <Padding size="s">Tooltip Content</Padding>
   </Tooltip>
   ```
 
@@ -171,8 +171,8 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
   ```html
   <button aria-label="Close">
-  	<Icon name="x" />
-  	<span class="sr-only">Close dialog</span>
+    <Icon name="x" />
+    <span class="sr-only">Close dialog</span>
   </button>
   ```
 
@@ -188,15 +188,15 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
   ```svelte
   <script>
-  	import { reducedMotion } from 'svelte-akui';
+    import { reducedMotion } from "svelte-akui";
   </script>
 
   {#if !reducedMotion.value}
-  	<AnimatedBackground />
+    <AnimatedBackground />
   {/if}
 
   <button onclick={() => reducedMotion.toggle()}>
-  	Reduced Motion: {reducedMotion.value ? 'On' : 'Off'}
+    Reduced Motion: {reducedMotion.value ? "On" : "Off"}
   </button>
   ```
 
@@ -211,22 +211,22 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
   ```svelte
   <script>
-  	import { keyboardNavigation } from 'svelte-akui';
+    import { keyboardNavigation } from "svelte-akui";
 
-  	function handleBookmark(id) {
-  		// Custom logic
-  	}
+    function handleBookmark(id) {
+      // Custom logic
+    }
   </script>
 
   <div
-  	use:keyboardNavigation={{
-  		keyMap: {
-  			b: (id) => handleBookmark(id)
-  		}
-  	}}
+    use:keyboardNavigation={{
+      keyMap: {
+        b: (id) => handleBookmark(id),
+      },
+    }}
   >
-  	<div data-selectable data-id="item-1">Item 1</div>
-  	<div data-selectable data-id="item-2">Item 2</div>
+    <div data-selectable data-id="item-1">Item 1</div>
+    <div data-selectable data-id="item-2">Item 2</div>
   </div>
   ```
 
@@ -236,12 +236,14 @@ Components should be composed: wrap any input in a `Field` to add a label.
 
   ```svelte
   <script>
-  	import { clickOutside } from 'svelte-akui';
+    import { clickOutside } from "svelte-akui";
 
-  	let selected = $state(false);
+    let selected = $state(false);
   </script>
 
-  <div {@attach selected ? clickOutside(() => (selected = false)) : undefined}>Card content</div>
+  <div {@attach selected ? clickOutside(() => (selected = false)) : undefined}>
+    Card content
+  </div>
   ```
 
 ## Application Shell & Layout
@@ -307,11 +309,13 @@ Any custom component nested inside a `Menu` can trigger it to close using the `u
 
 ```svelte
 <script>
-	import { useMenu } from 'svelte-akui';
-	const menu = useMenu();
+  import { useMenu } from "svelte-akui";
+  const menu = useMenu();
 </script>
 
-<button onclick={() => menu?.close()}> Clicking this will close the menu </button>
+<button onclick={() => menu?.close()}>
+  Clicking this will close the menu
+</button>
 ```
 
 Forms and other interactive elements inside a `Menu` will not close the menu by default because click events are stopped at the menu container level. Only explicit calls to `menu.close()` or clicking a `MenuItem` will trigger a closure (a `MenuItem` with `controlType` is the exception: it keeps the menu open).
@@ -323,25 +327,26 @@ To set up standard lists of items, wrap your `ControlItemText`, `ControlItemExpa
 
 ```svelte
 <Sidebar title="Cosy Reader" icon="book">
-	{#snippet content()}
-		<ControlGroup>
-			<ControlItemText label="Dashboard" icon="house" href="/" />
-			<ControlItemExpanded
-				label="Library Capacity"
-				extra="45%"
-				description="Physical shelves filled."
-			>
-				<progress value="45" max="100" style="width: 100%; margin-top: 0.5rem;"></progress>
-			</ControlItemExpanded>
-			<ControlItemText label="Profile" icon="person" href="/profile" />
-		</ControlGroup>
-	{/snippet}
+  {#snippet content()}
+    <ControlGroup>
+      <ControlItemText label="Dashboard" icon="house" href="/" />
+      <ControlItemExpanded
+        label="Library Capacity"
+        extra="45%"
+        description="Physical shelves filled."
+      >
+        <progress value="45" max="100" style="width: 100%; margin-top: 0.5rem;"
+        ></progress>
+      </ControlItemExpanded>
+      <ControlItemText label="Profile" icon="person" href="/profile" />
+    </ControlGroup>
+  {/snippet}
 
-	{#snippet footer()}
-		<Padding size="m">
-			<Small>v1.0.4</Small>
-		</Padding>
-	{/snippet}
+  {#snippet footer()}
+    <Padding size="m">
+      <Small>v1.0.4</Small>
+    </Padding>
+  {/snippet}
 </Sidebar>
 ```
 
@@ -364,16 +369,16 @@ When your grid contains dynamic or asynchronous content (such as images that cha
 
 ```svelte
 <script>
-	import { Masonry } from 'svelte-akui';
-	let refresh;
+  import { Masonry } from "svelte-akui";
+  let refresh;
 </script>
 
 <Masonry bind:refreshLayout={refresh}>
-	<div class="card">
-		<img src="magic-garden.jpg" alt="Night-lilac garden" onload={refresh} />
-		<p>Glowing night-lilac seeds shared by elves.</p>
-	</div>
-	<!-- More items -->
+  <div class="card">
+    <img src="magic-garden.jpg" alt="Night-lilac garden" onload={refresh} />
+    <p>Glowing night-lilac seeds shared by elves.</p>
+  </div>
+  <!-- More items -->
 </Masonry>
 ```
 

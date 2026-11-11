@@ -5,4 +5,4 @@
  * layer, now split into `./dnd/`.
  */
 
-export * from './dnd/index.js';
+export * from "./dnd/index.js";

@@ -1,1 +1,1 @@
-export { default as DragHandler } from './DragHandler.svelte';
+export { default as DragHandler } from "./DragHandler.svelte";

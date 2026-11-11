@@ -1,11 +1,10 @@
-
 export interface TooltipOptions {
-	/** Fixed position or 'auto' (default) */
-	position?: 'top' | 'bottom' | 'left' | 'right' | 'auto';
-	/** Gap between the element and the tooltip. */
-	offset?: number;
-	/** Extra gap for touch events. */
-	touchOffset?: number;
+  /** Fixed position or 'auto' (default) */
+  position?: "top" | "bottom" | "left" | "right" | "auto";
+  /** Gap between the element and the tooltip. */
+  offset?: number;
+  /** Extra gap for touch events. */
+  touchOffset?: number;
 }
 
 /**
@@ -13,93 +12,104 @@ export interface TooltipOptions {
  * Returns reactive state and event handlers to be applied to a trigger element.
  */
 export function createTooltip(options: TooltipOptions = {}) {
-	let visible = $state(false);
-	let x = $state(0);
-	let y = $state(0);
-	let currentPosition = $state<'top' | 'bottom' | 'left' | 'right'>('top');
+  let visible = $state(false);
+  let x = $state(0);
+  let y = $state(0);
+  let currentPosition = $state<"top" | "bottom" | "left" | "right">("top");
 
-	function updatePosition(node: HTMLElement, isTouch = false) {
-		const preferredPosition = options.position ?? 'auto';
-		const offset = options.offset ?? 8;
-		const touchOffset = options.touchOffset ?? 24;
-		const rect = node.getBoundingClientRect();
+  function updatePosition(node: HTMLElement, isTouch = false) {
+    const preferredPosition = options.position ?? "auto";
+    const offset = options.offset ?? 8;
+    const touchOffset = options.touchOffset ?? 24;
+    const rect = node.getBoundingClientRect();
 
-		const centerX = rect.left + rect.width / 2;
-		const centerY = rect.top + rect.height / 2;
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-		const viewWidth = window.innerWidth;
-		const viewHeight = window.innerHeight;
+    const viewWidth = window.innerWidth;
+    const viewHeight = window.innerHeight;
 
-		const currentOffset = isTouch ? touchOffset : offset;
+    const currentOffset = isTouch ? touchOffset : offset;
 
-		let pos = preferredPosition;
+    let pos = preferredPosition;
 
-		if (pos === 'auto') {
-			// Simple auto-positioning logic
-			if (rect.top > viewHeight / 2) {
-				pos = 'top';
-			} else {
-				pos = 'bottom';
-			}
-			
-			// Further refinement for horizontal edges if needed
-			if (rect.left < 50) pos = 'right';
-			else if (rect.right > viewWidth - 50) pos = 'left';
-		}
+    if (pos === "auto") {
+      // Simple auto-positioning logic
+      if (rect.top > viewHeight / 2) {
+        pos = "top";
+      } else {
+        pos = "bottom";
+      }
 
-		currentPosition = pos as 'top' | 'bottom' | 'left' | 'right';
+      // Further refinement for horizontal edges if needed
+      if (rect.left < 50) pos = "right";
+      else if (rect.right > viewWidth - 50) pos = "left";
+    }
 
-		switch (pos) {
-			case 'top':
-				x = centerX;
-				y = rect.top - currentOffset;
-				break;
-			case 'bottom':
-				x = centerX;
-				y = rect.bottom + currentOffset;
-				break;
-			case 'left':
-				x = rect.left - currentOffset;
-				y = centerY;
-				break;
-			case 'right':
-				x = rect.right + currentOffset;
-				y = centerY;
-				break;
-		}
-	}
+    currentPosition = pos as "top" | "bottom" | "left" | "right";
 
-	function show(event: MouseEvent | FocusEvent | TouchEvent) {
-		// Do not show tooltips on touch/mobile devices that do not support hover.
-		if (typeof window !== 'undefined' && !window.matchMedia('(hover: hover)').matches) {
-			return;
-		}
-		const node = event.currentTarget as HTMLElement;
-		const isTouch = 'touches' in event;
-		updatePosition(node, isTouch);
-		visible = true;
-	}
+    switch (pos) {
+      case "top":
+        x = centerX;
+        y = rect.top - currentOffset;
+        break;
+      case "bottom":
+        x = centerX;
+        y = rect.bottom + currentOffset;
+        break;
+      case "left":
+        x = rect.left - currentOffset;
+        y = centerY;
+        break;
+      case "right":
+        x = rect.right + currentOffset;
+        y = centerY;
+        break;
+    }
+  }
 
-	function hide() {
-		visible = false;
-	}
+  function show(event: MouseEvent | FocusEvent | TouchEvent) {
+    // Do not show tooltips on touch/mobile devices that do not support hover.
+    if (
+      typeof window !== "undefined" &&
+      !window.matchMedia("(hover: hover)").matches
+    ) {
+      return;
+    }
+    const node = event.currentTarget as HTMLElement;
+    const isTouch = "touches" in event;
+    updatePosition(node, isTouch);
+    visible = true;
+  }
 
-	return {
-		get visible() { return visible; },
-		get x() { return x; },
-		get y() { return y; },
-		get position() { return currentPosition; },
-		handlers: {
-			onmouseenter: show,
-			onmouseleave: hide,
-			onfocus: show,
-			onblur: hide,
-			ontouchstart: (e: TouchEvent) => {
-				// Prevent default to avoid virtual mouse events on some devices
-				// but be careful not to break scrolling if it's not handled.
-				show(e);
-			},
-			ontouchend: hide
-		}
-	};
+  function hide() {
+    visible = false;
+  }
+
+  return {
+    get visible() {
+      return visible;
+    },
+    get x() {
+      return x;
+    },
+    get y() {
+      return y;
+    },
+    get position() {
+      return currentPosition;
+    },
+    handlers: {
+      onmouseenter: show,
+      onmouseleave: hide,
+      onfocus: show,
+      onblur: hide,
+      ontouchstart: (e: TouchEvent) => {
+        // Prevent default to avoid virtual mouse events on some devices
+        // but be careful not to break scrolling if it's not handled.
+        show(e);
+      },
+      ontouchend: hide,
+    },
+  };
 }

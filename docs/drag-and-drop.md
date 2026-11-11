@@ -19,43 +19,40 @@ Wrap your draggable element with `<Draggable>` and define a receiving zone with 
 
 ```svelte
 <script lang="ts">
-	import { Draggable, DropTarget } from 'svelte-akui';
+  import { Draggable, DropTarget } from "svelte-akui";
 
-	let droppedItems = $state<string[]>([]);
-	const item = { id: 'item-1', name: 'Almanac of Herbs' };
+  let droppedItems = $state<string[]>([]);
+  const item = { id: "item-1", name: "Almanac of Herbs" };
 
-	function handleDrop(payload) {
-		droppedItems = [...droppedItems, payload.data.name];
-	}
+  function handleDrop(payload) {
+    droppedItems = [...droppedItems, payload.data.name];
+  }
 </script>
 
 <!-- Draggable source -->
-<Draggable getPayload={() => ({ type: 'book', data: item })}>
-	{#snippet children({ isDragging })}
-		<div class="card" class:is-dragging={isDragging}>
-			{item.name}
-		</div>
-	{/snippet}
+<Draggable getPayload={() => ({ type: "book", data: item })}>
+  {#snippet children({ isDragging })}
+    <div class="card" class:is-dragging={isDragging}>
+      {item.name}
+    </div>
+  {/snippet}
 </Draggable>
 
 <!-- Drop target receiver -->
-<DropTarget
-	canDrop={(payload) => payload.type === 'book'}
-	ondrop={handleDrop}
->
-	{#snippet children({ isOver, canDrop })}
-		<div class="dropzone" class:active={isOver && canDrop}>
-			{#if droppedItems.length === 0}
-				Drop books here
-			{:else}
-				<ul>
-					{#each droppedItems as name}
-						<li>{name}</li>
-					{/each}
-				</ul>
-			{/if}
-		</div>
-	{/snippet}
+<DropTarget canDrop={(payload) => payload.type === "book"} ondrop={handleDrop}>
+  {#snippet children({ isOver, canDrop })}
+    <div class="dropzone" class:active={isOver && canDrop}>
+      {#if droppedItems.length === 0}
+        Drop books here
+      {:else}
+        <ul>
+          {#each droppedItems as name}
+            <li>{name}</li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+  {/snippet}
 </DropTarget>
 ```
 
@@ -81,27 +78,27 @@ Wrap your draggable element with `<Draggable>` and define a receiving zone with 
 
 ```svelte
 <script lang="ts">
-	import { Draggable } from 'svelte-akui';
+  import { Draggable } from "svelte-akui";
 
-	let note = { id: 'note-42', title: 'Meeting summary' };
+  let note = { id: "note-42", title: "Meeting summary" };
 </script>
 
 <Draggable
-	handleSelector=".handle"
-	dragScale={0.8}
-	getPayload={() => ({ type: 'note', data: note })}
-	ondragstart={() => console.log('Drag started')}
-	ondrop={({ handledExternally }) => console.log('Dropped:', handledExternally)}
+  handleSelector=".handle"
+  dragScale={0.8}
+  getPayload={() => ({ type: "note", data: note })}
+  ondragstart={() => console.log("Drag started")}
+  ondrop={({ handledExternally }) => console.log("Dropped:", handledExternally)}
 >
-	{#snippet children({ isDragging, delta })}
-		<div class="note-card">
-			<span class="handle">⋮⋮</span>
-			<h4>{note.title}</h4>
-			{#if isDragging}
-				<small>Moving by {delta.x}px, {delta.y}px</small>
-			{/if}
-		</div>
-	{/snippet}
+  {#snippet children({ isDragging, delta })}
+    <div class="note-card">
+      <span class="handle">⋮⋮</span>
+      <h4>{note.title}</h4>
+      {#if isDragging}
+        <small>Moving by {delta.x}px, {delta.y}px</small>
+      {/if}
+    </div>
+  {/snippet}
 </Draggable>
 ```
 
@@ -121,30 +118,30 @@ Wrap your draggable element with `<Draggable>` and define a receiving zone with 
 
 ```svelte
 <script lang="ts">
-	import { DropTarget } from 'svelte-akui';
+  import { DropTarget } from "svelte-akui";
 
-	function onFolderDrop(payload) {
-		console.log('Moved item:', payload.data);
-	}
+  function onFolderDrop(payload) {
+    console.log("Moved item:", payload.data);
+  }
 </script>
 
 <DropTarget
-	canDrop={(payload) => payload.type === 'note'}
-	ondrop={onFolderDrop}
+  canDrop={(payload) => payload.type === "note"}
+  ondrop={onFolderDrop}
 >
-	{#snippet children({ isOver, canDrop, isDragging })}
-		<div
-			class="folder-target"
-			class:highlight={isOver && canDrop}
-			class:drag-active={isDragging}
-		>
-			{#if isOver && canDrop}
-				Release to move note into folder
-			{:else}
-				Notes folder
-			{/if}
-		</div>
-	{/snippet}
+  {#snippet children({ isOver, canDrop, isDragging })}
+    <div
+      class="folder-target"
+      class:highlight={isOver && canDrop}
+      class:drag-active={isDragging}
+    >
+      {#if isOver && canDrop}
+        Release to move note into folder
+      {:else}
+        Notes folder
+      {/if}
+    </div>
+  {/snippet}
 </DropTarget>
 ```
 
@@ -171,19 +168,19 @@ Both `dragSource()` and `dropTarget()` automatically connect to the shared `Drop
 
 ```svelte
 <script lang="ts">
-	import { dragSource } from 'svelte-akui';
+  import { dragSource } from "svelte-akui";
 
-	const source = dragSource({
-		getPayload: () => ({ type: 'raw-item', data: { id: 1 } })
-	});
+  const source = dragSource({
+    getPayload: () => ({ type: "raw-item", data: { id: 1 } }),
+  });
 </script>
 
 <div
-	{@attach source.attach}
-	style:transform="translate3d({source.delta.x}px, {source.delta.y}px, 0)"
-	style:opacity={source.isDragging ? 0.6 : 1}
+  {@attach source.attach}
+  style:transform="translate3d({source.delta.x}px, {source.delta.y}px, 0)"
+  style:opacity={source.isDragging ? 0.6 : 1}
 >
-	Drag Me Directly
+  Drag Me Directly
 </div>
 ```
 
@@ -193,50 +190,52 @@ The `Tree` component does not have built-in drag-and-drop assumptions. Instead, 
 
 ```svelte
 <script lang="ts">
-	import { createAttachmentKey } from 'svelte/attachments';
-	import { Tree, dragSource, dropTarget, getDropManager } from 'svelte-akui';
+  import { createAttachmentKey } from "svelte/attachments";
+  import { Tree, dragSource, dropTarget, getDropManager } from "svelte-akui";
 
-	let items = $state([
-		{ id: 'folder-1', label: 'Archive', isFolder: true, children: [] },
-		{ id: 'file-1', label: 'Report.pdf', icon: 'file' }
-	]);
+  let items = $state([
+    { id: "folder-1", label: "Archive", isFolder: true, children: [] },
+    { id: "file-1", label: "Report.pdf", icon: "file" },
+  ]);
 
-	const manager = getDropManager();
-	const rows = new Map();
+  const manager = getDropManager();
+  const rows = new Map();
 
-	function getRowAttrs(item) {
-		let cached = rows.get(item.id);
-		if (cached) return cached;
+  function getRowAttrs(item) {
+    let cached = rows.get(item.id);
+    if (cached) return cached;
 
-		const source = dragSource(
-			{
-				getPayload: () => ({ type: 'tree-node', data: item }),
-				disabled: !!item.isFolder
-			},
-			manager
-		);
+    const source = dragSource(
+      {
+        getPayload: () => ({ type: "tree-node", data: item }),
+        disabled: !!item.isFolder,
+      },
+      manager,
+    );
 
-		const target = dropTarget(
-			{
-				canDrop: (payload) => payload.type === 'tree-node' && !!item.isFolder,
-				ondrop: (payload) => {
-					console.log(`Dropped ${payload.data.label} into ${item.label}`);
-				}
-			},
-			manager
-		);
+    const target = dropTarget(
+      {
+        canDrop: (payload) => payload.type === "tree-node" && !!item.isFolder,
+        ondrop: (payload) => {
+          console.log(`Dropped ${payload.data.label} into ${item.label}`);
+        },
+      },
+      manager,
+    );
 
-		const attrs = {
-			[createAttachmentKey()]: source.attach,
-			[createAttachmentKey()]: target.attach,
-			get class() {
-				return target.isOver && target.canDrop ? 'akui-tree-item-row-highlight' : undefined;
-			}
-		};
+    const attrs = {
+      [createAttachmentKey()]: source.attach,
+      [createAttachmentKey()]: target.attach,
+      get class() {
+        return target.isOver && target.canDrop
+          ? "akui-tree-item-row-highlight"
+          : undefined;
+      },
+    };
 
-		rows.set(item.id, attrs);
-		return attrs;
-	}
+    rows.set(item.id, attrs);
+    return attrs;
+  }
 </script>
 
 <Tree {items} itemAttributes={getRowAttrs} />
@@ -252,44 +251,45 @@ To create a sortable grid, combine `<Draggable>` with `<DropTarget>` for each it
 
 ```svelte
 <script lang="ts">
-	import { Draggable, DropTarget, Masonry } from 'svelte-akui';
+  import { Draggable, DropTarget, Masonry } from "svelte-akui";
 
-	let items = $state([
-		{ id: '1', title: 'First' },
-		{ id: '2', title: 'Second' },
-		{ id: '3', title: 'Third' }
-	]);
+  let items = $state([
+    { id: "1", title: "First" },
+    { id: "2", title: "Second" },
+    { id: "3", title: "Third" },
+  ]);
 
-	function swapItems(draggedId: string, targetId: string) {
-		const from = items.findIndex((i) => i.id === draggedId);
-		const to = items.findIndex((i) => i.id === targetId);
-		if (from < 0 || to < 0 || from === to) return;
+  function swapItems(draggedId: string, targetId: string) {
+    const from = items.findIndex((i) => i.id === draggedId);
+    const to = items.findIndex((i) => i.id === targetId);
+    if (from < 0 || to < 0 || from === to) return;
 
-		const next = [...items];
-		const [moved] = next.splice(from, 1);
-		next.splice(to, 0, moved);
-		items = next;
-	}
+    const next = [...items];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    items = next;
+  }
 </script>
 
-<Masonry items={items} animate={true} colWidth="minmax(200px, 1fr)">
-	{#snippet itemSnippet(item)}
-		<Draggable
-			dragScale={0.6}
-			getPayload={() => ({ type: 'grid-card', data: item })}
-		>
-			<DropTarget
-				canDrop={(payload) => payload.type === 'grid-card' && payload.data.id !== item.id}
-				ondrop={(payload) => swapItems(payload.data.id, item.id)}
-			>
-				{#snippet children({ isOver, canDrop })}
-					<div class="card" class:over={isOver && canDrop}>
-						{item.title}
-					</div>
-				{/snippet}
-			</DropTarget>
-		</Draggable>
-	{/snippet}
+<Masonry {items} animate={true} colWidth="minmax(200px, 1fr)">
+  {#snippet itemSnippet(item)}
+    <Draggable
+      dragScale={0.6}
+      getPayload={() => ({ type: "grid-card", data: item })}
+    >
+      <DropTarget
+        canDrop={(payload) =>
+          payload.type === "grid-card" && payload.data.id !== item.id}
+        ondrop={(payload) => swapItems(payload.data.id, item.id)}
+      >
+        {#snippet children({ isOver, canDrop })}
+          <div class="card" class:over={isOver && canDrop}>
+            {item.title}
+          </div>
+        {/snippet}
+      </DropTarget>
+    </Draggable>
+  {/snippet}
 </Masonry>
 ```
 
@@ -303,22 +303,22 @@ To create a sortable grid, combine `<Draggable>` with `<DropTarget>` for each it
 
 Payload delivered from drag sources to drop targets.
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `type` | `string` | Payload classification string (e.g. `'note'`, `'card'`). |
-| `data` | `T` | The underlying data object passed with the drag. |
-| `source` | `string?` | Optional string identifying where the drag originated. |
+| Property | Type      | Description                                              |
+| -------- | --------- | -------------------------------------------------------- |
+| `type`   | `string`  | Payload classification string (e.g. `'note'`, `'card'`). |
+| `data`   | `T`       | The underlying data object passed with the drag.         |
+| `source` | `string?` | Optional string identifying where the drag originated.   |
 
 #### `DragMoveDetail`
 
 Detail object passed to `ondragmove`.
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `x` | `number` | Pointer client X position. |
-| `y` | `number` | Pointer client Y position. |
-| `dx` | `number` | Pointer X delta from initial grab point. |
-| `dy` | `number` | Pointer Y delta from initial grab point. |
+| Property | Type     | Description                              |
+| -------- | -------- | ---------------------------------------- |
+| `x`      | `number` | Pointer client X position.               |
+| `y`      | `number` | Pointer client Y position.               |
+| `dx`     | `number` | Pointer X delta from initial grab point. |
+| `dy`     | `number` | Pointer Y delta from initial grab point. |
 
 #### `DragCancelReason`
 
@@ -328,35 +328,35 @@ Detail object passed to `ondragmove`.
 
 ### `<Draggable>` Props
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `getPayload` | `(ctx: { element: HTMLElement }) => DragPayload` | **Required** | Factory function generating the payload for the drag. |
-| `handleSelector` | `string` | `undefined` | CSS selector for a descendant element to act as the handle. |
-| `disabled` | `boolean` | `false` | Blocks dragging when `true`. |
-| `longPressDelay` | `number` | `350` | Touch press hold duration in ms before a drag starts. |
-| `mouseThreshold` | `number` | `4` | Mouse travel in pixels required before a drag starts. |
-| `dragScale` | `number` | `1` | Visual scale applied to the element while dragging. |
-| `ondragstart` | `() => void` | `undefined` | Fired once when a drag begins. |
-| `onlongpress` | `() => void` | `undefined` | Fired immediately when a touch long-press timeout elapses without movement. |
-| `ondragmove` | `(detail: DragMoveDetail) => void` | `undefined` | Fired on pointer move during a drag. |
-| `ondrop` | `(detail: { handledExternally: boolean; event: PointerEvent }) => void` | `undefined` | Fired when dropped. `handledExternally` is `true` if consumed by a target. |
-| `oncancel` | `(reason: DragCancelReason) => void` | `undefined` | Fired when the drag is aborted. |
-| `ondragend` | `() => void` | `undefined` | Fired after any drag completes or cancels. |
-| `children` | `Snippet<[{ isDragging: boolean; delta: { x: number; y: number } }]>` | `undefined` | Reactive content snippet. |
-| `class` | `string` | `''` | Additional CSS classes for the wrapper. |
+| Prop             | Type                                                                    | Default      | Description                                                                 |
+| ---------------- | ----------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------- |
+| `getPayload`     | `(ctx: { element: HTMLElement }) => DragPayload`                        | **Required** | Factory function generating the payload for the drag.                       |
+| `handleSelector` | `string`                                                                | `undefined`  | CSS selector for a descendant element to act as the handle.                 |
+| `disabled`       | `boolean`                                                               | `false`      | Blocks dragging when `true`.                                                |
+| `longPressDelay` | `number`                                                                | `350`        | Touch press hold duration in ms before a drag starts.                       |
+| `mouseThreshold` | `number`                                                                | `4`          | Mouse travel in pixels required before a drag starts.                       |
+| `dragScale`      | `number`                                                                | `1`          | Visual scale applied to the element while dragging.                         |
+| `ondragstart`    | `() => void`                                                            | `undefined`  | Fired once when a drag begins.                                              |
+| `onlongpress`    | `() => void`                                                            | `undefined`  | Fired immediately when a touch long-press timeout elapses without movement. |
+| `ondragmove`     | `(detail: DragMoveDetail) => void`                                      | `undefined`  | Fired on pointer move during a drag.                                        |
+| `ondrop`         | `(detail: { handledExternally: boolean; event: PointerEvent }) => void` | `undefined`  | Fired when dropped. `handledExternally` is `true` if consumed by a target.  |
+| `oncancel`       | `(reason: DragCancelReason) => void`                                    | `undefined`  | Fired when the drag is aborted.                                             |
+| `ondragend`      | `() => void`                                                            | `undefined`  | Fired after any drag completes or cancels.                                  |
+| `children`       | `Snippet<[{ isDragging: boolean; delta: { x: number; y: number } }]>`   | `undefined`  | Reactive content snippet.                                                   |
+| `class`          | `string`                                                                | `''`         | Additional CSS classes for the wrapper.                                     |
 
 ---
 
 ### `<DropTarget>` Props
 
-| Prop | Type | Default | Description |
-| --- | --- | --- | --- |
-| `canDrop` | `(payload: DragPayload) => boolean` | `undefined` | Predicate checking if the active payload is valid for this target. |
-| `ondrop` | `(payload: DragPayload, event?: PointerEvent \| DragEvent) => void` | `undefined` | Callback invoked when a payload is dropped. |
-| `ondragenter` | `(payload: DragPayload) => void` | `undefined` | Callback invoked when an acceptable drag enters the target. |
-| `ondragleave` | `() => void` | `undefined` | Callback invoked when a drag leaves the target. |
-| `children` | `Snippet<[{ isOver: boolean; canDrop: boolean; isDragging: boolean; activePayload: DragPayload \| null }]>` | `undefined` | Reactive content snippet. |
-| `class` | `string` | `''` | Additional CSS classes for the wrapper. |
+| Prop          | Type                                                                                                        | Default     | Description                                                        |
+| ------------- | ----------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------ |
+| `canDrop`     | `(payload: DragPayload) => boolean`                                                                         | `undefined` | Predicate checking if the active payload is valid for this target. |
+| `ondrop`      | `(payload: DragPayload, event?: PointerEvent \| DragEvent) => void`                                         | `undefined` | Callback invoked when a payload is dropped.                        |
+| `ondragenter` | `(payload: DragPayload) => void`                                                                            | `undefined` | Callback invoked when an acceptable drag enters the target.        |
+| `ondragleave` | `() => void`                                                                                                | `undefined` | Callback invoked when a drag leaves the target.                    |
+| `children`    | `Snippet<[{ isOver: boolean; canDrop: boolean; isDragging: boolean; activePayload: DragPayload \| null }]>` | `undefined` | Reactive content snippet.                                          |
+| `class`       | `string`                                                                                                    | `''`        | Additional CSS classes for the wrapper.                            |
 
 ---
 
@@ -367,6 +367,7 @@ Detail object passed to `ondragmove`.
 Creates a reactive drag source instance.
 
 **`DragSourceOptions<T>` Properties**:
+
 - `getPayload: (ctx: { element: HTMLElement }) => DragPayload<T>` (**Required**)
 - `handleSelector?: string`
 - `disabled?: boolean`
@@ -380,6 +381,7 @@ Creates a reactive drag source instance.
 - `ondragend?: () => void`
 
 **`DragSourceInstance<T>` Members**:
+
 - `attach: Attachment<HTMLElement>` — Element attachment for `{@attach source.attach}`.
 - `isDragging: boolean` — Reactive boolean indicating active drag state.
 - `delta: { x: number; y: number }` — Pointer offset relative to the grab position.
@@ -393,12 +395,14 @@ Creates a reactive drag source instance.
 Creates a reactive drop target instance.
 
 **`DropTargetOptions<T>` Properties**:
+
 - `canDrop?: (payload: DragPayload) => boolean`
 - `ondrop?: (payload: DragPayload, event?: PointerEvent | DragEvent) => void`
 - `ondragenter?: (payload: DragPayload) => void`
 - `ondragleave?: () => void`
 
 **`DropTargetInstance` Members**:
+
 - `attach: Attachment<HTMLElement>` — Element attachment for `{@attach target.attach}`.
 - `isOver: boolean` — Reactive boolean indicating if a pointer is over this target.
 - `canDrop: boolean` — Reactive boolean indicating if the active payload satisfies `canDrop`.

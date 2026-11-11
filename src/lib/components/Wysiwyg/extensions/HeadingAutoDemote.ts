@@ -1,9 +1,9 @@
-import { Extension } from '@tiptap/core';
-import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 
 export interface HeadingAutoDemoteOptions {
-	/** Longest first-line heading, in characters, that is left as a heading. */
-	maxLength: number;
+  /** Longest first-line heading, in characters, that is left as a heading. */
+  maxLength: number;
 }
 
 /**
@@ -14,33 +14,35 @@ export interface HeadingAutoDemoteOptions {
  * into a heading by hand is not overruled.
  */
 export const HeadingAutoDemote = Extension.create<HeadingAutoDemoteOptions>({
-	name: 'akuiHeadingAutoDemote',
+  name: "akuiHeadingAutoDemote",
 
-	addOptions: () => ({ maxLength: Infinity }),
+  addOptions: () => ({ maxLength: Infinity }),
 
-	addProseMirrorPlugins() {
-		const { maxLength } = this.options;
-		let hasDemoted = false;
+  addProseMirrorPlugins() {
+    const { maxLength } = this.options;
+    let hasDemoted = false;
 
-		return [
-			new Plugin({
-				key: new PluginKey('akuiHeadingAutoDemote'),
-				appendTransaction: (transactions, _oldState, newState) => {
-					// Loading a value (setContent with emitUpdate: false) is not the user typing.
-					const isTyped = transactions.some((tr) => tr.docChanged && !tr.getMeta('preventUpdate'));
-					if (hasDemoted || !isTyped) return null;
+    return [
+      new Plugin({
+        key: new PluginKey("akuiHeadingAutoDemote"),
+        appendTransaction: (transactions, _oldState, newState) => {
+          // Loading a value (setContent with emitUpdate: false) is not the user typing.
+          const isTyped = transactions.some(
+            (tr) => tr.docChanged && !tr.getMeta("preventUpdate"),
+          );
+          if (hasDemoted || !isTyped) return null;
 
-					const first = newState.doc.firstChild;
-					const isTooLong =
-						first?.type.name === 'heading' &&
-						first.attrs.level === 1 &&
-						first.textContent.length > maxLength;
-					if (!isTooLong) return null;
+          const first = newState.doc.firstChild;
+          const isTooLong =
+            first?.type.name === "heading" &&
+            first.attrs.level === 1 &&
+            first.textContent.length > maxLength;
+          if (!isTooLong) return null;
 
-					hasDemoted = true;
-					return newState.tr.setNodeMarkup(0, newState.schema.nodes.paragraph);
-				}
-			})
-		];
-	}
+          hasDemoted = true;
+          return newState.tr.setNodeMarkup(0, newState.schema.nodes.paragraph);
+        },
+      }),
+    ];
+  },
 });

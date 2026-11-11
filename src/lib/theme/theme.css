@@ -1,14 +1,14 @@
 :root,
-[data-theme='light'] {
-	/* Thread geometry (the `small` size). Theme independent, so it is not repeated in the dark block. `Thread` overrides these per `size`. */
-	--akui-thread-avatar: 2.25rem;
-	--akui-thread-gap: 0.5rem;
-	--akui-thread-line-width: 2px;
-	--akui-thread-spacing: 0.5rem;
-	--akui-thread-dot: 0.5rem;
-	--akui-thread-font-size: 0.875rem;
+[data-theme="light"] {
+  /* Thread geometry (the `small` size). Theme independent, so it is not repeated in the dark block. `Thread` overrides these per `size`. */
+  --akui-thread-avatar: 2.25rem;
+  --akui-thread-gap: 0.5rem;
+  --akui-thread-line-width: 2px;
+  --akui-thread-spacing: 0.5rem;
+  --akui-thread-dot: 0.5rem;
+  --akui-thread-font-size: 0.875rem;
 
-	/*
+  /*
 	 * Derived colours. A theme is one number, `--akui-hue` (0-360, set inline on `.akui-root` by
 	 * `UIRoot`); every colour below is computed from it in oklch, so the accent, the tinted
 	 * backgrounds, borders, glows and rings all follow. Optional knobs:
@@ -18,551 +18,717 @@
 	 * it inline (`tokens`), which beats these rules; tokens that reference others (`-alpha`, ring,
 	 * hover) follow the pinned value automatically.
 	 */
-	color-scheme: light;
-	--akui-bg: oklch(0.995 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg: oklch(0.21 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-secondary: oklch(0.965 calc(0.006 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg-secondary: oklch(0.45 calc(0.025 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-accent: oklch(0.55 var(--akui-chroma, 0.21) var(--akui-hue, 263));
-	/* Text on the accent: white, or near-black when the accent is light (yellows, greens). */
-	--akui-fg-accent: oklch(from var(--akui-bg-accent) clamp(0.15, (0.68 - l) * 1000, 1) 0 0);
-	--akui-bg-hover: color-mix(in oklch, var(--akui-fg) 6%, transparent);
+  color-scheme: light;
+  --akui-bg: oklch(
+    0.995 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg: oklch(0.21 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
+  --akui-bg-secondary: oklch(
+    0.965 calc(0.006 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg-secondary: oklch(
+    0.45 calc(0.025 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-bg-accent: oklch(0.55 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+  /* Text on the accent: white, or near-black when the accent is light (yellows, greens). */
+  --akui-fg-accent: oklch(
+    from var(--akui-bg-accent) clamp(0.15, (0.68 - l) * 1000, 1) 0 0
+  );
+  --akui-bg-hover: color-mix(in oklch, var(--akui-fg) 6%, transparent);
 
-	--akui-bg-button: oklch(0.925 calc(0.01 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg-button: oklch(0.15 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-button-hover: oklch(0.87 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-button-focus: oklch(0.75 calc(0.015 * var(--akui-tint, 1)) var(--akui-hue, 263));
+  --akui-bg-button: oklch(
+    0.925 calc(0.01 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg-button: oklch(
+    0.15 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-bg-button-hover: oklch(
+    0.87 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-bg-button-focus: oklch(
+    0.75 calc(0.015 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
 
-	--akui-bg-accent-hover: oklch(0.49 var(--akui-chroma, 0.21) var(--akui-hue, 263));
-	--akui-bg-accent-focus: oklch(0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+  --akui-bg-accent-hover: oklch(
+    0.49 var(--akui-chroma, 0.21) var(--akui-hue, 263)
+  );
+  --akui-bg-accent-focus: oklch(
+    0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263)
+  );
 
-	/*
+  /*
 	 * Deprecated: comma-separated sRGB twins for `rgba(var(--x-rgb), a)`. CSS can't derive them from
 	 * oklch, so they no longer follow the hue. Use `color-mix(in oklch, var(--akui-bg-accent) 20%, transparent)`.
 	 */
-	--akui-bg-rgb: 255, 255, 255;
-	--akui-fg-rgb: 17, 24, 39;
-	--akui-bg-accent-rgb: 37, 99, 235;
+  --akui-bg-rgb: 255, 255, 255;
+  --akui-fg-rgb: 17, 24, 39;
+  --akui-bg-accent-rgb: 37, 99, 235;
 
-	/*
+  /*
 	 * Translucent backgrounds: each opaque background above at 25% alpha. Use these when a surface
 	 * should let what is behind it show through. They reference the opaque tokens, so a pinned
 	 * `--akui-bg` carries through.
 	 */
-	--akui-bg-alpha: color-mix(in oklch, var(--akui-bg) 25%, transparent);
-	--akui-bg-secondary-alpha: color-mix(in oklch, var(--akui-bg-secondary) 25%, transparent);
-	--akui-bg-input-alpha: color-mix(in oklch, var(--akui-bg-input) 25%, transparent);
-	--akui-bg-button-alpha: color-mix(in oklch, var(--akui-bg-button) 25%, transparent);
-	--akui-bg-accent-alpha: color-mix(in oklch, var(--akui-bg-accent) 25%, transparent);
+  --akui-bg-alpha: color-mix(in oklch, var(--akui-bg) 25%, transparent);
+  --akui-bg-secondary-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-secondary) 25%,
+    transparent
+  );
+  --akui-bg-input-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-input) 25%,
+    transparent
+  );
+  --akui-bg-button-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-button) 25%,
+    transparent
+  );
+  --akui-bg-accent-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-accent) 25%,
+    transparent
+  );
 
-	/* Form Controls */
-	--akui-bg-input: oklch(0.98 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg-input: var(--akui-fg);
-	--akui-fg-placeholder: oklch(0.72 calc(0.015 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-border-input: oklch(0.88 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-ring-focus: color-mix(in oklch, var(--akui-bg-accent) 40%, transparent);
+  /* Form Controls */
+  --akui-bg-input: oklch(
+    0.98 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg-input: var(--akui-fg);
+  --akui-fg-placeholder: oklch(
+    0.72 calc(0.015 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-border-input: oklch(
+    0.88 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-ring-focus: color-mix(
+    in oklch,
+    var(--akui-bg-accent) 40%,
+    transparent
+  );
 
-	/* Spacing / Padding */
-	--akui-space-none: 0;
-	--akui-space-xs: 0.25rem;
-	--akui-space-s: 0.5rem;
-	--akui-space-m: 1rem;
-	--akui-space-l: 1.5rem;
-	--akui-space-xl: 2rem;
-	--akui-space-xxl: 3rem;
+  /* Spacing / Padding */
+  --akui-space-none: 0;
+  --akui-space-xs: 0.25rem;
+  --akui-space-s: 0.5rem;
+  --akui-space-m: 1rem;
+  --akui-space-l: 1.5rem;
+  --akui-space-xl: 2rem;
+  --akui-space-xxl: 3rem;
 
-	/* Radii */
-	--akui-radius-s: 4px;
-	--akui-radius-m: 8px;
-	--akui-radius-l: 12px;
+  /* Radii */
+  --akui-radius-s: 4px;
+  --akui-radius-m: 8px;
+  --akui-radius-l: 12px;
 
-	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 oklch(0.9 0.01 var(--akui-hue, 263) / 0.4);
-	--akui-glow-bottom: inset 0 -1px 0 oklch(0.2 0.05 var(--akui-hue, 263) / 0.1);
-	--akui-glow-inset-top: inset 0 1px 0 oklch(0.2 0.05 var(--akui-hue, 263) / 0.05);
-	--akui-glow-inset-bottom: inset 0 -1px 0 oklch(1 0 0 / 0.4);
-	--akui-shadow-subtle: 0 1px 2px oklch(0.2 0.05 var(--akui-hue, 263) / 0.05);
-	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
-	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
-	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
+  /* 3D Glow (Inner borders) */
+  --akui-glow-top: inset 0 1px 0 oklch(0.9 0.01 var(--akui-hue, 263) / 0.4);
+  --akui-glow-bottom: inset 0 -1px 0 oklch(0.2 0.05 var(--akui-hue, 263) / 0.1);
+  --akui-glow-inset-top: inset 0 1px 0
+    oklch(0.2 0.05 var(--akui-hue, 263) / 0.05);
+  --akui-glow-inset-bottom: inset 0 -1px 0 oklch(1 0 0 / 0.4);
+  --akui-shadow-subtle: 0 1px 2px oklch(0.2 0.05 var(--akui-hue, 263) / 0.05);
+  --akui-shadow-shiny:
+    var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+  --akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
+  --akui-shadow-sunken:
+    var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
 
-	/* 
+  /* 
 	 * Design Tokens: Coloured Components (Badges, Labels, etc.)
 	 * These can be overridden by clients to customize the semantic palette.
 	 */
-	--akui-color-blue-bg: rgba(96, 165, 250, 0.15);
-	--akui-color-blue-fg: #1e3a8a;
-	--akui-color-blue-border: color-mix(in srgb, rgba(96, 165, 250, 0.2), black 5%);
+  --akui-color-blue-bg: rgba(96, 165, 250, 0.15);
+  --akui-color-blue-fg: #1e3a8a;
+  --akui-color-blue-border: color-mix(
+    in srgb,
+    rgba(96, 165, 250, 0.2),
+    black 5%
+  );
 
-	--akui-color-green-bg: rgba(74, 222, 128, 0.15);
-	--akui-color-green-fg: #065f46;
-	--akui-color-green-border: color-mix(in srgb, rgba(74, 222, 128, 0.2), black 5%);
+  --akui-color-green-bg: rgba(74, 222, 128, 0.15);
+  --akui-color-green-fg: #065f46;
+  --akui-color-green-border: color-mix(
+    in srgb,
+    rgba(74, 222, 128, 0.2),
+    black 5%
+  );
 
-	--akui-color-orange-bg: rgba(251, 146, 60, 0.15);
-	--akui-color-orange-fg: #7c2d12;
-	--akui-color-orange-border: color-mix(in srgb, rgba(251, 146, 60, 0.2), black 5%);
+  --akui-color-orange-bg: rgba(251, 146, 60, 0.15);
+  --akui-color-orange-fg: #7c2d12;
+  --akui-color-orange-border: color-mix(
+    in srgb,
+    rgba(251, 146, 60, 0.2),
+    black 5%
+  );
 
-	--akui-color-pink-bg: rgba(244, 114, 182, 0.15);
-	--akui-color-pink-fg: #831843;
-	--akui-color-pink-border: color-mix(in srgb, rgba(244, 114, 182, 0.2), black 5%);
+  --akui-color-pink-bg: rgba(244, 114, 182, 0.15);
+  --akui-color-pink-fg: #831843;
+  --akui-color-pink-border: color-mix(
+    in srgb,
+    rgba(244, 114, 182, 0.2),
+    black 5%
+  );
 
-	--akui-color-purple-bg: rgba(167, 139, 250, 0.15);
-	--akui-color-purple-fg: #4c1d95;
-	--akui-color-purple-border: color-mix(in srgb, rgba(167, 139, 250, 0.2), black 5%);
+  --akui-color-purple-bg: rgba(167, 139, 250, 0.15);
+  --akui-color-purple-fg: #4c1d95;
+  --akui-color-purple-border: color-mix(
+    in srgb,
+    rgba(167, 139, 250, 0.2),
+    black 5%
+  );
 
-	--akui-color-amber-bg: rgba(251, 191, 36, 0.15);
-	--akui-color-amber-fg: #78350f;
-	--akui-color-amber-border: color-mix(in srgb, rgba(251, 191, 36, 0.2), black 5%);
+  --akui-color-amber-bg: rgba(251, 191, 36, 0.15);
+  --akui-color-amber-fg: #78350f;
+  --akui-color-amber-border: color-mix(
+    in srgb,
+    rgba(251, 191, 36, 0.2),
+    black 5%
+  );
 
-	--akui-color-red-bg: rgba(248, 113, 113, 0.15);
-	--akui-color-red-fg: #7f1d1d;
-	--akui-color-red-border: color-mix(in srgb, rgba(248, 113, 113, 0.2), black 5%);
+  --akui-color-red-bg: rgba(248, 113, 113, 0.15);
+  --akui-color-red-fg: #7f1d1d;
+  --akui-color-red-border: color-mix(
+    in srgb,
+    rgba(248, 113, 113, 0.2),
+    black 5%
+  );
 
-	--akui-color-teal-bg: rgba(45, 212, 191, 0.15);
-	--akui-color-teal-fg: #134e4a;
-	--akui-color-teal-border: color-mix(in srgb, rgba(45, 212, 191, 0.2), black 5%);
+  --akui-color-teal-bg: rgba(45, 212, 191, 0.15);
+  --akui-color-teal-fg: #134e4a;
+  --akui-color-teal-border: color-mix(
+    in srgb,
+    rgba(45, 212, 191, 0.2),
+    black 5%
+  );
 
-	--akui-color-grey-bg: rgba(148, 163, 184, 0.18);
-	--akui-color-grey-fg: #1e293b;
-	--akui-color-grey-border: color-mix(in srgb, rgba(148, 163, 184, 0.25), black 5%);
+  --akui-color-grey-bg: rgba(148, 163, 184, 0.18);
+  --akui-color-grey-fg: #1e293b;
+  --akui-color-grey-border: color-mix(
+    in srgb,
+    rgba(148, 163, 184, 0.25),
+    black 5%
+  );
 
-	/*
+  /*
 	 * Solid fills for blocks that carry no text (progress bars, status boxes). Unlike `-fg`, these
 	 * don't need text contrast, so the same mid-tone is used in light and dark. 
 	 */
-	--akui-color-blue-solid: hsl(213, 92%, 61%);
-	--akui-color-green-solid: hsl(142, 68%, 51%);
-	--akui-color-orange-solid: hsl(27, 92%, 54%);
-	--akui-color-pink-solid: hsl(330, 80%, 53%);
-	--akui-color-purple-solid: hsl(255, 90%, 69%);
-	--akui-color-amber-solid: hsl(43, 92%, 49%);
-	--akui-color-red-solid: hsl(0, 88%, 64%);
-	--akui-color-teal-solid: hsl(172, 65%, 43%);
-	--akui-color-grey-solid: hsl(214, 34%, 84%);
+  --akui-color-blue-solid: hsl(213, 92%, 61%);
+  --akui-color-green-solid: hsl(142, 68%, 51%);
+  --akui-color-orange-solid: hsl(27, 92%, 54%);
+  --akui-color-pink-solid: hsl(330, 80%, 53%);
+  --akui-color-purple-solid: hsl(255, 90%, 69%);
+  --akui-color-amber-solid: hsl(43, 92%, 49%);
+  --akui-color-red-solid: hsl(0, 88%, 64%);
+  --akui-color-teal-solid: hsl(172, 65%, 43%);
+  --akui-color-grey-solid: hsl(214, 34%, 84%);
 }
 
-[data-theme='dark'] {
-	/* Derived from `--akui-hue`, `--akui-chroma` and `--akui-tint`: see the light block. */
-	color-scheme: dark;
-	--akui-bg: oklch(0.17 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	/* Off-white rather than near-white: bright text on a dark surface halates (appears to bleed). */
-	--akui-fg: oklch(0.93 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-secondary: oklch(0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg-secondary: oklch(0.72 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-accent: oklch(0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263));
-	--akui-fg-accent: oklch(from var(--akui-bg-accent) clamp(0.15, (0.68 - l) * 1000, 1) 0 0);
-	--akui-bg-hover: color-mix(in oklch, var(--akui-fg) 10%, transparent);
+[data-theme="dark"] {
+  /* Derived from `--akui-hue`, `--akui-chroma` and `--akui-tint`: see the light block. */
+  color-scheme: dark;
+  --akui-bg: oklch(0.17 calc(0.012 * var(--akui-tint, 1)) var(--akui-hue, 263));
+  /* Off-white rather than near-white: bright text on a dark surface halates (appears to bleed). */
+  --akui-fg: oklch(0.93 calc(0.004 * var(--akui-tint, 1)) var(--akui-hue, 263));
+  --akui-bg-secondary: oklch(
+    0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg-secondary: oklch(
+    0.72 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-bg-accent: oklch(0.62 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+  --akui-fg-accent: oklch(
+    from var(--akui-bg-accent) clamp(0.15, (0.68 - l) * 1000, 1) 0 0
+  );
+  --akui-bg-hover: color-mix(in oklch, var(--akui-fg) 10%, transparent);
 
-	--akui-bg-button: oklch(0.27 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg-button: var(--akui-fg);
-	--akui-bg-button-hover: oklch(0.37 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-bg-button-focus: oklch(0.44 calc(0.04 * var(--akui-tint, 1)) var(--akui-hue, 263));
+  --akui-bg-button: oklch(
+    0.27 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg-button: var(--akui-fg);
+  --akui-bg-button-hover: oklch(
+    0.37 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-bg-button-focus: oklch(
+    0.44 calc(0.04 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
 
-	--akui-bg-accent-hover: oklch(0.55 var(--akui-chroma, 0.21) var(--akui-hue, 263));
-	--akui-bg-accent-focus: oklch(0.48 var(--akui-chroma, 0.21) var(--akui-hue, 263));
+  --akui-bg-accent-hover: oklch(
+    0.55 var(--akui-chroma, 0.21) var(--akui-hue, 263)
+  );
+  --akui-bg-accent-focus: oklch(
+    0.48 var(--akui-chroma, 0.21) var(--akui-hue, 263)
+  );
 
-	/* Deprecated sRGB twins: see the light block. */
-	--akui-bg-rgb: 13, 15, 20;
-	--akui-fg-rgb: 255, 255, 255;
-	--akui-bg-accent-rgb: 59, 130, 246;
+  /* Deprecated sRGB twins: see the light block. */
+  --akui-bg-rgb: 13, 15, 20;
+  --akui-fg-rgb: 255, 255, 255;
+  --akui-bg-accent-rgb: 59, 130, 246;
 
-	/* Translucent backgrounds: see the light block. */
-	--akui-bg-alpha: color-mix(in oklch, var(--akui-bg) 25%, transparent);
-	--akui-bg-secondary-alpha: color-mix(in oklch, var(--akui-bg-secondary) 25%, transparent);
-	--akui-bg-input-alpha: color-mix(in oklch, var(--akui-bg-input) 25%, transparent);
-	--akui-bg-button-alpha: color-mix(in oklch, var(--akui-bg-button) 25%, transparent);
-	--akui-bg-accent-alpha: color-mix(in oklch, var(--akui-bg-accent) 25%, transparent);
+  /* Translucent backgrounds: see the light block. */
+  --akui-bg-alpha: color-mix(in oklch, var(--akui-bg) 25%, transparent);
+  --akui-bg-secondary-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-secondary) 25%,
+    transparent
+  );
+  --akui-bg-input-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-input) 25%,
+    transparent
+  );
+  --akui-bg-button-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-button) 25%,
+    transparent
+  );
+  --akui-bg-accent-alpha: color-mix(
+    in oklch,
+    var(--akui-bg-accent) 25%,
+    transparent
+  );
 
-	/* Form Controls */
-	--akui-bg-input: oklch(0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-fg-input: var(--akui-fg);
-	--akui-fg-placeholder: oklch(0.52 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-border-input: oklch(0.37 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263));
-	--akui-ring-focus: color-mix(in oklch, var(--akui-bg-accent) 40%, transparent);
+  /* Form Controls */
+  --akui-bg-input: oklch(
+    0.21 calc(0.014 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-fg-input: var(--akui-fg);
+  --akui-fg-placeholder: oklch(
+    0.52 calc(0.02 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-border-input: oklch(
+    0.37 calc(0.03 * var(--akui-tint, 1)) var(--akui-hue, 263)
+  );
+  --akui-ring-focus: color-mix(
+    in oklch,
+    var(--akui-bg-accent) 40%,
+    transparent
+  );
 
-	/* Spacing / Padding */
-	--akui-space-none: 0;
-	--akui-space-xs: 0.25rem;
-	--akui-space-s: 0.5rem;
-	--akui-space-m: 1rem;
-	--akui-space-l: 1.5rem;
-	--akui-space-xl: 2rem;
-	--akui-space-xxl: 3rem;
+  /* Spacing / Padding */
+  --akui-space-none: 0;
+  --akui-space-xs: 0.25rem;
+  --akui-space-s: 0.5rem;
+  --akui-space-m: 1rem;
+  --akui-space-l: 1.5rem;
+  --akui-space-xl: 2rem;
+  --akui-space-xxl: 3rem;
 
-	/* Radii */
-	--akui-radius-s: 4px;
-	--akui-radius-m: 8px;
-	--akui-radius-l: 12px;
+  /* Radii */
+  --akui-radius-s: 4px;
+  --akui-radius-m: 8px;
+  --akui-radius-l: 12px;
 
-	/* 3D Glow (Inner borders) */
-	--akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.15);
-	--akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
-	--akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.4);
-	--akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.3);
-	--akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3);
-	--akui-shadow-shiny: var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
-	--akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
-	--akui-shadow-sunken: var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
+  /* 3D Glow (Inner borders) */
+  --akui-glow-top: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --akui-glow-bottom: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  --akui-glow-inset-top: inset 0 1px 0 rgba(0, 0, 0, 0.4);
+  --akui-glow-inset-bottom: inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+  --akui-shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --akui-shadow-shiny:
+    var(--akui-glow-top), var(--akui-glow-bottom), var(--akui-shadow-subtle);
+  --akui-shadow-glow: var(--akui-glow-top), var(--akui-glow-bottom);
+  --akui-shadow-sunken:
+    var(--akui-glow-inset-top), var(--akui-glow-inset-bottom);
 
-	--akui-transition-theme:
-		background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  --akui-transition-theme:
+    background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
 
-	/*
+  /*
 	 * Design Tokens: Coloured Components (Dark Mode)
 	 */
-	--akui-color-blue-bg: rgba(96, 165, 250, 0.1);
-	--akui-color-blue-fg: #60a5fa;
-	--akui-color-blue-border: color-mix(in srgb, rgba(96, 165, 250, 0.2), black 40%);
+  --akui-color-blue-bg: rgba(96, 165, 250, 0.1);
+  --akui-color-blue-fg: #60a5fa;
+  --akui-color-blue-border: color-mix(
+    in srgb,
+    rgba(96, 165, 250, 0.2),
+    black 40%
+  );
 
-	--akui-color-green-bg: rgba(74, 222, 128, 0.1);
-	--akui-color-green-fg: #4ade80;
-	--akui-color-green-border: color-mix(in srgb, rgba(74, 222, 128, 0.2), black 40%);
+  --akui-color-green-bg: rgba(74, 222, 128, 0.1);
+  --akui-color-green-fg: #4ade80;
+  --akui-color-green-border: color-mix(
+    in srgb,
+    rgba(74, 222, 128, 0.2),
+    black 40%
+  );
 
-	--akui-color-orange-bg: rgba(251, 146, 60, 0.1);
-	--akui-color-orange-fg: #fb923c;
-	--akui-color-orange-border: color-mix(in srgb, rgba(251, 146, 60, 0.2), black 40%);
+  --akui-color-orange-bg: rgba(251, 146, 60, 0.1);
+  --akui-color-orange-fg: #fb923c;
+  --akui-color-orange-border: color-mix(
+    in srgb,
+    rgba(251, 146, 60, 0.2),
+    black 40%
+  );
 
-	--akui-color-pink-bg: rgba(244, 114, 182, 0.1);
-	--akui-color-pink-fg: #f472b6;
-	--akui-color-pink-border: color-mix(in srgb, rgba(244, 114, 182, 0.2), black 40%);
+  --akui-color-pink-bg: rgba(244, 114, 182, 0.1);
+  --akui-color-pink-fg: #f472b6;
+  --akui-color-pink-border: color-mix(
+    in srgb,
+    rgba(244, 114, 182, 0.2),
+    black 40%
+  );
 
-	--akui-color-purple-bg: rgba(167, 139, 250, 0.1);
-	--akui-color-purple-fg: #a78bfa;
-	--akui-color-purple-border: color-mix(in srgb, rgba(167, 139, 250, 0.2), black 40%);
+  --akui-color-purple-bg: rgba(167, 139, 250, 0.1);
+  --akui-color-purple-fg: #a78bfa;
+  --akui-color-purple-border: color-mix(
+    in srgb,
+    rgba(167, 139, 250, 0.2),
+    black 40%
+  );
 
-	--akui-color-amber-bg: rgba(251, 191, 36, 0.1);
-	--akui-color-amber-fg: #fbbf24;
-	--akui-color-amber-border: color-mix(in srgb, rgba(251, 191, 36, 0.2), black 40%);
+  --akui-color-amber-bg: rgba(251, 191, 36, 0.1);
+  --akui-color-amber-fg: #fbbf24;
+  --akui-color-amber-border: color-mix(
+    in srgb,
+    rgba(251, 191, 36, 0.2),
+    black 40%
+  );
 
-	--akui-color-red-bg: rgba(248, 113, 113, 0.1);
-	--akui-color-red-fg: #f87171;
-	--akui-color-red-border: color-mix(in srgb, rgba(248, 113, 113, 0.2), black 40%);
+  --akui-color-red-bg: rgba(248, 113, 113, 0.1);
+  --akui-color-red-fg: #f87171;
+  --akui-color-red-border: color-mix(
+    in srgb,
+    rgba(248, 113, 113, 0.2),
+    black 40%
+  );
 
-	--akui-color-teal-bg: rgba(45, 212, 191, 0.1);
-	--akui-color-teal-fg: #2dd4bf;
-	--akui-color-teal-border: color-mix(in srgb, rgba(45, 212, 191, 0.2), black 40%);
+  --akui-color-teal-bg: rgba(45, 212, 191, 0.1);
+  --akui-color-teal-fg: #2dd4bf;
+  --akui-color-teal-border: color-mix(
+    in srgb,
+    rgba(45, 212, 191, 0.2),
+    black 40%
+  );
 
-	--akui-color-grey-bg: rgba(148, 163, 184, 0.1);
-	--akui-color-grey-fg: #cbd5e1;
-	--akui-color-grey-border: color-mix(in srgb, rgba(148, 163, 184, 0.2), black 40%);
+  --akui-color-grey-bg: rgba(148, 163, 184, 0.1);
+  --akui-color-grey-fg: #cbd5e1;
+  --akui-color-grey-border: color-mix(
+    in srgb,
+    rgba(148, 163, 184, 0.2),
+    black 40%
+  );
 }
 
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 /* Base Component Styles using tokens */
 .akui-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.5rem 1rem;
-	font-weight: 500;
-	border: 1px solid transparent;
-	border-radius: var(--akui-radius-m);
-	background-color: transparent;
-	color: currentColor;
-	cursor: pointer;
-	transition: var(--akui-transition-theme);
-	text-decoration: none;
-	line-height: 1;
-	gap: 0.5rem;
-	min-height: 2.25rem;
-	box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--akui-radius-m);
+  background-color: transparent;
+  color: currentColor;
+  cursor: pointer;
+  transition: var(--akui-transition-theme);
+  text-decoration: none;
+  line-height: 1;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  box-sizing: border-box;
 }
 
 .akui-btn:focus-visible,
 button:not(.bespoke):not(.bespoke *):focus-visible {
-	outline: 3px solid var(--akui-bg-accent);
-	outline-offset: 2px;
+  outline: 3px solid var(--akui-bg-accent);
+  outline-offset: 2px;
 }
 
 .akui-btn:active {
-	transform: translateY(1px);
+  transform: translateY(1px);
 }
 
 .akui-btn.regular {
-	background-color: var(--akui-bg-button);
-	color: var(--akui-fg-button);
-	border-color: rgba(0, 0, 0, 0.1);
-	box-shadow: var(--akui-shadow-shiny);
+  background-color: var(--akui-bg-button);
+  color: var(--akui-fg-button);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: var(--akui-shadow-shiny);
 }
 
 .akui-btn.regular:hover {
-	background-color: var(--akui-bg-button-hover);
+  background-color: var(--akui-bg-button-hover);
 }
 
 .akui-btn.regular:active {
-	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .akui-btn.accent {
-	background-color: var(--akui-bg-accent);
-	color: var(--akui-fg-accent);
-	border-color: rgba(0, 0, 0, 0.2);
-	box-shadow: var(--akui-shadow-shiny);
+  background-color: var(--akui-bg-accent);
+  color: var(--akui-fg-accent);
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: var(--akui-shadow-shiny);
 }
 
 .akui-btn.accent:hover {
-	background-color: var(--akui-bg-accent-hover);
+  background-color: var(--akui-bg-accent-hover);
 }
 
 .akui-btn.accent:active {
-	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .akui-btn.ghost {
-	/* Uses base styles (transparent, inherit color) */
+  /* Uses base styles (transparent, inherit color) */
 }
 
 .akui-btn.ghost:hover {
-	background-color: var(--akui-bg-hover);
+  background-color: var(--akui-bg-hover);
 }
 
 /* Disabled (and loading, which disables the button). Anchors can't be disabled, so aria-disabled is styled too.
    Listed after the variant hover/active rules, with matching specificity, so they win. */
-.akui-btn:is(:disabled, [aria-disabled='true']):is(.regular, .accent, .ghost) {
-	opacity: 0.5;
-	cursor: not-allowed;
-	pointer-events: auto;
-	transform: none;
+.akui-btn:is(:disabled, [aria-disabled="true"]):is(.regular, .accent, .ghost) {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: auto;
+  transform: none;
 }
 
-.akui-btn.regular:is(:disabled, [aria-disabled='true']) {
-	background-color: var(--akui-bg-button);
-	box-shadow: none;
+.akui-btn.regular:is(:disabled, [aria-disabled="true"]) {
+  background-color: var(--akui-bg-button);
+  box-shadow: none;
 }
 
-.akui-btn.accent:is(:disabled, [aria-disabled='true']) {
-	background-color: var(--akui-bg-accent);
-	box-shadow: none;
+.akui-btn.accent:is(:disabled, [aria-disabled="true"]) {
+  background-color: var(--akui-bg-accent);
+  box-shadow: none;
 }
 
-.akui-btn.ghost:is(:disabled, [aria-disabled='true']) {
-	background-color: transparent;
+.akui-btn.ghost:is(:disabled, [aria-disabled="true"]) {
+  background-color: transparent;
 }
 
 /* A loading button already shows a spinner, so keep it fully opaque. */
 .akui-btn.loading:disabled {
-	opacity: 1;
-	cursor: progress;
+  opacity: 1;
+  cursor: progress;
 }
 
 .akui-btn.small {
-	padding: 0.25rem 0.5rem;
-	font-size: 0.8rem;
-	border-radius: var(--akui-radius-s);
-	min-height: 1.75rem;
-	gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: var(--akui-radius-s);
+  min-height: 1.75rem;
+  gap: 0.25rem;
 }
 
 .akui-btn.large {
-	padding: 0.75rem 1.5rem;
-	font-size: 1.1rem;
-	border-radius: var(--akui-radius-l);
-	min-height: 3rem;
-	gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: var(--akui-radius-l);
+  min-height: 3rem;
+  gap: 0.75rem;
 }
 
 /* Icon-only buttons should be square */
 .akui-btn.icon-only {
-	padding: 0;
-	width: 2.25rem;
+  padding: 0;
+  width: 2.25rem;
 }
 
 .akui-btn.small.icon-only {
-	width: 1.75rem;
+  width: 1.75rem;
 }
 
 .akui-btn.large.icon-only {
-	width: 3rem;
+  width: 3rem;
 }
 
 /* Global Link Styles */
 a:not(.bespoke) {
-	color: var(--akui-bg-accent);
-	text-decoration: underline;
-	transition: var(--akui-transition-theme);
+  color: var(--akui-bg-accent);
+  text-decoration: underline;
+  transition: var(--akui-transition-theme);
 }
 
 a:not(.bespoke):hover {
-	text-decoration: underline;
-	color: var(--akui-bg-accent-hover);
+  text-decoration: underline;
+  color: var(--akui-bg-accent-hover);
 }
 
 a:not(.bespoke):focus-visible {
-	outline: 2px solid var(--akui-bg-accent);
-	outline-offset: 2px;
-	border-radius: var(--akui-radius-s);
+  outline: 2px solid var(--akui-bg-accent);
+  outline-offset: 2px;
+  border-radius: var(--akui-radius-s);
 }
 
 /* Global Form Controls (Reset Only) */
-input:not(.bespoke):not(.bespoke *):not([type='checkbox']):not([type='radio']):not(
-		[type='range']
-	):not([type='file']),
+input:not(.bespoke):not(.bespoke *):not([type="checkbox"]):not(
+    [type="radio"]
+  ):not([type="range"]):not([type="file"]),
 select:not(.bespoke):not(.bespoke *),
 textarea:not(.bespoke):not(.bespoke *) {
-	appearance: none;
-	background-color: var(--akui-bg-input);
-	border: 1px solid var(--akui-border-input);
-	border-radius: var(--akui-radius-m);
-	color: var(--akui-fg);
-	font-family: inherit;
-	font-size: 0.9375rem;
-	outline: none;
-	box-shadow: var(--akui-shadow-sunken);
-	transition: all 0.2s ease;
+  appearance: none;
+  background-color: var(--akui-bg-input);
+  border: 1px solid var(--akui-border-input);
+  border-radius: var(--akui-radius-m);
+  color: var(--akui-fg);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  outline: none;
+  box-shadow: var(--akui-shadow-sunken);
+  transition: all 0.2s ease;
 }
 
 select:not(.bespoke):not(.bespoke *) {
-	box-shadow: var(--akui-shadow-shiny);
-	border: none;
+  box-shadow: var(--akui-shadow-shiny);
+  border: none;
 }
 
 input:not(.bespoke):not(.bespoke *):focus,
 select:not(.bespoke):not(.bespoke *):focus,
 textarea:not(.bespoke):not(.bespoke *):focus {
-	border-color: var(--akui-bg-accent);
+  border-color: var(--akui-bg-accent);
 }
 
 input:not(.bespoke):not(.bespoke *):focus-visible,
 select:not(.bespoke):not(.bespoke *):focus-visible,
 textarea:not(.bespoke):not(.bespoke *):focus-visible {
-	border-color: var(--akui-bg-accent);
-	outline: 3px solid var(--akui-bg-accent);
-	outline-offset: 2px;
+  border-color: var(--akui-bg-accent);
+  outline: 3px solid var(--akui-bg-accent);
+  outline-offset: 2px;
 }
 
 select:not(.bespoke):not(.bespoke *) {
-	appearance: none;
-	-webkit-appearance: none;
-	padding-right: 2.5rem;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 2.5rem;
 }
 
 textarea:not(.bespoke):not(.bespoke *) {
-	min-height: 5rem;
-	resize: vertical;
+  min-height: 5rem;
+  resize: vertical;
 }
 
 ::placeholder {
-	color: var(--akui-fg-placeholder);
-	opacity: 1;
+  color: var(--akui-fg-placeholder);
+  opacity: 1;
 }
 
 /* Custom Checkbox/Radio */
-input:not(.bespoke):not(.bespoke *)[type='checkbox'],
-input:not(.bespoke):not(.bespoke *)[type='radio'] {
-	appearance: none;
-	background-color: var(--akui-bg-input);
-	border: 1px solid var(--akui-border-input);
-	margin: 0;
-	cursor: pointer;
-	display: inline-grid;
-	place-content: center;
-	transition: var(--akui-transition-theme);
-	vertical-align: middle;
-	flex-shrink: 0;
+input:not(.bespoke):not(.bespoke *)[type="checkbox"],
+input:not(.bespoke):not(.bespoke *)[type="radio"] {
+  appearance: none;
+  background-color: var(--akui-bg-input);
+  border: 1px solid var(--akui-border-input);
+  margin: 0;
+  cursor: pointer;
+  display: inline-grid;
+  place-content: center;
+  transition: var(--akui-transition-theme);
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
-input:not(.bespoke):not(.bespoke *)[type='checkbox']:focus-visible,
-input:not(.bespoke):not(.bespoke *)[type='radio']:focus-visible {
-	outline: 3px solid var(--akui-bg-accent);
-	outline-offset: 2px;
+input:not(.bespoke):not(.bespoke *)[type="checkbox"]:focus-visible,
+input:not(.bespoke):not(.bespoke *)[type="radio"]:focus-visible {
+  outline: 3px solid var(--akui-bg-accent);
+  outline-offset: 2px;
 }
 
-input:not(.bespoke):not(.bespoke *)[type='checkbox'] {
-	width: 1.25rem;
-	height: 1.25rem;
-	border-radius: var(--akui-radius-s);
+input:not(.bespoke):not(.bespoke *)[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--akui-radius-s);
 }
 
-input:not(.bespoke):not(.bespoke *)[type='radio'] {
-	width: 1.25rem;
-	height: 1.25rem;
-	border-radius: 50%;
+input:not(.bespoke):not(.bespoke *)[type="radio"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
 }
 
-input:not(.bespoke):not(.bespoke *)[type='checkbox']:checked,
-input:not(.bespoke):not(.bespoke *)[type='radio']:checked {
-	background-color: var(--akui-checkbox-accent, var(--akui-bg-accent));
-	border-color: transparent;
-	box-shadow: var(--akui-glow-top);
+input:not(.bespoke):not(.bespoke *)[type="checkbox"]:checked,
+input:not(.bespoke):not(.bespoke *)[type="radio"]:checked {
+  background-color: var(--akui-checkbox-accent, var(--akui-bg-accent));
+  border-color: transparent;
+  box-shadow: var(--akui-glow-top);
 }
 
-input:not(.bespoke):not(.bespoke *)[type='checkbox']:checked::before {
-	content: '';
-	width: 0.65em;
-	height: 0.65em;
-	transform: scale(0);
-	transition: 120ms transform ease-in-out;
-	box-shadow: inset 1em 1em white;
-	transform-origin: bottom left;
-	clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-	transform: scale(1);
+input:not(.bespoke):not(.bespoke *)[type="checkbox"]:checked::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em white;
+  transform-origin: bottom left;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  transform: scale(1);
 }
 
-input:not(.bespoke):not(.bespoke *)[type='radio']:checked::before {
-	content: '';
-	width: 0.5rem;
-	height: 0.5rem;
-	border-radius: 50%;
-	background-color: white;
+input:not(.bespoke):not(.bespoke *)[type="radio"]:checked::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: white;
 }
 
 input:not(.bespoke):not(.bespoke *):disabled {
-	opacity: 0.6;
-	cursor: not-allowed;
-	background-color: var(--akui-bg-secondary);
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--akui-bg-secondary);
 }
 
 .akui-field-error {
-	font-size: 0.75rem;
-	margin-top: 0.25rem;
-	color: #ef4444; /* Standard error red */
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: #ef4444; /* Standard error red */
 }
 
 /* Accessibility utility for screen-reader only text */
 .sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border-width: 0;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 /* SvelteKit View Transitions (Cosy Fantasy Spring Animations) */
 ::view-transition-old(page) {
-	animation: none; /* Old page stays in place by default */
+  animation: none; /* Old page stays in place by default */
 }
 ::view-transition-new(page) {
-	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+  animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
 }
 
 /* When navigating "back", new page stays, old page slides out to the right */
 html.transition-back ::view-transition-old(page) {
-	animation: akui-slide-out 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
-	z-index: 2; /* Ensure old page slides over the new page */
+  animation: akui-slide-out 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+  z-index: 2; /* Ensure old page slides over the new page */
 }
 html.transition-back ::view-transition-new(page) {
-	animation: none;
+  animation: none;
 }
 
 /* When navigating "forward", old page stays, new page slides in from the right */
 html.transition-forward ::view-transition-old(page) {
-	animation: none;
+  animation: none;
 }
 html.transition-forward ::view-transition-new(page) {
-	animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
+  animation: akui-slide-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1) both;
 }
 
 /* No page slide with reduced motion: the pages swap at once. */
-html[data-reduced-motion='true'] ::view-transition-old(page),
-html[data-reduced-motion='true'] ::view-transition-new(page) {
-	animation: none;
+html[data-reduced-motion="true"] ::view-transition-old(page),
+html[data-reduced-motion="true"] ::view-transition-new(page) {
+  animation: none;
 }
 
 /* Fixed overlays (notifications, mobile menu) have their own View Transition groups. Unnamed, they are
@@ -578,15 +744,15 @@ html[data-reduced-motion='true'] ::view-transition-new(page) {
 ::view-transition-group(akui-menu-layer),
 ::view-transition-old(akui-menu-layer),
 ::view-transition-new(akui-menu-layer) {
-	animation: none;
-	mix-blend-mode: normal;
+  animation: none;
+  mix-blend-mode: normal;
 }
 ::view-transition-group(akui-notification-area),
 ::view-transition-group(akui-menu-backdrop) {
-	z-index: 1000;
+  z-index: 1000;
 }
 ::view-transition-group(akui-menu-layer) {
-	z-index: 1001;
+  z-index: 1001;
 }
 
 /* Shared-element morph (see morphTransition and LayoutAdaptivePane's viewTransition).
@@ -596,109 +762,109 @@ html[data-reduced-motion='true'] ::view-transition-new(page) {
    overlap exactly: the browser adds the layers together (plus-lighter), so the box is always fully
    covered. Fading the old one out before the new one fades in leaves it empty part way through. */
 :root {
-	--akui-morph-duration: 0.3s;
+  --akui-morph-duration: 0.3s;
 }
 ::view-transition-group(akui-note-open) {
-	animation-duration: var(--akui-morph-duration);
-	animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-	z-index: 20;
-	overflow: clip;
+  animation-duration: var(--akui-morph-duration);
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 20;
+  overflow: clip;
 }
 ::view-transition-old(akui-note-open),
 ::view-transition-new(akui-note-open) {
-	animation-duration: var(--akui-morph-duration);
-	animation-timing-function: linear;
-	animation-fill-mode: both;
-	/* Scale by width only and anchor to the top (the browser default), cropping the bottom with the
+  animation-duration: var(--akui-morph-duration);
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  /* Scale by width only and anchor to the top (the browser default), cropping the bottom with the
 	   group's `overflow`. Filling the height instead (`object-fit: cover`) blows a wide, short source
 	   like a journal row up by the ratio of heights, so its text balloons towards the centre of the
 	   screen while the note's text starts at the top. */
-	height: auto;
+  height: auto;
 }
 ::view-transition-old(akui-note-open) {
-	animation-name: akui-morph-out;
+  animation-name: akui-morph-out;
 }
 ::view-transition-new(akui-note-open) {
-	animation-name: akui-morph-in;
+  animation-name: akui-morph-in;
 }
 /* Reduced Motion: no shared element (see morphTransition), just a short crossfade of the page. */
 html.akui-morph-reduced::view-transition-old(root),
 html.akui-morph-reduced::view-transition-new(root) {
-	animation-duration: 0.15s;
-	animation-timing-function: ease-out;
+  animation-duration: 0.15s;
+  animation-timing-function: ease-out;
 }
 
 /* The card is scaled up with the box, so its text gets huge and busy if it stays visible, and two
    sets of text overlapping looks messy. The crossfade is therefore done by 20% of the morph; the rest
    of the growth is only the note, which scales up from a small copy of itself towards its natural size. */
 @keyframes akui-morph-out {
-	0% {
-		opacity: 1;
-	}
-	50%,
-	100% {
-		opacity: 0;
-	}
+  0% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes akui-morph-in {
-	0% {
-		opacity: 0;
-	}
-	50%,
-	100% {
-		opacity: 1;
-	}
+  0% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Closing runs the same morph backwards: the big note is the old layer and the small card the new one.
    The handover is late (80%) so the note has shrunk before the card appears, rather than the card's
    text being scaled up huge at the start. */
 html.akui-morph-close::view-transition-old(akui-note-open) {
-	animation-name: akui-morph-out-late;
+  animation-name: akui-morph-out-late;
 }
 html.akui-morph-close::view-transition-new(akui-note-open) {
-	animation-name: akui-morph-in-late;
+  animation-name: akui-morph-in-late;
 }
 
 @keyframes akui-morph-out-late {
-	0%,
-	50% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
+  0%,
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes akui-morph-in-late {
-	0%,
-	50% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
+  0%,
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes akui-slide-in {
-	from {
-		transform: translateX(100%);
-		opacity: 0;
-	}
-	to {
-		transform: translateX(0);
-		opacity: 1;
-	}
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @keyframes akui-slide-out {
-	from {
-		transform: translateX(0);
-		opacity: 1;
-	}
-	to {
-		transform: translateX(100%);
-		opacity: 0;
-	}
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }

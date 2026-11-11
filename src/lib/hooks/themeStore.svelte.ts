@@ -1,88 +1,101 @@
-import { getContext, setContext } from 'svelte';
-import { safeLocalStorage } from '../utils/safeStorage.js';
+import { getContext, setContext } from "svelte";
+import { safeLocalStorage } from "../utils/safeStorage.js";
 
-export type ThemeScheme = 'light' | 'dark';
+export type ThemeScheme = "light" | "dark";
 
 /** The one-colour input to a theme. `theme.css` derives every other colour from it. */
 export interface AkuiColour {
-	/** oklch hue angle, 0-360. */
-	hue: number;
-	/** Accent punch (oklch chroma). 0 is greyscale; default 0.21. */
-	chroma?: number;
-	/** How much of the hue tints backgrounds and text. 0 is neutral; default 1. */
-	tint?: number;
+  /** oklch hue angle, 0-360. */
+  hue: number;
+  /** Accent punch (oklch chroma). 0 is greyscale; default 0.21. */
+  chroma?: number;
+  /** How much of the hue tints backgrounds and text. 0 is neutral; default 1. */
+  tint?: number;
 }
 
 export interface AkuiTheme {
-	/** Unique id, stored in localStorage and exposed as `data-akui-theme`. */
-	id: string;
-	/** Name shown in the `ThemePicker`. */
-	label: string;
-	/** Optional heading the `ThemePicker` groups this theme under when `groupBy="group"`. */
-	group?: string;
-	/** Which built-in `[data-theme]` rules the theme builds on, so existing dark/light styles keep working. */
-	scheme: ThemeScheme;
-	/** Colour the theme derives from. Replaced by the user's accent (`ThemeStore.accent`) when set. */
-	colour?: AkuiColour;
-	/** `--akui-*` overrides applied inline on `.akui-root`, after the derived colours. */
-	tokens?: Record<`--akui-${string}`, string>;
+  /** Unique id, stored in localStorage and exposed as `data-akui-theme`. */
+  id: string;
+  /** Name shown in the `ThemePicker`. */
+  label: string;
+  /** Optional heading the `ThemePicker` groups this theme under when `groupBy="group"`. */
+  group?: string;
+  /** Which built-in `[data-theme]` rules the theme builds on, so existing dark/light styles keep working. */
+  scheme: ThemeScheme;
+  /** Colour the theme derives from. Replaced by the user's accent (`ThemeStore.accent`) when set. */
+  colour?: AkuiColour;
+  /** `--akui-*` overrides applied inline on `.akui-root`, after the derived colours. */
+  tokens?: Record<`--akui-${string}`, string>;
 }
 
-const STORAGE_KEY = 'akui-theme';
-const ACCENT_STORAGE_KEY = 'akui-accent';
+const STORAGE_KEY = "akui-theme";
+const ACCENT_STORAGE_KEY = "akui-accent";
 // `Symbol.for`, not `Symbol()`: the key must be the same across module copies. HMR or a duplicated
 // bundle reloads this module separately for `UIRoot` and `ThemePicker`, and a plain symbol would
 // then differ between them, so the picker couldn't find the root's store.
-const CONTEXT_KEY = Symbol.for('akui-theme-store');
+const CONTEXT_KEY = Symbol.for("akui-theme-store");
 
-export const SYSTEM_THEME_ID = 'system';
+export const SYSTEM_THEME_ID = "system";
 /** No tokens: `theme.css` already defines the light and dark values. */
-export const LIGHT_THEME: AkuiTheme = { id: 'light', label: 'Light', scheme: 'light' };
-export const DARK_THEME: AkuiTheme = { id: 'dark', label: 'Dark', scheme: 'dark' };
+export const LIGHT_THEME: AkuiTheme = {
+  id: "light",
+  label: "Light",
+  scheme: "light",
+};
+export const DARK_THEME: AkuiTheme = {
+  id: "dark",
+  label: "Dark",
+  scheme: "dark",
+};
 export const DEFAULT_THEMES: AkuiTheme[] = [LIGHT_THEME, DARK_THEME];
 
 /** Narrows parsed JSON to an `AkuiTheme`, so a hand-edited or outdated stored value is ignored. */
 function isTheme(value: unknown): value is AkuiTheme {
-	if (typeof value !== 'object' || value === null) return false;
-	const { id, label, scheme, tokens } = value as Record<string, unknown>;
-	return (
-		typeof id === 'string' &&
-		typeof label === 'string' &&
-		(scheme === 'light' || scheme === 'dark') &&
-		(tokens === undefined || (typeof tokens === 'object' && tokens !== null))
-	);
+  if (typeof value !== "object" || value === null) return false;
+  const { id, label, scheme, tokens } = value as Record<string, unknown>;
+  return (
+    typeof id === "string" &&
+    typeof label === "string" &&
+    (scheme === "light" || scheme === "dark") &&
+    (tokens === undefined || (typeof tokens === "object" && tokens !== null))
+  );
 }
 
 /** Saves or removes a value; a `null` value removes it. */
 function writeStored(key: string, value: string | null): void {
-	if (value === null) safeLocalStorage.removeItem(key);
-	else safeLocalStorage.setItem(key, value);
+  if (value === null) safeLocalStorage.removeItem(key);
+  else safeLocalStorage.setItem(key, value);
 }
 
 /** Reads the persisted theme, or `null` (follow the system) when missing, unparseable or invalid. */
 function readStoredTheme(): AkuiTheme | null {
-	const stored = safeLocalStorage.getItem(STORAGE_KEY);
-	if (!stored) return null;
-	try {
-		const parsed: unknown = JSON.parse(stored);
-		return isTheme(parsed) ? parsed : null;
-	} catch {
-		return null;
-	}
+  const stored = safeLocalStorage.getItem(STORAGE_KEY);
+  if (!stored) return null;
+  try {
+    const parsed: unknown = JSON.parse(stored);
+    return isTheme(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Reads the persisted accent, or `null` when missing or invalid. */
 function readStoredAccent(): AkuiColour | null {
-	try {
-		const parsed: unknown = JSON.parse(safeLocalStorage.getItem(ACCENT_STORAGE_KEY) ?? 'null');
-		const { hue, chroma, tint } = (parsed ?? {}) as Record<string, unknown>;
-		const isOptionalNumber = (value: unknown) => value === undefined || typeof value === 'number';
-		return typeof hue === 'number' && isOptionalNumber(chroma) && isOptionalNumber(tint)
-			? (parsed as AkuiColour)
-			: null;
-	} catch {
-		return null;
-	}
+  try {
+    const parsed: unknown = JSON.parse(
+      safeLocalStorage.getItem(ACCENT_STORAGE_KEY) ?? "null",
+    );
+    const { hue, chroma, tint } = (parsed ?? {}) as Record<string, unknown>;
+    const isOptionalNumber = (value: unknown) =>
+      value === undefined || typeof value === "number";
+    return typeof hue === "number" &&
+      isOptionalNumber(chroma) &&
+      isOptionalNumber(tint)
+      ? (parsed as AkuiColour)
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -93,109 +106,115 @@ function readStoredAccent(): AkuiColour | null {
  * when no `ThemePicker` (and therefore no theme list) is mounted.
  */
 export class ThemeStore {
-	/** Reads the custom themes `UIRoot` was given. A getter, so the list stays reactive and SSR-safe. */
-	#getCustomThemes: () => AkuiTheme[];
+  /** Reads the custom themes `UIRoot` was given. A getter, so the list stays reactive and SSR-safe. */
+  #getCustomThemes: () => AkuiTheme[];
 
-	constructor(getCustomThemes: () => AkuiTheme[] = () => []) {
-		this.#getCustomThemes = getCustomThemes;
-	}
+  constructor(getCustomThemes: () => AkuiTheme[] = () => []) {
+    this.#getCustomThemes = getCustomThemes;
+  }
 
-	/**
-	 * Every theme on offer, in the order the app passed them. A custom theme with id `light` or
-	 * `dark` replaces that built-in, which is how an app re-brands the defaults (e.g. its own
-	 * accent colour), and takes the position it was given. Built-ins the app doesn't replace come
-	 * first. Duplicate ids keep the first.
-	 */
-	themes = $derived.by(() => {
-		const custom = this.#getCustomThemes();
-		const untouchedDefaults = DEFAULT_THEMES.filter(
-			({ id }) => !custom.some((theme) => theme.id === id)
-		);
-		const all = [...untouchedDefaults, ...custom];
-		return all.filter((theme, index) => all.findIndex(({ id }) => id === theme.id) === index);
-	});
+  /**
+   * Every theme on offer, in the order the app passed them. A custom theme with id `light` or
+   * `dark` replaces that built-in, which is how an app re-brands the defaults (e.g. its own
+   * accent colour), and takes the position it was given. Built-ins the app doesn't replace come
+   * first. Duplicate ids keep the first.
+   */
+  themes = $derived.by(() => {
+    const custom = this.#getCustomThemes();
+    const untouchedDefaults = DEFAULT_THEMES.filter(
+      ({ id }) => !custom.some((theme) => theme.id === id),
+    );
+    const all = [...untouchedDefaults, ...custom];
+    return all.filter(
+      (theme, index) => all.findIndex(({ id }) => id === theme.id) === index,
+    );
+  });
 
-	/** Live OS `prefers-color-scheme` value. */
-	systemScheme = $state<ThemeScheme>('light');
-	/** The chosen theme as saved or selected; may be stale if the app has since edited that theme. */
-	#chosen = $state<AkuiTheme | null>(readStoredTheme());
+  /** Live OS `prefers-color-scheme` value. */
+  systemScheme = $state<ThemeScheme>("light");
+  /** The chosen theme as saved or selected; may be stale if the app has since edited that theme. */
+  #chosen = $state<AkuiTheme | null>(readStoredTheme());
 
-	/**
-	 * The active theme, or `null` to follow the system. If the app still offers a theme with the
-	 * saved id, that fresh definition wins over the saved copy, so edited tokens apply on reload.
-	 * The saved copy is the fallback for a theme the app no longer lists.
-	 */
-	selected = $derived(
-		this.#chosen && (this.themes.find(({ id }) => id === this.#chosen?.id) ?? this.#chosen)
-	);
+  /**
+   * The active theme, or `null` to follow the system. If the app still offers a theme with the
+   * saved id, that fresh definition wins over the saved copy, so edited tokens apply on reload.
+   * The saved copy is the fallback for a theme the app no longer lists.
+   */
+  selected = $derived(
+    this.#chosen &&
+      (this.themes.find(({ id }) => id === this.#chosen?.id) ?? this.#chosen),
+  );
 
-	selectedId = $derived(this.selected?.id ?? SYSTEM_THEME_ID);
-	/** The scheme actually rendering: the selected theme's, otherwise the OS one. */
-	scheme = $derived<ThemeScheme>(this.selected?.scheme ?? this.systemScheme);
-	/**
-	 * Token overrides to apply. Following the system uses the Light or Dark theme's tokens for the
-	 * current OS scheme, so a re-branded default still applies under "System".
-	 */
-	tokens = $derived(
-		(this.selected ?? this.themes.find(({ id }) => id === this.systemScheme))?.tokens ?? {}
-	);
+  selectedId = $derived(this.selected?.id ?? SYSTEM_THEME_ID);
+  /** The scheme actually rendering: the selected theme's, otherwise the OS one. */
+  scheme = $derived<ThemeScheme>(this.selected?.scheme ?? this.systemScheme);
+  /**
+   * Token overrides to apply. Following the system uses the Light or Dark theme's tokens for the
+   * current OS scheme, so a re-branded default still applies under "System".
+   */
+  tokens = $derived(
+    (this.selected ?? this.themes.find(({ id }) => id === this.systemScheme))
+      ?.tokens ?? {},
+  );
 
-	/**
-	 * The user's chosen accent, or `null` to use the theme's own `colour`. Kept apart from the
-	 * selected theme so the accent survives switching between Light, Dark and System.
-	 */
-	accent = $state<AkuiColour | null>(readStoredAccent());
+  /**
+   * The user's chosen accent, or `null` to use the theme's own `colour`. Kept apart from the
+   * selected theme so the accent survives switching between Light, Dark and System.
+   */
+  accent = $state<AkuiColour | null>(readStoredAccent());
 
-	/** The colour actually applied: the user's accent, otherwise the active theme's `colour`. */
-	colour = $derived<AkuiColour | undefined>(
-		this.accent ??
-			(this.selected ?? this.themes.find(({ id }) => id === this.systemScheme))?.colour
-	);
+  /** The colour actually applied: the user's accent, otherwise the active theme's `colour`. */
+  colour = $derived<AkuiColour | undefined>(
+    this.accent ??
+      (this.selected ?? this.themes.find(({ id }) => id === this.systemScheme))
+        ?.colour,
+  );
 
-	/** The `--akui-hue`, `--akui-chroma` and `--akui-tint` inputs for `colour`. */
-	colourTokens = $derived.by(() => {
-		const { hue, chroma, tint } = this.colour ?? {};
-		return {
-			...(hue === undefined ? {} : { '--akui-hue': String(hue) }),
-			...(chroma === undefined ? {} : { '--akui-chroma': String(chroma) }),
-			...(tint === undefined ? {} : { '--akui-tint': String(tint) })
-		};
-	});
+  /** The `--akui-hue`, `--akui-chroma` and `--akui-tint` inputs for `colour`. */
+  colourTokens = $derived.by(() => {
+    const { hue, chroma, tint } = this.colour ?? {};
+    return {
+      ...(hue === undefined ? {} : { "--akui-hue": String(hue) }),
+      ...(chroma === undefined ? {} : { "--akui-chroma": String(chroma) }),
+      ...(tint === undefined ? {} : { "--akui-tint": String(tint) }),
+    };
+  });
 
-	/** Sets the accent colour (`null` = back to the theme's own). Pass `persist: false` for previews. */
-	setAccent(accent: AkuiColour | null, { persist = true } = {}): void {
-		this.accent = accent;
-		if (!persist) return;
-		writeStored(ACCENT_STORAGE_KEY, accent ? JSON.stringify(accent) : null);
-	}
+  /** Sets the accent colour (`null` = back to the theme's own). Pass `persist: false` for previews. */
+  setAccent(accent: AkuiColour | null, { persist = true } = {}): void {
+    this.accent = accent;
+    if (!persist) return;
+    writeStored(ACCENT_STORAGE_KEY, accent ? JSON.stringify(accent) : null);
+  }
 
-	/** Tracks the OS colour scheme. Call from an `$effect`; the returned cleanup removes the listener. */
-	listenToSystemScheme(): () => void {
-		if (typeof window === 'undefined') return () => {};
-		const mql = window.matchMedia('(prefers-color-scheme: dark)');
-		const update = () => {
-			this.systemScheme = mql.matches ? 'dark' : 'light';
-		};
-		update();
-		mql.addEventListener('change', update);
-		return () => mql.removeEventListener('change', update);
-	}
+  /** Tracks the OS colour scheme. Call from an `$effect`; the returned cleanup removes the listener. */
+  listenToSystemScheme(): () => void {
+    if (typeof window === "undefined") return () => {};
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const update = () => {
+      this.systemScheme = mql.matches ? "dark" : "light";
+    };
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }
 
-	/** Selects a theme (`null` = follow the system). Pass `persist: false` for externally driven changes. */
-	select(theme: AkuiTheme | null, { persist = true } = {}): void {
-		this.#chosen = theme;
-		if (!persist) return;
-		writeStored(STORAGE_KEY, theme ? JSON.stringify(theme) : null);
-	}
+  /** Selects a theme (`null` = follow the system). Pass `persist: false` for externally driven changes. */
+  select(theme: AkuiTheme | null, { persist = true } = {}): void {
+    this.#chosen = theme;
+    if (!persist) return;
+    writeStored(STORAGE_KEY, theme ? JSON.stringify(theme) : null);
+  }
 }
 
 export function setThemeStore(store: ThemeStore): ThemeStore {
-	return setContext(CONTEXT_KEY, store);
+  return setContext(CONTEXT_KEY, store);
 }
 
 /** Returns the `ThemeStore` from the nearest `UIRoot`. Throws outside one. */
 export function getThemeStore(): ThemeStore {
-	const store = getContext<ThemeStore | undefined>(CONTEXT_KEY);
-	if (!store) throw new Error('getThemeStore() must be called inside a <UIRoot>.');
-	return store;
+  const store = getContext<ThemeStore | undefined>(CONTEXT_KEY);
+  if (!store)
+    throw new Error("getThemeStore() must be called inside a <UIRoot>.");
+  return store;
 }

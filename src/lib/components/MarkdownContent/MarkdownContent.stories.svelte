@@ -1,22 +1,22 @@
 <script module lang="ts">
-	import { defineMeta } from '@storybook/addon-svelte-csf';
+  import { defineMeta } from "@storybook/addon-svelte-csf";
 
-	const { Story } = defineMeta({
-		title: 'Components/MarkdownContent',
-		tags: ['autodocs']
-	});
+  const { Story } = defineMeta({
+    title: "Components/MarkdownContent",
+    tags: ["autodocs"],
+  });
 </script>
 
 <script lang="ts">
-	import MarkdownContent from './MarkdownContent.svelte';
-	import LayoutContentWidth from '../LayoutContentWidth/LayoutContentWidth.svelte';
+  import MarkdownContent from "./MarkdownContent.svelte";
+  import LayoutContentWidth from "../LayoutContentWidth/LayoutContentWidth.svelte";
 </script>
 
 <Story name="Default / Simple Content">
-	{#snippet children()}
-		<LayoutContentWidth size="medium">
-			<MarkdownContent
-				content={`
+  {#snippet children()}
+    <LayoutContentWidth size="medium">
+      <MarkdownContent
+        content={`
 # The Meadow Haven Pixie Dispatch
 *Est. 842 by the Elderberry Grove*
 
@@ -29,16 +29,16 @@ For a slow Sunday afternoon, try this gentle recipe perfected by Barnaby, our re
 3. Let it simmer gently on a stone warmed by a sleeping dragon's snout. Do not disturb the dragon.
 4. Add a drop of wild clover honey.
 				`}
-			/>
-		</LayoutContentWidth>
-	{/snippet}
+      />
+    </LayoutContentWidth>
+  {/snippet}
 </Story>
 
 <Story name="Rich Formatting & Tables">
-	{#snippet children()}
-		<LayoutContentWidth size="medium">
-			<MarkdownContent
-				content={`
+  {#snippet children()}
+    <LayoutContentWidth size="medium">
+      <MarkdownContent
+        content={`
 # Mossy Bottom Village Council Meeting Minutes
 **Date:** Midsummer Eve
 **Chair:** Elder Hazelwood (Gnome)
@@ -59,33 +59,33 @@ The meeting commenced with a status report on the **Pixie Relocation Initiative*
 
 For more details, visit the [Council Archives](#archives).
 				`}
-			/>
-		</LayoutContentWidth>
-	{/snippet}
+      />
+    </LayoutContentWidth>
+  {/snippet}
 </Story>
 
 <Story name="Task List (graphic checkboxes)">
-	{#snippet children()}
-		<LayoutContentWidth size="medium">
-			<MarkdownContent
-				checkboxes="graphic"
-				content={`
+  {#snippet children()}
+    <LayoutContentWidth size="medium">
+      <MarkdownContent
+        checkboxes="graphic"
+        content={`
 ## Spring Cleaning at the Toadstool Cottage
 - [x] Sweep the moss from the porch
 - [ ] Polish the cauldron
 - [x] Feed the hedge sprites
 - [ ] Return the borrowed broomstick
 				`}
-			/>
-		</LayoutContentWidth>
-	{/snippet}
+      />
+    </LayoutContentWidth>
+  {/snippet}
 </Story>
 
 <Story name="Code and Blockquotes">
-	{#snippet children()}
-		<LayoutContentWidth size="medium">
-			<MarkdownContent
-				content={`
+  {#snippet children()}
+    <LayoutContentWidth size="medium">
+      <MarkdownContent
+        content={`
 # Hearth-Magic Automation
 Modern hedge-witches are beginning to use automation syntax for their domestic spells. Here is an example script for auto-stoking a fireplace:
 
@@ -105,7 +105,7 @@ async function maintainCosiness() {
 
 Ensure you include a \`catch\` block for when the fire-sprite demands a sugar cube.
 				`}
-			/>
-		</LayoutContentWidth>
-	{/snippet}
+      />
+    </LayoutContentWidth>
+  {/snippet}
 </Story>

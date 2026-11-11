@@ -6,13 +6,14 @@
  * width however wide the grid track currently is, so a column can shrink as well as grow.
  */
 export function measureContentWidth(
-	contentElement: HTMLElement,
-	paddedElement: HTMLElement = contentElement
+  contentElement: HTMLElement,
+  paddedElement: HTMLElement = contentElement,
 ): number {
-	const range = document.createRange();
-	range.selectNodeContents(contentElement);
-	const { paddingLeft, paddingRight } = getComputedStyle(paddedElement);
-	const padding = Number.parseFloat(paddingLeft) + Number.parseFloat(paddingRight);
-	// Ceil: a fractional width would clip the last pixel of text.
-	return Math.ceil(range.getBoundingClientRect().width + padding);
+  const range = document.createRange();
+  range.selectNodeContents(contentElement);
+  const { paddingLeft, paddingRight } = getComputedStyle(paddedElement);
+  const padding =
+    Number.parseFloat(paddingLeft) + Number.parseFloat(paddingRight);
+  // Ceil: a fractional width would clip the last pixel of text.
+  return Math.ceil(range.getBoundingClientRect().width + padding);
 }

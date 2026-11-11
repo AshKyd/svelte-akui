@@ -1,34 +1,39 @@
 <script module lang="ts">
-	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Wysiwyg from './Wysiwyg.svelte';
-	import type { SlashMenuConfig } from './WysiwygEditor.svelte';
-	import { KEYBINDING_REFERENCE } from './extensions/Keybindings';
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import Wysiwyg from "./Wysiwyg.svelte";
+  import type { SlashMenuConfig } from "./WysiwygEditor.svelte";
+  import { KEYBINDING_REFERENCE } from "./extensions/Keybindings";
 
-	const { Story } = defineMeta({
-		title: 'Components/Wysiwyg',
-		tags: ['autodocs']
-	});
+  const { Story } = defineMeta({
+    title: "Components/Wysiwyg",
+    tags: ["autodocs"],
+  });
 
-	// Only text and list commands — no code block or divider in the menu.
-	const scopedSlashMenu: SlashMenuConfig = {
-		items: (defaults) => defaults.filter(({ id }) => !['code-block', 'divider'].includes(id))
-	};
+  // Only text and list commands — no code block or divider in the menu.
+  const scopedSlashMenu: SlashMenuConfig = {
+    items: (defaults) =>
+      defaults.filter(({ id }) => !["code-block", "divider"].includes(id)),
+  };
 
-	// Demonstrates a consumer adding their own command to the menu via `items`.
-	const extendedSlashMenu: SlashMenuConfig = {
-		items: (defaults) => [
-			...defaults,
-			{
-				id: 'dragon-nap',
-				label: 'Dragon Nap Notice',
-				keywords: ['dragon', 'nap'],
-				onRun: (editor) =>
-					editor.chain().focus().insertContent('A dragon is napping here. Please tiptoe.').run()
-			}
-		]
-	};
+  // Demonstrates a consumer adding their own command to the menu via `items`.
+  const extendedSlashMenu: SlashMenuConfig = {
+    items: (defaults) => [
+      ...defaults,
+      {
+        id: "dragon-nap",
+        label: "Dragon Nap Notice",
+        keywords: ["dragon", "nap"],
+        onRun: (editor) =>
+          editor
+            .chain()
+            .focus()
+            .insertContent("A dragon is napping here. Please tiptoe.")
+            .run(),
+      },
+    ],
+  };
 
-	const fantasyNoticeBoard = `# The Hearthside Chronicle
+  const fantasyNoticeBoard = `# The Hearthside Chronicle
 
 Welcome to the editor of **The Hearthside Chronicle**! 
 Here is a draft of the upcoming notices for the village of Oakhaven:
@@ -47,7 +52,7 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 
 *May your hearth be warm and your kettle always whistling.*`;
 
-	const witchErrands = `- [ ] Return the borrowed cauldron to Mrs Thistlewick
+  const witchErrands = `- [ ] Return the borrowed cauldron to Mrs Thistlewick
 - [ ] Reshelve the overdue grimoires at the parish library
 - [ ] Ask the council about broom parking on market day
 - [x] Feed the toad
@@ -55,72 +60,76 @@ Here is a draft of the upcoming notices for the village of Oakhaven:
 </script>
 
 <Story name="Default">
-	<Wysiwyg value="Hello, Tiptap!" />
+  <Wysiwyg value="Hello, Tiptap!" />
 </Story>
 
 <Story name="Empty (No Placeholder)">
-	<Wysiwyg value="" />
+  <Wysiwyg value="" />
 </Story>
 
 <Story name="Custom Placeholder">
-	<Wysiwyg value="" placeholder="Write your thoughts here..." />
+  <Wysiwyg value="" placeholder="Write your thoughts here..." />
 </Story>
 
 <!-- A short editor for quick-entry panels, where the default 250px would dominate the page. -->
 <Story name="Compact">
-	<Wysiwyg value="" placeholder="Take a note…" minHeight="80px" />
+  <Wysiwyg value="" placeholder="Take a note…" minHeight="80px" />
 </Story>
 
 <Story name="Cosy Fantasy Notice Board">
-	<Wysiwyg value={fantasyNoticeBoard} />
+  <Wysiwyg value={fantasyNoticeBoard} />
 </Story>
 
 <!-- Ticked items move to a collapsible "completed" section at the end of the list. -->
 <Story name="Grouped Completed Tasks">
-	<Wysiwyg value={witchErrands} groupCompletedTasks />
+  <Wysiwyg value={witchErrands} groupCompletedTasks />
 </Story>
 
 <!-- An empty editor opens on an empty H1. Typing more than 20 characters turns it into a paragraph, once. -->
 <Story name="Start With Heading (Auto-Demote)">
-	<Wysiwyg
-		value=""
-		placeholder="Name your spell…"
-		startWithHeading
-		demoteLongHeadingAt={20}
-		minHeight="120px"
-	/>
+  <Wysiwyg
+    value=""
+    placeholder="Name your spell…"
+    startWithHeading
+    demoteLongHeadingAt={20}
+    minHeight="120px"
+  />
 </Story>
 
 <!-- The "/" slash menu is opt-in via the `slashMenu` prop. -->
 <Story name="Slash Menu (Defaults)">
-	<Wysiwyg value="" placeholder="Type / to see the menu..." slashMenu />
+  <Wysiwyg value="" placeholder="Type / to see the menu..." slashMenu />
 </Story>
 
 <Story name="Slash Menu (Scoped to Text & Lists)">
-	<Wysiwyg
-		value=""
-		placeholder="Type / — only text and list commands appear"
-		slashMenu={scopedSlashMenu}
-	/>
+  <Wysiwyg
+    value=""
+    placeholder="Type / — only text and list commands appear"
+    slashMenu={scopedSlashMenu}
+  />
 </Story>
 
 <Story name="Slash Menu (Custom Command via items)">
-	<Wysiwyg
-		value=""
-		placeholder="Type / and look for 'Dragon Nap Notice'"
-		slashMenu={extendedSlashMenu}
-	/>
+  <Wysiwyg
+    value=""
+    placeholder="Type / and look for 'Dragon Nap Notice'"
+    slashMenu={extendedSlashMenu}
+  />
 </Story>
 
 <Story name="Slash Menu (Large)">
-	<Wysiwyg value="" placeholder="Type / to see the roomier menu..." slashMenu={{ size: 'large' }} />
+  <Wysiwyg
+    value=""
+    placeholder="Type / to see the roomier menu..."
+    slashMenu={{ size: "large" }}
+  />
 </Story>
 
 <Story name="Keybindings">
-	<ul>
-		{#each KEYBINDING_REFERENCE as { keys, action } (keys)}
-			<li><kbd>{keys}</kbd> — {action}</li>
-		{/each}
-	</ul>
-	<Wysiwyg value="Try the shortcuts here." slashMenu minHeight="120px" />
+  <ul>
+    {#each KEYBINDING_REFERENCE as { keys, action } (keys)}
+      <li><kbd>{keys}</kbd> — {action}</li>
+    {/each}
+  </ul>
+  <Wysiwyg value="Try the shortcuts here." slashMenu minHeight="120px" />
 </Story>

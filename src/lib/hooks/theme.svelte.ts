@@ -1,7 +1,7 @@
-import { getContext } from 'svelte';
+import { getContext } from "svelte";
 
 export interface ThemeContext {
-	readonly current: 'light' | 'dark';
+  readonly current: "light" | "dark";
 }
 
 /**
@@ -9,9 +9,9 @@ export interface ThemeContext {
  * Defaults to 'light' if not rendered inside a UIRoot wrapper.
  */
 export function getTheme(): ThemeContext {
-	try {
-		return getContext<ThemeContext>('akui-theme') ?? { current: 'light' };
-	} catch (e) {
-		return { current: 'light' };
-	}
+  try {
+    return getContext<ThemeContext>("akui-theme") ?? { current: "light" };
+  } catch (e) {
+    return { current: "light" };
+  }
 }

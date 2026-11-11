@@ -1,1 +1,1 @@
-export { default as Padding } from './Padding.svelte';
+export { default as Padding } from "./Padding.svelte";

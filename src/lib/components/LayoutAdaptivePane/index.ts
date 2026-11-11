@@ -1,1 +1,1 @@
-export { default as LayoutAdaptivePane } from './LayoutAdaptivePane.svelte';
+export { default as LayoutAdaptivePane } from "./LayoutAdaptivePane.svelte";

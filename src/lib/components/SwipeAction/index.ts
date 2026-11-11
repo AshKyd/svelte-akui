@@ -1,1 +1,1 @@
-export { default as SwipeAction } from './SwipeAction.svelte';
+export { default as SwipeAction } from "./SwipeAction.svelte";

@@ -1,14 +1,14 @@
 <script module lang="ts">
-	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Loader from './Loader.svelte';
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+  import Loader from "./Loader.svelte";
 
-	const { Story } = defineMeta({
-		title: 'Components/Loader',
-		component: Loader,
-		tags: ['autodocs']
-	});
+  const { Story } = defineMeta({
+    title: "Components/Loader",
+    component: Loader,
+    tags: ["autodocs"],
+  });
 </script>
 
 <Story name="Default">
-	<Loader />
+  <Loader />
 </Story>

@@ -1,1 +1,1 @@
-export { default as MarkdownContent } from './MarkdownContent.svelte';
+export { default as MarkdownContent } from "./MarkdownContent.svelte";

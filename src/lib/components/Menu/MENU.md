@@ -17,14 +17,18 @@ The Akui Menu system is a responsive, highly accessible menu solution built on t
 
 ```svelte
 <script>
-	import { MenuButton, MenuItem, MenuDivider } from '$lib/components/Menu';
+  import { MenuButton, MenuItem, MenuDivider } from "$lib/components/Menu";
 </script>
 
 {#snippet options()}
-	<MenuItem icon="person" label="Profile" onclick={() => console.log('Profile')} />
-	<MenuItem icon="gear" label="Settings" />
-	<MenuDivider />
-	<MenuItem icon="box-arrow-right" label="Logout" />
+  <MenuItem
+    icon="person"
+    label="Profile"
+    onclick={() => console.log("Profile")}
+  />
+  <MenuItem icon="gear" label="Settings" />
+  <MenuDivider />
+  <MenuItem icon="box-arrow-right" label="Logout" />
 {/snippet}
 
 <!-- origin determines where the menu anchors to the button -->
@@ -37,26 +41,26 @@ Use the raw `Menu` component for custom triggers, such as context menus or spawn
 
 ```svelte
 <script>
-	import { Menu, MenuItem } from '$lib/components/Menu';
-	let pos = $state({ x: 0, y: 0 });
-	let visible = $state(false);
+  import { Menu, MenuItem } from "$lib/components/Menu";
+  let pos = $state({ x: 0, y: 0 });
+  let visible = $state(false);
 
-	function onContextMenu(e) {
-		e.preventDefault();
-		pos = { x: e.clientX, y: e.clientY };
-		visible = true;
-	}
+  function onContextMenu(e) {
+    e.preventDefault();
+    pos = { x: e.clientX, y: e.clientY };
+    visible = true;
+  }
 </script>
 
 <div oncontextmenu={onContextMenu}>
-	Right-click me!
+  Right-click me!
 
-	{#if visible}
-		<Menu x={pos.x} y={pos.y} onClose={() => (visible = false)}>
-			<MenuItem label="Copy" />
-			<MenuItem label="Paste" />
-		</Menu>
-	{/if}
+  {#if visible}
+    <Menu x={pos.x} y={pos.y} onClose={() => (visible = false)}>
+      <MenuItem label="Copy" />
+      <MenuItem label="Paste" />
+    </Menu>
+  {/if}
 </div>
 ```
 
@@ -74,9 +78,24 @@ The standard action item. Wraps a button in an `<li>` with appropriate ARIA role
 - `checked`: Whether the checkbox or radio is checked. The parent owns the state: change it from `onclick`. The drawn radio or checkbox ignores pointer events, so a click anywhere on the row, including on the control, runs `onclick` once. Clicking a radio or checkbox item keeps the menu open (plain items still close it), and clicking the chosen radio again leaves it chosen.
 
 ```svelte
-<MenuItem controlType="radio" label="Note view" checked={view === 'note'} onclick={() => (view = 'note')} />
-<MenuItem controlType="radio" label="Journal view" checked={view === 'journal'} onclick={() => (view = 'journal')} />
-<MenuItem controlType="checkbox" label="Show in all notes" checked={showAll} onclick={() => (showAll = !showAll)} />
+<MenuItem
+  controlType="radio"
+  label="Note view"
+  checked={view === "note"}
+  onclick={() => (view = "note")}
+/>
+<MenuItem
+  controlType="radio"
+  label="Journal view"
+  checked={view === "journal"}
+  onclick={() => (view = "journal")}
+/>
+<MenuItem
+  controlType="checkbox"
+  label="Show in all notes"
+  checked={showAll}
+  onclick={() => (showAll = !showAll)}
+/>
 ```
 
 ### `MenuContent`
@@ -87,10 +106,10 @@ A wrapper for freeform content (sliders, text blocks, form fields). Ensures the 
 
 ```svelte
 <MenuContent size="m">
-	<div style="display: flex; flex-direction: column; gap: 4px;">
-		<span style="font-size: 10px; opacity: 0.6;">VOLUME</span>
-		<input type="range" />
-	</div>
+  <div style="display: flex; flex-direction: column; gap: 4px;">
+    <span style="font-size: 10px; opacity: 0.6;">VOLUME</span>
+    <input type="range" />
+  </div>
 </MenuContent>
 ```
 

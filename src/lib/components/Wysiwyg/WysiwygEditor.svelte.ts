@@ -1,39 +1,42 @@
-import type { Action } from 'svelte/action';
-import type { Editor } from '@tiptap/core';
-import type { Node as ProseNode } from '@tiptap/pm/model';
-import type { SlashMenuConfig } from './slashItems';
+import type { Action } from "svelte/action";
+import type { Editor } from "@tiptap/core";
+import type { Node as ProseNode } from "@tiptap/pm/model";
+import type { SlashMenuConfig } from "./slashItems";
 
-export type { SlashItem, SlashMenuConfig } from './slashItems';
+export type { SlashItem, SlashMenuConfig } from "./slashItems";
 
 /**
  * Finds the ProseMirror document position at the end of the Nth word (0-indexed).
  * Clamps to the end of the document if index exceeds word count; returns null if empty.
  */
-function docPositionForWordIndex(doc: ProseNode, targetIndex: number): number | null {
-	let wordCount = 0;
-	let result: number | null = null;
-	let sawAnyText = false;
+function docPositionForWordIndex(
+  doc: ProseNode,
+  targetIndex: number,
+): number | null {
+  let wordCount = 0;
+  let result: number | null = null;
+  let sawAnyText = false;
 
-	doc.descendants((node, pos) => {
-		if (result !== null) return false;
-		if (!node.isText) return true;
-		sawAnyText = true;
+  doc.descendants((node, pos) => {
+    if (result !== null) return false;
+    if (!node.isText) return true;
+    sawAnyText = true;
 
-		const text: string = node.text ?? '';
-		const wordRe = /\S+/g;
-		let match: RegExpExecArray | null;
-		while ((match = wordRe.exec(text))) {
-			if (wordCount === targetIndex) {
-				result = pos + match.index + match[0].length;
-				return false;
-			}
-			wordCount++;
-		}
-		return true;
-	});
+    const text: string = node.text ?? "";
+    const wordRe = /\S+/g;
+    let match: RegExpExecArray | null;
+    while ((match = wordRe.exec(text))) {
+      if (wordCount === targetIndex) {
+        result = pos + match.index + match[0].length;
+        return false;
+      }
+      wordCount++;
+    }
+    return true;
+  });
 
-	if (result !== null) return result;
-	return sawAnyText ? doc.content.size : null;
+  if (result !== null) return result;
+  return sawAnyText ? doc.content.size : null;
 }
 
 // Markdown parsers require text after `[ ]` to recognise task items.
@@ -41,11 +44,12 @@ function docPositionForWordIndex(doc: ProseNode, targetIndex: number): number | 
 const EMPTY_CHECKLIST_ITEM = /^([ \t]*[-*+][ \t]\[[ xX]\])[ \t]*$/gm;
 
 export function preserveEmptyChecklistItems(markdown: string): string {
-	return markdown.replace(EMPTY_CHECKLIST_ITEM, '$1 ​');
+  return markdown.replace(EMPTY_CHECKLIST_ITEM, "$1 ​");
 }
 
 // A task item line, then blank lines, then another task item line.
-const BLANK_LINES_BETWEEN_TASKS = /^([ \t]*[-*+][ \t]\[[ xX]\].*)\n(?:[ \t]*\n)+(?=[ \t]*[-*+][ \t]\[[ xX]\])/gm;
+const BLANK_LINES_BETWEEN_TASKS =
+  /^([ \t]*[-*+][ \t]\[[ xX]\].*)\n(?:[ \t]*\n)+(?=[ \t]*[-*+][ \t]\[[ xX]\])/gm;
 
 /**
  * Removes blank lines between checklist items.
@@ -56,47 +60,51 @@ const BLANK_LINES_BETWEEN_TASKS = /^([ \t]*[-*+][ \t]\[[ xX]\].*)\n(?:[ \t]*\n)+
  * editor saves checklists without blank lines anyway, so only older notes are affected.
  */
 export function tightenChecklists(markdown: string): string {
-	return markdown.replace(BLANK_LINES_BETWEEN_TASKS, '$1\n');
+  return markdown.replace(BLANK_LINES_BETWEEN_TASKS, "$1\n");
 }
 
 /** Markdown as it should be loaded into the editor. */
-const prepareMarkdown = (markdown: string) => tightenChecklists(preserveEmptyChecklistItems(markdown));
+const prepareMarkdown = (markdown: string) =>
+  tightenChecklists(preserveEmptyChecklistItems(markdown));
 
-const EMPTY_HEADING_DOC = { type: 'doc', content: [{ type: 'heading', attrs: { level: 1 } }] };
+const EMPTY_HEADING_DOC = {
+  type: "doc",
+  content: [{ type: "heading", attrs: { level: 1 } }],
+};
 
 export interface WysiwygEditorOptions {
-	placeholder?: string;
-	/** Optional hook to transform or sanitize pasted HTML before insertion. */
-	transformPastedHTML?: (html: string) => string;
-	/** Optional hook to transform or sanitize pasted plain text or markdown before insertion. */
-	transformPastedText?: (text: string, plain: boolean) => string;
-	/** Optional paste event handler. Return true to prevent default editor paste behaviour. */
-	handlePaste?: (event: ClipboardEvent) => boolean | void;
-	/**
-	 * Opt in to the "/" slash menu. Pass `true` for the default commands, or a
-	 * {@link SlashMenuConfig} to hide, reorder or add commands.
-	 */
-	slashMenu?: boolean | SlashMenuConfig;
-	/**
-	 * Move ticked task items to a collapsible "completed" section at the end of their list.
-	 * Read once when the editor loads.
-	 */
-	groupCompletedTasks?: boolean;
-	/**
-	 * When the value is empty, start with an empty H1 instead of a paragraph and focus it.
-	 * Read once when the editor loads, and again each time the value is reset to empty.
-	 */
-	startWithHeading?: boolean;
-	/**
-	 * Turn the first-line H1 into a paragraph once it is longer than this many characters (once per
-	 * editor). Read once when the editor loads.
-	 */
-	demoteLongHeadingAt?: number;
-	/**
-	 * Svelte context of the host component (`getAllContexts()`), passed to components that
-	 * `svelteNodeView` mounts inside the editor. Read once when the editor loads.
-	 */
-	context?: Map<unknown, unknown>;
+  placeholder?: string;
+  /** Optional hook to transform or sanitize pasted HTML before insertion. */
+  transformPastedHTML?: (html: string) => string;
+  /** Optional hook to transform or sanitize pasted plain text or markdown before insertion. */
+  transformPastedText?: (text: string, plain: boolean) => string;
+  /** Optional paste event handler. Return true to prevent default editor paste behaviour. */
+  handlePaste?: (event: ClipboardEvent) => boolean | void;
+  /**
+   * Opt in to the "/" slash menu. Pass `true` for the default commands, or a
+   * {@link SlashMenuConfig} to hide, reorder or add commands.
+   */
+  slashMenu?: boolean | SlashMenuConfig;
+  /**
+   * Move ticked task items to a collapsible "completed" section at the end of their list.
+   * Read once when the editor loads.
+   */
+  groupCompletedTasks?: boolean;
+  /**
+   * When the value is empty, start with an empty H1 instead of a paragraph and focus it.
+   * Read once when the editor loads, and again each time the value is reset to empty.
+   */
+  startWithHeading?: boolean;
+  /**
+   * Turn the first-line H1 into a paragraph once it is longer than this many characters (once per
+   * editor). Read once when the editor loads.
+   */
+  demoteLongHeadingAt?: number;
+  /**
+   * Svelte context of the host component (`getAllContexts()`), passed to components that
+   * `svelteNodeView` mounts inside the editor. Read once when the editor loads.
+   */
+  context?: Map<unknown, unknown>;
 }
 
 /**
@@ -105,291 +113,326 @@ export interface WysiwygEditorOptions {
  * Uses Svelte 5 runes for reactive state tracking.
  */
 export class WysiwygEditorController {
-	loading = $state(true);
-	loadError = $state(false);
+  loading = $state(true);
+  loadError = $state(false);
 
-	#editor: Editor | null = null;
-	#onChange: (val: string) => void;
-	#value = '';
-	#options: WysiwygEditorOptions = {};
-	#node = $state<HTMLElement | null>(null);
-	#visualViewportCleanup: (() => void) | null = null;
+  #editor: Editor | null = null;
+  #onChange: (val: string) => void;
+  #value = "";
+  #options: WysiwygEditorOptions = {};
+  #node = $state<HTMLElement | null>(null);
+  #visualViewportCleanup: (() => void) | null = null;
 
-	// Tiptap loads on-demand (see #setup), so #editor isn't ready the instant this controller (and the
-	// bound Wysiwyg component) exists. Anything that needs the live editor — focusAtWordIndex
-	// included — awaits this instead of assuming #editor is already set.
-	#ready: Promise<void>;
-	#resolveReady: (() => void) | null = null;
+  // Tiptap loads on-demand (see #setup), so #editor isn't ready the instant this controller (and the
+  // bound Wysiwyg component) exists. Anything that needs the live editor — focusAtWordIndex
+  // included — awaits this instead of assuming #editor is already set.
+  #ready: Promise<void>;
+  #resolveReady: (() => void) | null = null;
 
-	constructor(
-		initialValue: string,
-		options: WysiwygEditorOptions = {},
-		onChange: (val: string) => void
-	) {
-		this.#value = initialValue;
-		this.#options = options;
-		this.#onChange = onChange;
-		this.#ready = new Promise((resolve) => {
-			this.#resolveReady = resolve;
-		});
-	}
+  constructor(
+    initialValue: string,
+    options: WysiwygEditorOptions = {},
+    onChange: (val: string) => void,
+  ) {
+    this.#value = initialValue;
+    this.#options = options;
+    this.#onChange = onChange;
+    this.#ready = new Promise((resolve) => {
+      this.#resolveReady = resolve;
+    });
+  }
 
-	/**
-	 * Update active options dynamically without re-initializing the editor.
-	 */
-	setOptions(options: WysiwygEditorOptions) {
-		this.#options = options;
-	}
+  /**
+   * Update active options dynamically without re-initializing the editor.
+   */
+  setOptions(options: WysiwygEditorOptions) {
+    this.#options = options;
+  }
 
-	/**
-	 * Svelte Action to bind the editor to a DOM element container.
-	 */
-	init: Action<HTMLElement> = (node) => {
-		this.#node = node;
-		this.#setup(node);
+  /**
+   * Svelte Action to bind the editor to a DOM element container.
+   */
+  init: Action<HTMLElement> = (node) => {
+    this.#node = node;
+    this.#setup(node);
 
-		return {
-			destroy: () => this.#destroy()
-		};
-	};
+    return {
+      destroy: () => this.#destroy(),
+    };
+  };
 
-	/**
-	 * Synchronise external value updates with the editor instance.
-	 */
-	updateValue(newValue: string) {
-		if (this.#value === newValue) return;
-		this.#value = newValue;
-		if (!this.#editor) return;
-		this.#setDocument(this.#editor, newValue);
-	}
+  /**
+   * Synchronise external value updates with the editor instance.
+   */
+  updateValue(newValue: string) {
+    if (this.#value === newValue) return;
+    this.#value = newValue;
+    if (!this.#editor) return;
+    this.#setDocument(this.#editor, newValue);
+  }
 
-	/**
-	 * Replaces the document without emitting an update. An empty value becomes an empty H1 when
-	 * `startWithHeading` is on, because empty markdown has no way to say "heading".
-	 */
-	#setDocument(editor: Editor, markdown: string) {
-		if (!markdown && this.#options.startWithHeading) {
-			editor.commands.setContent(EMPTY_HEADING_DOC, { emitUpdate: false });
-			return;
-		}
-		editor.commands.setContent(prepareMarkdown(markdown), {
-			contentType: 'markdown',
-			emitUpdate: false
-		});
-	}
+  /**
+   * Replaces the document without emitting an update. An empty value becomes an empty H1 when
+   * `startWithHeading` is on, because empty markdown has no way to say "heading".
+   */
+  #setDocument(editor: Editor, markdown: string) {
+    if (!markdown && this.#options.startWithHeading) {
+      editor.commands.setContent(EMPTY_HEADING_DOC, { emitUpdate: false });
+      return;
+    }
+    editor.commands.setContent(prepareMarkdown(markdown), {
+      contentType: "markdown",
+      emitUpdate: false,
+    });
+  }
 
-	/**
-	 * Retries the editor initialization process.
-	 */
-	retry() {
-		if (!this.#node) return;
-		this.#destroy();
-		this.#setup(this.#node);
-	}
+  /**
+   * Retries the editor initialization process.
+   */
+  retry() {
+    if (!this.#node) return;
+    this.#destroy();
+    this.#setup(this.#node);
+  }
 
-	async #setup(node: HTMLElement) {
-		this.loading = true;
-		this.loadError = false;
+  async #setup(node: HTMLElement) {
+    this.loading = true;
+    this.loadError = false;
 
-		try {
-			// Code-splitting Tiptap so it loads on-demand
-			const [{ Editor }, { default: StarterKit }, { Markdown }, listModule, tableModule, extras] =
-				await Promise.all([
-					import('@tiptap/core'),
-					import('@tiptap/starter-kit'),
-					import('@tiptap/markdown'),
-					import('@tiptap/extension-list'),
-					import('@tiptap/extension-table'),
-					import('@tiptap/extensions')
-				]);
-			const { TaskList } = listModule;
-			const { TableKit } = tableModule;
-			const { Placeholder } = extras;
-			const [{ Keybindings }, { SvelteTaskItem }] = await Promise.all([
-				import('./extensions/Keybindings'),
-				import('./extensions/TaskItem')
-			]);
+    try {
+      // Code-splitting Tiptap so it loads on-demand
+      const [
+        { Editor },
+        { default: StarterKit },
+        { Markdown },
+        listModule,
+        tableModule,
+        extras,
+      ] = await Promise.all([
+        import("@tiptap/core"),
+        import("@tiptap/starter-kit"),
+        import("@tiptap/markdown"),
+        import("@tiptap/extension-list"),
+        import("@tiptap/extension-table"),
+        import("@tiptap/extensions"),
+      ]);
+      const { TaskList } = listModule;
+      const { TableKit } = tableModule;
+      const { Placeholder } = extras;
+      const [{ Keybindings }, { SvelteTaskItem }] = await Promise.all([
+        import("./extensions/Keybindings"),
+        import("./extensions/TaskItem"),
+      ]);
 
-			if (this.#node !== node) return; // Guard against rapid re-initialization
+      if (this.#node !== node) return; // Guard against rapid re-initialization
 
-			const { slashMenu, placeholder, groupCompletedTasks, demoteLongHeadingAt } = this.#options;
+      const {
+        slashMenu,
+        placeholder,
+        groupCompletedTasks,
+        demoteLongHeadingAt,
+      } = this.#options;
 
-			const extensions = [
-				StarterKit.configure({
-					// Underline has no markdown form, so it would be lost on save.
-					underline: false,
-					// Clicking opens the link; to edit one, move the cursor into it with the keyboard.
-						link: { openOnClick: true, autolink: true }
-				}),
-				Markdown,
-				TaskList,
-				// Checkbox is an akui `Checkbox` mounted by `svelteNodeView`; see devdocs/wysiwyg-tiptap.md.
-				SvelteTaskItem.configure({ nested: true, context: this.#options.context }),
-				// Parse and keep pasted/existing tables. There are no editing tools and no slash command to
-				// create one, so column resizing (which needs a drag handle UI) is off.
-				TableKit.configure({ table: { resizable: false } }),
-				Keybindings
-			];
-			if (placeholder) extensions.push(Placeholder.configure({ placeholder }));
+      const extensions = [
+        StarterKit.configure({
+          // Underline has no markdown form, so it would be lost on save.
+          underline: false,
+          // Clicking opens the link; to edit one, move the cursor into it with the keyboard.
+          link: { openOnClick: true, autolink: true },
+        }),
+        Markdown,
+        TaskList,
+        // Checkbox is an akui `Checkbox` mounted by `svelteNodeView`; see devdocs/wysiwyg-tiptap.md.
+        SvelteTaskItem.configure({
+          nested: true,
+          context: this.#options.context,
+        }),
+        // Parse and keep pasted/existing tables. There are no editing tools and no slash command to
+        // create one, so column resizing (which needs a drag handle UI) is off.
+        TableKit.configure({ table: { resizable: false } }),
+        Keybindings,
+      ];
+      if (placeholder) extensions.push(Placeholder.configure({ placeholder }));
 
-			if (demoteLongHeadingAt !== undefined) {
-				const { HeadingAutoDemote } = await import('./extensions/HeadingAutoDemote');
-				extensions.push(HeadingAutoDemote.configure({ maxLength: demoteLongHeadingAt }));
-			}
+      if (demoteLongHeadingAt !== undefined) {
+        const { HeadingAutoDemote } =
+          await import("./extensions/HeadingAutoDemote");
+        extensions.push(
+          HeadingAutoDemote.configure({ maxLength: demoteLongHeadingAt }),
+        );
+      }
 
-			if (slashMenu) {
-				const { SlashCommand } = await import('./extensions/SlashCommand');
-				extensions.push(
-					SlashCommand.configure({
-						config: typeof slashMenu === 'object' ? slashMenu : {},
-						host: node
-					})
-				);
-			}
+      if (slashMenu) {
+        const { SlashCommand } = await import("./extensions/SlashCommand");
+        extensions.push(
+          SlashCommand.configure({
+            config: typeof slashMenu === "object" ? slashMenu : {},
+            host: node,
+          }),
+        );
+      }
 
-			// Loaded on demand, so editors without the option don't pay for it.
-			if (groupCompletedTasks) {
-				const [{ Extension }, { createCompletedTasksPlugin }] = await Promise.all([
-					import('@tiptap/core'),
-					import('./completedTasks')
-				]);
-				extensions.push(
-					Extension.create({
-						name: 'akuiCompletedTasks',
-						addProseMirrorPlugins: () => [createCompletedTasksPlugin()]
-					})
-				);
-			}
+      // Loaded on demand, so editors without the option don't pay for it.
+      if (groupCompletedTasks) {
+        const [{ Extension }, { createCompletedTasksPlugin }] =
+          await Promise.all([
+            import("@tiptap/core"),
+            import("./completedTasks"),
+          ]);
+        extensions.push(
+          Extension.create({
+            name: "akuiCompletedTasks",
+            addProseMirrorPlugins: () => [createCompletedTasksPlugin()],
+          }),
+        );
+      }
 
-			if (this.#node !== node) return;
+      if (this.#node !== node) return;
 
-			this.#editor = new Editor({
-				element: node,
-				extensions,
-				content: prepareMarkdown(this.#value),
-				contentType: 'markdown',
-				editorProps: {
-					transformPastedHTML: (html: string) => {
-						const fn = this.#options.transformPastedHTML;
-						return fn ? fn(html) : html;
-					},
-					transformPastedText: (text: string, plain: boolean) => {
-						const fn = this.#options.transformPastedText;
-						return fn ? fn(text, plain) : text;
-					},
-					handlePaste: (_view, event) => Boolean(this.#options.handlePaste?.(event))
-				},
-				// Listen to content changes and synchronise value state
-				onUpdate: ({ editor }) => {
-					const markdown = preserveEmptyChecklistItems(editor.getMarkdown());
-					if (this.#value === markdown) return;
-					this.#value = markdown;
-					this.#onChange(markdown);
-				}
-			});
+      this.#editor = new Editor({
+        element: node,
+        extensions,
+        content: prepareMarkdown(this.#value),
+        contentType: "markdown",
+        editorProps: {
+          transformPastedHTML: (html: string) => {
+            const fn = this.#options.transformPastedHTML;
+            return fn ? fn(html) : html;
+          },
+          transformPastedText: (text: string, plain: boolean) => {
+            const fn = this.#options.transformPastedText;
+            return fn ? fn(text, plain) : text;
+          },
+          handlePaste: (_view, event) =>
+            Boolean(this.#options.handlePaste?.(event)),
+        },
+        // Listen to content changes and synchronise value state
+        onUpdate: ({ editor }) => {
+          const markdown = preserveEmptyChecklistItems(editor.getMarkdown());
+          if (this.#value === markdown) return;
+          this.#value = markdown;
+          this.#onChange(markdown);
+        },
+      });
 
-			// The constructor content is markdown, which can't express an empty heading.
-			if (!this.#value) this.#setDocument(this.#editor, this.#value);
+      // The constructor content is markdown, which can't express an empty heading.
+      if (!this.#value) this.#setDocument(this.#editor, this.#value);
 
-			if (slashMenu) this.#registerVisualViewportReflow();
+      if (slashMenu) this.#registerVisualViewportReflow();
 
-			this.loading = false;
-		} catch (error) {
-			console.error('Failed to load WYSIWYG editor:', error);
-			this.loadError = true;
-			this.loading = false;
-		} finally {
-			this.#resolveReady?.();
-		}
-	}
+      this.loading = false;
+    } catch (error) {
+      console.error("Failed to load WYSIWYG editor:", error);
+      this.loadError = true;
+      this.loading = false;
+    } finally {
+      this.#resolveReady?.();
+    }
+  }
 
-	/** Resolves once the editor has loaded (or failed to), i.e. its content is on screen. */
-	whenReady(): Promise<void> {
-		return this.#ready;
-	}
+  /** Resolves once the editor has loaded (or failed to), i.e. its content is on screen. */
+  whenReady(): Promise<void> {
+    return this.#ready;
+  }
 
-	/**
-	 * Focuses the editor, with the cursor at the start or end of the document.
-	 */
-	focus(collapseToStart = true) {
-		if (!this.#editor) return false;
-		// Tiptap's default scrolls the caret into view on the next frame. That scrolls every ancestor,
-		// including overflow:hidden ones, so focusing while a pane is still sliding in made the layout jump.
-		return this.#editor.commands.focus(collapseToStart ? 'start' : 'end', { scrollIntoView: false });
-	}
+  /**
+   * Focuses the editor, with the cursor at the start or end of the document.
+   */
+  focus(collapseToStart = true) {
+    if (!this.#editor) return false;
+    // Tiptap's default scrolls the caret into view on the next frame. That scrolls every ancestor,
+    // including overflow:hidden ones, so focusing while a pane is still sliding in made the layout jump.
+    return this.#editor.commands.focus(collapseToStart ? "start" : "end", {
+      scrollIntoView: false,
+    });
+  }
 
-	/**
-	 * Places the cursor at (approximately) the Nth word of the document and focuses the editor.
-	 * See {@link docPositionForWordIndex} for the word-counting rule the index must match.
-	 */
-	async focusAtWordIndex(index: number): Promise<boolean> {
-		await this.#ready;
-		const editor = this.#editor;
-		if (!editor) return false;
+  /**
+   * Places the cursor at (approximately) the Nth word of the document and focuses the editor.
+   * See {@link docPositionForWordIndex} for the word-counting rule the index must match.
+   */
+  async focusAtWordIndex(index: number): Promise<boolean> {
+    await this.#ready;
+    const editor = this.#editor;
+    if (!editor) return false;
 
-		const pos = docPositionForWordIndex(editor.state.doc, index);
-		if (pos === null) return false;
-		const applied = editor.chain().focus(null, { scrollIntoView: false }).setTextSelection(pos).run();
-		if (applied) this.#scrollCaretIntoViewVertically(editor, pos);
-		return applied;
-	}
+    const pos = docPositionForWordIndex(editor.state.doc, index);
+    if (pos === null) return false;
+    const applied = editor
+      .chain()
+      .focus(null, { scrollIntoView: false })
+      .setTextSelection(pos)
+      .run();
+    if (applied) this.#scrollCaretIntoViewVertically(editor, pos);
+    return applied;
+  }
 
-	/**
-	 * Places the cursor `offset` characters into the first-line heading (clamped to its length)
-	 * and focuses the editor. Does nothing if the first line is not a heading.
-	 */
-	async focusHeadingAt(offset: number): Promise<boolean> {
-		await this.#ready;
-		const editor = this.#editor;
-		const first = editor?.state.doc.firstChild;
-		if (!editor || first?.type.name !== 'heading') return false;
+  /**
+   * Places the cursor `offset` characters into the first-line heading (clamped to its length)
+   * and focuses the editor. Does nothing if the first line is not a heading.
+   */
+  async focusHeadingAt(offset: number): Promise<boolean> {
+    await this.#ready;
+    const editor = this.#editor;
+    const first = editor?.state.doc.firstChild;
+    if (!editor || first?.type.name !== "heading") return false;
 
-		// Position 0 is before the heading node, so its text starts at 1.
-		const pos = 1 + Math.max(0, Math.min(offset, first.content.size));
-		const applied = editor.chain().focus(null, { scrollIntoView: false }).setTextSelection(pos).run();
-		if (applied) this.#scrollCaretIntoViewVertically(editor, pos);
-		return applied;
-	}
+    // Position 0 is before the heading node, so its text starts at 1.
+    const pos = 1 + Math.max(0, Math.min(offset, first.content.size));
+    const applied = editor
+      .chain()
+      .focus(null, { scrollIntoView: false })
+      .setTextSelection(pos)
+      .run();
+    if (applied) this.#scrollCaretIntoViewVertically(editor, pos);
+    return applied;
+  }
 
-	/**
-	 * Brings the caret into view by scrolling only the nearest vertical scroll container.
-	 * Unlike `scrollIntoView`, it never scrolls horizontally or moves outer overflow:hidden ancestors,
-	 * which is what made the layout jump while a pane was sliding in.
-	 */
-	#scrollCaretIntoViewVertically(editor: Editor, pos: number) {
-		const { top, bottom } = editor.view.coordsAtPos(pos);
-		const scroller = (() => {
-			for (let el = editor.view.dom.parentElement; el; el = el.parentElement) {
-				if (/(auto|scroll)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight) return el;
-			}
-			return null;
-		})();
-		if (!scroller) return;
-		const area = scroller.getBoundingClientRect();
-		if (top < area.top) scroller.scrollTop += top - area.top;
-		else if (bottom > area.bottom) scroller.scrollTop += bottom - area.bottom;
-	}
+  /**
+   * Brings the caret into view by scrolling only the nearest vertical scroll container.
+   * Unlike `scrollIntoView`, it never scrolls horizontally or moves outer overflow:hidden ancestors,
+   * which is what made the layout jump while a pane was sliding in.
+   */
+  #scrollCaretIntoViewVertically(editor: Editor, pos: number) {
+    const { top, bottom } = editor.view.coordsAtPos(pos);
+    const scroller = (() => {
+      for (let el = editor.view.dom.parentElement; el; el = el.parentElement) {
+        if (
+          /(auto|scroll)/.test(getComputedStyle(el).overflowY) &&
+          el.scrollHeight > el.clientHeight
+        )
+          return el;
+      }
+      return null;
+    })();
+    if (!scroller) return;
+    const area = scroller.getBoundingClientRect();
+    if (top < area.top) scroller.scrollTop += top - area.top;
+    else if (bottom > area.bottom) scroller.scrollTop += bottom - area.bottom;
+  }
 
-	/**
-	 * Nudge the slash menu to reposition when mobile keyboards resize the visual viewport.
-	 */
-	#registerVisualViewportReflow() {
-		const viewport = typeof window !== 'undefined' ? window.visualViewport : null;
-		if (!viewport) return;
+  /**
+   * Nudge the slash menu to reposition when mobile keyboards resize the visual viewport.
+   */
+  #registerVisualViewportReflow() {
+    const viewport =
+      typeof window !== "undefined" ? window.visualViewport : null;
+    if (!viewport) return;
 
-		const reflow = () => {
-			const editor = this.#editor;
-			if (editor?.isFocused) editor.view.dispatch(editor.state.tr);
-		};
+    const reflow = () => {
+      const editor = this.#editor;
+      if (editor?.isFocused) editor.view.dispatch(editor.state.tr);
+    };
 
-		viewport.addEventListener('resize', reflow);
-		this.#visualViewportCleanup = () => viewport.removeEventListener('resize', reflow);
-	}
+    viewport.addEventListener("resize", reflow);
+    this.#visualViewportCleanup = () =>
+      viewport.removeEventListener("resize", reflow);
+  }
 
-	#destroy() {
-		this.#visualViewportCleanup?.();
-		this.#visualViewportCleanup = null;
-		this.#editor?.destroy();
-		this.#editor = null;
-	}
+  #destroy() {
+    this.#visualViewportCleanup?.();
+    this.#visualViewportCleanup = null;
+    this.#editor?.destroy();
+    this.#editor = null;
+  }
 }

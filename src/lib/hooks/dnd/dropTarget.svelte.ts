@@ -6,67 +6,67 @@
  * default styling.
  */
 
-import type { Attachment } from 'svelte/attachments';
-import type { DragPayload, DropTargetOptions } from './types.js';
-import { DropManager, getDropManager } from './manager.svelte.js';
+import type { Attachment } from "svelte/attachments";
+import type { DragPayload, DropTargetOptions } from "./types.js";
+import { DropManager, getDropManager } from "./manager.svelte.js";
 
 /**
  * Reactive drop target state instance bound to an element attachment.
  */
 export class DropTargetInstance {
-	#manager: DropManager;
-	#options: DropTargetOptions;
-	#isOver = $state(false);
-	#canDrop = $state(false);
+  #manager: DropManager;
+  #options: DropTargetOptions;
+  #isOver = $state(false);
+  #canDrop = $state(false);
 
-	constructor(manager: DropManager, options: DropTargetOptions) {
-		this.#manager = manager;
-		this.#options = options;
-	}
+  constructor(manager: DropManager, options: DropTargetOptions) {
+    this.#manager = manager;
+    this.#options = options;
+  }
 
-	get isDragging(): boolean {
-		return this.#manager.isDragging;
-	}
+  get isDragging(): boolean {
+    return this.#manager.isDragging;
+  }
 
-	get isOver(): boolean {
-		return this.#isOver;
-	}
+  get isOver(): boolean {
+    return this.#isOver;
+  }
 
-	get canDrop(): boolean {
-		return this.#canDrop;
-	}
+  get canDrop(): boolean {
+    return this.#canDrop;
+  }
 
-	get activePayload(): DragPayload | null {
-		return this.#manager.activePayload;
-	}
+  get activePayload(): DragPayload | null {
+    return this.#manager.activePayload;
+  }
 
-	get options(): DropTargetOptions {
-		return this.#options;
-	}
+  get options(): DropTargetOptions {
+    return this.#options;
+  }
 
-	updateOptions(newOptions: DropTargetOptions) {
-		this.#options = newOptions;
-	}
+  updateOptions(newOptions: DropTargetOptions) {
+    this.#options = newOptions;
+  }
 
-	setHover(isOver: boolean, canDrop: boolean) {
-		this.#isOver = isOver;
-		this.#canDrop = canDrop;
-	}
+  setHover(isOver: boolean, canDrop: boolean) {
+    this.#isOver = isOver;
+    this.#canDrop = canDrop;
+  }
 
-	// Stable reference so `{@attach target.attach}` is not torn down and re-created on every re-render.
-	#attachment: Attachment<HTMLElement> = (element: HTMLElement) => {
-		const unregister = this.#manager.register(element, this.#options, this);
-		return () => {
-			unregister();
-		};
-	};
+  // Stable reference so `{@attach target.attach}` is not torn down and re-created on every re-render.
+  #attachment: Attachment<HTMLElement> = (element: HTMLElement) => {
+    const unregister = this.#manager.register(element, this.#options, this);
+    return () => {
+      unregister();
+    };
+  };
 
-	/**
-	 * Svelte 5 attachment function to be used with `{@attach target.attach}`
-	 */
-	get attach(): Attachment<HTMLElement> {
-		return this.#attachment;
-	}
+  /**
+   * Svelte 5 attachment function to be used with `{@attach target.attach}`
+   */
+  get attach(): Attachment<HTMLElement> {
+    return this.#attachment;
+  }
 }
 
 /**
@@ -92,8 +92,8 @@ export class DropTargetInstance {
  * instance as the second argument when using an isolated drag scope.
  */
 export function dropTarget<T = unknown>(
-	options: DropTargetOptions<T> = {},
-	manager: DropManager = getDropManager()
+  options: DropTargetOptions<T> = {},
+  manager: DropManager = getDropManager(),
 ): DropTargetInstance {
-	return new DropTargetInstance(manager, options);
+  return new DropTargetInstance(manager, options);
 }

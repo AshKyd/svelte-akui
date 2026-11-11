@@ -8,157 +8,159 @@
  * isolated instance when `setDropManagerContext` provides one via context.
  */
 
-import { createContext } from 'svelte';
-import { SvelteSet } from 'svelte/reactivity';
-import type { DragPayload, DropTargetOptions } from './types.js';
-import type { DropTargetInstance } from './dropTarget.svelte.js';
+import { createContext } from "svelte";
+import { SvelteSet } from "svelte/reactivity";
+import type { DragPayload, DropTargetOptions } from "./types.js";
+import type { DropTargetInstance } from "./dropTarget.svelte.js";
 
 export interface RegisteredTarget {
-	element: HTMLElement;
-	options: DropTargetOptions;
-	state: DropTargetInstance;
+  element: HTMLElement;
+  options: DropTargetOptions;
+  state: DropTargetInstance;
 }
 
 /**
  * Global drag and drop manager for coordinating pointer and drag events with targets.
  */
 export class DropManager {
-	#activePayload = $state<DragPayload | null>(null);
-	#isDragging = $state(false);
-	#activeTarget = $state<RegisteredTarget | null>(null);
-	#targets = new SvelteSet<RegisteredTarget>();
+  #activePayload = $state<DragPayload | null>(null);
+  #isDragging = $state(false);
+  #activeTarget = $state<RegisteredTarget | null>(null);
+  #targets = new SvelteSet<RegisteredTarget>();
 
-	get activePayload(): DragPayload | null {
-		return this.#activePayload;
-	}
+  get activePayload(): DragPayload | null {
+    return this.#activePayload;
+  }
 
-	get isDragging(): boolean {
-		return this.#isDragging;
-	}
+  get isDragging(): boolean {
+    return this.#isDragging;
+  }
 
-	get activeTarget(): RegisteredTarget | null {
-		return this.#activeTarget;
-	}
+  get activeTarget(): RegisteredTarget | null {
+    return this.#activeTarget;
+  }
 
-	/**
-	 * Registers a DOM element as an active drop target.
-	 */
-	register(
-		element: HTMLElement,
-		options: DropTargetOptions,
-		instance: DropTargetInstance
-	): () => void {
-		const targetRecord: RegisteredTarget = {
-			element,
-			options,
-			state: instance
-		};
-		this.#targets.add(targetRecord);
+  /**
+   * Registers a DOM element as an active drop target.
+   */
+  register(
+    element: HTMLElement,
+    options: DropTargetOptions,
+    instance: DropTargetInstance,
+  ): () => void {
+    const targetRecord: RegisteredTarget = {
+      element,
+      options,
+      state: instance,
+    };
+    this.#targets.add(targetRecord);
 
-		return () => {
-			if (this.#activeTarget === targetRecord) {
-				this.#clearActiveTarget();
-			}
-			this.#targets.delete(targetRecord);
-		};
-	}
+    return () => {
+      if (this.#activeTarget === targetRecord) {
+        this.#clearActiveTarget();
+      }
+      this.#targets.delete(targetRecord);
+    };
+  }
 
-	/**
-	 * Initiates a global drag session with the given payload.
-	 */
-	startDrag(payload: DragPayload) {
-		this.#activePayload = payload;
-		this.#isDragging = true;
-	}
+  /**
+   * Initiates a global drag session with the given payload.
+   */
+  startDrag(payload: DragPayload) {
+    this.#activePayload = payload;
+    this.#isDragging = true;
+  }
 
-	/**
-	 * Hit-tests registered targets against pointer coordinates and updates hover states.
-	 */
-	updatePointer(clientX: number, clientY: number) {
-		if (!this.#isDragging || !this.#activePayload) return;
+  /**
+   * Hit-tests registered targets against pointer coordinates and updates hover states.
+   */
+  updatePointer(clientX: number, clientY: number) {
+    if (!this.#isDragging || !this.#activePayload) return;
 
-		// Use document.elementsFromPoint to find the topmost registered drop target
-		const elementsAtPoint =
-			typeof document !== 'undefined' ? document.elementsFromPoint(clientX, clientY) : [];
+    // Use document.elementsFromPoint to find the topmost registered drop target
+    const elementsAtPoint =
+      typeof document !== "undefined"
+        ? document.elementsFromPoint(clientX, clientY)
+        : [];
 
-		let matchedTarget: RegisteredTarget | null = null;
+    let matchedTarget: RegisteredTarget | null = null;
 
-		for (const el of elementsAtPoint) {
-			for (const target of this.#targets) {
-				if (target.element === el || target.element.contains(el)) {
-					matchedTarget = target;
-					break;
-				}
-			}
-			if (matchedTarget) break;
-		}
+    for (const el of elementsAtPoint) {
+      for (const target of this.#targets) {
+        if (target.element === el || target.element.contains(el)) {
+          matchedTarget = target;
+          break;
+        }
+      }
+      if (matchedTarget) break;
+    }
 
-		if (matchedTarget !== this.#activeTarget) {
-			this.#clearActiveTarget();
+    if (matchedTarget !== this.#activeTarget) {
+      this.#clearActiveTarget();
 
-			if (matchedTarget) {
-				const isAllowed = matchedTarget.options.canDrop
-					? matchedTarget.options.canDrop(this.#activePayload)
-					: true;
+      if (matchedTarget) {
+        const isAllowed = matchedTarget.options.canDrop
+          ? matchedTarget.options.canDrop(this.#activePayload)
+          : true;
 
-				matchedTarget.state.setHover(true, isAllowed);
-				if (isAllowed) {
-					matchedTarget.options.ondragenter?.(this.#activePayload);
-				}
-				this.#activeTarget = matchedTarget;
-			}
-		}
-	}
+        matchedTarget.state.setHover(true, isAllowed);
+        if (isAllowed) {
+          matchedTarget.options.ondragenter?.(this.#activePayload);
+        }
+        this.#activeTarget = matchedTarget;
+      }
+    }
+  }
 
-	#clearActiveTarget() {
-		if (this.#activeTarget) {
-			this.#activeTarget.state.setHover(false, false);
-			this.#activeTarget.options.ondragleave?.();
-			this.#activeTarget = null;
-		}
-	}
+  #clearActiveTarget() {
+    if (this.#activeTarget) {
+      this.#activeTarget.state.setHover(false, false);
+      this.#activeTarget.options.ondragleave?.();
+      this.#activeTarget = null;
+    }
+  }
 
-	/**
-	 * Commits drop if pointer is currently over a valid drop target.
-	 * Returns true if handled by a drop target.
-	 */
-	handleDrop(event?: PointerEvent | DragEvent): boolean {
-		if (!this.#isDragging || !this.#activePayload) {
-			this.endDrag();
-			return false;
-		}
+  /**
+   * Commits drop if pointer is currently over a valid drop target.
+   * Returns true if handled by a drop target.
+   */
+  handleDrop(event?: PointerEvent | DragEvent): boolean {
+    if (!this.#isDragging || !this.#activePayload) {
+      this.endDrag();
+      return false;
+    }
 
-		const currentTarget = this.#activeTarget;
-		const payload = this.#activePayload;
+    const currentTarget = this.#activeTarget;
+    const payload = this.#activePayload;
 
-		if (currentTarget && currentTarget.state.canDrop) {
-			currentTarget.options.ondrop?.(payload, event);
-			this.#clearActiveTarget();
-			this.endDrag();
-			return true;
-		}
+    if (currentTarget && currentTarget.state.canDrop) {
+      currentTarget.options.ondrop?.(payload, event);
+      this.#clearActiveTarget();
+      this.endDrag();
+      return true;
+    }
 
-		this.#clearActiveTarget();
-		this.endDrag();
-		return false;
-	}
+    this.#clearActiveTarget();
+    this.endDrag();
+    return false;
+  }
 
-	/**
-	 * Cancels drag operation without triggering a drop.
-	 */
-	cancelDrag() {
-		this.#clearActiveTarget();
-		this.endDrag();
-	}
+  /**
+   * Cancels drag operation without triggering a drop.
+   */
+  cancelDrag() {
+    this.#clearActiveTarget();
+    this.endDrag();
+  }
 
-	/**
-	 * Resets drag state.
-	 */
-	endDrag() {
-		this.#clearActiveTarget();
-		this.#isDragging = false;
-		this.#activePayload = null;
-	}
+  /**
+   * Resets drag state.
+   */
+  endDrag() {
+    this.#clearActiveTarget();
+    this.#isDragging = false;
+    this.#activePayload = null;
+  }
 }
 
 /**
@@ -166,7 +168,8 @@ export class DropManager {
  * drag scope (a portalled overlay, a test) can call `setDropManagerContext(new DropManager())`
  * during component init.
  */
-export const [getDropManagerContext, setDropManagerContext] = createContext<DropManager>();
+export const [getDropManagerContext, setDropManagerContext] =
+  createContext<DropManager>();
 
 /**
  * Browser-wide manager. Lazily created so drag and drop works with no setup and no
@@ -185,12 +188,12 @@ let fallbackManager: DropManager | undefined;
  * gets a throwaway instance — nothing registers targets or drags during SSR.
  */
 export function getDropManager(): DropManager {
-	try {
-		return getDropManagerContext();
-	} catch {
-		if (typeof window === 'undefined') return new DropManager();
-		return (fallbackManager ??= new DropManager());
-	}
+  try {
+    return getDropManagerContext();
+  } catch {
+    if (typeof window === "undefined") return new DropManager();
+    return (fallbackManager ??= new DropManager());
+  }
 }
 
 /**
@@ -198,5 +201,5 @@ export function getDropManager(): DropManager {
  * context) builds a fresh one. For tests that need isolation between cases.
  */
 export function resetDropManager(): void {
-	fallbackManager = undefined;
+  fallbackManager = undefined;
 }

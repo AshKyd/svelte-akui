@@ -1,1 +1,1 @@
-export { default as SelectionHandles } from './SelectionHandles.svelte';
+export { default as SelectionHandles } from "./SelectionHandles.svelte";

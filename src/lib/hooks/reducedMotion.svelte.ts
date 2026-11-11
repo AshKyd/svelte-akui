@@ -1,50 +1,50 @@
-import { safeLocalStorage } from '../utils/safeStorage.js';
+import { safeLocalStorage } from "../utils/safeStorage.js";
 
-const STORAGE_KEY = 'akui-reduced-motion';
+const STORAGE_KEY = "akui-reduced-motion";
 
 /**
  * Tracks reduced-motion preferences. Uses the system setting by default,
  * but allows a user override saved in localStorage.
  */
 class ReducedMotionState {
-	/** Live OS-level `prefers-reduced-motion` value. */
-	systemPrefers = $state(false);
-	/** Explicit user choice, or `null` to follow the system setting. */
-	override = $state<boolean | null>(null);
+  /** Live OS-level `prefers-reduced-motion` value. */
+  systemPrefers = $state(false);
+  /** Explicit user choice, or `null` to follow the system setting. */
+  override = $state<boolean | null>(null);
 
-	/** The effective preference: the override if one is set, otherwise the system setting. */
-	value = $derived(this.override ?? this.systemPrefers);
-	/** True while an explicit override is stored, overriding the system setting. */
-	isOverridden = $derived(this.override !== null);
+  /** The effective preference: the override if one is set, otherwise the system setting. */
+  value = $derived(this.override ?? this.systemPrefers);
+  /** True while an explicit override is stored, overriding the system setting. */
+  isOverridden = $derived(this.override !== null);
 
-	constructor() {
-		if (typeof window === 'undefined') return;
+  constructor() {
+    if (typeof window === "undefined") return;
 
-		const stored = safeLocalStorage.getItem(STORAGE_KEY);
-		if (stored !== null) this.override = stored === 'true';
+    const stored = safeLocalStorage.getItem(STORAGE_KEY);
+    if (stored !== null) this.override = stored === "true";
 
-		const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
-		this.systemPrefers = mql.matches;
-		mql.addEventListener('change', (e) => {
-			this.systemPrefers = e.matches;
-		});
-	}
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    this.systemPrefers = mql.matches;
+    mql.addEventListener("change", (e) => {
+      this.systemPrefers = e.matches;
+    });
+  }
 
-	/** Sets an explicit preference, clearing the stored override when it matches the system setting. */
-	set(next: boolean): void {
-		if (next === this.systemPrefers) {
-			this.override = null;
-			safeLocalStorage.removeItem(STORAGE_KEY);
-			return;
-		}
-		this.override = next;
-		safeLocalStorage.setItem(STORAGE_KEY, String(next));
-	}
+  /** Sets an explicit preference, clearing the stored override when it matches the system setting. */
+  set(next: boolean): void {
+    if (next === this.systemPrefers) {
+      this.override = null;
+      safeLocalStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+    this.override = next;
+    safeLocalStorage.setItem(STORAGE_KEY, String(next));
+  }
 
-	/** Toggles the effective preference. */
-	toggle(): void {
-		this.set(!this.value);
-	}
+  /** Toggles the effective preference. */
+  toggle(): void {
+    this.set(!this.value);
+  }
 }
 
 export const reducedMotion = new ReducedMotionState();
@@ -56,6 +56,8 @@ export const reducedMotion = new ReducedMotionState();
  * Svelte transitions run through the Web Animations API, so the global CSS override in `UIRoot`
  * doesn't reach them. Every `transition:`, `in:` and `out:` should pass its params through this.
  */
-export function motion<T extends { duration?: number; delay?: number }>(params: T): T {
-	return reducedMotion.value ? { ...params, duration: 0, delay: 0 } : params;
+export function motion<T extends { duration?: number; delay?: number }>(
+  params: T,
+): T {
+  return reducedMotion.value ? { ...params, duration: 0, delay: 0 } : params;
 }

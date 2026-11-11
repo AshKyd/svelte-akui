@@ -1,1 +1,1 @@
-export { default as Glow } from './Glow.svelte';
+export { default as Glow } from "./Glow.svelte";

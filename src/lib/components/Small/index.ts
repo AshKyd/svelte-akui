@@ -1,1 +1,1 @@
-export { default as Small } from './Small.svelte';
+export { default as Small } from "./Small.svelte";

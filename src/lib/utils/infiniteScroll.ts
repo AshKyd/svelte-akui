@@ -1,4 +1,4 @@
-import { tick } from 'svelte';
+import { tick } from "svelte";
 
 /**
  * Calls `onloadmore` whenever `sentinel` comes within `rootMargin` of the viewport (or of `root`),
@@ -10,43 +10,43 @@ import { tick } from 'svelte';
  * for its fire-and-forget layout to finish.
  */
 export function observeInfiniteScroll({
-	sentinel,
-	onloadmore,
-	root = null,
-	rootMargin = '1000px',
-	settle = async () => {}
+  sentinel,
+  onloadmore,
+  root = null,
+  rootMargin = "1000px",
+  settle = async () => {},
 }: {
-	sentinel: HTMLElement;
-	onloadmore: () => Promise<void>;
-	root?: HTMLElement | null;
-	rootMargin?: string;
-	settle?: () => Promise<void>;
+  sentinel: HTMLElement;
+  onloadmore: () => Promise<void>;
+  root?: HTMLElement | null;
+  rootMargin?: string;
+  settle?: () => Promise<void>;
 }): () => void {
-	// Not reactive: this guard must not retrigger the caller's effect when it flips.
-	let isLoadingMore = false;
+  // Not reactive: this guard must not retrigger the caller's effect when it flips.
+  let isLoadingMore = false;
 
-	const observer = new IntersectionObserver(
-		async (entries) => {
-			if (!entries[0].isIntersecting || isLoadingMore) return;
-			isLoadingMore = true;
-			try {
-				await onloadmore();
-				await tick();
-				await settle();
+  const observer = new IntersectionObserver(
+    async (entries) => {
+      if (!entries[0].isIntersecting || isLoadingMore) return;
+      isLoadingMore = true;
+      try {
+        await onloadmore();
+        await tick();
+        await settle();
 
-				// IntersectionObserver only reports transitions. When the sentinel is still inside
-				// the root margin — a tall viewport, or a page shorter than the margin — it would
-				// never fire again, so re-observing forces a fresh initial callback and the pages
-				// keep chaining.
-				observer.unobserve(sentinel);
-				observer.observe(sentinel);
-			} finally {
-				isLoadingMore = false;
-			}
-		},
-		{ root, rootMargin }
-	);
+        // IntersectionObserver only reports transitions. When the sentinel is still inside
+        // the root margin — a tall viewport, or a page shorter than the margin — it would
+        // never fire again, so re-observing forces a fresh initial callback and the pages
+        // keep chaining.
+        observer.unobserve(sentinel);
+        observer.observe(sentinel);
+      } finally {
+        isLoadingMore = false;
+      }
+    },
+    { root, rootMargin },
+  );
 
-	observer.observe(sentinel);
-	return () => observer.disconnect();
+  observer.observe(sentinel);
+  return () => observer.disconnect();
 }

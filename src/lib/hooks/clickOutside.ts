@@ -3,8 +3,8 @@
  * Small attachment for dismissing a selection, popover, or menu on an outside click.
  */
 
-import type { Attachment } from 'svelte/attachments';
-import { on } from 'svelte/events';
+import type { Attachment } from "svelte/attachments";
+import { on } from "svelte/events";
 
 /**
  * Attachment that invokes `onOutside` when a pointer press lands outside the attached
@@ -21,15 +21,16 @@ import { on } from 'svelte/events';
  * ```
  */
 export function clickOutside(onOutside: () => void): Attachment<HTMLElement> {
-	return (element) => {
-		return on(
-			document,
-			'pointerdown',
-			(event) => {
-				if (event.target instanceof Node && element.contains(event.target)) return;
-				onOutside();
-			},
-			{ capture: true }
-		);
-	};
+  return (element) => {
+    return on(
+      document,
+      "pointerdown",
+      (event) => {
+        if (event.target instanceof Node && element.contains(event.target))
+          return;
+        onOutside();
+      },
+      { capture: true },
+    );
+  };
 }
