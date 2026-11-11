@@ -17,7 +17,7 @@
     "storybook": "npm run icons && storybook dev -p 6006 --ci",
     "build-storybook": "npm run icons && storybook build",
     "fetch-geonames": "node scripts/fetch-geonames.js",
-    "release": "GITHUB_TOKEN=$(gh auth token) release-it --ci",
+    "release": "GITHUB_TOKEN=$(gh auth token) release-it",
     "release:dry": "GITHUB_TOKEN=$(gh auth token) release-it --ci --dry-run"
   },
   "bin": {
