@@ -15,6 +15,8 @@ const gitignorePath = path.resolve(import.meta.dirname, ".gitignore");
 
 export default defineConfig(
   includeIgnoreFile(gitignorePath),
+  // Stories and specs aren't in the tsconfig project, so the type-aware parser can't load them.
+  { ignores: ["**/*.stories.*", "**/*.spec.*", "**/*.test.*"] },
   js.configs.recommended,
   ts.configs.recommended,
   svelte.configs.recommended,
