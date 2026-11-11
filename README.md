@@ -1,10 +1,10 @@
 # Svelte Akui
 
-A modular UI library built for **Svelte 5** designed for building web apps. This is a personal project, very unstable and likely to change without notice.
+A modular UI library built for Svelte 5 designed for building web apps. This is a personal project, very unstable and likely to change without notice.
 
 ## Getting Started
 
-You can optionally wrap your application in the `UIRoot` component to configure theme preferences (`mode`, `resolvedMode`), base fonts, and design system CSS variables. Individual components and drag-and-drop features work independently with zero setup.
+You can optionally wrap your application in the `UIRoot` component to configure theme preferences (`mode`, `resolvedMode`), base fonts, and design system CSS variables. Individual components and drag-and-drop features work independently of this.
 
 ```svelte
 <script>
@@ -15,6 +15,16 @@ You can optionally wrap your application in the `UIRoot` component to configure 
 	<!-- Your application content here -->
 </UIRoot>
 ```
+
+## Releasing
+
+Releases run locally with `release-it`. Commits must follow Conventional Commits (see `.agents/rules/commits.md`), because the version bump and changelog come from them.
+
+- Run from a clean working tree on `main` with `gh` logged in (`gh auth login`).
+- `npm run release:dry` shows what would happen and changes nothing.
+- `npm run release` runs lint and `npm run check`, picks the next version from the commits (`fix` is a patch, `feat` is a minor, `!` is a major), updates `CHANGELOG.md`, commits, tags `vX.Y.Z`, pushes, creates the GitHub release with the changelog as its notes, and publishes to npm.
+- Pass a version to override the bump, e.g. `npm run release -- 0.1.0`.
+- Push, tag and release are confirmed automatically. `npm publish` asks for your 2FA code.
 
 ## Component Index
 
@@ -124,6 +134,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
   - `actionLabel` and `onAction`: an optional action button.
 
   Timers and bars pause while the list is hovered or focused. New items are announced through a matching `aria-live` region. `position` places it in a fixed corner or `inline`.
+
 - **`Avatar`**: A user picture. Shows `src`, falling back to `initials` (the first two letters, in capitals) if there is no image or it fails to load, then to a person icon. `shape` is `rounded` (default, a square with rounded corners) or `round`. `size` takes any CSS length. It has the standard akui `Glow` edge.
 - **`Thread`, `ThreadItem`, `Message`**: Threaded messages with Reddit-style thread lines.
   - `Thread` wraps the top-level `ThreadItem`s. `size` is `small` (compact), `medium` (default, airy like Slack) or `large` (roomy like WordPress comments). It scales the avatar, spacing, dots, line width and text. `avatarSize` and `gap` override the size's values.
@@ -240,9 +251,7 @@ Components should be composed: wrap any input in a `Field` to add a label.
   	let selected = $state(false);
   </script>
 
-  <div {@attach selected ? clickOutside(() => (selected = false)) : undefined}>
-  	Card content
-  </div>
+  <div {@attach selected ? clickOutside(() => (selected = false)) : undefined}>Card content</div>
   ```
 
 ## Application Shell & Layout
