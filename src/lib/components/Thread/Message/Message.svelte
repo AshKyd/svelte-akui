@@ -94,10 +94,9 @@
   /* Name and username shrink (with ellipsis) before the date or controls do. */
   .akui-message-header {
     display: grid;
-    grid-template-columns: minmax(0, max-content) minmax(
-        0,
-        max-content
-      ) auto 1fr;
+    grid-template-columns:
+      minmax(0, max-content) minmax(0, max-content)
+      auto 1fr;
     align-items: center;
     column-gap: var(--akui-space-s);
   }
