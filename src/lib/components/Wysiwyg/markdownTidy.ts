@@ -8,8 +8,9 @@ const LIST_ITEM_LINE = /^[ \t]*(?:[-*+]|\d+[.)])[ \t]/;
 const THEMATIC_BREAK_LINE = /^[ \t]*([-*_])([ \t]*\1){2,}[ \t]*$/;
 
 /** A line holding only the `&nbsp;` marker Tiptap writes for an empty paragraph. */
-const EMPTY_PARAGRAPH_LINE = /^[ \t]*(?:&nbsp;| )[ \t]*$/;
+const EMPTY_PARAGRAPH_LINE = /^[ \t]*&nbsp;[ \t]*$/;
 
+/** `trim()` also strips a literal non-breaking space, so those lines count as blank. */
 const isBlank = (line: string) => line.trim() === "";
 
 /**
