@@ -2,6 +2,7 @@ import type { Action } from "svelte/action";
 import type { Editor } from "@tiptap/core";
 import type { Node as ProseNode } from "@tiptap/pm/model";
 import type { SlashMenuConfig } from "./slashItems";
+import { tidyMarkdown } from "./markdownTidy";
 
 export type { SlashItem, SlashMenuConfig } from "./slashItems";
 
@@ -47,25 +48,15 @@ export function preserveEmptyChecklistItems(markdown: string): string {
   return markdown.replace(EMPTY_CHECKLIST_ITEM, "$1 ​");
 }
 
-// A task item line, then blank lines, then another task item line.
-const BLANK_LINES_BETWEEN_TASKS =
-  /^([ \t]*[-*+][ \t]\[[ xX]\].*)\n(?:[ \t]*\n)+(?=[ \t]*[-*+][ \t]\[[ xX]\])/gm;
-
 /**
- * Removes blank lines between checklist items.
+ * Markdown as it should be loaded into the editor.
  *
- * Tiptap's markdown parser turns each blank-line-separated item into its own task list, with one
- * item in it. Completing a task moves it within its list, so with one item per list there is nowhere
- * to move it to, and every list grows its own "completed" header. Joining them makes one list. The
- * editor saves checklists without blank lines anyway, so only older notes are affected.
+ * `tidyMarkdown` removes the blank lines Tiptap's parser would turn into empty paragraphs, and
+ * between list items, which it would turn into one list per item. With one item per list, completing
+ * a task has nowhere to move it to and every list grows its own "completed" header.
  */
-export function tightenChecklists(markdown: string): string {
-  return markdown.replace(BLANK_LINES_BETWEEN_TASKS, "$1\n");
-}
-
-/** Markdown as it should be loaded into the editor. */
 const prepareMarkdown = (markdown: string) =>
-  tightenChecklists(preserveEmptyChecklistItems(markdown));
+  tidyMarkdown(preserveEmptyChecklistItems(markdown));
 
 const EMPTY_HEADING_DOC = {
   type: "doc",
@@ -219,10 +210,12 @@ export class WysiwygEditorController {
       const { TaskList } = listModule;
       const { TableKit } = tableModule;
       const { Placeholder } = extras;
-      const [{ Keybindings }, { SvelteTaskItem }] = await Promise.all([
-        import("./extensions/Keybindings"),
-        import("./extensions/TaskItem"),
-      ]);
+      const [{ Keybindings }, { SvelteTaskItem }, { JoinAdjacentLists }] =
+        await Promise.all([
+          import("./extensions/Keybindings"),
+          import("./extensions/TaskItem"),
+          import("./extensions/JoinAdjacentLists"),
+        ]);
 
       if (this.#node !== node) return; // Guard against rapid re-initialization
 
@@ -251,6 +244,7 @@ export class WysiwygEditorController {
         // create one, so column resizing (which needs a drag handle UI) is off.
         TableKit.configure({ table: { resizable: false } }),
         Keybindings,
+        JoinAdjacentLists,
       ];
       if (placeholder) extensions.push(Placeholder.configure({ placeholder }));
 
@@ -308,7 +302,10 @@ export class WysiwygEditorController {
         },
         // Listen to content changes and synchronise value state
         onUpdate: ({ editor }) => {
-          const markdown = preserveEmptyChecklistItems(editor.getMarkdown());
+          // Tidied on the way out too: the serialiser writes each empty paragraph as extra blank lines.
+          const markdown = tidyMarkdown(
+            preserveEmptyChecklistItems(editor.getMarkdown()),
+          );
           if (this.#value === markdown) return;
           this.#value = markdown;
           this.#onChange(markdown);
