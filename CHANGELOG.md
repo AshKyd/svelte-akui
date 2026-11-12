@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/AshKyd/svelte-akui/compare/v1.0.0...v1.0.1) (2026-11-12)
+
+### Bug Fixes
+
+* **editor:** remove irregular whitespace from markdownTidy regex ([504d9ed](https://github.com/AshKyd/svelte-akui/commit/504d9ed3de7cfee3a5d494c1e9120c3c1b5b16f8))
+* **editor:** tidy excess whitespace and join split adjacent lists ([36d8bee](https://github.com/AshKyd/svelte-akui/commit/36d8beeb6a77e64231bdf2828c0bc2e466c6ea27))
+
 ## 1.0.0 (2026-11-11)
 
 ### ⚠ BREAKING CHANGES

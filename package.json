@@ -1,6 +1,6 @@
 {
   "name": "svelte-akui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "dev": "npm run storybook",
     "dev:watch": "svelte-package --watch",
